@@ -15,7 +15,7 @@
     <identifier>MII_KS8721_ID</identifier>
     <bus_type>RMII</bus_type>
   </ethernet_phy>
-  <subtype>STM32L476RG</subtype>
+  <subtype>STM32L476xx</subtype>
   <clocks HSEFrequency="8000000" HSEBypass="false" LSEFrequency="32768"
   	LSEBypass="false" VDD="300" LSEDrive="3 High Drive (default)" />
   <ports>
@@ -1161,7 +1161,9 @@
         Resistor="Floating"
         Level="High"
         Mode="Analog"
-        Alternate="0" />
+        Alternate="0"
+        AnalogSwitch="Disabled"
+        PinLock="Disabled" />
       <pin1
         ID="OSC_OUT"
         Type="PushPull"

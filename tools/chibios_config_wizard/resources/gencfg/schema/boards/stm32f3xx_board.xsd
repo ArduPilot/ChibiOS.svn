@@ -15,16 +15,17 @@
                     	<xs:simpleType>
                     		<xs:restriction base="xs:string">
                     			<xs:whiteSpace value="collapse"></xs:whiteSpace>
-                    			<xs:enumeration value="STM32F302x8"></xs:enumeration>
+                                <xs:enumeration value="STM32F301x8"></xs:enumeration>
+                                <xs:enumeration value="STM32F302x8"></xs:enumeration>
                     			<xs:enumeration value="STM32F302xC"></xs:enumeration>
                     			<xs:enumeration value="STM32F302xE"></xs:enumeration>
                     			<xs:enumeration value="STM32F303x8"></xs:enumeration>
                     			<xs:enumeration value="STM32F303xC"></xs:enumeration>
                     			<xs:enumeration value="STM32F303xE"></xs:enumeration>
-                    			<xs:enumeration value="STM32F318xx"></xs:enumeration>
-                    			<xs:enumeration value="STM32F328xx"></xs:enumeration>
+                    			<xs:enumeration value="STM32F318x8"></xs:enumeration>
+                    			<xs:enumeration value="STM32F328x8"></xs:enumeration>
                     			<xs:enumeration value="STM32F334x8"></xs:enumeration>
-                    			<xs:enumeration value="STM32F358xx"></xs:enumeration>
+                    			<xs:enumeration value="STM32F358xC"></xs:enumeration>
                     			<xs:enumeration value="STM32F373xC"></xs:enumeration>
                     			<xs:enumeration value="STM32F378xx"></xs:enumeration>
                     			<xs:enumeration value="STM32F398xx"></xs:enumeration>

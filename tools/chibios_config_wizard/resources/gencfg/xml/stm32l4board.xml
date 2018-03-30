@@ -16,12 +16,8 @@
     <bus_type>RMII</bus_type>
   </ethernet_phy>
   <subtype>STM32L476RG</subtype>
-  <clocks
-    HSEFrequency="8000000"
-    HSEBypass="false"
-    LSEFrequency="32768"
-    LSEBypass="false"
-    VDD="300" />
+  <clocks HSEFrequency="8000000" HSEBypass="false" LSEFrequency="32768"
+  	LSEBypass="false" VDD="300" LSEDrive="3 High Drive (default)" />
   <ports>
     <GPIOA>
       <pin0

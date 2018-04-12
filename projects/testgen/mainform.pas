@@ -6,19 +6,23 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Menus,
-  ComCtrls, ExtCtrls, ActnList, LCLType;
+  ComCtrls, ExtCtrls, ActnList, LCLType, DOM, XMLRead, XMLWrite;
 
 type
 
-  { TForm1 }
+  { TSuiteForm }
+  EXMLSuiteException = class(Exception)
+  public
+  end;
 
-  TForm1 = class(TForm)
+  TSuiteForm = class(TForm)
     AboutAction: TAction;
     NewMenuItem: TMenuItem;
     NewAction: TAction;
     HelpMenuItem: TMenuItem;
     AboutMenuItem: TMenuItem;
     OpenAction: TAction;
+    MainOpenDialog: TOpenDialog;
     SaveAction: TAction;
     CloseAction: TAction;
     ExitAction: TAction;
@@ -48,37 +52,46 @@ type
     procedure AboutActionExecute(Sender: TObject);
     procedure CloseActionExecute(Sender: TObject);
     procedure ExitActionExecute(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure NewActionExecute(Sender: TObject);
     procedure OpenActionExecute(Sender: TObject);
     procedure SaveActionExecute(Sender: TObject);
   private
     { private declarations }
+    Suite: TXMLDocument;
+    procedure CloseAll;
+    procedure RefreshTree;
   public
     { public declarations }
   end;
 
 var
-  Form1: TForm1;
+  SuiteForm: TSuiteForm;
 
 implementation
 
 {$R *.lfm}
 
-{ TForm1 }
+{ TSuiteForm }
 
-procedure TForm1.ExitActionExecute(Sender: TObject);
+procedure TSuiteForm.FormCreate(Sender: TObject);
+begin
+  Suite := nil;
+end;
+
+procedure TSuiteForm.ExitActionExecute(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TForm1.AboutActionExecute(Sender: TObject);
+procedure TSuiteForm.AboutActionExecute(Sender: TObject);
 begin
   Application.MessageBox('ChibiOS Test Suite Editor' + sLineBreak + 'Version 0.0.1',
                          'About',
                          MB_ICONINFORMATION);
 end;
 
-procedure TForm1.NewActionExecute(Sender: TObject);
+procedure TSuiteForm.NewActionExecute(Sender: TObject);
 begin
   NewAction.Enabled := False;
   OpenAction.Enabled := False;
@@ -86,25 +99,64 @@ begin
   CloseAction.Enabled := True;
 end;
 
-procedure TForm1.OpenActionExecute(Sender: TObject);
+procedure TSuiteForm.OpenActionExecute(Sender: TObject);
 begin
-  NewAction.Enabled := False;
-  OpenAction.Enabled := False;
-  SaveAction.Enabled := True;
-  CloseAction.Enabled := True;
+  try
+    if MainOpenDialog.Execute then
+    begin
+      FreeAndNil(Suite);
+      ReadXMLFile(Suite, MainOpenDialog.FileName);
+      NewAction.Enabled := False;
+      OpenAction.Enabled := False;
+      SaveAction.Enabled := True;
+      CloseAction.Enabled := True;
+    end;
+  except
+    Application.MessageBox('XML file load failed',
+                           'About',
+                           MB_ICONERROR);
+    CloseAll;
+    Exit
+  end;
+  try
+    RefreshTree;
+  except
+    on e: EXMLSuiteException do
+      Application.MessageBox(PChar(e.Message),
+                             'About',
+                             MB_ICONERROR);
+  end;
 end;
 
-procedure TForm1.SaveActionExecute(Sender: TObject);
+procedure TSuiteForm.SaveActionExecute(Sender: TObject);
 begin
 
 end;
 
-procedure TForm1.CloseActionExecute(Sender: TObject);
+procedure TSuiteForm.CloseActionExecute(Sender: TObject);
 begin
+  CloseAll;
+end;
+
+procedure TSuiteForm.CloseAll;
+begin
+  FreeAndNil(Suite);
   NewAction.Enabled := True;
   OpenAction.Enabled := True;
   SaveAction.Enabled := False;
   CloseAction.Enabled := False;
+end;
+
+procedure TSuiteForm.RefreshTree;
+var
+  s: string;
+begin
+  // Verifying the root element, it must be "suite".
+  s := UTF8Encode(Suite.DocumentElement.NodeName);
+  if s <> 'suite' then
+  begin
+    raise EXMLSuiteException.Create('XML ''suite'' element not found');
+  end;
 end;
 
 end.

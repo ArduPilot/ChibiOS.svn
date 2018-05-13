@@ -2,7 +2,7 @@
                           ftdi.h  -  description
                              -------------------
     begin                : Fri Apr 4 2003
-    copyright            : (C) 2003-2014 by Intra2net AG and the libftdi developers
+    copyright            : (C) 2003-2017 by Intra2net AG and the libftdi developers
     email                : opensource@intra2net.com
  ***************************************************************************/
 
@@ -18,7 +18,9 @@
 #define __libftdi_h__
 
 #include <stdint.h>
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
 
 /* 'interface' might be defined as a macro on Windows, so we need to
  * undefine it so as not to break the current libftdi API, because
@@ -265,7 +267,7 @@ struct ftdi_context
     struct ftdi_eeprom *eeprom;
 
     /** String representation of last error */
-    char *error_str;
+    const char *error_str;
 
     /** Defines behavior in case a kernel module is already attached to the device */
     enum ftdi_module_detach_mode module_detach_mode;
@@ -487,6 +489,11 @@ extern "C"
                               char *manufacturer, int mnf_len,
                               char *description, int desc_len,
                               char *serial, int serial_len);
+
+    int ftdi_eeprom_get_strings(struct ftdi_context *ftdi,
+                                char *manufacturer, int mnf_len,
+                                char *product, int prod_len,
+                                char *serial, int serial_len);
     int ftdi_eeprom_set_strings(struct ftdi_context *ftdi, char * manufacturer,
                                 char * product, char * serial);
 
@@ -495,6 +502,7 @@ extern "C"
                            const char* description, const char* serial);
     int ftdi_usb_open_desc_index(struct ftdi_context *ftdi, int vendor, int product,
                                  const char* description, const char* serial, unsigned int index);
+    int ftdi_usb_open_bus_addr(struct ftdi_context *ftdi, uint8_t bus, uint8_t addr);
     int ftdi_usb_open_dev(struct ftdi_context *ftdi, struct libusb_device *dev);
     int ftdi_usb_open_string(struct ftdi_context *ftdi, const char* description);
 
@@ -568,7 +576,7 @@ extern "C"
     int ftdi_read_eeprom_location (struct ftdi_context *ftdi, int eeprom_addr, unsigned short *eeprom_val);
     int ftdi_write_eeprom_location(struct ftdi_context *ftdi, int eeprom_addr, unsigned short eeprom_val);
 
-    char *ftdi_get_error_string(struct ftdi_context *ftdi);
+    const char *ftdi_get_error_string(struct ftdi_context *ftdi);
 
 #ifdef __cplusplus
 }

@@ -2,11 +2,11 @@
                           ftdi.hpp  -  C++ wrapper for libftdi
                              -------------------
     begin                : Mon Oct 13 2008
-    copyright            : (C) 2008-2014 by Marek Vavruša and libftdi developers
+    copyright            : (C) 2008-2017 by Marek Vavruša and libftdi developers
     email                : opensource@intra2net.com and marek@vavrusa.com
  ***************************************************************************/
 /*
-Copyright (C) 2008-2014 by Marek Vavruša and libftdi developers
+Copyright (C) 2008-2017 by Marek Vavruša and libftdi developers
 
 The software in this package is distributed under the GNU General
 Public License version 2 (with a special exception described below).
@@ -55,16 +55,16 @@ public:
      */
     enum Direction
     {
-        Input,
-        Output
+        Input = 0x2,
+        Output = 0x1,
     };
 
     /*! \brief Modem control flags.
      */
     enum ModemCtl
     {
-        Dtr,
-        Rts
+        Dtr = 0x2,
+        Rts = 0x1,
     };
 
     /* Constructor, Destructor */
@@ -100,7 +100,7 @@ public:
 
     /* I/O */
     int read(unsigned char *buf, int size);
-    int write(unsigned char *buf, int size);
+    int write(const unsigned char *buf, int size);
     int set_read_chunk_size(unsigned int chunksize);
     int set_write_chunk_size(unsigned int chunksize);
     int read_chunk_size();
@@ -108,7 +108,7 @@ public:
 
     /* Async IO
     TODO: should wrap?
-    int writeAsync(unsigned char *buf, int size);
+    int writeAsync(const unsigned char *buf, int size);
     void asyncComplete(int wait_for_more);
     */
 
@@ -131,11 +131,11 @@ public:
     int read_pins(unsigned char *pins);
 
     /* Misc */
-    char* error_string();
+    const char* error_string();
 
 protected:
-    int get_strings();
-    int get_strings_and_reopen();
+    int get_strings(bool vendor=true, bool description=true, bool serial=true);
+    int get_strings_and_reopen(bool vendor=true, bool description=true, bool serial=true);
 
     /* Properties */
     struct ftdi_context* context();

@@ -1,4 +1,4 @@
-Open On-Chip Debugger 0.10.0+dev-00226-g1c2e3d41d (2017-12-23-10:15)
+Open On-Chip Debugger 0.10.0+dev-00410-gf0767a316 (2018-05-13-11:33)
 
 Built by RoccoMarco <guglielmir@playembedded.org>
 This has been built under windows using msys2. For more info about the procedure take a look at 

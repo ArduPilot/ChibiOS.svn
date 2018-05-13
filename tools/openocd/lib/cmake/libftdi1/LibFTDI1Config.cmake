@@ -44,9 +44,9 @@ set ( LIBFTDIPP_LIBRARIES  "ftdipp1;/mingw32/lib/libusb-1.0.dll.a" )
 set ( LIBFTDI_LIBRARY_DIRS "/mingw32/bin" )
 set ( LIBFTDI_ROOT_DIR     "/mingw32" )
 
-set ( LIBFTDI_VERSION_STRING "1.3" )
+set ( LIBFTDI_VERSION_STRING "1.4" )
 set ( LIBFTDI_VERSION_MAJOR  "1" )
-set ( LIBFTDI_VERSION_MINOR  "3" )
+set ( LIBFTDI_VERSION_MINOR  "4" )
 set ( LIBFTDI_VERSION_PATCH  "" )
 
 set ( LIBFTDI_PYTHON_MODULE_PATH "/mingw32/lib/python3.6/site-packages" )

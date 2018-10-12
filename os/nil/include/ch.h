@@ -55,12 +55,12 @@
 /**
  * @brief   Kernel version string.
  */
-#define CH_KERNEL_VERSION       "3.0.0"
+#define CH_KERNEL_VERSION       "4.0.0"
 
 /**
  * @brief   Kernel version major number.
  */
-#define CH_KERNEL_MAJOR         3
+#define CH_KERNEL_MAJOR         4
 
 /**
  * @brief   Kernel version minor number.
@@ -137,12 +137,15 @@
  * @name    Thread state related macros
  * @{
  */
-#define NIL_STATE_READY         (tstate_t)0 /**< @brief Thread ready or
+#define NIL_STATE_WTSTART       (tstate_t)0 /**< @brief Thread not yet
+                                                 started or terminated.     */
+#define NIL_STATE_READY         (tstate_t)1 /**< @brief Thread ready or
                                                  executing.                 */
-#define NIL_STATE_SLEEPING      (tstate_t)1 /**< @brief Thread sleeping.    */
-#define NIL_STATE_SUSP          (tstate_t)2 /**< @brief Thread suspended.   */
-#define NIL_STATE_WTQUEUE       (tstate_t)3 /**< @brief On queue or semaph. */
-#define NIL_STATE_WTOREVT       (tstate_t)4 /**< @brief Waiting for events. */
+#define NIL_STATE_SLEEPING      (tstate_t)2 /**< @brief Thread sleeping.    */
+#define NIL_STATE_SUSP          (tstate_t)3 /**< @brief Thread suspended.   */
+#define NIL_STATE_WTQUEUE       (tstate_t)4 /**< @brief On queue or semaph. */
+#define NIL_STATE_WTOREVT       (tstate_t)5 /**< @brief Waiting for events. */
+#define NIL_THD_IS_WTSTART(tp)  ((tp)->state == NIL_STATE_WTSTART)
 #define NIL_THD_IS_READY(tp)    ((tp)->state == NIL_STATE_READY)
 #define NIL_THD_IS_SLEEPING(tp) ((tp)->state == NIL_STATE_SLEEPING)
 #define NIL_THD_IS_SUSP(tp)     ((tp)->state == NIL_STATE_SUSP)
@@ -463,11 +466,6 @@
 #define CH_CFG_ST_FREQUENCY                 1000
 #endif
 
-/* Restricted subsystems.*/
-#undef CH_CFG_USE_MAILBOXES
-
-#define CH_CFG_USE_MAILBOXES                FALSE
-
 #endif /* (CH_LICENSE_FEATURES == CH_FEATURES_INTERMEDIATE) ||
           (CH_LICENSE_FEATURES == CH_FEATURES_BASIC) */
 
@@ -477,15 +475,6 @@
 /* Tick-Less mode restricted.*/
 #undef CH_CFG_ST_TIMEDELTA
 #define CH_CFG_ST_TIMEDELTA                 0
-
-/* Restricted subsystems.*/
-#undef CH_CFG_USE_MEMCORE
-#undef CH_CFG_USE_MEMPOOLS
-#undef CH_CFG_USE_HEAP
-
-#define CH_CFG_USE_MEMCORE                  FALSE
-#define CH_CFG_USE_MEMPOOLS                 FALSE
-#define CH_CFG_USE_HEAP                     FALSE
 
 #endif /* CH_LICENSE_FEATURES == CH_FEATURES_BASIC */
 
@@ -619,6 +608,7 @@ typedef struct nil_thread_cfg thread_config_t;
  * @brief   Structure representing a thread static configuration.
  */
 struct nil_thread_cfg {
+  bool              autostart;  /**< @brief Thread auto-start if true.      */
   stkalign_t        *wbase;     /**< @brief Thread working area base.       */
   stkalign_t        *wend;      /**< @brief Thread working area end.        */
   const char        *namep;     /**< @brief Thread name, for debugging.     */
@@ -752,9 +742,19 @@ struct nil_system {
 
 /**
  * @brief   Entry of user threads table
+ * @note    Legacy macro, auto-start is assumed.
  */
 #define THD_TABLE_ENTRY(wap, name, funcp, arg)                              \
-  {wap, ((stkalign_t *)(wap)) + (sizeof (wap) / sizeof(stkalign_t)),        \
+  {false, wap, ((stkalign_t *)(wap)) + (sizeof (wap) / sizeof(stkalign_t)), \
+   name, funcp, arg},
+
+/**
+ * @brief   Entry of user threads table
+ * @note    Legacy macro, auto-start is assumed.
+ */
+#define THD_TABLE_ITEM(autostart, wap, name, funcp, arg)                    \
+  {autostart, wap,                                                          \
+   ((stkalign_t *)(wap)) + (sizeof (wap) / sizeof(stkalign_t)),             \
    name, funcp, arg},
 
 /**
@@ -1545,6 +1545,7 @@ extern "C" {
   msg_t chSchGoSleepTimeoutS(tstate_t newstate, sysinterval_t timeout);
   msg_t chThdSuspendTimeoutS(thread_reference_t *trp, sysinterval_t timeout);
   void chThdResumeI(thread_reference_t *trp, msg_t msg);
+  void chThdResume(thread_reference_t *trp, msg_t msg);
   void chThdSleep(sysinterval_t timeout);
   void chThdSleepUntil(systime_t abstime);
   msg_t chThdEnqueueTimeoutS(threads_queue_t *tqp, sysinterval_t timeout);

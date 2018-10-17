@@ -1,0 +1,22 @@
+Ideas for NIL-4:
+
+- It should be possible to start/terminate threads.
+- Add chthdExit() and chThdWait().
+- Any change must not sacrifice minimal size which is NIL strong point.
+  - Maximum size is going to grow depending on enabled additional features.
+- Add synchronous messages.
+- Add thread local storage option (storing the argument pointer in the thread
+  structure), Add a function chThdGetArgument(), add it to RT too.
+
+Open points:
+
+- Remove the autostart table or keep it? or add it to RT too? make it optional?
+- Should it get the full events like RT? if so, move events to library and make
+  it a shared module?
+- Split it in multiple files or keep everything in one module?
+  - It is growing, it makes no sense to still cram it all in a single file.
+- Is there the risk for NIL to lose identity? it is getting closer to RT.
+  - It will never have dynamic priorities, virtual timers, priority
+    inheritance, real mutexes, condition variables, dynamic threads,
+    advanced debugging, registry, statistics, tracing, high resolution,
+    time measurement. Is this sufficient?

@@ -745,12 +745,11 @@ struct nil_system {
  * @note    Legacy macro, auto-start is assumed.
  */
 #define THD_TABLE_ENTRY(wap, name, funcp, arg)                              \
-  {false, wap, ((stkalign_t *)(wap)) + (sizeof (wap) / sizeof(stkalign_t)), \
+  {true, wap, ((stkalign_t *)(wap)) + (sizeof (wap) / sizeof(stkalign_t)),  \
    name, funcp, arg},
 
 /**
- * @brief   Entry of user threads table
- * @note    Legacy macro, auto-start is assumed.
+ * @brief   Item of user threads table
  */
 #define THD_TABLE_ITEM(autostart, wap, name, funcp, arg)                    \
   {autostart, wap,                                                          \
@@ -761,7 +760,7 @@ struct nil_system {
  * @brief   End of user threads table.
  */
 #define THD_TABLE_END                                                       \
-  {THD_IDLE_BASE, THD_IDLE_END, "idle", NULL, NULL}                         \
+  {true, THD_IDLE_BASE, THD_IDLE_END, "idle", NULL, NULL}                   \
 };
 /** @} */
 

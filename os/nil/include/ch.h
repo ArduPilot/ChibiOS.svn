@@ -143,12 +143,14 @@
                                                  executing.                 */
 #define NIL_STATE_SLEEPING      (tstate_t)2 /**< @brief Thread sleeping.    */
 #define NIL_STATE_SUSP          (tstate_t)3 /**< @brief Thread suspended.   */
-#define NIL_STATE_WTQUEUE       (tstate_t)4 /**< @brief On queue or semaph. */
-#define NIL_STATE_WTOREVT       (tstate_t)5 /**< @brief Waiting for events. */
+#define NIL_STATE_WTEXIT        (tstate_t)4 /**< @brief Waiting a thread.  */
+#define NIL_STATE_WTQUEUE       (tstate_t)5 /**< @brief On queue or semaph. */
+#define NIL_STATE_WTOREVT       (tstate_t)6 /**< @brief Waiting for events. */
 #define NIL_THD_IS_WTSTART(tp)  ((tp)->state == NIL_STATE_WTSTART)
 #define NIL_THD_IS_READY(tp)    ((tp)->state == NIL_STATE_READY)
 #define NIL_THD_IS_SLEEPING(tp) ((tp)->state == NIL_STATE_SLEEPING)
-#define NIL_THD_IS_SUSP(tp)     ((tp)->state == NIL_STATE_SUSP)
+#define NIL_THD_IS_SUSP(tp)     ((tp)->state == NIL_STATE_WTEXIT)
+#define NIL_THD_IS_WTEXIT(tp)   ((tp)->state == NIL_STATE_SUSP)
 #define NIL_THD_IS_WTQUEUE(tp)  ((tp)->state == NIL_STATE_WTQUEUE)
 #define NIL_THD_IS_WTOREVT(tp)  ((tp)->state == NIL_STATE_WTOREVT)
 /** @} */
@@ -173,12 +175,23 @@
 /*===========================================================================*/
 
 /*-*
- * @brief   Number of user threads in the application.
+ * @brief   Maximum number of user threads in the application.
  * @note    This number is not inclusive of the idle thread which is
  *          implicitly handled.
+ * @note    Set this value to be exactly equal to the number of threads you
+ *          will use or you would be wasting RAM and cycles.
+ * @note    This values also defines the number of available priorities
+ *          (0..CH_CFG_MAX_THREADS-1).
  */
-#if !defined(CH_CFG_NUM_THREADS) || defined(__DOXYGEN__)
-#define CH_CFG_NUM_THREADS                  2
+#if !defined(CH_CFG_MAX_THREADS) || defined(__DOXYGEN__)
+#define CH_CFG_MAX_THREADS                  2
+#endif
+
+/*-*
+ * @brief   Auto starts threads when @p chSysInit() is invoked.
+ */
+#if !defined(CH_CFG_AUTOSTART_THREADS) || defined(__DOXYGEN__)
+#define CH_CFG_AUTOSTART_THREADS            TRUE
 #endif
 
 /*-*
@@ -411,6 +424,14 @@
 #endif
 
 /*-*
+ * @brief   Threads finalization hook.
+ * @details User finalization code added to the @p chThdExit() API.
+ */
+#if !defined(CH_CFG_THREAD_EXT_INIT_HOOK) || defined(__DOXYGEN__)
+#define CH_CFG_THREAD_EXIT_HOOK(tp) {}
+#endif
+
+/*-*
  * @brief   Idle thread enter hook.
  * @note    This hook is invoked within a critical zone, no OS functions
  *          should be invoked from here.
@@ -486,11 +507,11 @@
 #error "obsolete or unknown configuration file"
 #endif
 
-#if CH_CFG_NUM_THREADS < 1
+#if CH_CFG_MAX_THREADS < 1
 #error "at least one thread must be defined"
 #endif
 
-#if CH_CFG_NUM_THREADS > 16
+#if CH_CFG_MAX_THREADS > 16
 #error "ChibiOS/NIL is not recommended for thread-intensive applications,"  \
        "consider ChibiOS/RT instead"
 #endif
@@ -608,10 +629,10 @@ typedef struct nil_thread_cfg thread_config_t;
  * @brief   Structure representing a thread static configuration.
  */
 struct nil_thread_cfg {
-  bool              autostart;  /**< @brief Thread auto-start if true.      */
+  tprio_t           prio;       /**< @brief Thread priority slot.           */
+  const char        *namep;     /**< @brief Thread name, for debugging.     */
   stkalign_t        *wbase;     /**< @brief Thread working area base.       */
   stkalign_t        *wend;      /**< @brief Thread working area end.        */
-  const char        *namep;     /**< @brief Thread name, for debugging.     */
   tfunc_t           funcp;      /**< @brief Thread function.                */
   void              *arg;       /**< @brief Thread function argument.       */
 };
@@ -634,6 +655,7 @@ struct nil_thread {
     void                *p;         /**< @brief Generic pointer.            */
     thread_reference_t  *trp;       /**< @brief Pointer to thread reference.*/
     threads_queue_t     *tqp;       /**< @brief Pointer to thread queue.    */
+    thread_t            *tp;        /**< @brief Pointer to thread.          */
 #if (CH_CFG_USE_SEMAPHORES == TRUE) || defined(__DOXYGEN__)
     semaphore_t         *semp;      /**< @brief Pointer to semaphore.       */
 #endif
@@ -713,7 +735,7 @@ struct nil_system {
   /**
    * @brief   Thread structures for all the defined threads.
    */
-  thread_t              threads[CH_CFG_NUM_THREADS + 1];
+  thread_t              threads[CH_CFG_MAX_THREADS + 1];
 };
 
 /*===========================================================================*/
@@ -738,29 +760,21 @@ struct nil_system {
  * @brief   Start of user threads table.
  */
 #define THD_TABLE_BEGIN                                                     \
-  const thread_config_t nil_thd_configs[CH_CFG_NUM_THREADS + 1] = {
+  const thread_config_t nil_thd_configs[] = {
 
 /**
  * @brief   Entry of user threads table
- * @note    Legacy macro, auto-start is assumed.
  */
-#define THD_TABLE_ENTRY(wap, name, funcp, arg)                              \
-  {true, wap, ((stkalign_t *)(wap)) + (sizeof (wap) / sizeof(stkalign_t)),  \
-   name, funcp, arg},
-
-/**
- * @brief   Item of user threads table
- */
-#define THD_TABLE_ITEM(autostart, wap, name, funcp, arg)                    \
-  {autostart, wap,                                                          \
-   ((stkalign_t *)(wap)) + (sizeof (wap) / sizeof(stkalign_t)),             \
-   name, funcp, arg},
+#define THD_TABLE_THREAD(prio, name, wap, funcp, arg)                       \
+  {prio, name,                                                              \
+   wap, ((stkalign_t *)(wap)) + (sizeof (wap) / sizeof(stkalign_t)),        \
+   funcp, arg},
 
 /**
  * @brief   End of user threads table.
  */
 #define THD_TABLE_END                                                       \
-  {true, THD_IDLE_BASE, THD_IDLE_END, "idle", NULL, NULL}                   \
+  {CH_CFG_MAX_THREADS, "idle", THD_IDLE_BASE, THD_IDLE_END, NULL, NULL}                   \
 };
 /** @} */
 
@@ -1522,7 +1536,7 @@ struct nil_system {
 extern stkalign_t __main_thread_stack_base__, __main_thread_stack_end__;
 #endif
 extern nil_system_t nil;
-extern const thread_config_t nil_thd_configs[CH_CFG_NUM_THREADS + 1];
+extern const thread_config_t nil_thd_configs[];
 #endif
 
 #ifdef __cplusplus
@@ -1542,6 +1556,12 @@ extern "C" {
   void chSchDoReschedule(void);
   void chSchRescheduleS(void);
   msg_t chSchGoSleepTimeoutS(tstate_t newstate, sysinterval_t timeout);
+  thread_t *chThdCreateI(const thread_config_t *tcp);
+  thread_t *chThdCreate(const thread_config_t *tcp);
+  void chThdExit(msg_t msg);
+#if 0
+  msg_t chThdWait(thread_t *tp);
+#endif
   msg_t chThdSuspendTimeoutS(thread_reference_t *trp, sysinterval_t timeout);
   void chThdResumeI(thread_reference_t *trp, msg_t msg);
   void chThdResume(thread_reference_t *trp, msg_t msg);

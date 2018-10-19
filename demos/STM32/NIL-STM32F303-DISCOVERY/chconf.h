@@ -39,11 +39,20 @@
 /*===========================================================================*/
 
 /**
- * @brief   Number of user threads in the application.
+ * @brief   Maximum number of user threads in the application.
  * @note    This number is not inclusive of the idle thread which is
- *          Implicitly handled.
+ *          implicitly handled.
+ * @note    Set this value to be exactly equal to the number of threads you
+ *          will use or you would be wasting RAM and cycles.
+ * @note    This values also defines the number of available priorities
+ *          (0..CH_CFG_MAX_THREADS-1).
  */
-#define CH_CFG_NUM_THREADS                  4
+#define CH_CFG_MAX_THREADS                  4
+
+/**
+ * @brief   Auto starts threads when @p chSysInit() is invoked.
+ */
+#define CH_CFG_AUTOSTART_THREADS            TRUE
 
 /** @} */
 
@@ -309,6 +318,14 @@
  */
 #define CH_CFG_THREAD_EXT_INIT_HOOK(tr) {                                   \
   /* Add custom threads initialization code here.*/                         \
+}
+
+/**
+ * @brief   Threads finalization hook.
+ * @details User finalization code added to the @p chThdExit() API.
+ */
+#define CH_CFG_THREAD_EXIT_HOOK(tp) {                                       \
+  /* Add threads finalization code here.*/                                  \
 }
 
 /**

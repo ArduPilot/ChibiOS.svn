@@ -245,8 +245,11 @@ test_println("");]]></value>
                       <value />
                     </tags>
                     <code>
-                      <value><![CDATA[test_print("--- CH_CFG_NUM_THREADS:                 ");
-test_printn(CH_CFG_NUM_THREADS);
+                      <value><![CDATA[test_print("--- CH_CFG_MAX_THREADS:                 ");
+test_printn(CH_CFG_MAX_THREADS);
+test_println("");
+test_print("--- CH_CFG_AUTOSTART_THREADS:           ");
+test_printn(CH_CFG_AUTOSTART_THREADS);
 test_println("");
 test_print("--- CH_CFG_ST_RESOLUTION:               ");
 test_printn(CH_CFG_ST_RESOLUTION);
@@ -304,6 +307,9 @@ test_printn(CH_CFG_FACTORY_MAILBOXES);
 test_println("");
 test_print("--- CH_CFG_FACTORY_OBJ_FIFOS:           ");
 test_printn(CH_CFG_FACTORY_OBJ_FIFOS);
+test_println("");
+test_print("--- CH_CFG_FACTORY_PIPES:               ");
+test_printn(CH_CFG_FACTORY_PIPES);
 test_println("");
 test_print("--- CH_DBG_STATISTICS:                  ");
 test_printn(CH_DBG_STATISTICS);

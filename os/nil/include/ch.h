@@ -587,19 +587,30 @@ typedef uint32_t time_conv_t;
 #endif
 
 /**
+ * @brief   Type of a structure representing the system.
+ */
+typedef struct nil_system nil_system_t;
+
+/**
+ * @brief Thread function.
+ */
+typedef void (*tfunc_t)(void *p);
+
+/**
+ * @brief   Type of a structure representing a thread static configuration.
+ */
+typedef struct nil_thread_cfg thread_config_t;
+
+/**
  * @brief   Type of a structure representing a thread.
  * @note    It is required as an early definition.
  */
 typedef struct nil_thread thread_t;
 
-#include "chcore.h"
-
 /**
- * @brief   Structure representing a queue of threads.
+ * @brief   Type of a thread reference.
  */
-struct nil_threads_queue {
-  volatile cnt_t    cnt;        /**< @brief Threads Queue counter.          */
-};
+typedef thread_t * thread_reference_t;
 
 /**
  * @brief   Type of a queue of threads.
@@ -615,15 +626,15 @@ typedef struct nil_threads_queue threads_queue_t;
 typedef threads_queue_t semaphore_t;
 #endif /* CH_CFG_USE_SEMAPHORES == TRUE */
 
-/**
- * @brief Thread function.
- */
-typedef void (*tfunc_t)(void *p);
+/* Late inclusion of port core layer.*/
+#include "chcore.h"
 
 /**
- * @brief   Type of a structure representing a thread static configuration.
+ * @brief   Structure representing a queue of threads.
  */
-typedef struct nil_thread_cfg thread_config_t;
+struct nil_threads_queue {
+  volatile cnt_t    cnt;        /**< @brief Threads Queue counter.          */
+};
 
 /**
  * @brief   Structure representing a thread static configuration.
@@ -638,21 +649,17 @@ struct nil_thread_cfg {
 };
 
 /**
- * @brief   Type of a thread reference.
- */
-typedef thread_t * thread_reference_t;
-
-/**
  * @brief   Structure representing a thread.
  */
 struct nil_thread {
   struct port_context   ctx;        /**< @brief Processor context.          */
   tstate_t              state;      /**< @brief Thread state.               */
   /* Note, the following union contains a pointer while the thread is in a
-     sleeping state (!NIL_THD_IS_READY()) else contains the wake-up message.*/
+     sleeping state or NULL if the thread is not initialized.*/
   union {
     msg_t               msg;        /**< @brief Wake-up message.            */
     void                *p;         /**< @brief Generic pointer.            */
+    nil_system_t        *nsp;       /**< @brief Pointer to nil base struct. */
     thread_reference_t  *trp;       /**< @brief Pointer to thread reference.*/
     threads_queue_t     *tqp;       /**< @brief Pointer to thread queue.    */
     thread_t            *tp;        /**< @brief Pointer to thread.          */
@@ -674,11 +681,6 @@ struct nil_thread {
   /* Optional extra fields.*/
   CH_CFG_THREAD_EXT_FIELDS
 };
-
-/**
- * @brief   Type of a structure representing the system.
- */
-typedef struct nil_system nil_system_t;
 
 /**
  * @brief   System data structure.

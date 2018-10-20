@@ -146,7 +146,8 @@
 #define NIL_STATE_WTEXIT        (tstate_t)4 /**< @brief Waiting a thread.   */
 #define NIL_STATE_WTQUEUE       (tstate_t)5 /**< @brief On queue or semaph. */
 #define NIL_STATE_WTOREVT       (tstate_t)6 /**< @brief Waiting for events. */
-#define NIL_STATE_FINAL         (tstate_t)7 /**< @brief Thread terminated.  */
+#define NIL_STATE_WTANDEVT      (tstate_t)7 /**< @brief Waiting for events. */
+#define NIL_STATE_FINAL         (tstate_t)8 /**< @brief Thread terminated.  */
 
 #define NIL_THD_IS_WTSTART(tp)      ((tp)->state == NIL_STATE_WTSTART)
 #define NIL_THD_IS_READY(tp)        ((tp)->state == NIL_STATE_READY)
@@ -155,11 +156,12 @@
 #define NIL_THD_IS_WTEXIT(tp)       ((tp)->state == NIL_STATE_SUSP)
 #define NIL_THD_IS_WTQUEUE(tp)      ((tp)->state == NIL_STATE_WTQUEUE)
 #define NIL_THD_IS_WTOREVT(tp)      ((tp)->state == NIL_STATE_WTOREVT)
+#define NIL_THD_IS_WTANDEVT(tp)     ((tp)->state == NIL_STATE_WTANDEVT)
 #define NIL_THD_IS_FINAL(tp)        ((tp)->state == NIL_STATE_FINAL)
 
 #define CH_STATE_NAMES                                                      \
   "WTSTART", "READY", "SLEEPING", "SUSPENDED", "WTEXIT", "WTQUEUE",         \
-  "WTOREVT", "FINAL"
+  "WTOREVT", "WTANDEVT", "FINAL"
 /** @} */
 
 /**
@@ -1603,6 +1605,7 @@ extern "C" {
   void chEvtSignal(thread_t *tp, eventmask_t mask);
   void chEvtSignalI(thread_t *tp, eventmask_t mask);
   eventmask_t chEvtWaitAnyTimeout(eventmask_t mask, sysinterval_t timeout);
+  eventmask_t chEvtWaitAllTimeout(eventmask_t mask, sysinterval_t timeout);
 #endif
 #if CH_DBG_SYSTEM_STATE_CHECK == TRUE
   void _dbg_check_disable(void);

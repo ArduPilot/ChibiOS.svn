@@ -1246,8 +1246,10 @@ void chEvtSignalI(thread_t *tp, eventmask_t mask) {
   chDbgCheck(tp != NULL);
 
   tp->epmask |= mask;
-  if (NIL_THD_IS_WTOREVT(tp) &&
-      ((tp->epmask & tp->u1.ewmask) != (eventmask_t)0)) {
+  if ((NIL_THD_IS_WTOREVT(tp) &&
+       ((tp->epmask & tp->u1.ewmask) != (eventmask_t)0)) ||
+      (NIL_THD_IS_WTANDEVT(tp) &&
+       ((tp->epmask & tp->u1.ewmask) == tp->u1.ewmask))) {
     (void) chSchReadyI(tp, MSG_OK);
   }
 }
@@ -1293,6 +1295,46 @@ eventmask_t chEvtWaitAnyTimeout(eventmask_t mask, sysinterval_t timeout) {
   chSysUnlock();
 
   return m;
+}
+
+/**
+ * @brief   Waits for all the specified events.
+ * @details The function waits for all the events specified in @p mask to
+ *          become pending then the events are cleared and returned.
+ *
+ * @param[in] mask      mask of the event flags that the function should wait
+ *                      for, @p ALL_EVENTS enables all the events
+ * @param[in] timeout   the number of ticks before the operation timeouts,
+ *                      the following special values are allowed:
+ *                      - @a TIME_IMMEDIATE immediate timeout.
+ *                      - @a TIME_INFINITE no timeout.
+ *                      .
+ * @return              The mask of the served and cleared events.
+ * @retval 0            if the operation has timed out.
+ *
+ * @api
+ */
+eventmask_t chEvtWaitAllTimeout(eventmask_t mask, sysinterval_t timeout) {
+  thread_t *ctp = nil.current;
+
+  chSysLock();
+  if ((ctp->epmask & mask) != mask) {
+    if (TIME_IMMEDIATE == timeout) {
+      chSysUnlock();
+
+      return (eventmask_t)0;
+    }
+    ctp->u1.ewmask = mask;
+    if (chSchGoSleepTimeoutS(NIL_STATE_WTANDEVT, timeout) < MSG_OK) {
+      chSysUnlock();
+
+      return (eventmask_t)0;
+    }
+  }
+  ctp->epmask &= ~mask;
+  chSysUnlock();
+
+  return mask;
 }
 #endif /* CH_CFG_USE_EVENTS == TRUE */
 

@@ -142,17 +142,24 @@
 #define NIL_STATE_READY         (tstate_t)1 /**< @brief Thread ready or
                                                  executing.                 */
 #define NIL_STATE_SLEEPING      (tstate_t)2 /**< @brief Thread sleeping.    */
-#define NIL_STATE_SUSP          (tstate_t)3 /**< @brief Thread suspended.   */
-#define NIL_STATE_WTEXIT        (tstate_t)4 /**< @brief Waiting a thread.  */
+#define NIL_STATE_SUSPENDED     (tstate_t)3 /**< @brief Thread suspended.   */
+#define NIL_STATE_WTEXIT        (tstate_t)4 /**< @brief Waiting a thread.   */
 #define NIL_STATE_WTQUEUE       (tstate_t)5 /**< @brief On queue or semaph. */
 #define NIL_STATE_WTOREVT       (tstate_t)6 /**< @brief Waiting for events. */
-#define NIL_THD_IS_WTSTART(tp)  ((tp)->state == NIL_STATE_WTSTART)
-#define NIL_THD_IS_READY(tp)    ((tp)->state == NIL_STATE_READY)
-#define NIL_THD_IS_SLEEPING(tp) ((tp)->state == NIL_STATE_SLEEPING)
-#define NIL_THD_IS_SUSP(tp)     ((tp)->state == NIL_STATE_WTEXIT)
-#define NIL_THD_IS_WTEXIT(tp)   ((tp)->state == NIL_STATE_SUSP)
-#define NIL_THD_IS_WTQUEUE(tp)  ((tp)->state == NIL_STATE_WTQUEUE)
-#define NIL_THD_IS_WTOREVT(tp)  ((tp)->state == NIL_STATE_WTOREVT)
+#define NIL_STATE_FINAL         (tstate_t)7 /**< @brief Thread terminated.  */
+
+#define NIL_THD_IS_WTSTART(tp)      ((tp)->state == NIL_STATE_WTSTART)
+#define NIL_THD_IS_READY(tp)        ((tp)->state == NIL_STATE_READY)
+#define NIL_THD_IS_SLEEPING(tp)     ((tp)->state == NIL_STATE_SLEEPING)
+#define NIL_THD_IS_SUSPENDED(tp)    ((tp)->state == NIL_STATE_WTEXIT)
+#define NIL_THD_IS_WTEXIT(tp)       ((tp)->state == NIL_STATE_SUSP)
+#define NIL_THD_IS_WTQUEUE(tp)      ((tp)->state == NIL_STATE_WTQUEUE)
+#define NIL_THD_IS_WTOREVT(tp)      ((tp)->state == NIL_STATE_WTOREVT)
+#define NIL_THD_IS_FINAL(tp)        ((tp)->state == NIL_STATE_FINAL)
+
+#define CH_STATE_NAMES                                                      \
+  "WTSTART", "READY", "SLEEPING", "SUSPENDED", "WTEXIT", "WTQUEUE",         \
+  "WTOREVT", "FINAL"
 /** @} */
 
 /**
@@ -222,6 +229,17 @@
  */
 #if !defined(CH_CFG_ST_TIMEDELTA) || defined(__DOXYGEN__)
 #define CH_CFG_ST_TIMEDELTA                 0
+#endif
+
+/*-*
+ * @brief   Threads synchronization APIs.
+ * @details If enabled then the @p chThdWait() function is included in
+ *          the kernel.
+ *
+ * @note    The default is @p TRUE.
+ */
+#if !defined(CH_CFG_USE_WAITEXIT)
+#define CH_CFG_USE_WAITEXIT                 TRUE
 #endif
 
 /*-*
@@ -654,8 +672,8 @@ struct nil_thread_cfg {
 struct nil_thread {
   struct port_context   ctx;        /**< @brief Processor context.          */
   tstate_t              state;      /**< @brief Thread state.               */
-  /* Note, the following union contains a pointer while the thread is in a
-     sleeping state or NULL if the thread is not initialized.*/
+  /* Note, the following union contains a pointer/value while the thread is
+     in a sleeping state or a wake-up message when the thread is made ready.*/
   union {
     msg_t               msg;        /**< @brief Wake-up message.            */
     void                *p;         /**< @brief Generic pointer.            */
@@ -1561,7 +1579,7 @@ extern "C" {
   thread_t *chThdCreateI(const thread_config_t *tcp);
   thread_t *chThdCreate(const thread_config_t *tcp);
   void chThdExit(msg_t msg);
-#if 0
+#if CH_CFG_USE_WAITEXIT == TRUE
   msg_t chThdWait(thread_t *tp);
 #endif
   msg_t chThdSuspendTimeoutS(thread_reference_t *trp, sysinterval_t timeout);

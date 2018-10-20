@@ -97,6 +97,15 @@
 /*===========================================================================*/
 
 /**
+ * @brief   Threads synchronization APIs.
+ * @details If enabled then the @p chThdWait() function is included in
+ *          the kernel.
+ *
+ * @note    The default is @p TRUE.
+ */
+#define CH_CFG_USE_WAITEXIT                 TRUE
+
+/**
  * @brief   Semaphores APIs.
  * @details If enabled then the Semaphores APIs are included in the kernel.
  *

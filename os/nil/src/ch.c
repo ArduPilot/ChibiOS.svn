@@ -48,6 +48,59 @@ nil_system_t nil;
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
+/**
+ * @brief   Retrieves the highest priority thread in the specified state and
+ *          associated to the specified object.
+ * @note    The search is unbounded, the thread is assumed to exist.
+ *
+ * @param[in] state     thread state
+ * @param[in] p         object pointer
+ */
+static thread_t *nil_find_thread(tstate_t state, void * p) {
+  thread_t *tp = nil.threads;
+
+  while (true) {
+    /* Is this thread matching?*/
+    if ((tp->state == state) && (tp->u1.p == p)) {
+      return tp;
+    }
+    tp++;
+
+    chDbgAssert(tp < &nil.threads[CH_CFG_MAX_THREADS],
+                "pointer out of range");
+  }
+}
+
+/**
+ * @brief   Puts in ready state all thread matching the specified status and
+ *          associated object.
+ *
+ * @param[in] p         object pointer
+ * @param[in] cnt       number of threads to be readied as a negative number,
+ *                      non negative numbers are ignored
+ * @param[in] msg       the wakeup message
+ *
+ * @iclass
+ */
+static cnt_t nil_ready_all(void * p, cnt_t cnt, msg_t msg) {
+  thread_t *tp = nil.threads;;
+
+  while (cnt < (cnt_t)0) {
+
+    chDbgAssert(tp < &nil.threads[CH_CFG_MAX_THREADS],
+                "pointer out of range");
+
+    /* Is this thread waiting on this queue?*/
+    if ((tp->state == NIL_STATE_WTQUEUE) && (tp->u1.p == p)) {
+      cnt++;
+      (void) chSchReadyI(tp, msg);
+    }
+    tp++;
+  }
+
+  return cnt;
+}
+
 /*===========================================================================*/
 /* Module interrupt handlers.                                                */
 /*===========================================================================*/
@@ -369,7 +422,7 @@ void chSysTimerHandlerI(void) {
           tp->u1.tqp->cnt++;
         }
         else {
-          if (NIL_THD_IS_SUSP(tp)) {
+          if (NIL_THD_IS_SUSPENDED(tp)) {
             *tp->u1.trp = NULL;
           }
         }
@@ -699,7 +752,8 @@ thread_t *chThdCreateI(const thread_config_t *tcp) {
 
   /* Pointer to the thread slot to be used.*/
   tp = &nil.threads[tcp->prio];
-  chDbgAssert(NIL_THD_IS_WTSTART(tp), "priority slot taken");
+  chDbgAssert(NIL_THD_IS_WTSTART(tp) || NIL_THD_IS_FINAL(tp),
+              "priority slot taken");
 
 #if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || defined(__DOXYGEN__)
   tp->wabase = (stkalign_t *)wbase;
@@ -765,37 +819,27 @@ void chThdExit(msg_t msg) {
   /* Exit handler hook.*/
   CH_CFG_THREAD_EXIT_HOOK(tp);
 
-#if 0 //CH_CFG_USE_WAITEXIT == TRUE
+#if CH_CFG_USE_WAITEXIT == TRUE
   {
     /* Waking up any waiting thread.*/
     thread_t *tp = nil.threads;
-
-    while (tp <= nil.next) {
+    while (tp < &nil.threads[CH_CFG_MAX_THREADS]) {
       /* Is this thread waiting for current thread termination?*/
-      if (tp->u1.tp == tp) {
-
-        chDbgAssert(NIL_THD_IS_WTQUEUE(tp), "not waiting");
-
+      if ((tp->state == NIL_STATE_WTEXIT) && (tp->u1.tp == nil.current)) {
         (void) chSchReadyI(tp, msg);
       }
       tp++;
-
-      chDbgAssert(tp < &nil.threads[CH_CFG_MAX_THREADS],
-                  "pointer out of range");
     }
   }
 #endif
 
-  /* Going into final state, the NULL pointer prevents comparison match with
-     any object reference.*/
-  nil.current->u1.p = NULL;
-  chSchGoSleepTimeoutS(NIL_STATE_WTSTART, msg);
+  /* Going into final state with exit message stored.*/
+  chSchGoSleepTimeoutS(NIL_STATE_FINAL, msg);
 
   /* The thread never returns here.*/
   chDbgAssert(false, "zombies apocalypse");
 }
 
-#if 0
 /**
  * @brief   Blocks the execution of the invoking thread until the specified
  *          thread terminates then the exit code is returned.
@@ -809,13 +853,17 @@ msg_t chThdWait(thread_t *tp) {
   msg_t msg;
 
   chSysLock();
-  nil.current->u1.tp = tp;
-  msg = chSchGoSleepTimeoutS(NIL_THD_IS_WTEXIT, TIME_INFINITE);
+  if (NIL_THD_IS_FINAL(tp)) {
+    msg = tp->u1.msg;
+  }
+  else {
+    nil.current->u1.tp = tp;
+    msg = chSchGoSleepTimeoutS(NIL_STATE_WTEXIT, TIME_INFINITE);
+  }
   chSysUnlock();
 
   return msg;
 }
-#endif
 
 /**
  * @brief   Sends the current thread sleeping and sets a reference variable.
@@ -837,7 +885,7 @@ msg_t chThdSuspendTimeoutS(thread_reference_t *trp, sysinterval_t timeout) {
 
   *trp = nil.current;
   nil.current->u1.trp = trp;
-  return chSchGoSleepTimeoutS(NIL_STATE_SUSP, timeout);
+  return chSchGoSleepTimeoutS(NIL_STATE_SUSPENDED, timeout);
 }
 
 /**
@@ -855,7 +903,7 @@ void chThdResumeI(thread_reference_t *trp, msg_t msg) {
   if (*trp != NULL) {
     thread_reference_t tr = *trp;
 
-    chDbgAssert(NIL_THD_IS_SUSP(tr), "not suspended");
+    chDbgAssert(NIL_THD_IS_SUSPENDED(tr), "not suspended");
 
     *trp = NULL;
     (void) chSchReadyI(tr, msg);
@@ -960,25 +1008,13 @@ msg_t chThdEnqueueTimeoutS(threads_queue_t *tqp, sysinterval_t timeout) {
  * @iclass
  */
 void chThdDoDequeueNextI(threads_queue_t *tqp, msg_t msg) {
-  thread_t *tp = nil.threads;
+  thread_t *tp;
 
   chDbgAssert(tqp->cnt < (cnt_t)0, "empty queue");
 
-  while (true) {
-    /* Is this thread waiting on this queue?*/
-    if (tp->u1.tqp == tqp) {
-      tqp->cnt++;
-
-      chDbgAssert(NIL_THD_IS_WTQUEUE(tp), "not waiting");
-
-      (void) chSchReadyI(tp, msg);
-      return;
-    }
-    tp++;
-
-    chDbgAssert(tp < &nil.threads[CH_CFG_MAX_THREADS],
-                "pointer out of range");
-  }
+  tqp->cnt++;
+  tp = nil_find_thread(NIL_STATE_WTQUEUE, (void *)tqp);
+  (void) chSchReadyI(tp, msg);
 }
 
 /**
@@ -1009,27 +1045,11 @@ void chThdDequeueNextI(threads_queue_t *tqp, msg_t msg) {
  * @iclass
  */
 void chThdDequeueAllI(threads_queue_t *tqp, msg_t msg) {
-  thread_t *tp;
 
   chDbgCheckClassI();
   chDbgCheck(tqp != NULL);
 
-  tp = nil.threads;
-  while (tqp->cnt < (cnt_t)0) {
-
-    chDbgAssert(tp < &nil.threads[CH_CFG_MAX_THREADS],
-                "pointer out of range");
-
-    /* Is this thread waiting on this queue?*/
-    if (tp->u1.tqp == tqp) {
-
-      chDbgAssert(NIL_THD_IS_WTQUEUE(tp), "not waiting");
-
-      tqp->cnt++;
-      (void) chSchReadyI(tp, msg);
-    }
-    tp++;
-  }
+  tqp->cnt = nil_ready_all((void *)tqp, tqp->cnt, msg);
 }
 
 #if (CH_CFG_USE_SEMAPHORES == TRUE) || defined(__DOXYGEN__)
@@ -1091,13 +1111,16 @@ msg_t chSemWaitTimeoutS(semaphore_t *sp, sysinterval_t timeout) {
   cnt_t cnt = sp->cnt;
   if (cnt <= (cnt_t)0) {
     if (TIME_IMMEDIATE == timeout) {
+
       return MSG_TIMEOUT;
     }
     sp->cnt = cnt - (cnt_t)1;
     nil.current->u1.semp = sp;
+
     return chSchGoSleepTimeoutS(NIL_STATE_WTQUEUE, timeout);
   }
   sp->cnt = cnt - (cnt_t)1;
+
   return MSG_OK;
 }
 
@@ -1133,21 +1156,8 @@ void chSemSignalI(semaphore_t *sp) {
   chDbgCheck(sp != NULL);
 
   if (++sp->cnt <= (cnt_t)0) {
-    thread_t *tp = nil.threads;
-    while (true) {
-      /* Is this thread waiting on this semaphore?*/
-      if (tp->u1.semp == sp) {
-
-        chDbgAssert(NIL_THD_IS_WTQUEUE(tp), "not waiting");
-
-        (void) chSchReadyI(tp, MSG_OK);
-        return;
-      }
-      tp++;
-
-      chDbgAssert(tp < &nil.threads[CH_CFG_MAX_THREADS],
-                  "pointer out of range");
-    }
+    thread_t *tp = nil_find_thread(NIL_STATE_WTQUEUE, (void *)sp);
+    (void) chSchReadyI(tp, MSG_OK);
   }
 }
 
@@ -1188,7 +1198,6 @@ void chSemReset(semaphore_t *sp, cnt_t n) {
  * @iclass
  */
 void chSemResetI(semaphore_t *sp, cnt_t n) {
-  thread_t *tp;
   cnt_t cnt;
 
   chDbgCheckClassI();
@@ -1196,22 +1205,9 @@ void chSemResetI(semaphore_t *sp, cnt_t n) {
 
   cnt = sp->cnt;
   sp->cnt = n;
-  tp = nil.threads;
-  while (cnt < (cnt_t)0) {
 
-    chDbgAssert(tp < &nil.threads[CH_CFG_MAX_THREADS],
-                "pointer out of range");
-
-    /* Is this thread waiting on this semaphore?*/
-    if (tp->u1.semp == sp) {
-
-      chDbgAssert(NIL_THD_IS_WTQUEUE(tp), "not waiting");
-
-      cnt++;
-      (void) chSchReadyI(tp, MSG_RESET);
-    }
-    tp++;
-  }
+  /* Does nothing for cnt >= 0, calling anyway.*/
+  (void) nil_ready_all((void *)sp, cnt, MSG_RESET);
 }
 #endif /* CH_CFG_USE_SEMAPHORES == TRUE */
 

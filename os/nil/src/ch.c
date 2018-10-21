@@ -659,7 +659,7 @@ void chSchRescheduleS(void) {
  * @param[in] timeout   the number of ticks before the operation timeouts.
  *                      the following special values are allowed:
  *                      - @a TIME_INFINITE no timeout.
- *
+ *                      .
  * @return              The wakeup message.
  * @retval NIL_MSG_TMO  if a timeout occurred.
  *
@@ -873,8 +873,9 @@ msg_t chThdWait(thread_t *tp) {
  * @param[in] trp       a pointer to a thread reference object
  * @param[in] timeout   the number of ticks before the operation timeouts,
  *                      the following special values are allowed:
+ *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *
+ *                      .
  * @return              The wake up message.
  *
  * @sclass
@@ -882,6 +883,10 @@ msg_t chThdWait(thread_t *tp) {
 msg_t chThdSuspendTimeoutS(thread_reference_t *trp, sysinterval_t timeout) {
 
   chDbgAssert(*trp == NULL, "not NULL");
+
+  if (TIME_IMMEDIATE == timeout) {
+    return MSG_TIMEOUT;
+  }
 
   *trp = nil.current;
   nil.current->u1.trp = trp;
@@ -965,12 +970,9 @@ void chThdSleepUntil(systime_t abstime) {
  * @param[in] tqp       pointer to the threads queue object
  * @param[in] timeout   the timeout in system ticks, the special values are
  *                      handled as follow:
- *                      - @a TIME_INFINITE the thread enters an infinite sleep
- *                        state.
- *                      - @a TIME_IMMEDIATE the thread is not enqueued and
- *                        the function returns @p MSG_TIMEOUT as if a timeout
- *                        occurred.
- *
+ *                      - @a TIME_IMMEDIATE immediate timeout.
+ *                      - @a TIME_INFINITE no timeout.
+ *                      .
  * @return              The message from @p osalQueueWakeupOneI() or
  *                      @p osalQueueWakeupAllI() functions.
  * @retval MSG_TIMEOUT  if the thread has not been dequeued within the
@@ -1061,7 +1063,7 @@ void chThdDequeueAllI(threads_queue_t *tqp, msg_t msg) {
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *
+ *                      .
  * @return              A message specifying how the invoking thread has been
  *                      released from the semaphore.
  * @retval NIL_MSG_OK   if the thread has not stopped on the semaphore or the
@@ -1090,7 +1092,7 @@ msg_t chSemWaitTimeout(semaphore_t *sp, sysinterval_t timeout) {
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *
+ *                      .
  * @return              A message specifying how the invoking thread has been
  *                      released from the semaphore.
  * @retval NIL_MSG_OK   if the thread has not stopped on the semaphore or the
@@ -1266,7 +1268,7 @@ void chEvtSignalI(thread_t *tp, eventmask_t mask) {
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *
+ *                      .
  * @return              The mask of the served and cleared events.
  * @retval 0            if the operation has timed out.
  *

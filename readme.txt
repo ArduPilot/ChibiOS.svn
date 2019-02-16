@@ -86,6 +86,7 @@
 *****************************************************************************
 
 *** 18.2.3 ***
+- FIX: Fixed invalid AXI errata fix for STM32H7xx (bug #1014).
 - FIX: Fixed invalid ADCD3 initialization in STM32 ADCv3 driver (bug #1013).
 - FIX: Fixed wrong license restriction check in Nil (bug #1011).
 

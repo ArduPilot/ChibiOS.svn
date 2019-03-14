@@ -30,24 +30,24 @@
 #  LIBFTDI_PYTHON_MODULE_PATH - Path to the python module
 
 set ( LIBFTDI_FOUND 1 )
-set ( LIBFTDI_USE_FILE     "/mingw32/lib/cmake/libftdi1/UseLibFTDI1.cmake" )
+set ( LIBFTDI_USE_FILE     "/mingw64/lib/cmake/libftdi1/UseLibFTDI1.cmake" )
 
 set ( LIBFTDI_DEFINITIONS  "" )
-set ( LIBFTDI_INCLUDE_DIR  "/mingw32/include/libftdi1" )
-set ( LIBFTDI_INCLUDE_DIRS "/mingw32/include/libftdi1" )
+set ( LIBFTDI_INCLUDE_DIR  "/mingw64/include/libftdi1" )
+set ( LIBFTDI_INCLUDE_DIRS "/mingw64/include/libftdi1" )
 set ( LIBFTDI_LIBRARY      "ftdi1" )
-set ( LIBFTDI_LIBRARIES    "ftdi1;/mingw32/lib/libusb-1.0.dll.a" )
+set ( LIBFTDI_LIBRARIES    "ftdi1;/mingw64/lib/libusb-1.0.dll.a" )
 set ( LIBFTDI_STATIC_LIBRARY      "ftdi1.a" )
-set ( LIBFTDI_STATIC_LIBRARIES    "ftdi1.a;/mingw32/lib/libusb-1.0.dll.a" )
+set ( LIBFTDI_STATIC_LIBRARIES    "ftdi1.a;/mingw64/lib/libusb-1.0.dll.a" )
 set ( LIBFTDIPP_LIBRARY    "ftdipp1" )
-set ( LIBFTDIPP_LIBRARIES  "ftdipp1;/mingw32/lib/libusb-1.0.dll.a" )
-set ( LIBFTDI_LIBRARY_DIRS "/mingw32/bin" )
-set ( LIBFTDI_ROOT_DIR     "/mingw32" )
+set ( LIBFTDIPP_LIBRARIES  "ftdipp1;/mingw64/lib/libusb-1.0.dll.a" )
+set ( LIBFTDI_LIBRARY_DIRS "/mingw64/bin" )
+set ( LIBFTDI_ROOT_DIR     "/mingw64" )
 
 set ( LIBFTDI_VERSION_STRING "1.4" )
 set ( LIBFTDI_VERSION_MAJOR  "1" )
 set ( LIBFTDI_VERSION_MINOR  "4" )
 set ( LIBFTDI_VERSION_PATCH  "" )
 
-set ( LIBFTDI_PYTHON_MODULE_PATH "/mingw32/lib/python3.6/site-packages" )
+set ( LIBFTDI_PYTHON_MODULE_PATH "/mingw64/lib/python3.7/site-packages" )
 

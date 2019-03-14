@@ -1,8 +1,8 @@
 #!/bin/sh
 
-prefix=/mingw32
+prefix=/mingw64
 exec_prefix=${prefix}
-includedir=/mingw32/include/libusb-compat
+includedir=/mingw64/include/libusb-compat
 libdir=${exec_prefix}/lib
 exec_prefix_set=no
 

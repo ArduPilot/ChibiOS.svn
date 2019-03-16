@@ -87,6 +87,7 @@
 
 *** 18.2.3 ***
 - NEW: Extra timer checks in STM32 ST driver.
+- FIX: Fixed various UART clock naming errors in STM32H7 HAL (bug #1021).
 - FIX: Fixed wrong ADCSEL definitions in STM32H7 HAL (bug #1016).
 - FIX: Fixed chTimeIsInRangeX() failing under some configurations (bug #1015).
 - FIX: Fixed invalid AXI errata fix for STM32H7xx (bug #1014).

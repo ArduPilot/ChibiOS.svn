@@ -1,7 +1,7 @@
-prefix=/mingw64
+prefix=/mingw32
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
-includedir=/mingw64/include/libusb-compat
+includedir=/mingw32/include/libusb-compat
 
 emulated=1
 emulated_by=libusb-1.0

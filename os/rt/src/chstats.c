@@ -55,19 +55,6 @@
 /*===========================================================================*/
 
 /**
- * @brief   Initializes the statistics module.
- *
- * @init
- */
-void _stats_init(void) {
-
-  ch.kernel_stats.n_irq = (ucnt_t)0;
-  ch.kernel_stats.n_ctxswc = (ucnt_t)0;
-  chTMObjectInit(&ch.kernel_stats.m_crit_thd);
-  chTMObjectInit(&ch.kernel_stats.m_crit_isr);
-}
-
-/**
  * @brief   Increases the IRQ counter.
  */
 void _stats_increase_irq(void) {

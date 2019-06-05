@@ -71,7 +71,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void _vt_init(void);
   void chVTDoSetI(virtual_timer_t *vtp, sysinterval_t delay,
                   vtfunc_t vtfunc, void *par);
   void chVTDoResetI(virtual_timer_t *vtp);
@@ -82,6 +81,26 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+/**
+ * @brief   Virtual Timers instance initialization.
+ * @note    Internal use only.
+ *
+ * @param[out] sdp      pointer to the @p system_debug_t structure
+ *
+ * @notapi
+ */
+static inline void __vt_object_init(virtual_timers_list_t *vtlp) {
+
+  vtlp->next  = (virtual_timer_t *)vtlp;
+  vtlp->prev  = (virtual_timer_t *)vtlp;
+  vtlp->delta = (sysinterval_t)-1;
+#if CH_CFG_ST_TIMEDELTA == 0
+  vtlp->systime = (systime_t)0;
+#else /* CH_CFG_ST_TIMEDELTA > 0 */
+  vtlp->lasttime = (systime_t)0;
+#endif /* CH_CFG_ST_TIMEDELTA > 0 */
+}
 
 /**
  * @brief   Initializes a @p virtual_timer_t object.

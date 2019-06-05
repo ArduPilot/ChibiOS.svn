@@ -53,24 +53,6 @@
 /*===========================================================================*/
 
 /**
- * @brief   Virtual Timers initialization.
- * @note    Internal use only.
- *
- * @notapi
- */
-void _vt_init(void) {
-
-  ch.vtlist.next = (virtual_timer_t *)&ch.vtlist;
-  ch.vtlist.prev = (virtual_timer_t *)&ch.vtlist;
-  ch.vtlist.delta = (sysinterval_t)-1;
-#if CH_CFG_ST_TIMEDELTA == 0
-  ch.vtlist.systime = (systime_t)0;
-#else /* CH_CFG_ST_TIMEDELTA > 0 */
-  ch.vtlist.lasttime = (systime_t)0;
-#endif /* CH_CFG_ST_TIMEDELTA > 0 */
-}
-
-/**
  * @brief   Enables a virtual timer.
  * @details The timer is enabled and programmed to trigger after the delay
  *          specified as parameter.

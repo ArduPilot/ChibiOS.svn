@@ -88,7 +88,6 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void _tm_init(void);
   void chTMObjectInit(time_measurement_t *tmp);
   NOINLINE void chTMStartMeasurementX(time_measurement_t *tmp);
   NOINLINE void chTMStopMeasurementX(time_measurement_t *tmp);
@@ -101,6 +100,27 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+/**
+ * @brief   Time measurement initialization.
+ * @note    Internal use only.
+ *
+ * @param[out] tcp      pointer to the @p tm_calibration_t structure
+ *
+ * @notapi
+ */
+static inline void __tm_object_init(tm_calibration_t *tcp) {
+  time_measurement_t tm;
+
+  /* Time Measurement subsystem calibration, it does a null measurement
+     and calculates the call overhead which is subtracted to real
+     measurements.*/
+  tcp->offset = (rtcnt_t)0;
+  chTMObjectInit(&tm);
+  chTMStartMeasurementX(&tm);
+  chTMStopMeasurementX(&tm);
+  tcp->offset = tm.last;
+}
 
 #endif /* CH_CFG_USE_TM == TRUE */
 

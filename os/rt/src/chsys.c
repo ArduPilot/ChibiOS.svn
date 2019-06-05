@@ -99,59 +99,14 @@ static void _idle_thread(void *p) {
  */
 void chSysInit(void) {
 
-  _scheduler_init();
-  _vt_init();
-  _trace_init();
-  _oslib_init();
+  /* OS library modules.*/
+  __oslib_init();
 
-#if CH_DBG_SYSTEM_STATE_CHECK == TRUE
-  ch.dbg.isr_cnt  = (cnt_t)0;
-  ch.dbg.lock_cnt = (cnt_t)0;
-#endif
-#if CH_CFG_USE_TM == TRUE
-  _tm_init();
-#endif
-#if CH_DBG_STATISTICS == TRUE
-  _stats_init();
-#endif
-
-#if CH_CFG_NO_IDLE_THREAD == FALSE
-  /* Now this instructions flow becomes the main thread.*/
-#if CH_CFG_USE_REGISTRY == TRUE
-  currp = _thread_init(&ch.mainthread, (const char *)&ch_debug, NORMALPRIO);
-#else
-  currp = _thread_init(&ch.mainthread, "main", NORMALPRIO);
-#endif
-#else
-  /* Now this instructions flow becomes the idle thread.*/
-  currp = _thread_init(&ch.mainthread, "idle", IDLEPRIO);
-#endif
-
-#if CH_DBG_ENABLE_STACK_CHECK == TRUE
-  {
-    /* Setting up the base address of the static main thread stack, the
-       symbol must be provided externally.*/
-    extern stkalign_t __main_thread_stack_base__;
-    currp->wabase = &__main_thread_stack_base__;
-  }
-#elif CH_CFG_USE_DYNAMIC == TRUE
-  currp->wabase = NULL;
-#endif
-
-  /* Setting up the caller as current thread.*/
-  currp->state = CH_STATE_CURRENT;
-
-  /* Port layer initialization last because it depend on some of the
-     initializations performed before.*/
+  /* Port layer initialization.*/
   port_init();
 
-#if CH_DBG_STATISTICS == TRUE
-  /* Starting measurement for this thread.*/
-  chTMStartMeasurementX(&currp->stats);
-#endif
-
-  /* Initialization hook.*/
-  CH_CFG_SYSTEM_INIT_HOOK();
+  /* Initializing default OS instance.*/
+  chSchObjectInit(&ch);
 
   /* It is alive now.*/
   chSysEnable();

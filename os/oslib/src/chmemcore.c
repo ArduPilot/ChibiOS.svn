@@ -75,10 +75,11 @@ memcore_t ch_memcore;
 
 /**
  * @brief   Low level memory manager initialization.
+ * @note    Internal use only.
  *
  * @notapi
  */
-void _core_init(void) {
+void __core_init(void) {
 #if CH_CFG_MEMCORE_SIZE == 0
   extern uint8_t __heap_base__[];
   extern uint8_t __heap_end__[];

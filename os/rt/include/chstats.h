@@ -88,6 +88,22 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
+/**
+ * @brief   Statistics initialization.
+ * @note    Internal use only.
+ *
+ * @param[out] ksp      pointer to the @p kernel_stats_t structure
+ *
+ * @notapi
+ */
+static inline void __stats_object_init(kernel_stats_t *ksp) {
+
+  ksp->n_irq    = (ucnt_t)0;
+  ksp->n_ctxswc = (ucnt_t)0;
+  chTMObjectInit(&ksp->m_crit_thd);
+  chTMObjectInit(&ksp->m_crit_isr);
+}
+
 #else /* CH_DBG_STATISTICS == FALSE */
 
 /* Stub functions for when the statistics module is disabled. */

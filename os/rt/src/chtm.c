@@ -70,24 +70,6 @@ static inline void tm_stop(time_measurement_t *tmp,
 /*===========================================================================*/
 
 /**
- * @brief   Initializes the time measurement unit.
- *
- * @init
- */
-void _tm_init(void) {
-  time_measurement_t tm;
-
-  /* Time Measurement subsystem calibration, it does a null measurement
-     and calculates the call overhead which is subtracted to real
-     measurements.*/
-  ch.tm.offset = (rtcnt_t)0;
-  chTMObjectInit(&tm);
-  chTMStartMeasurementX(&tm);
-  chTMStopMeasurementX(&tm);
-  ch.tm.offset = tm.last;
-}
-
-/**
  * @brief   Initializes a @p TimeMeasurement object.
  *
  * @param[out] tmp      pointer to a @p TimeMeasurement structure
@@ -126,7 +108,7 @@ NOINLINE void chTMStartMeasurementX(time_measurement_t *tmp) {
  */
 NOINLINE void chTMStopMeasurementX(time_measurement_t *tmp) {
 
-  tm_stop(tmp, chSysGetRealtimeCounterX(), ch.tm.offset);
+  tm_stop(tmp, chSysGetRealtimeCounterX(), ch.tmc.offset);
 }
 
 /**

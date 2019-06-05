@@ -166,7 +166,7 @@ typedef struct {
       void                  *up2;
     } user;
   } u;
-} ch_trace_event_t;
+} trace_event_t;
 /*lint -restore*/
 
 /**
@@ -184,12 +184,12 @@ typedef struct {
   /**
    * @brief   Pointer to the buffer front.
    */
-  ch_trace_event_t      *ptr;
+  trace_event_t         *ptr;
   /**
    * @brief   Ring buffer.
    */
-  ch_trace_event_t      buffer[CH_DBG_TRACE_BUFFER_SIZE];
-} ch_trace_buffer_t;
+  trace_event_t         buffer[CH_DBG_TRACE_BUFFER_SIZE];
+} trace_buffer_t;
 #endif /* CH_DBG_TRACE_MASK != CH_DBG_TRACE_MASK_DISABLED */
 
 /*===========================================================================*/
@@ -200,9 +200,6 @@ typedef struct {
    an empty macro. Note that the macros can be externally redefined in
    order to interface 3rd parties tracing tools.*/
 #if CH_DBG_TRACE_MASK == CH_DBG_TRACE_MASK_DISABLED
-#if !defined(_trace_init)
-#define _trace_init()
-#endif
 #if !defined(_trace_switch)
 #define _trace_switch(ntp, otp)
 #endif
@@ -231,7 +228,6 @@ typedef struct {
 extern "C" {
 #endif
 #if (CH_DBG_TRACE_MASK != CH_DBG_TRACE_MASK_DISABLED) || defined(__DOXYGEN__)
-  void _trace_init(void);
   void _trace_switch(thread_t *ntp, thread_t *otp);
   void _trace_isr_enter(const char *isr);
   void _trace_isr_leave(const char *isr);
@@ -250,6 +246,27 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+#if (CH_DBG_TRACE_MASK != CH_DBG_TRACE_MASK_DISABLED) || defined(__DOXYGEN__)
+/**
+ * @brief   Circular trace buffer subsystem initialization.
+ * @note    Internal use only.
+ *
+ * @param[out] tbp      pointer to the @p ch_trace_buffer_t structure
+ *
+ * @notapi
+ */
+static inline void __trace_object_init(trace_buffer_t *tbp) {
+  unsigned i;
+
+  tbp->suspended = (uint16_t)~CH_DBG_TRACE_MASK;
+  tbp->size      = CH_DBG_TRACE_BUFFER_SIZE;
+  tbp->ptr       = &tbp->buffer[0];
+  for (i = 0U; i < (unsigned)CH_DBG_TRACE_BUFFER_SIZE; i++) {
+    tbp->buffer[i].type = CH_TRACE_TYPE_UNUSED;
+  }
+}
+#endif
 
 #endif /* CHTRACE_H */
 

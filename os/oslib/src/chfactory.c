@@ -238,10 +238,11 @@ static dyn_element_t *dyn_find_object(const char *name, dyn_list_t *dlp) {
 
 /**
  * @brief   Initializes the objects factory.
+ * @note    Internal use only.
  *
- * @init
+ * @notapi
  */
-void _factory_init(void) {
+void __factory_init(void) {
 
 #if (CH_CFG_USE_MUTEXES == TRUE) || defined(__DOXYGEN__)
   chMtxObjectInit(&ch_factory.mtx);

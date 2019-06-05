@@ -56,6 +56,30 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+/**
+ * @brief   System debug data structure.
+ */
+struct ch_system_debug {
+  /**
+   * @brief   Pointer to the panic message.
+   * @details This pointer is meant to be accessed through the debugger, it is
+   *          written once and then the system is halted.
+   * @note    Accesses to this pointer must never be optimized out so the
+   *          field itself is declared volatile.
+   */
+  const char            * volatile panic_msg;
+#if (CH_DBG_SYSTEM_STATE_CHECK == TRUE) || defined(__DOXYGEN__)
+  /**
+   * @brief   ISR nesting level.
+   */
+  cnt_t                 isr_cnt;
+  /**
+   * @brief   Lock nesting level.
+   */
+  cnt_t                 lock_cnt;
+#endif
+};
+
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
@@ -163,6 +187,24 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+/**
+ * @brief   Debug support initialization.
+ * @note    Internal use only.
+ *
+ * @param[out] sdp      pointer to the @p system_debug_t structure
+ *
+ * @notapi
+ */
+static inline void __dbg_object_init(system_debug_t *sdp) {
+
+  sdp->panic_msg = NULL;
+
+#if CH_DBG_SYSTEM_STATE_CHECK == TRUE
+  sdp->isr_cnt  = (cnt_t)0;
+  sdp->lock_cnt = (cnt_t)0;
+#endif
+}
 
 #endif /* CHDEBUG_H */
 

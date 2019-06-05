@@ -101,10 +101,11 @@ static memory_heap_t default_heap;
 
 /**
  * @brief   Initializes the default heap.
+ * @note    Internal use only.
  *
  * @notapi
  */
-void _heap_init(void) {
+void __heap_init(void) {
 
   default_heap.provider = chCoreAllocAlignedWithOffset;
   H_NEXT(&default_heap.header) = NULL;

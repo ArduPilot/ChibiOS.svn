@@ -45,6 +45,55 @@
 /*===========================================================================*/
 
 /**
+ * @brief   Type of a Virtual Timer callback function.
+ */
+typedef void (*vtfunc_t)(void *p);
+
+/**
+ * @extends virtual_timers_list_t
+ *
+ * @brief   Type of a Virtual Timer structure.
+ */
+typedef struct ch_virtual_timer virtual_timer_t;
+
+/**
+ * @brief   Virtual Timer descriptor structure.
+ */
+struct ch_virtual_timer {
+  virtual_timer_t       *next;      /**< @brief Next timer in the list.     */
+  virtual_timer_t       *prev;      /**< @brief Previous timer in the list. */
+  sysinterval_t         delta;      /**< @brief Time delta before timeout.  */
+  vtfunc_t              func;       /**< @brief Timer callback function
+                                                pointer.                    */
+  void                  *par;       /**< @brief Timer callback function
+                                                parameter.                  */
+};
+
+/**
+ * @brief   Type of virtual timers list header.
+ * @note    The timers list is implemented as a double link bidirectional list
+ *          in order to make the unlink time constant, the reset of a virtual
+ *          timer is often used in the code.
+ */
+typedef struct ch_virtual_timers_list {
+  virtual_timer_t       *next;      /**< @brief Next timer in the delta
+                                                list.                       */
+  virtual_timer_t       *prev;      /**< @brief Last timer in the delta
+                                                list.                       */
+  sysinterval_t         delta;      /**< @brief Must be initialized to -1.  */
+#if (CH_CFG_ST_TIMEDELTA == 0) || defined(__DOXYGEN__)
+  volatile systime_t    systime;    /**< @brief System Time counter.        */
+#endif
+#if (CH_CFG_ST_TIMEDELTA > 0) || defined(__DOXYGEN__)
+  /**
+   * @brief   System time of the last tick event.
+   */
+  systime_t             lasttime;   /**< @brief System time of the last
+                                                tick event.                 */
+#endif
+} virtual_timers_list_t;
+
+/**
  * @extends threads_queue_t
  *
  * @brief   Type of a thread structure.
@@ -59,56 +108,20 @@ typedef thread_t * thread_reference_t;
 /**
  * @brief   Type of a generic threads single link list, it works like a stack.
  */
-typedef struct ch_threads_list threads_list_t;
+typedef struct ch_threads_list {
+  thread_t              *next;      /**< @brief Next in the list/queue.     */
+} threads_list_t;
 
 /**
  * @extends threads_list_t
  *
- * @brief   Type of a generic threads bidirectional linked list header and element.
+ * @brief   Type of a generic threads bidirectional linked list header and
+ *          element.
  */
-typedef struct ch_threads_queue threads_queue_t;
-
-/**
- * @brief   Type of a Virtual Timer callback function.
- */
-typedef void (*vtfunc_t)(void *p);
-
-/**
- * @brief   Type of a Virtual Timer structure.
- */
-typedef struct ch_virtual_timer virtual_timer_t;
-
-/**
- * @brief   Type of virtual timers list header.
- */
-typedef struct ch_virtual_timers_list  virtual_timers_list_t;
-
-/**
- * @extends threads_queue_t
- *
- * @brief   Type of a ready list header.
- */
-typedef struct ch_ready_list ready_list_t;
-
-/**
- * @brief   Type of system data structure.
- */
-typedef struct ch_system ch_system_t;
-
-/**
- * @brief   Generic threads single link list, it works like a stack.
- */
-struct ch_threads_list {
-  thread_t              *next;      /**< @brief Next in the list/queue.     */
-};
-
-/**
- * @brief   Generic threads bidirectional linked list header and element.
- */
-struct ch_threads_queue {
+typedef struct ch_threads_queue {
   thread_t              *next;      /**< @brief Next in the list/queue.     */
   thread_t              *prev;      /**< @brief Previous in the queue.      */
-};
+} threads_queue_t;
 
 /**
  * @brief   Structure representing a thread.
@@ -283,48 +296,11 @@ struct ch_thread {
 };
 
 /**
- * @extends virtual_timers_list_t
- *
- * @brief   Virtual Timer descriptor structure.
- */
-struct ch_virtual_timer {
-  virtual_timer_t       *next;      /**< @brief Next timer in the list.     */
-  virtual_timer_t       *prev;      /**< @brief Previous timer in the list. */
-  sysinterval_t         delta;      /**< @brief Time delta before timeout.  */
-  vtfunc_t              func;       /**< @brief Timer callback function
-                                                pointer.                    */
-  void                  *par;       /**< @brief Timer callback function
-                                                parameter.                  */
-};
-
-/**
- * @brief   Virtual timers list header.
- * @note    The timers list is implemented as a double link bidirectional list
- *          in order to make the unlink time constant, the reset of a virtual
- *          timer is often used in the code.
- */
-struct ch_virtual_timers_list {
-  virtual_timer_t       *next;      /**< @brief Next timer in the delta
-                                                list.                       */
-  virtual_timer_t       *prev;      /**< @brief Last timer in the delta
-                                                list.                       */
-  sysinterval_t         delta;      /**< @brief Must be initialized to -1.  */
-#if (CH_CFG_ST_TIMEDELTA == 0) || defined(__DOXYGEN__)
-  volatile systime_t    systime;    /**< @brief System Time counter.        */
-#endif
-#if (CH_CFG_ST_TIMEDELTA > 0) || defined(__DOXYGEN__)
-  /**
-   * @brief   System time of the last tick event.
-   */
-  systime_t             lasttime;   /**< @brief System time of the last
-                                                tick event.                 */
-#endif
-};
-
-/**
  * @extends threads_queue_t
+ *
+ * @brief   Type of a ready list header.
  */
-struct ch_ready_list {
+typedef struct ch_ready_list {
   threads_queue_t       queue;      /**< @brief Threads queue.              */
   tprio_t               prio;       /**< @brief This field must be
                                                 initialized to zero.        */
@@ -337,14 +313,14 @@ struct ch_ready_list {
   /* End of the fields shared with the thread_t structure.*/
   thread_t              *current;   /**< @brief The currently running
                                                 thread.                     */
-};
+} ready_list_t;
 
 /**
- * @brief   System data structure.
+ * @brief   Type of system data structure.
  * @note    This structure contain all the data areas used by the OS except
  *          stacks.
  */
-struct ch_system {
+typedef struct ch_system {
   /**
    * @brief   Ready list header.
    */
@@ -383,7 +359,7 @@ struct ch_system {
   PORT_SYSTEM_EXTRA_FIELDS
 #endif
   CH_CFG_SYSTEM_EXTRA_FIELDS
-};
+} ch_system_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */

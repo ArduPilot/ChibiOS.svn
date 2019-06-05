@@ -276,6 +276,7 @@
 /*===========================================================================*/
 
 #if !defined(__DOXYGEN__)
+extern ch_system_t ch;
 extern stkalign_t ch_idle_thread_wa[];
 #endif
 

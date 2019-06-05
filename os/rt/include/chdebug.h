@@ -59,7 +59,7 @@
 /**
  * @brief   System debug data structure.
  */
-struct ch_system_debug {
+typedef struct ch_system_debug {
   /**
    * @brief   Pointer to the panic message.
    * @details This pointer is meant to be accessed through the debugger, it is
@@ -78,7 +78,7 @@ struct ch_system_debug {
    */
   cnt_t                 lock_cnt;
 #endif
-};
+} system_debug_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */

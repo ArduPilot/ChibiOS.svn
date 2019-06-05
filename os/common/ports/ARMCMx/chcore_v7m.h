@@ -478,11 +478,11 @@ struct port_intctx {
   if ((stkalign_t *)(r13 - 1) < (otp)->wabase) {                            \
     chSysHalt("stack overflow");                                            \
   }                                                                         \
-  _port_switch(ntp, otp);                                                   \
+  _port_switch((void *)ntp, (void *)otp);                                   \
 }
 #else
 #define port_switch(ntp, otp) {                                             \
-  _port_switch(ntp, otp);                                                   \
+  _port_switch((void *)ntp, (void *)otp);                                   \
                                                                             \
   /* Setting up the guard page for the switched-in thread.*/                \
     mpuSetRegionAddress(PORT_USE_MPU_REGION,                                \
@@ -499,7 +499,7 @@ struct port_intctx {
 extern "C" {
 #endif
   void _port_irq_epilogue(void);
-  void _port_switch(thread_t *ntp, thread_t *otp);
+  void _port_switch(void *ntp, void *otp);
   void _port_thread_start(void);
   void _port_switch_from_isr(void);
   void _port_exit_from_isr(void);

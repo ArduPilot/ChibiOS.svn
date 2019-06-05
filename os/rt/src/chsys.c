@@ -39,6 +39,11 @@
 /* Module exported variables.                                                */
 /*===========================================================================*/
 
+/**
+ * @brief   Default OS instance.
+ */
+ch_system_t ch;
+
 #if (CH_CFG_NO_IDLE_THREAD == FALSE) || defined(__DOXYGEN__)
 /**
  * @brief   Idle thread working area.

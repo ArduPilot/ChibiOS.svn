@@ -86,6 +86,11 @@
 #endif
 /** @} */
 
+/**
+ * @brief   Utility to make the parameter a quoted string.
+ */
+#define __CH_STRINGIFY(a) #a
+
 /* Configuration headers, checks and licensing restrictions.*/
 #include "chconf.h"
 #include "chchecks.h"
@@ -102,18 +107,18 @@ extern "C" {
 #endif
 
 /* Base kernel headers.*/
-#include "chtypes.h" /* CHTODO: Rename and rework.*/
-#include "chsystypes.h"
-#include "chdebug.h"
-#include "chtime.h"
+#include "chtypes.h"
 #include "chalign.h"
-#include "chcore.h"
+#include "chdebug.h"
 #include "chtrace.h"
+#include "chtime.h"
+#include "chcore.h"
 #include "chtm.h"
 #include "chstats.h"
-#include "chschd.h"
+#include "chobjects.h"
 #include "chsys.h"
 #include "chvt.h"
+#include "chschd.h"
 #include "chthreads.h"
 
 /* Optional subsystems headers.*/

@@ -19,7 +19,7 @@
 
 /**
  * @file    chobjects.h
- * @brief   Operating System Objects global macros and structures.
+ * @brief   Operating System Objects macros and structures.
  *
  * @addtogroup CH_OBJECTS
  * @{

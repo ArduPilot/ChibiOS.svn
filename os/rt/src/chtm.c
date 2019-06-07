@@ -108,7 +108,7 @@ NOINLINE void chTMStartMeasurementX(time_measurement_t *tmp) {
  */
 NOINLINE void chTMStopMeasurementX(time_measurement_t *tmp) {
 
-  tm_stop(tmp, chSysGetRealtimeCounterX(), ch.tmc.offset);
+  tm_stop(tmp, chSysGetRealtimeCounterX(), currcore->tmc.offset);
 }
 
 /**

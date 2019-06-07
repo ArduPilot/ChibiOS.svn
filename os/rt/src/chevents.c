@@ -110,7 +110,7 @@ void chEvtRegisterMaskWithFlags(event_source_t *esp,
   chSysLock();
   elp->next     = esp->next;
   esp->next     = elp;
-  elp->listener = currp;
+  elp->listener = currthread;
   elp->events   = events;
   elp->flags    = (eventflags_t)0;
   elp->wflags   = wflags;
@@ -162,8 +162,8 @@ void chEvtUnregister(event_source_t *esp, event_listener_t *elp) {
 eventmask_t chEvtGetAndClearEventsI(eventmask_t events) {
   eventmask_t m;
 
-  m = currp->epending & events;
-  currp->epending &= ~events;
+  m = currthread->epending & events;
+  currthread->epending &= ~events;
 
   return m;
 }
@@ -397,7 +397,7 @@ void chEvtDispatch(const evhandler_t *handlers, eventmask_t events) {
  * @api
  */
 eventmask_t chEvtWaitOne(eventmask_t events) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
   eventmask_t m;
 
   chSysLock();
@@ -427,7 +427,7 @@ eventmask_t chEvtWaitOne(eventmask_t events) {
  * @api
  */
 eventmask_t chEvtWaitAny(eventmask_t events) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
   eventmask_t m;
 
   chSysLock();
@@ -455,7 +455,7 @@ eventmask_t chEvtWaitAny(eventmask_t events) {
  * @api
  */
 eventmask_t chEvtWaitAll(eventmask_t events) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
 
   chSysLock();
   if ((ctp->epending & events) != events) {
@@ -493,7 +493,7 @@ eventmask_t chEvtWaitAll(eventmask_t events) {
  * @api
  */
 eventmask_t chEvtWaitOneTimeout(eventmask_t events, sysinterval_t timeout) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
   eventmask_t m;
 
   chSysLock();
@@ -536,7 +536,7 @@ eventmask_t chEvtWaitOneTimeout(eventmask_t events, sysinterval_t timeout) {
  * @api
  */
 eventmask_t chEvtWaitAnyTimeout(eventmask_t events, sysinterval_t timeout) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
   eventmask_t m;
 
   chSysLock();
@@ -577,7 +577,7 @@ eventmask_t chEvtWaitAnyTimeout(eventmask_t events, sysinterval_t timeout) {
  * @api
  */
 eventmask_t chEvtWaitAllTimeout(eventmask_t events, sysinterval_t timeout) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
 
   chSysLock();
   if ((ctp->epending & events) != events) {

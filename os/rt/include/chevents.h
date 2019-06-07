@@ -268,7 +268,7 @@ static inline void chEvtBroadcastI(event_source_t *esp) {
  */
 static inline eventmask_t chEvtAddEventsI(eventmask_t events) {
 
-  return currp->epending |= events;
+  return currthread->epending |= events;
 }
 
 /**
@@ -281,7 +281,7 @@ static inline eventmask_t chEvtAddEventsI(eventmask_t events) {
  */
 static inline eventmask_t chEvtGetEventsX(void) {
 
-  return currp->epending;
+  return currthread->epending;
 }
 
 #endif /* CH_CFG_USE_EVENTS == TRUE */

@@ -137,7 +137,7 @@ void chMtxLock(mutex_t *mp) {
  * @sclass
  */
 void chMtxLockS(mutex_t *mp) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
 
   chDbgCheckClassS();
   chDbgCheck(mp != NULL);
@@ -289,7 +289,7 @@ bool chMtxTryLockS(mutex_t *mp) {
 
     chDbgAssert(mp->cnt >= (cnt_t)1, "counter is not positive");
 
-    if (mp->owner == currp) {
+    if (mp->owner == currthread) {
       mp->cnt++;
       return true;
     }
@@ -302,9 +302,9 @@ bool chMtxTryLockS(mutex_t *mp) {
 
   mp->cnt++;
 #endif
-  mp->owner = currp;
-  mp->next = currp->mtxlist;
-  currp->mtxlist = mp;
+  mp->owner = currthread;
+  mp->next = currthread->mtxlist;
+  currthread->mtxlist = mp;
   return true;
 }
 
@@ -321,7 +321,7 @@ bool chMtxTryLockS(mutex_t *mp) {
  * @api
  */
 void chMtxUnlock(mutex_t *mp) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
   mutex_t *lmp;
 
   chDbgCheck(mp != NULL);
@@ -408,7 +408,7 @@ void chMtxUnlock(mutex_t *mp) {
  * @sclass
  */
 void chMtxUnlockS(mutex_t *mp) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
   mutex_t *lmp;
 
   chDbgCheckClassS();
@@ -485,7 +485,7 @@ void chMtxUnlockS(mutex_t *mp) {
  * @sclass
  */
 void chMtxUnlockAllS(void) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
 
   while (ctp->mtxlist != NULL) {
     mutex_t *mp = ctp->mtxlist;
@@ -522,7 +522,7 @@ void chMtxUnlockAllS(void) {
  * @api
  */
 void chMtxUnlockAll(void) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
 
   chSysLock();
   if (ctp->mtxlist != NULL) {

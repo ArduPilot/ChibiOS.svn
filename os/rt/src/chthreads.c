@@ -499,7 +499,7 @@ void chThdExit(msg_t msg) {
  * @sclass
  */
 void chThdExitS(msg_t msg) {
-  thread_t *tp = currp;
+  thread_t *tp = currthread;
 
   /* Storing exit message.*/
   tp->u.exitcode = msg;
@@ -562,13 +562,13 @@ msg_t chThdWait(thread_t *tp) {
   chDbgCheck(tp != NULL);
 
   chSysLock();
-  chDbgAssert(tp != currp, "waiting self");
+  chDbgAssert(tp != currthread, "waiting self");
 #if CH_CFG_USE_REGISTRY == TRUE
   chDbgAssert(tp->refs > (trefs_t)0, "no references");
 #endif
 
   if (tp->state != CH_STATE_FINAL) {
-    list_insert(currp, &tp->waiting);
+    list_insert(currthread, &tp->waiting);
     chSchGoSleepS(CH_STATE_WTEXIT);
   }
   msg = tp->u.exitcode;
@@ -602,14 +602,14 @@ tprio_t chThdSetPriority(tprio_t newprio) {
 
   chSysLock();
 #if CH_CFG_USE_MUTEXES == TRUE
-  oldprio = currp->realprio;
-  if ((currp->prio == currp->realprio) || (newprio > currp->prio)) {
-    currp->prio = newprio;
+  oldprio = currthread->realprio;
+  if ((currthread->prio == currthread->realprio) || (newprio > currthread->prio)) {
+    currthread->prio = newprio;
   }
-  currp->realprio = newprio;
+  currthread->realprio = newprio;
 #else
-  oldprio = currp->prio;
-  currp->prio = newprio;
+  oldprio = currthread->prio;
+  currthread->prio = newprio;
 #endif
   chSchRescheduleS();
   chSysUnlock();
@@ -867,7 +867,7 @@ msg_t chThdEnqueueTimeoutS(threads_queue_t *tqp, sysinterval_t timeout) {
     return MSG_TIMEOUT;
   }
 
-  queue_insert(currp, tqp);
+  queue_insert(currthread, tqp);
 
   return chSchGoSleepTimeoutS(CH_STATE_QUEUED, timeout);
 }

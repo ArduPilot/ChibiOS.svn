@@ -134,7 +134,7 @@
  * @note    This macro is not meant to be used in the application code but
  *          only from within the kernel, use @p chThdGetSelfX() instead.
  */
-#define currp ch.rlist.current
+#define currthread      currcore->rlist.current
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -146,7 +146,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chSchObjectInit(ch_system_t *csp);
+  void chSchObjectInit(ch_instance_t *csp);
   thread_t *chSchReadyI(thread_t *tp);
   thread_t *chSchReadyAheadI(thread_t *tp);
   void chSchGoSleepS(tstate_t newstate);
@@ -330,7 +330,7 @@ static inline bool chSchIsRescRequiredI(void) {
 
   chDbgCheckClassI();
 
-  return firstprio(&ch.rlist.queue) > currp->prio;
+  return firstprio(&currcore->rlist.queue) > currthread->prio;
 }
 
 /**
@@ -348,7 +348,7 @@ static inline bool chSchCanYieldS(void) {
 
   chDbgCheckClassS();
 
-  return firstprio(&ch.rlist.queue) >= currp->prio;
+  return firstprio(&currcore->rlist.queue) >= currthread->prio;
 }
 
 /**
@@ -375,11 +375,11 @@ static inline void chSchDoYieldS(void) {
  * @special
  */
 static inline void chSchPreemption(void) {
-  tprio_t p1 = firstprio(&ch.rlist.queue);
-  tprio_t p2 = currp->prio;
+  tprio_t p1 = firstprio(&currcore->rlist.queue);
+  tprio_t p2 = currthread->prio;
 
 #if CH_CFG_TIME_QUANTUM > 0
-  if (currp->ticks > (tslices_t)0) {
+  if (currthread->ticks > (tslices_t)0) {
     if (p1 > p2) {
       chSchDoRescheduleAhead();
     }

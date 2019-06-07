@@ -56,6 +56,15 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+/**
+ * @brief   Access to current core's instance structure.
+ */
+#if !defined(PORT_INSTANCE_ACCESS) || defined(__DOXYGEN__)
+#define currcore                            (&ch.c0)
+#else
+#define currcore                            PORT_INSTANCE_ACCESS
+#endif
+
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
@@ -372,8 +381,8 @@ static inline void chSysUnlock(void) {
      in a critical section not followed by a chSchResceduleS(), this means
      that the current thread has a lower priority than the next thread in
      the ready list.*/
-  chDbgAssert((ch.rlist.queue.next == (thread_t *)&ch.rlist.queue) ||
-              (ch.rlist.current->prio >= ch.rlist.queue.next->prio),
+  chDbgAssert((currcore->rlist.queue.next == (thread_t *)&currcore->rlist.queue) ||
+              (currcore->rlist.current->prio >= currcore->rlist.queue.next->prio),
               "priority order violation");
 
   port_unlock();
@@ -461,7 +470,7 @@ static inline void chSysUnconditionalUnlock(void) {
  */
 static inline thread_t *chSysGetIdleThreadX(void) {
 
-  return ch.rlist.queue.prev;
+  return currcore->rlist.queue.prev;
 }
 #endif /* CH_CFG_NO_IDLE_THREAD == FALSE */
 

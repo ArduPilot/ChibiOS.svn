@@ -592,11 +592,27 @@
   /* Add threads custom fields here.*/
 
 /**
+ * @brief   System instance structure extension.
+ * @details User fields added to the end of the @p ch_instance_t structure.
+ */
+#define CH_CFG_INSTANCE_EXTRA_FIELDS                                        \
+  /* Add threads custom fields here.*/
+
+/**
  * @brief   System initialization hook.
  * @details User initialization code added to the @p chSysInit() function
  *          just before interrupts are enabled globally.
  */
-#define CH_CFG_SYSTEM_INIT_HOOK(csp) {                                      \
+#define CH_CFG_SYSTEM_INIT_HOOK() {                                         \
+  /* Add system initialization code here.*/                                 \
+}
+
+/**
+ * @brief   System instance initialization hook.
+ * @details User initialization code added to the @p chSchObjectInit()
+ *          function.
+ */
+#define CH_CFG_INSTANCE_INIT_HOOK(csp) {                                    \
   /* Add system instance initialization code here.*/                        \
 }
 

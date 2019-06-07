@@ -182,12 +182,20 @@
 #endif
 
 /* System hooks checks.*/
+#if !defined(CH_CFG_SYSTEM_EXTRA_FIELDS)
+#error "CH_CFG_SYSTEM_EXTRA_FIELDS not defined in chconf.h"
+#endif
+
+#if !defined(CH_CFG_INSTANCE_EXTRA_FIELDS)
+#error "CH_CFG_INSTANCE_EXTRA_FIELDS not defined in chconf.h"
+#endif
+
 #if !defined(CH_CFG_SYSTEM_INIT_HOOK)
 #error "CH_CFG_SYSTEM_INIT_HOOK not defined in chconf.h"
 #endif
 
-#if !defined(CH_CFG_SYSTEM_EXTRA_FIELDS)
-#error "CH_CFG_SYSTEM_EXTRA_FIELDS not defined in chconf.h"
+#if !defined(CH_CFG_INSTANCE_INIT_HOOK)
+#error "CH_CFG_INSTANCE_INIT_HOOK not defined in chconf.h"
 #endif
 
 #if !defined(CH_CFG_THREAD_EXTRA_FIELDS)

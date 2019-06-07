@@ -203,11 +203,11 @@ msg_t chSemWaitS(semaphore_t *sp) {
               "inconsistent semaphore");
 
   if (--sp->cnt < (cnt_t)0) {
-    currp->u.wtsemp = sp;
-    sem_insert(currp, &sp->queue);
+    currthread->u.wtsemp = sp;
+    sem_insert(currthread, &sp->queue);
     chSchGoSleepS(CH_STATE_WTSEM);
 
-    return currp->u.rdymsg;
+    return currthread->u.rdymsg;
   }
 
   return MSG_OK;
@@ -275,8 +275,8 @@ msg_t chSemWaitTimeoutS(semaphore_t *sp, sysinterval_t timeout) {
 
       return MSG_TIMEOUT;
     }
-    currp->u.wtsemp = sp;
-    sem_insert(currp, &sp->queue);
+    currthread->u.wtsemp = sp;
+    sem_insert(currthread, &sp->queue);
 
     return chSchGoSleepTimeoutS(CH_STATE_WTSEM, timeout);
   }
@@ -391,7 +391,7 @@ msg_t chSemSignalWait(semaphore_t *sps, semaphore_t *spw) {
     chSchReadyI(queue_fifo_remove(&sps->queue))->u.rdymsg = MSG_OK;
   }
   if (--spw->cnt < (cnt_t)0) {
-    thread_t *ctp = currp;
+    thread_t *ctp = currthread;
     sem_insert(ctp, &spw->queue);
     ctp->u.wtsemp = spw;
     chSchGoSleepS(CH_STATE_WTSEM);

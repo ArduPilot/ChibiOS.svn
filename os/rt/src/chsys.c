@@ -111,7 +111,10 @@ void chSysInit(void) {
   port_init();
 
   /* Initializing default OS instance.*/
-  chSchObjectInit(&ch);
+  chSchObjectInit(&ch.c0);
+
+  /* User system initialization hook.*/
+  CH_CFG_SYSTEM_INIT_HOOK();
 
   /* It is alive now.*/
   chSysEnable();
@@ -155,7 +158,7 @@ void chSysHalt(const char *reason) {
   _trace_halt(reason);
 
   /* Pointing to the passed message.*/
-  ch.dbg.panic_msg = reason;
+  currcore->dbg.panic_msg = reason;
 
   /* Halt hook code, usually empty.*/
   CH_CFG_SYSTEM_HALT_HOOK(reason);
@@ -200,15 +203,15 @@ bool chSysIntegrityCheckI(unsigned testmask) {
 
     /* Scanning the ready list forward.*/
     n = (cnt_t)0;
-    tp = ch.rlist.queue.next;
-    while (tp != (thread_t *)&ch.rlist.queue) {
+    tp = currcore->rlist.queue.next;
+    while (tp != (thread_t *)&currcore->rlist.queue) {
       n++;
       tp = tp->queue.next;
     }
 
     /* Scanning the ready list backward.*/
-    tp = ch.rlist.queue.prev;
-    while (tp != (thread_t *)&ch.rlist.queue) {
+    tp = currcore->rlist.queue.prev;
+    while (tp != (thread_t *)&currcore->rlist.queue) {
       n--;
       tp = tp->queue.prev;
     }
@@ -225,15 +228,15 @@ bool chSysIntegrityCheckI(unsigned testmask) {
 
     /* Scanning the timers list forward.*/
     n = (cnt_t)0;
-    vtp = ch.vtlist.next;
-    while (vtp != (virtual_timer_t *)&ch.vtlist) {
+    vtp = currcore->vtlist.next;
+    while (vtp != (virtual_timer_t *)&currcore->vtlist) {
       n++;
       vtp = vtp->next;
     }
 
     /* Scanning the timers list backward.*/
-    vtp = ch.vtlist.prev;
-    while (vtp != (virtual_timer_t *)&ch.vtlist) {
+    vtp = currcore->vtlist.prev;
+    while (vtp != (virtual_timer_t *)&currcore->vtlist) {
       n--;
       vtp = vtp->prev;
     }
@@ -250,15 +253,15 @@ bool chSysIntegrityCheckI(unsigned testmask) {
 
     /* Scanning the ready list forward.*/
     n = (cnt_t)0;
-    tp = ch.rlist.newer;
-    while (tp != (thread_t *)&ch.rlist) {
+    tp = currcore->rlist.newer;
+    while (tp != (thread_t *)&currcore->rlist) {
       n++;
       tp = tp->newer;
     }
 
     /* Scanning the ready list backward.*/
-    tp = ch.rlist.older;
-    while (tp != (thread_t *)&ch.rlist) {
+    tp = currcore->rlist.older;
+    while (tp != (thread_t *)&currcore->rlist) {
       n--;
       tp = tp->older;
     }

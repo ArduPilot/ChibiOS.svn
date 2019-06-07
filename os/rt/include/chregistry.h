@@ -80,10 +80,10 @@ typedef struct {
  *
  * @param[in] tp        thread to remove from the registry
  */
-#define REG_REMOVE(tp) {                                                    \
+#define REG_REMOVE(tp) do {                                                 \
   (tp)->older->newer = (tp)->newer;                                         \
   (tp)->newer->older = (tp)->older;                                         \
-}
+} while (0)
 
 /**
  * @brief   Adds a thread to the registry list.
@@ -91,12 +91,12 @@ typedef struct {
  *
  * @param[in] tp        thread to add to the registry
  */
-#define REG_INSERT(tp) {                                                    \
-  (tp)->newer = (thread_t *)&ch.rlist;                                      \
-  (tp)->older = ch.rlist.older;                                           \
+#define REG_INSERT(tp) do {                                                 \
+  (tp)->newer = (thread_t *)&currcore->rlist;                               \
+  (tp)->older = currcore->rlist.older;                                      \
   (tp)->older->newer = (tp);                                                \
-  ch.rlist.older = (tp);                                                  \
-}
+  currcore->rlist.older = (tp);                                             \
+} while (0)
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -133,7 +133,7 @@ extern "C" {
 static inline void chRegSetThreadName(const char *name) {
 
 #if CH_CFG_USE_REGISTRY == TRUE
-  ch.rlist.current->name = name;
+  currcore->rlist.current->name = name;
 #else
   (void)name;
 #endif

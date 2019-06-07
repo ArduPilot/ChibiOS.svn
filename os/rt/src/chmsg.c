@@ -85,7 +85,7 @@
  * @api
  */
 msg_t chMsgSend(thread_t *tp, msg_t msg) {
-  thread_t *ctp = currp;
+  thread_t *ctp = currthread;
 
   chDbgCheck(tp != NULL);
 
@@ -122,10 +122,10 @@ thread_t *chMsgWait(void) {
   thread_t *tp;
 
   chSysLock();
-  if (!chMsgIsPendingI(currp)) {
+  if (!chMsgIsPendingI(currthread)) {
     chSchGoSleepS(CH_STATE_WTMSG);
   }
-  tp = queue_fifo_remove(&currp->msgqueue);
+  tp = queue_fifo_remove(&currthread->msgqueue);
   tp->state = CH_STATE_SNDMSG;
   chSysUnlock();
 

@@ -316,11 +316,9 @@ typedef struct ch_ready_list {
 } ready_list_t;
 
 /**
- * @brief   Type of system data structure.
- * @note    This structure contain all the data areas used by the OS except
- *          stacks.
+ * @brief   Type of system instance data structure.
  */
-typedef struct ch_system {
+typedef struct ch_instance {
   /**
    * @brief   Ready list header.
    */
@@ -356,8 +354,19 @@ typedef struct ch_system {
   kernel_stats_t        kernel_stats;
 #endif
 #if defined(PORT_SYSTEM_EXTRA_FIELDS) || defined(__DOXYGEN__)
-  PORT_SYSTEM_EXTRA_FIELDS
+  PORT_INSTANCE_EXTRA_FIELDS
 #endif
+  CH_CFG_INSTANCE_EXTRA_FIELDS
+} ch_instance_t;
+
+/**
+ * @brief   Type of system data structure.
+ */
+typedef struct ch_system {
+  /**
+   * @brief   OS instance for core 0.
+   */
+  ch_instance_t         c0;
   CH_CFG_SYSTEM_EXTRA_FIELDS
 } ch_system_t;
 

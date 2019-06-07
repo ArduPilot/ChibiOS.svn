@@ -478,11 +478,11 @@ struct port_intctx {
   if ((stkalign_t *)(r13 - 1) < (otp)->wabase) {                            \
     chSysHalt("stack overflow");                                            \
   }                                                                         \
-  _port_switch((void *)ntp, (void *)otp);                                   \
+  _port_switch(ntp, otp);                                                   \
 }
 #else
 #define port_switch(ntp, otp) {                                             \
-  _port_switch((void *)ntp, (void *)otp);                                   \
+  _port_switch(ntp, otp);                                                   \
                                                                             \
   /* Setting up the guard page for the switched-in thread.*/                \
     mpuSetRegionAddress(PORT_USE_MPU_REGION,                                \
@@ -498,8 +498,9 @@ struct port_intctx {
 #ifdef __cplusplus
 extern "C" {
 #endif
+  void port_init(ch_instance_t *cip);
   void _port_irq_epilogue(void);
-  void _port_switch(void *ntp, void *otp);
+  void _port_switch(thread_t *ntp, thread_t *otp);
   void _port_thread_start(void);
   void _port_switch_from_isr(void);
   void _port_exit_from_isr(void);
@@ -510,46 +511,6 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
-
-/**
- * @brief   Port-related initialization code.
- */
-static inline void port_init(void) {
-
-  /* Initializing priority grouping.*/
-  NVIC_SetPriorityGrouping(CORTEX_PRIGROUP_INIT);
-
-  /* DWT cycle counter enable, note, the M7 requires DWT unlocking.*/
-  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-#if CORTEX_MODEL == 7
-  DWT->LAR = 0xC5ACCE55U;
-#endif
-  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-
-  /* Initialization of the system vectors used by the port.*/
-#if CORTEX_SIMPLIFIED_PRIORITY == FALSE
-  NVIC_SetPriority(SVCall_IRQn, CORTEX_PRIORITY_SVCALL);
-#endif
-  NVIC_SetPriority(PendSV_IRQn, CORTEX_PRIORITY_PENDSV);
-
-#if PORT_ENABLE_GUARD_PAGES == TRUE
-  {
-    extern stkalign_t __main_thread_stack_base__;
-
-    /* Setting up the guard page on the main() function stack base
-       initially.*/
-    mpuConfigureRegion(PORT_USE_MPU_REGION,
-                       &__main_thread_stack_base__,
-                       MPU_RASR_ATTR_AP_NA_NA |
-                       MPU_RASR_ATTR_NON_CACHEABLE |
-                       MPU_RASR_SIZE_32 |
-                       MPU_RASR_ENABLE);
-
-    /* MPU is enabled.*/
-    mpuEnable(MPU_CTRL_PRIVDEFENA);
-  }
-#endif
-}
 
 /**
  * @brief   Returns a word encoding the current interrupts status.

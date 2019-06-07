@@ -116,6 +116,50 @@ void PendSV_Handler(void) {
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
+/**
+ * @brief   Port-related initialization code.
+ *
+ * @param[in, out] cip  pointer to the @p ch_instance_t structure
+ */
+void port_init(ch_instance_t *cip) {
+
+  (void)cip;
+
+  /* Initializing priority grouping.*/
+  NVIC_SetPriorityGrouping(CORTEX_PRIGROUP_INIT);
+
+  /* DWT cycle counter enable, note, the M7 requires DWT unlocking.*/
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+#if CORTEX_MODEL == 7
+  DWT->LAR = 0xC5ACCE55U;
+#endif
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
+  /* Initialization of the system vectors used by the port.*/
+#if CORTEX_SIMPLIFIED_PRIORITY == FALSE
+  NVIC_SetPriority(SVCall_IRQn, CORTEX_PRIORITY_SVCALL);
+#endif
+  NVIC_SetPriority(PendSV_IRQn, CORTEX_PRIORITY_PENDSV);
+
+#if PORT_ENABLE_GUARD_PAGES == TRUE
+  {
+    extern stkalign_t __main_thread_stack_base__;
+
+    /* Setting up the guard page on the main() function stack base
+       initially.*/
+    mpuConfigureRegion(PORT_USE_MPU_REGION,
+                       &__main_thread_stack_base__,
+                       MPU_RASR_ATTR_AP_NA_NA |
+                       MPU_RASR_ATTR_NON_CACHEABLE |
+                       MPU_RASR_SIZE_32 |
+                       MPU_RASR_ENABLE);
+
+    /* MPU is enabled.*/
+    mpuEnable(MPU_CTRL_PRIVDEFENA);
+  }
+#endif
+}
+
 #if ((CH_DBG_ENABLE_STACK_CHECK == TRUE) &&                                 \
      (PORT_ENABLE_GUARD_PAGES == TRUE)) ||                                  \
     defined(__DOXYGEN__)

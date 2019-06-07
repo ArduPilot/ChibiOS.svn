@@ -312,7 +312,7 @@ struct port_intctx {
   if ((stkalign_t *)(r13 - 1) < (otp)->wabase) {                            \
     chSysHalt("stack overflow");                                            \
   }                                                                         \
-  _port_switch((void *)ntp, (void *)otp);                                   \
+  _port_switch(ntp, otp);                                                   \
 }
 #endif
 
@@ -323,8 +323,9 @@ struct port_intctx {
 #ifdef __cplusplus
 extern "C" {
 #endif
+  void port_init(ch_instance_t *cip);
   void _port_irq_epilogue(regarm_t lr);
-  void _port_switch(void *ntp, void *otp);
+  void _port_switch(thread_t *ntp, thread_t *otp);
   void _port_thread_start(void);
   void _port_switch_from_isr(void);
   void _port_exit_from_isr(void);
@@ -335,14 +336,6 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
-
-/**
- * @brief   Port-related initialization code.
- */
-static inline void port_init(void) {
-
-  NVIC_SetPriority(PendSV_IRQn, CORTEX_PRIORITY_PENDSV);
-}
 
 /**
  * @brief   Returns a word encoding the current interrupts status.

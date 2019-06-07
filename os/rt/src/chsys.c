@@ -107,9 +107,6 @@ void chSysInit(void) {
   /* OS library modules.*/
   __oslib_init();
 
-  /* Port layer initialization.*/
-  port_init();
-
   /* Initializing default OS instance.*/
   chSchObjectInit(&ch.c0);
 

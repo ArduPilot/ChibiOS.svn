@@ -103,6 +103,18 @@ void PendSV_Handler(void) {
 /*===========================================================================*/
 
 /**
+ * @brief   Port-related initialization code.
+ *
+ * @param[in, out] cip  pointer to the @p ch_instance_t structure
+ */
+void port_init(ch_instance_t *cip) {
+
+  (void)cip;
+
+  NVIC_SetPriority(PendSV_IRQn, CORTEX_PRIORITY_PENDSV);
+}
+
+/**
  * @brief   IRQ epilogue code.
  *
  * @param[in] lr        value of the @p LR register on ISR entry

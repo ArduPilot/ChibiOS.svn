@@ -182,53 +182,56 @@ thread_t *list_remove(threads_list_t *tlp) {
 /**
  * @brief   Initializes a system instance.
  *
- * @param[out] csp      pointer to the @p ch_instance_t structure
+ * @param[out] cip      pointer to the @p ch_instance_t structure
  */
-void chSchObjectInit(ch_instance_t *csp) {
+void chSchObjectInit(ch_instance_t *cip) {
+
+  /* Port initialization for the current instance.*/
+  port_init(cip);
 
   /* Ready list initialization.*/
-  queue_init(&csp->rlist.queue);
-  csp->rlist.prio = NOPRIO;
+  queue_init(&cip->rlist.queue);
+  cip->rlist.prio = NOPRIO;
 
   /* Registry initialization.*/
 #if CH_CFG_USE_REGISTRY == TRUE
-  csp->rlist.newer = (thread_t *)&csp->rlist;
-  csp->rlist.older = (thread_t *)&csp->rlist;
+  cip->rlist.newer = (thread_t *)&cip->rlist;
+  cip->rlist.older = (thread_t *)&cip->rlist;
 #endif
 
   /* Virtual timers list initialization.*/
-  __vt_object_init(&csp->vtlist);
+  __vt_object_init(&cip->vtlist);
 
   /* Debug support initialization.*/
-  __dbg_object_init(&csp->dbg);
+  __dbg_object_init(&cip->dbg);
 
 #if CH_DBG_TRACE_MASK != CH_DBG_TRACE_MASK_DISABLED
   /* Trace buffer initialization.*/
-  __trace_object_init(&csp->trace_buffer);
+  __trace_object_init(&cip->trace_buffer);
 #endif
 
   /* Time Measurement initialization.*/
 #if CH_CFG_USE_TM == TRUE
-  __tm_object_init(&csp->tmc);
+  __tm_object_init(&cip->tmc);
 #endif
 
   /* Statistics intialization.*/
 #if CH_DBG_STATISTICS == TRUE
-  __stats_object_init(&csp->kernel_stats);
+  __stats_object_init(&cip->kernel_stats);
 #endif
 
 #if CH_CFG_NO_IDLE_THREAD == FALSE
   /* Now this instructions flow becomes the main thread.*/
 #if CH_CFG_USE_REGISTRY == TRUE
-  csp->rlist.current = _thread_init(&csp->mainthread,
+  cip->rlist.current = _thread_init(&cip->mainthread,
                                     (const char *)&ch_debug,
                                     NORMALPRIO);
 #else
-  csp->rlist.current = _thread_init(&csp->mainthread, "main", NORMALPRIO);
+  cip->rlist.current = _thread_init(&cip->mainthread, "main", NORMALPRIO);
 #endif
 #else
   /* Now this instructions flow becomes the idle thread.*/
-  csp->rlist.current = _thread_init(&csp->mainthread, "idle", IDLEPRIO);
+  cip->rlist.current = _thread_init(&cip->mainthread, "idle", IDLEPRIO);
 #endif
 
 #if CH_DBG_ENABLE_STACK_CHECK == TRUE
@@ -236,17 +239,17 @@ void chSchObjectInit(ch_instance_t *csp) {
     /* Setting up the base address of the static main thread stack, the
        symbol must be provided externally.*/
     extern stkalign_t __main_thread_stack_base__;
-    csp->rlist.current->wabase = &__main_thread_stack_base__;
+    cip->rlist.current->wabase = &__main_thread_stack_base__;
   }
 #elif CH_CFG_USE_DYNAMIC == TRUE
-  csp->rlist.current->wabase = NULL;
+  cip->rlist.current->wabase = NULL;
 #endif
 
   /* Setting up the caller as current thread.*/
-  csp->rlist.current->state = CH_STATE_CURRENT;
+  cip->rlist.current->state = CH_STATE_CURRENT;
 
   /* User instance initialization hook.*/
-  CH_CFG_INSTANCE_INIT_HOOK(csp);
+  CH_CFG_INSTANCE_INIT_HOOK(cip);
 }
 
 /**

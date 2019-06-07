@@ -21,7 +21,7 @@
  * @file    chobjects.h
  * @brief   Operating System Objects macros and structures.
  *
- * @addtogroup CH_OBJECTS
+ * @addtogroup os_structures
  * @{
  */
 
@@ -92,13 +92,6 @@ typedef struct ch_virtual_timers_list {
                                                 tick event.                 */
 #endif
 } virtual_timers_list_t;
-
-/**
- * @extends threads_queue_t
- *
- * @brief   Type of a thread structure.
- */
-typedef struct ch_thread thread_t;
 
 /**
  * @brief   Type of a thread reference.
@@ -316,9 +309,9 @@ typedef struct ch_ready_list {
 } ready_list_t;
 
 /**
- * @brief   Type of system instance data structure.
+ * @brief   System instance data structure.
  */
-typedef struct ch_instance {
+struct ch_instance {
   /**
    * @brief   Ready list header.
    */
@@ -357,7 +350,7 @@ typedef struct ch_instance {
   PORT_INSTANCE_EXTRA_FIELDS
 #endif
   CH_CFG_INSTANCE_EXTRA_FIELDS
-} ch_instance_t;
+};
 
 /**
  * @brief   Type of system data structure.

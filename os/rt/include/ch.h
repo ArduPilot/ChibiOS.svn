@@ -108,6 +108,7 @@ extern "C" {
 
 /* Base kernel headers.*/
 #include "chtypes.h"
+#include "chearly.h"
 #include "chalign.h"
 #include "chdebug.h"
 #include "chtrace.h"

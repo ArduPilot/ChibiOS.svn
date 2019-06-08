@@ -60,14 +60,20 @@ typedef struct ch_instance ch_instance_t;
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @brief   Utility to make the parameter a quoted string.
+ */
+#define __CH_STRINGIFY(a) #a
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
 
+/* Early function prototypes required by the following headers.*/
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+  void chSysHalt(const char *reason);
 #ifdef __cplusplus
 }
 #endif

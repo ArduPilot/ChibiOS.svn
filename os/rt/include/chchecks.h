@@ -48,6 +48,11 @@
 #error "obsolete or unknown configuration file"
 #endif
 
+/* System settings checks.*/
+#if !defined(CH_CFG_INSTANCES_NUMBER)
+#error "CH_CFG_INSTANCES_NUMBER not defined in chconf.h"
+#endif
+
 /* System timers checks.*/
 #if !defined(CH_CFG_ST_RESOLUTION)
 #error "CH_CFG_ST_RESOLUTION not defined in chconf.h"

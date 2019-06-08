@@ -108,7 +108,7 @@ void chSysInit(void) {
   __oslib_init();
 
   /* Initializing default OS instance.*/
-  chSchObjectInit(&ch.c0);
+  chSchObjectInit(&ch.instance[0]);
 
   /* User system initialization hook.*/
   CH_CFG_SYSTEM_INIT_HOOK();

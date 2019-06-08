@@ -33,6 +33,24 @@
 
 /*===========================================================================*/
 /**
+ * @name System settings
+ * @{
+ */
+/*===========================================================================*/
+
+/**
+ * @brief   Number of OS instances.
+ * @note    For each core in use an instance is needed, the number needs to
+ *          be between one and the number of available cores.
+ */
+#if !defined(CH_CFG_INSTANCES_NUMBER)
+#define CH_CFG_INSTANCES_NUMBER             1
+#endif
+
+/** @} */
+
+/*===========================================================================*/
+/**
  * @name System timers settings
  * @{
  */

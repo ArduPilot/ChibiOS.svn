@@ -346,9 +346,11 @@ struct ch_instance {
    */
   kernel_stats_t        kernel_stats;
 #endif
-#if defined(PORT_SYSTEM_EXTRA_FIELDS) || defined(__DOXYGEN__)
+#if defined(PORT_INSTANCE_EXTRA_FIELDS) || defined(__DOXYGEN__)
+  /* Extra fields from port layer.*/
   PORT_INSTANCE_EXTRA_FIELDS
 #endif
+  /* Extra fields from configuration.*/
   CH_CFG_INSTANCE_EXTRA_FIELDS
 };
 
@@ -356,11 +358,16 @@ struct ch_instance {
  * @brief   Type of system data structure.
  */
 typedef struct ch_system {
-  /**
-   * @brief   OS instance for core 0.
-   */
-  ch_instance_t         c0;
+#if defined(PORT_SYSTEM_EXTRA_FIELDS) || defined(__DOXYGEN__)
+  /* Extra fields from port layer.*/
+  PORT_SYSTEM_EXTRA_FIELDS
+#endif
+  /* Extra fields from configuration.*/
   CH_CFG_SYSTEM_EXTRA_FIELDS
+  /**
+   * @brief   OS instances.
+   */
+  ch_instance_t         instance[CH_CFG_INSTANCES_NUMBER];
 } ch_system_t;
 
 /*===========================================================================*/

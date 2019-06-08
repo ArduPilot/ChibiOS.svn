@@ -86,25 +86,11 @@
 #endif
 /** @} */
 
-/**
- * @brief   Utility to make the parameter a quoted string.
- */
-#define __CH_STRINGIFY(a) #a
-
 /* Configuration headers, checks and licensing restrictions.*/
 #include "chconf.h"
 #include "chchecks.h"
 #include "chlicense.h"
 #include "chrestrictions.h"
-
-/* Early function prototype required by the following headers.*/
-#ifdef __cplusplus
-extern "C" {
-#endif
-  void chSysHalt(const char *reason);
-#ifdef __cplusplus
-}
-#endif
 
 /* Base kernel headers.*/
 #include "chtypes.h"

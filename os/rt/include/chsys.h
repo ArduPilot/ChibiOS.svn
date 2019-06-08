@@ -52,6 +52,18 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
+#if !defined(PORT_CORES_NUMBER)
+#define PORT_CORES_NUMBER                   1
+#endif
+
+#if CH_CFG_INSTANCES_NUMBER < 1
+#error "CH_CFG_INSTANCES_NUMBER must be greater than zero"
+#endif
+
+#if CH_CFG_INSTANCES_NUMBER > PORT_CORES_NUMBER
+#error "CH_CFG_INSTANCES_NUMBER greater than PORT_CORES_NUMBER"
+#endif
+
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/
@@ -60,7 +72,7 @@
  * @brief   Access to current core's instance structure.
  */
 #if !defined(PORT_INSTANCE_ACCESS) || defined(__DOXYGEN__)
-#define currcore                            (&ch.c0)
+#define currcore                            (&ch.instance[0])
 #else
 #define currcore                            PORT_INSTANCE_ACCESS
 #endif

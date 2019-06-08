@@ -61,6 +61,10 @@
 #if (CH_LICENSE_FEATURES == CH_FEATURES_INTERMEDIATE) ||                    \
     (CH_LICENSE_FEATURES == CH_FEATURES_BASIC)
 
+/* Restricted multiple instances.*/
+#undef CH_CFG_INSTANCES_NUMBER
+#define CH_CFG_INSTANCES_NUMBER             1
+
 /* System tick limited to 1000hz.*/
 #if CH_CFG_ST_FREQUENCY > 1000
 #undef CH_CFG_ST_FREQUENCY

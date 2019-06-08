@@ -47,6 +47,19 @@
 #define CH_CFG_INSTANCES_NUMBER             1
 #endif
 
+/**
+ * @brief   Handling of instances.
+ * @note    If disabled then threads assigned to various instances can
+ *          interact each other using the same synchronization objects.
+ *          If enabled then each OS instance is a separate world, no
+ *          direct interactions is handled by the OS.
+ *          This setting is only meaningful if @p CH_CFG_INSTANCES_NUMBER
+ *          is greater than one.
+ */
+#if !defined(CH_CFG_LOOSE_INSTANCES)
+#define CH_CFG_LOOSE_INSTANCES              FALSE
+#endif
+
 /** @} */
 
 /*===========================================================================*/

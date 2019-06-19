@@ -131,6 +131,12 @@ struct ch_thread {
   thread_t              *older;     /**< @brief Older registry element.     */
 #endif
   /* End of the fields shared with the ReadyList structure. */
+#if (CH_CFG_LOOSE_INSTANCES == FALSE) || defined(__DOXYGEN__)
+  /**
+   * @brief   OS instance owner of this thread.
+   */
+  ch_instance_t         *owner;
+#endif
 #if (CH_CFG_USE_REGISTRY == TRUE) || defined(__DOXYGEN__)
   /**
    * @brief   Thread name or @p NULL.

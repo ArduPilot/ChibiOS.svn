@@ -79,6 +79,14 @@ typedef struct {
    * @brief   Thread argument.
    */
   void              *arg;
+#if (CH_CFG_LOOSE_INSTANCES == FALSE) || defined(__DOXYGEN__)
+  /**
+   * @brief   OS instance where to start the thread.
+   * @note    If left at @p NULL then the thread is started on the current
+   *          core.
+   */
+  ch_instance_t     *instance;
+#endif
 } thread_descriptor_t;
 
 /*===========================================================================*/
@@ -220,9 +228,12 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-   thread_t *_thread_init(thread_t *tp, const char *name, tprio_t prio);
+   thread_t *__thd_object_init(ch_instance_t *cip,
+                               thread_t *tp,
+                               const char *name,
+                               tprio_t prio);
 #if CH_DBG_FILL_THREADS == TRUE
-  void _thread_memfill(uint8_t *startp, uint8_t *endp, uint8_t v);
+  void __thd_memfill(uint8_t *startp, uint8_t *endp, uint8_t v);
 #endif
   thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp);
   thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp);

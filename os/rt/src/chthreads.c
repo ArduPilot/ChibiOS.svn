@@ -85,11 +85,19 @@
  *
  * @notapi
  */
-thread_t *_thread_init(thread_t *tp, const char *name, tprio_t prio) {
+thread_t *__thd_object_init(ch_instance_t *cip,
+                            thread_t *tp,
+                            const char *name,
+                            tprio_t prio) {
 
   tp->prio      = prio;
   tp->state     = CH_STATE_WTSTART;
   tp->flags     = CH_FLAG_MODE_STATIC;
+#if CH_CFG_LOOSE_INSTANCES == FALSE
+  tp->owner     = cip;
+#else
+  (void)cip;
+#endif
 #if CH_CFG_TIME_QUANTUM > 0
   tp->ticks     = (tslices_t)CH_CFG_TIME_QUANTUM;
 #endif
@@ -133,7 +141,7 @@ thread_t *_thread_init(thread_t *tp, const char *name, tprio_t prio) {
  *
  * @notapi
  */
-void _thread_memfill(uint8_t *startp, uint8_t *endp, uint8_t v) {
+void __thd_memfill(uint8_t *startp, uint8_t *endp, uint8_t v) {
 
   while (startp < endp) {
     *startp++ = v;
@@ -190,7 +198,13 @@ thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp) {
   PORT_SETUP_CONTEXT(tp, tdp->wbase, tp, tdp->funcp, tdp->arg);
 
   /* The driver object is initialized but not started.*/
-  return _thread_init(tp, tdp->name, tdp->prio);
+#if CH_CFG_LOOSE_INSTANCES == FALSE
+  if (tdp->instance != NULL) {
+    return __thd_object_init(tdp->instance, tp, tdp->name, tdp->prio);
+  }
+#endif
+
+  return __thd_object_init(currcore, tp, tdp->name, tdp->prio);
 }
 
 /**
@@ -222,9 +236,9 @@ thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp) {
 #endif
 
 #if CH_DBG_FILL_THREADS == TRUE
-  _thread_memfill((uint8_t *)tdp->wbase,
-                  (uint8_t *)tdp->wend,
-                  CH_DBG_STACK_FILL_VALUE);
+  __thd_memfill((uint8_t *)tdp->wbase,
+                (uint8_t *)tdp->wend,
+                CH_DBG_STACK_FILL_VALUE);
 #endif
 
   chSysLock();
@@ -287,9 +301,9 @@ thread_t *chThdCreate(const thread_descriptor_t *tdp) {
 #endif
 
 #if CH_DBG_FILL_THREADS == TRUE
-  _thread_memfill((uint8_t *)tdp->wbase,
-                  (uint8_t *)tdp->wend,
-                  CH_DBG_STACK_FILL_VALUE);
+  __thd_memfill((uint8_t *)tdp->wbase,
+                (uint8_t *)tdp->wend,
+                CH_DBG_STACK_FILL_VALUE);
 #endif
 
   chSysLock();
@@ -337,9 +351,9 @@ thread_t *chThdCreateStatic(void *wsp, size_t size,
 #endif
 
 #if CH_DBG_FILL_THREADS == TRUE
-  _thread_memfill((uint8_t *)wsp,
-                  (uint8_t *)wsp + size,
-                  CH_DBG_STACK_FILL_VALUE);
+  __thd_memfill((uint8_t *)wsp,
+                (uint8_t *)wsp + size,
+                CH_DBG_STACK_FILL_VALUE);
 #endif
 
   chSysLock();
@@ -358,7 +372,7 @@ thread_t *chThdCreateStatic(void *wsp, size_t size,
   /* Setting up the port-dependent part of the working area.*/
   PORT_SETUP_CONTEXT(tp, wsp, tp, pf, arg);
 
-  tp = _thread_init(tp, "noname", prio);
+  tp = __thd_object_init(currcore, tp, "noname", prio);
 
   /* Starting the thread immediately.*/
   chSchWakeupS(tp, MSG_OK);

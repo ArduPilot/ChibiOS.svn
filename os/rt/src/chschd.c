@@ -206,9 +206,12 @@ thread_t *list_remove(threads_list_t *tlp) {
 
 /**
  * @brief   Initializes a system instance.
+ * @note    The system instance is in I-Lock state after initialization.
  *
  * @param[out] cip      pointer to the @p ch_instance_t structure
  * @param[in] cicp      pointer to the @p ch_instance_config_t structure
+ *
+ * @special
  */
 void chSchObjectInit(ch_instance_t *cip,
                      const ch_instance_config_t *cicp) {
@@ -250,15 +253,16 @@ void chSchObjectInit(ch_instance_t *cip,
 #if CH_CFG_NO_IDLE_THREAD == FALSE
   /* Now this instructions flow becomes the main thread.*/
 #if CH_CFG_USE_REGISTRY == TRUE
-  cip->rlist.current = _thread_init(&cip->mainthread,
-                                    (const char *)&ch_debug,
-                                    NORMALPRIO);
+  cip->rlist.current = __thd_object_init(cip, &cip->mainthread,
+                                         (const char *)&ch_debug, NORMALPRIO);
 #else
-  cip->rlist.current = _thread_init(&cip->mainthread, "main", NORMALPRIO);
+  cip->rlist.current = __thd_object_init(cip, &cip->mainthread,
+                                         "main", NORMALPRIO);
 #endif
 #else
   /* Now this instructions flow becomes the idle thread.*/
-  cip->rlist.current = _thread_init(&cip->mainthread, "idle", IDLEPRIO);
+  cip->rlist.current = __thd_object_init(cip, &cip->mainthread,
+                                         "idle", IDLEPRIO);
 #endif
 
 #if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)

@@ -309,6 +309,37 @@ typedef struct ch_ready_list {
 } ready_list_t;
 
 /**
+ * @brief   Type of an system instance configuration.
+ */
+typedef struct ch_instance_config {
+  /**
+   * @brief   Instance name.
+   */
+  const char            *name;
+#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE) ||  \
+    defined(__DOXYGEN__)
+  /**
+   * @brief   Lower limit of the main function thread stack.
+   */
+  stkalign_t            *mainthread_base;
+  /**
+   * @brief   Upper limit of the main function thread stack.
+   */
+  stkalign_t            *mainthread_end;
+#endif
+#if (CH_CFG_NO_IDLE_THREAD == FALSE) || defined(__DOXYGEN__)
+  /**
+   * @brief   Lower limit of the dedicated idle thread stack.
+   */
+  stkalign_t            *idlethread_base;
+  /**
+   * @brief   Upper limit of the dedicated idle thread stack.
+   */
+  stkalign_t            *idlethread_end;
+#endif
+} ch_instance_config_t;
+
+/**
  * @brief   System instance data structure.
  */
 struct ch_instance {

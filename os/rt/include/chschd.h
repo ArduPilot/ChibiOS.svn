@@ -146,7 +146,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chSchObjectInit(ch_instance_t *csp);
+  void chSchObjectInit(ch_instance_t *csp,
+                       const ch_instance_config_t *cicp);
   thread_t *chSchReadyI(thread_t *tp);
   thread_t *chSchReadyAheadI(thread_t *tp);
   void chSchGoSleepS(tstate_t newstate);

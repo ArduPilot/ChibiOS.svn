@@ -201,8 +201,9 @@ static inline void __dbg_object_init(system_debug_t *sdp) {
   sdp->panic_msg = NULL;
 
 #if CH_DBG_SYSTEM_STATE_CHECK == TRUE
+  /* The initial state is assumed to be within a critical zone.*/
   sdp->isr_cnt  = (cnt_t)0;
-  sdp->lock_cnt = (cnt_t)0;
+  sdp->lock_cnt = (cnt_t)1;
 #endif
 }
 

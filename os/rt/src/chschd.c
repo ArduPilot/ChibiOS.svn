@@ -48,6 +48,31 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
+#if (CH_CFG_NO_IDLE_THREAD == FALSE) || defined(__DOXYGEN__)
+/**
+ * @brief   This function implements the idle thread infinite loop.
+ * @details The function puts the processor in the lowest power mode capable
+ *          to serve interrupts.<br>
+ *          The priority is internally set to the minimum system value so
+ *          that this thread is executed only if there are no other ready
+ *          threads in the system.
+ *
+ * @param[in] p         the thread parameter, unused in this scenario
+ */
+static void _idle_thread(void *p) {
+
+  (void)p;
+
+  while (true) {
+    /*lint -save -e522 [2.2] Apparently no side effects because it contains
+      an asm instruction.*/
+    port_wait_for_interrupt();
+    /*lint -restore*/
+    CH_CFG_IDLE_LOOP_HOOK();
+  }
+}
+#endif /* CH_CFG_NO_IDLE_THREAD == FALSE */
+
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
@@ -183,8 +208,10 @@ thread_t *list_remove(threads_list_t *tlp) {
  * @brief   Initializes a system instance.
  *
  * @param[out] cip      pointer to the @p ch_instance_t structure
+ * @param[in] cicp      pointer to the @p ch_instance_config_t structure
  */
-void chSchObjectInit(ch_instance_t *cip) {
+void chSchObjectInit(ch_instance_t *cip,
+                     const ch_instance_config_t *cicp) {
 
   /* Port initialization for the current instance.*/
   port_init(cip);
@@ -234,15 +261,8 @@ void chSchObjectInit(ch_instance_t *cip) {
   cip->rlist.current = _thread_init(&cip->mainthread, "idle", IDLEPRIO);
 #endif
 
-#if CH_DBG_ENABLE_STACK_CHECK == TRUE
-  {
-    /* Setting up the base address of the static main thread stack, the
-       symbol must be provided externally.*/
-    extern stkalign_t __main_thread_stack_base__;
-    cip->rlist.current->wabase = &__main_thread_stack_base__;
-  }
-#elif CH_CFG_USE_DYNAMIC == TRUE
-  cip->rlist.current->wabase = NULL;
+#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
+  cip->rlist.current->wabase = cicp->mainthread_base;
 #endif
 
   /* Setting up the caller as current thread.*/
@@ -250,6 +270,24 @@ void chSchObjectInit(ch_instance_t *cip) {
 
   /* User instance initialization hook.*/
   CH_CFG_INSTANCE_INIT_HOOK(cip);
+
+#if CH_CFG_NO_IDLE_THREAD == FALSE
+  {
+    thread_descriptor_t idle_descriptor = {
+      .name  = "idle",
+      .wbase = cicp->idlethread_base,
+      .wend  = cicp->idlethread_end,
+      .prio  = IDLEPRIO,
+      .funcp = _idle_thread,
+      .arg   = NULL
+    };
+
+    /* This thread has the lowest priority in the system, its role is just to
+       serve interrupts in its context while keeping the lowest energy saving
+       mode compatible with the system status.*/
+    (void) chThdCreateI(&idle_descriptor);
+  }
+#endif
 }
 
 /**

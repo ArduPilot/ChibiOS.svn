@@ -46,9 +46,9 @@ ch_system_t ch;
 
 #if (CH_CFG_NO_IDLE_THREAD == FALSE) || defined(__DOXYGEN__)
 /**
- * @brief   Idle thread working area.
+ * @brief   Core 0 idle thread working area.
  */
-THD_WORKING_AREA(ch_idle_thread_wa, PORT_IDLE_THREAD_STACK_SIZE);
+THD_WORKING_AREA(ch_c0_idle_thread_wa, PORT_IDLE_THREAD_STACK_SIZE);
 #endif
 
 /*===========================================================================*/
@@ -62,31 +62,6 @@ THD_WORKING_AREA(ch_idle_thread_wa, PORT_IDLE_THREAD_STACK_SIZE);
 /*===========================================================================*/
 /* Module local functions.                                                   */
 /*===========================================================================*/
-
-#if (CH_CFG_NO_IDLE_THREAD == FALSE) || defined(__DOXYGEN__)
-/**
- * @brief   This function implements the idle thread infinite loop.
- * @details The function puts the processor in the lowest power mode capable
- *          to serve interrupts.<br>
- *          The priority is internally set to the minimum system value so
- *          that this thread is executed only if there are no other ready
- *          threads in the system.
- *
- * @param[in] p         the thread parameter, unused in this scenario
- */
-static void _idle_thread(void *p) {
-
-  (void)p;
-
-  while (true) {
-    /*lint -save -e522 [2.2] Apparently no side effects because it contains
-      an asm instruction.*/
-    port_wait_for_interrupt();
-    /*lint -restore*/
-    CH_CFG_IDLE_LOOP_HOOK();
-  }
-}
-#endif /* CH_CFG_NO_IDLE_THREAD == FALSE */
 
 /*===========================================================================*/
 /* Module exported functions.                                                */
@@ -104,35 +79,31 @@ static void _idle_thread(void *p) {
  */
 void chSysInit(void) {
 
+  /* User system initialization hook.*/
+  CH_CFG_SYSTEM_INIT_HOOK();
+
   /* OS library modules.*/
   __oslib_init();
 
   /* Initializing default OS instance.*/
-  chSchObjectInit(&ch.instance[0]);
-
-  /* User system initialization hook.*/
-  CH_CFG_SYSTEM_INIT_HOOK();
-
-  /* It is alive now.*/
-  chSysEnable();
-
-#if CH_CFG_NO_IDLE_THREAD == FALSE
   {
-    static const thread_descriptor_t idle_descriptor = {
-      "idle",
-      THD_WORKING_AREA_BASE(ch_idle_thread_wa),
-      THD_WORKING_AREA_END(ch_idle_thread_wa),
-      IDLEPRIO,
-      _idle_thread,
-      NULL
+    extern stkalign_t __main_thread_stack_base__,
+                      __main_thread_stack_end__;
+    static const ch_instance_config_t c0_cfg = {
+      .name             = "c0",
+      .mainthread_base  = &__main_thread_stack_base__,
+      .mainthread_end   = &__main_thread_stack_end__,
+#if CH_CFG_NO_IDLE_THREAD == FALSE
+      .idlethread_base  = THD_WORKING_AREA_BASE(ch_c0_idle_thread_wa),
+      .idlethread_end   = THD_WORKING_AREA_END(ch_c0_idle_thread_wa)
+#endif
     };
 
-    /* This thread has the lowest priority in the system, its role is just to
-       serve interrupts in its context while keeping the lowest energy saving
-       mode compatible with the system status.*/
-    (void) chThdCreate(&idle_descriptor);
+    chSchObjectInit(&ch.instance[0], &c0_cfg);
   }
-#endif
+
+  /* It is alive now.*/
+  chSysUnlock();
 }
 
 /**

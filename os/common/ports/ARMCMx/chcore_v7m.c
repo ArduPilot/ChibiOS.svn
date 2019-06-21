@@ -119,11 +119,11 @@ void PendSV_Handler(void) {
 /**
  * @brief   Port-related initialization code.
  *
- * @param[in, out] cip  pointer to the @p ch_instance_t structure
+ * @param[in, out] oip  pointer to the @p os_instance_t structure
  */
-void port_init(ch_instance_t *cip) {
+void port_init(os_instance_t *oip) {
 
-  (void)cip;
+  (void)oip;
 
   /* Initializing priority grouping.*/
   NVIC_SetPriorityGrouping(CORTEX_PRIGROUP_INIT);

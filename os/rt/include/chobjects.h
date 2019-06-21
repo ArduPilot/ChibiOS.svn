@@ -135,7 +135,7 @@ struct ch_thread {
   /**
    * @brief   OS instance owner of this thread.
    */
-  ch_instance_t         *owner;
+  os_instance_t         *owner;
 #endif
 #if (CH_CFG_USE_REGISTRY == TRUE) || defined(__DOXYGEN__)
   /**
@@ -317,7 +317,7 @@ typedef struct ch_ready_list {
 /**
  * @brief   Type of an system instance configuration.
  */
-typedef struct ch_instance_config {
+typedef struct ch_os_instance_config {
   /**
    * @brief   Instance name.
    */
@@ -343,12 +343,12 @@ typedef struct ch_instance_config {
    */
   stkalign_t            *idlethread_end;
 #endif
-} ch_instance_config_t;
+} os_instance_config_t;
 
 /**
  * @brief   System instance data structure.
  */
-struct ch_instance {
+struct ch_os_instance {
   /**
    * @brief   Ready list header.
    */
@@ -404,7 +404,7 @@ typedef struct ch_system {
   /**
    * @brief   OS instances.
    */
-  ch_instance_t         instance[CH_CFG_INSTANCES_NUMBER];
+  os_instance_t         instance[CH_CFG_INSTANCES_NUMBER];
 } ch_system_t;
 
 /*===========================================================================*/

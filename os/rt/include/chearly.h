@@ -52,9 +52,9 @@
 typedef struct ch_thread thread_t;
 
 /**
- * @brief   Type of a system instance structure.
+ * @brief   Type of an OS instance structure.
  */
-typedef struct ch_instance ch_instance_t;
+typedef struct ch_os_instance os_instance_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */

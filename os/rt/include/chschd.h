@@ -146,18 +146,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void chSchObjectInit(ch_instance_t *csp,
-                       const ch_instance_config_t *cicp);
+  void chSchObjectInit(os_instance_t *oip,
+                       const os_instance_config_t *oicp);
+  thread_t *__sch_ready_behind(os_instance_t *oip, thread_t *tp);
+  thread_t *__sch_ready_ahead(thread_t *tp);
+  void __sch_reschedule_behind(void);
+  void __sch_reschedule_ahead(void);
   thread_t *chSchReadyI(thread_t *tp);
-  thread_t *chSchReadyAheadI(thread_t *tp);
   void chSchGoSleepS(tstate_t newstate);
   msg_t chSchGoSleepTimeoutS(tstate_t newstate, sysinterval_t timeout);
   void chSchWakeupS(thread_t *ntp, msg_t msg);
   void chSchRescheduleS(void);
   bool chSchIsPreemptionRequired(void);
-  void chSchDoRescheduleBehind(void);
-  void chSchDoRescheduleAhead(void);
-  void chSchDoReschedule(void);
+  void chSchDoPreemption(void);
 #if CH_CFG_OPTIMIZE_SPEED == FALSE
   void queue_prio_insert(thread_t *tp, threads_queue_t *tqp);
   void queue_insert(thread_t *tp, threads_queue_t *tqp);
@@ -364,14 +365,14 @@ static inline void chSchDoYieldS(void) {
   chDbgCheckClassS();
 
   if (chSchCanYieldS()) {
-    chSchDoRescheduleBehind();
+    __sch_reschedule_behind();
   }
 }
 
 /**
  * @brief   Inline-able preemption code.
- * @details This is the common preemption code, this function must be invoked
- *          exclusively from the port layer.
+ * @note    Not a user function, it is meant to be invoked from within
+ *          the port layer in the IRQ-related preemption code.
  *
  * @special
  */
@@ -382,17 +383,17 @@ static inline void chSchPreemption(void) {
 #if CH_CFG_TIME_QUANTUM > 0
   if (currthread->ticks > (tslices_t)0) {
     if (p1 > p2) {
-      chSchDoRescheduleAhead();
+      __sch_reschedule_ahead();
     }
   }
   else {
     if (p1 >= p2) {
-      chSchDoRescheduleBehind();
+      __sch_reschedule_behind();
     }
   }
 #else /* CH_CFG_TIME_QUANTUM == 0 */
   if (p1 > p2) {
-    chSchDoRescheduleAhead();
+    __sch_reschedule_ahead();
   }
 #endif /* CH_CFG_TIME_QUANTUM == 0 */
 }

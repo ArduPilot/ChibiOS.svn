@@ -138,7 +138,7 @@ _port_switch_from_isr:
 #if CH_DBG_SYSTEM_STATE_CHECK
                 bl      _dbg_check_lock
 #endif
-                bl      chSchDoReschedule
+                bl      chSchDoPreemption
 #if CH_DBG_SYSTEM_STATE_CHECK
                 bl      _dbg_check_unlock
 #endif

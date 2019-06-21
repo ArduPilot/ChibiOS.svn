@@ -89,7 +89,7 @@ void chSysInit(void) {
   {
     extern stkalign_t __main_thread_stack_base__,
                       __main_thread_stack_end__;
-    static const ch_instance_config_t c0_cfg = {
+    static const os_instance_config_t c0_cfg = {
       .name             = "c0",
       .mainthread_base  = &__main_thread_stack_base__,
       .mainthread_end   = &__main_thread_stack_end__,

@@ -85,8 +85,8 @@ typedef struct ch_system_debug {
 /*===========================================================================*/
 
 #if CH_DBG_SYSTEM_STATE_CHECK == TRUE
-#define _dbg_enter_lock() (ch.dbg.lock_cnt = (cnt_t)1)
-#define _dbg_leave_lock() (ch.dbg.lock_cnt = (cnt_t)0)
+#define _dbg_enter_lock() (currcore->dbg.lock_cnt = (cnt_t)1)
+#define _dbg_leave_lock() (currcore->dbg.lock_cnt = (cnt_t)0)
 #endif
 
 /* When the state checker feature is disabled then the following functions

@@ -78,6 +78,7 @@
  * @brief   Initializes a thread structure.
  * @note    This is an internal functions, do not use it in application code.
  *
+ * @param[in] oip       pointer to the OS instance
  * @param[in] tp        pointer to the thread
  * @param[in] name      thread name
  * @param[in] prio      the priority level for the new thread
@@ -85,7 +86,7 @@
  *
  * @notapi
  */
-thread_t *__thd_object_init(ch_instance_t *cip,
+thread_t *__thd_object_init(os_instance_t *oip,
                             thread_t *tp,
                             const char *name,
                             tprio_t prio) {
@@ -94,9 +95,9 @@ thread_t *__thd_object_init(ch_instance_t *cip,
   tp->state     = CH_STATE_WTSTART;
   tp->flags     = CH_FLAG_MODE_STATIC;
 #if CH_CFG_LOOSE_INSTANCES == FALSE
-  tp->owner     = cip;
+  tp->owner     = oip;
 #else
-  (void)cip;
+  (void)oip;
 #endif
 #if CH_CFG_TIME_QUANTUM > 0
   tp->ticks     = (tslices_t)CH_CFG_TIME_QUANTUM;

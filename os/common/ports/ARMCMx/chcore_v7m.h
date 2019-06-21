@@ -498,7 +498,7 @@ struct port_intctx {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void port_init(ch_instance_t *cip);
+  void port_init(os_instance_t *oip);
   void _port_irq_epilogue(void);
   void _port_switch(thread_t *ntp, thread_t *otp);
   void _port_thread_start(void);

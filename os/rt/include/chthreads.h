@@ -228,7 +228,7 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-   thread_t *__thd_object_init(ch_instance_t *cip,
+   thread_t *__thd_object_init(os_instance_t *oip,
                                thread_t *tp,
                                const char *name,
                                tprio_t prio);

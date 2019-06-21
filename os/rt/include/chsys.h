@@ -326,6 +326,8 @@ extern "C" {
  * @details All the maskable interrupt sources are disabled regardless their
  *          hardware priority.
  * @note    Do not invoke this API from within a kernel lock.
+ * @note    This API is no replacement for @p chSysLock()and @p chSysUnock()
+ *          which could do more than just disable interrupts.
  *
  * @special
  */
@@ -341,8 +343,8 @@ static inline void chSysDisable(void) {
  *          are disabled, interrupt sources with higher priority are still
  *          enabled.
  * @note    Do not invoke this API from within a kernel lock.
- * @note    This API is no replacement for @p chSysLock(), the @p chSysLock()
- *          could do more than just disable the interrupts.
+ * @note    This API is no replacement for @p chSysLock()and @p chSysUnock()
+ *          which could do more than just disable interrupts.
  *
  * @special
  */
@@ -356,8 +358,8 @@ static inline void chSysSuspend(void) {
  * @brief   Lowers the system interrupt priority mask to user level.
  * @details All the interrupt sources are enabled.
  * @note    Do not invoke this API from within a kernel lock.
- * @note    This API is no replacement for @p chSysUnlock(), the
- *          @p chSysUnlock() could do more than just enable the interrupts.
+ * @note    This API is no replacement for @p chSysLock()and @p chSysUnock()
+ *          which could do more than just disable interrupts.
  *
  * @special
  */
@@ -369,6 +371,8 @@ static inline void chSysEnable(void) {
 
 /**
  * @brief   Enters the kernel lock state.
+ * @note    The exact behavior of this function is port-dependent and could
+ *          not be limited to disabling interrupts.
  *
  * @special
  */
@@ -381,6 +385,8 @@ static inline void chSysLock(void) {
 
 /**
  * @brief   Leaves the kernel lock state.
+ * @note    The exact behavior of this function is port-dependent and could
+ *          not be limited to enabling interrupts.
  *
  * @special
  */
@@ -408,6 +414,8 @@ static inline void chSysUnlock(void) {
  *          the system mutual exclusion zone.<br>
  *          It is good practice to invoke this API before invoking any I-class
  *          syscall from an interrupt handler.
+ * @note    The exact behavior of this function is port-dependent and could
+ *          not be limited to disabling interrupts.
  * @note    This API must be invoked exclusively from interrupt handlers.
  *
  * @special
@@ -428,6 +436,8 @@ static inline void chSysLockFromISR(void) {
  *          the system mutual exclusion zone.<br>
  *          It is good practice to invoke this API after invoking any I-class
  *          syscall from an interrupt handler.
+ * @note    The exact behavior of this function is port-dependent and could
+ *          not be limited to enabling interrupts.
  * @note    This API must be invoked exclusively from interrupt handlers.
  *
  * @special
@@ -466,6 +476,20 @@ static inline void chSysUnconditionalUnlock(void) {
     chSysUnlock();
   }
 }
+
+#if (CH_CFG_LOOSE_INSTANCES == FALSE) || defined(__DOXYGEN__)
+/**
+ * @brief   Notifies an OS instance to check for reschedule.
+ * @details An OS instance is notified to check if a reschedule is required,
+ *          the implementation is port-dependent.
+ *
+ * @param[in] oip       pointer to the instance to be notified
+ */
+static inline chSysNotifyInstance(os_instance_t *oip) {
+
+  port_notify_instance(oip);
+}
+#endif
 
 #if (CH_CFG_NO_IDLE_THREAD == FALSE) || defined(__DOXYGEN__)
 /**

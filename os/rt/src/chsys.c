@@ -40,7 +40,7 @@
 /*===========================================================================*/
 
 /**
- * @brief   Default OS instance.
+ * @brief   Global OS structure.
  */
 ch_system_t ch;
 

@@ -287,7 +287,7 @@ void chSchObjectInit(os_instance_t *oip,
   __tm_object_init(&oip->tmc);
 #endif
 
-  /* Statistics intialization.*/
+  /* Statistics initialization.*/
 #if CH_DBG_STATISTICS == TRUE
   __stats_object_init(&oip->kernel_stats);
 #endif
@@ -320,12 +320,15 @@ void chSchObjectInit(os_instance_t *oip,
 #if CH_CFG_NO_IDLE_THREAD == FALSE
   {
     thread_descriptor_t idle_descriptor = {
-      .name  = "idle",
-      .wbase = oicp->idlethread_base,
-      .wend  = oicp->idlethread_end,
-      .prio  = IDLEPRIO,
-      .funcp = __idle_thread,
-      .arg   = NULL
+      .name     = "idle",
+      .wbase    = oicp->idlethread_base,
+      .wend     = oicp->idlethread_end,
+      .prio     = IDLEPRIO,
+      .funcp    = __idle_thread,
+      .arg      = NULL,
+#if CH_CFG_LOOSE_INSTANCES == FALSE
+      .instance = NULL
+#endif
     };
 
     /* This thread has the lowest priority in the system, its role is just to

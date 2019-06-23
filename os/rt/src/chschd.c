@@ -629,7 +629,8 @@ void chSchWakeupS(thread_t *ntp, msg_t msg) {
     /* Readying up the remote thread and triggering a reschedule on
        the other core.*/
     chSysNotifyInstance(ntp->owner);
-    return __sch_ready_behind(ntp->owner, tp);
+    (void) __sch_ready_behind(ntp->owner, tp);
+    return;
   }
 #endif
 

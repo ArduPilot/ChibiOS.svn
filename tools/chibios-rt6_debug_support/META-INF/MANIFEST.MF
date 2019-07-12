@@ -2,13 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ChibiOS/RT 6.x.x Debug Support
 Bundle-SymbolicName: org.chibios.tools.eclipse.debug.chibiosrt6;singleton:=true
-Bundle-Version: 1.0.2.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.chibios.tools.eclipse.debug.activator.Activator
 Bundle-Vendor: chibios.org
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.cdt.debug.mi.core,
+ org.eclipse.cdt.dsf.ui,
+ org.eclipse.cdt.dsf.gdb,
+ org.eclipse.cdt.dsf,
  org.eclipse.debug.ui,
- org.eclipse.cdt.debug.core
+ org.eclipse.cdt.debug.core,
+ org.eclipse.swt,
+ org.eclipse.cdt.dsf.gdb.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .

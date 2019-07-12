@@ -1,22 +1,12 @@
-/*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
-
-    This file is part of ChibiOS/RT.
-
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/********************************************************************************
+ * Copyright (c) 2019 Giovanni Di Sirio.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ********************************************************************************/
 
 package org.chibios.tools.eclipse.debug.views;
 
@@ -42,10 +32,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import org.eclipse.debug.core.DebugEvent;
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.IDebugEventSetListener;
-import org.eclipse.cdt.debug.internal.core.model.CDebugTarget;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.wb.swt.ResourceManager;
 import org.eclipse.swt.events.FocusAdapter;
@@ -69,7 +55,7 @@ import org.eclipse.swt.events.SelectionEvent;
  */
 
 @SuppressWarnings("restriction")
-public class ChibiView extends ViewPart implements IDebugEventSetListener {
+public class ChibiView extends ViewPart {
 
   /**
    * The ID of the view as specified by the extension.
@@ -111,6 +97,8 @@ public class ChibiView extends ViewPart implements IDebugEventSetListener {
   public ChibiView() {
     
     theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
+
+    debugger = new KernelObjects();
   }
 
   private void setActive() {
@@ -365,31 +353,6 @@ public class ChibiView extends ViewPart implements IDebugEventSetListener {
     contributeToActionBars();
 
     tabFolder.setSelection(tbtmGlobal);
-
-    DebugPlugin.getDefault().addDebugEventListener(this);
-
-    try {
-      debugger = new KernelObjects();
-    } catch (DebugProxyException e) {}
-  }
-
-  /**
-   * @brief Handling events from the debugger.
-   */
-  @Override
-  public void handleDebugEvents(DebugEvent[] events) {
-    for (DebugEvent event : events) {
-      switch (event.getKind()) {
-      case DebugEvent.CREATE:
-        Object source = event.getSource();
-        if (source instanceof CDebugTarget) {
-          try {
-            debugger = new KernelObjects((CDebugTarget)source);
-          } catch (DebugProxyException e) {}
-        }
-        break;
-      }
-    }
   }
 
   private void hookContextMenu() {

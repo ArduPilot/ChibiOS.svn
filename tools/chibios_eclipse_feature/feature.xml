@@ -2,7 +2,7 @@
 <feature
       id="org.chibios.eclipse.tools.feature"
       label="ChibiOS Eclipse Tools"
-      version="2.8.0.qualifier"
+      version="3.0.0.qualifier"
       provider-name="www.chibios.org"
       plugin="org.chibios.chibistudio.branding"
       exclusive="true">
@@ -61,21 +61,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
          unpack="false"/>
 
    <plugin
-         id="org.chibios.tools.eclipse.debug.chibiosrt2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.chibios.tools.eclipse.debug.chibiosrt3"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.chibios.tools.eclipse.debug.chibiosrt4"
+         id="org.chibios.tools.eclipse.debug.chibiosrt6"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -1,145 +1,199 @@
-/*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
-
-    This file is part of ChibiOS/RT.
-
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/********************************************************************************
+ * Copyright (c) 2019 Giovanni Di Sirio.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ********************************************************************************/
 
 package org.chibios.tools.eclipse.debug.utils;
 
-import org.eclipse.cdt.debug.core.cdi.model.ICDITarget;
-import org.eclipse.cdt.debug.internal.core.model.CDebugTarget;
-import org.eclipse.cdt.debug.mi.core.MIException;
-import org.eclipse.cdt.debug.mi.core.MIFormat;
-import org.eclipse.cdt.debug.mi.core.MISession;
-import org.eclipse.cdt.debug.mi.core.cdi.model.Target;
-import org.eclipse.cdt.debug.mi.core.command.CommandFactory;
-import org.eclipse.cdt.debug.mi.core.command.MIDataEvaluateExpression;
-import org.eclipse.cdt.debug.mi.core.command.MIDataReadMemory;
-import org.eclipse.cdt.debug.mi.core.output.MIDataEvaluateExpressionInfo;
-import org.eclipse.cdt.debug.mi.core.output.MIDataReadMemoryInfo;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.debug.core.IDebugEventSetListener;
+import org.eclipse.debug.core.model.MemoryByte;
 
-@SuppressWarnings("restriction")
-public class DebugProxy {
+import org.eclipse.cdt.dsf.mi.service.MIFormat;
+import org.eclipse.cdt.dsf.mi.service.command.output.MIDataReadMemoryInfo;
 
-  private CommandFactory cmd_factory;
-  private MISession mi_session;
+public class DebugProxy implements IDebugEventSetListener {
 
-  private void getSession(CDebugTarget target)
-      throws DebugProxyException {
-    ICDITarget[] targets = target.getCDISession().getTargets();
-    ICDITarget cdi_target = null;
-    for (int i = 0; i < targets.length; i++) {
-      if (targets[i] instanceof Target) {
-        cdi_target = targets[i];
-        break;
-      }
-    }
-    if (cdi_target == null)
-      throw new DebugProxyException("no CDI session found");
-    mi_session = ((Target)cdi_target).getMISession();
-    cmd_factory = mi_session.getCommandFactory();
-  }
+  private Object currentSession = null;
+  private GDBEventProvider provider = null;
+  private List<IGDBInterfaceSuspendListener> suspendListener = new ArrayList<IGDBInterfaceSuspendListener>();
+  private List<IGDBInterfaceTerminateListener> terminateListener = new ArrayList<IGDBInterfaceTerminateListener>();
 
-  public DebugProxy()
-      throws DebugProxyException {
-    IDebugTarget[] targets = DebugPlugin.getDefault().getLaunchManager().getDebugTargets();
-    for (IDebugTarget target:targets) {
-      if(target instanceof CDebugTarget) {
-        getSession((CDebugTarget)target);
-        return;
-      }
+  public DebugProxy() {
+    if (!hasActiveDebugSession()) {
+        init();
     }
   }
 
-  public DebugProxy(CDebugTarget target)
-      throws DebugProxyException {
-    getSession(target);
+  public void dispose() {
+    currentSession = null;
+    DebugPlugin.getDefault().removeDebugEventListener(this);
+    provider.dispose();
+    provider = null;
   }
 
-  public long scanStack(long base, long end, long pattern)
+  public boolean hasActiveDebugSession() {
+    if (currentSession == null) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+
+  private void init() {
+    DebugPlugin.getDefault().addDebugEventListener(this);
+    provider = new GDBEventProvider();
+  }
+
+  /**
+   * Handle DebugEvents
+   */
+  @Override
+  public void handleDebugEvents(DebugEvent[] events) {
+      for (DebugEvent event : events) {
+
+          Object source = event.getSource();
+          Object sourceSession = null;
+          Object currentSession = GDBSessionTranslator.getSession();
+          
+          if (source instanceof GDBEventProvider.DebugContextChangedDebugEvent) {
+              sourceSession = ((GDBEventProvider.DebugContextChangedDebugEvent) source).getSession();
+          } else if (source instanceof GDBEventProvider.DsfSessionDebugEvent) {
+              sourceSession = ((GDBEventProvider.DsfSessionDebugEvent) source).getSession();
+          } else {
+              sourceSession = GDBSessionTranslator.getSession(source);
+          }
+          
+          if (currentSession != this.currentSession) { // Session has changed;
+              this.currentSession = currentSession;
+              if (this.currentSession != null) { // new session is active and known (Standard/DSF)
+                  for (IGDBInterfaceSuspendListener listener : suspendListener)
+                      listener.gdbSuspendListener();
+              } else { // new session is terminated or unknown
+                  for (IGDBInterfaceTerminateListener listener : terminateListener)
+                      listener.gdbTerminateListener();
+              }
+          }
+          
+          // source session should always be not null and the same as current (do not
+          // handle events not from current selected session!)
+          if (sourceSession == null || sourceSession != currentSession)
+              return;
+
+          if (event.getKind() == DebugEvent.SUSPEND) {
+              for (IGDBInterfaceSuspendListener listener : suspendListener)
+                  listener.gdbSuspendListener();
+          }
+          
+          if (event.getKind() == DebugEvent.TERMINATE) {
+              for (IGDBInterfaceTerminateListener listener : terminateListener)
+                  listener.gdbTerminateListener();
+          }
+          
+      }
+  }
+
+  protected MemoryByte[] readMemory(long offset, final String address,
+                                    int word_format, int word_size,
+                                    int rows, int cols,
+                                    Character c)
       throws DebugProxyException {
-    if (mi_session.getMIInferior().isRunning())
-      return -1;
-    if (end > base) {
-      MIDataReadMemory mem = cmd_factory.createMIDataReadMemory(0,
-          Long.toString(base),
-          MIFormat.HEXADECIMAL,
-          4,
-          1,
-          (int)(end - base),
-          '.');
+
+  	MemoryByte[] data = null;
+
+    if (hasActiveDebugSession()) {
       try {
-        mi_session.postCommand(mem);
-         MIDataReadMemoryInfo info = mem.getMIDataReadMemoryInfo();
-         if (info != null) {
-           long[] data = info.getMemories()[0].getData();
-           int i = 0;
-           while ((i < data.length) && (data[i] == pattern))
-               i++;
-           return i * 4;
-         }
-      } catch (MIException e) {}
-      throw new DebugProxyException("error reading memory at " +
-          base);
+        MIDataReadMemoryInfo meminfo;
+      	meminfo = GDBSessionTranslator.readMemory(currentSession,
+                                                  offset,
+                                                  address,
+                                                  word_format,
+                                                  word_size,
+                                                  rows,
+                                                  cols,
+                                                  c);
+      	data = meminfo.getMIMemoryBlock();
+      } catch (Exception e) {
+        throw new DebugProxyException("memory reading error: " + e.toString());
+      }
     }
+      
+    return data;
+  }
+
+	protected String evaluateExpression(String expression)
+			throws DebugProxyException {
+
+		String result = null;
+		if (hasActiveDebugSession()) {
+			try {
+				result = GDBSessionTranslator.evaluateExpression(currentSession,
+				                                                 expression);
+			}
+			catch (Exception e) {
+				throw new DebugProxyException("evaluation expression error: "
+				    + e.toString());
+			}
+		}
+		return result;
+	}
+
+	public long evaluateExpressionNumber(String expression)
+			throws DebugProxyException {
+
+		return HexUtils.parseNumber(evaluateExpression(expression));
+	}
+
+  protected long scanStack(long base, long end, byte pattern)
+      throws DebugProxyException {
+    
+    if (end > base) {
+      try {
+      	MemoryByte[] data  = readMemory(0, Long.toString(base),
+      	                                MIFormat.HEXADECIMAL,
+                                      	4, 1, (int)(end - base), '.');
+        int i = 0;
+        while ((i < data.length) && (data[i].getValue() == pattern)) {
+          i++;
+        }
+        return i;
+      } catch (Exception e) {}
+      throw new DebugProxyException("error reading memory at " + base);
+    }
+    
     return 0;
   }
 
-  public String evaluateExpression(String expression)
-      throws DebugProxyException {
-    if (mi_session.getMIInferior().isRunning())
-      return null;
-    MIDataEvaluateExpression expr = cmd_factory.createMIDataEvaluateExpression(expression);
-    try {
-      mi_session.postCommand(expr);
-      MIDataEvaluateExpressionInfo info = expr.getMIDataEvaluateExpressionInfo();
-      if (info != null)
-        return info.getExpression();
-    } catch (MIException e) {}
-    throw new DebugProxyException("error evaluating the expression: '" +
-                                  expression + "'");
-  }
+	protected String readCString(long address,
+	                             int max) throws DebugProxyException {
 
-  public String readCString(long address, int max)
-      throws DebugProxyException {
-    if (mi_session.getMIInferior().isRunning())
-      return null;
-    MIDataReadMemory mem = cmd_factory.createMIDataReadMemory(0,
-                                                              Long.toString(address),
-                                                              MIFormat.HEXADECIMAL,
-                                                              1,
-                                                              1,
-                                                              max,
-                                                              '.');
-    try {
-      mi_session.postCommand(mem);
-       MIDataReadMemoryInfo info = mem.getMIDataReadMemoryInfo();
-       if (info != null) {
-          String s = info.getMemories()[0].getAscii();
-          int i = s.indexOf('.');
-          if (i >= 0)
-            return s.substring(0, s.indexOf('.'));
-          else
-            return s;
-       }
-    } catch (MIException e) {}
-    throw new DebugProxyException("error reading memory at " +
-        address);
-  }
+		String result = "";
+		try {
+			MemoryByte[] data = readMemory(0, Long.toString(address),
+			                               MIFormat.HEXADECIMAL, 1, 1, max, '.');
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < data.length; i++) {
+				if (data[i].getValue() == 0) {
+					break;
+				}
+				sb.append((char) data[i].getValue());
+			}
+			result = sb.toString();
+		}
+		catch (Exception e) {
+			throw new DebugProxyException("error reading memory at " + address);
+		}
+	
+	  return result;
+	}
 }

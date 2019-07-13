@@ -16,6 +16,7 @@
 								<xs:whiteSpace value="collapse"></xs:whiteSpace>
                                 <xs:enumeration value="STM32L432xx"></xs:enumeration>
                                 <xs:enumeration value="STM32L443xx"></xs:enumeration>
+                                <xs:enumeration value="STM32L452xx"></xs:enumeration>
                                 <xs:enumeration value="STM32L471xx"></xs:enumeration>
 								<xs:enumeration value="STM32L475xx"></xs:enumeration>
 								<xs:enumeration value="STM32L476xx"></xs:enumeration>

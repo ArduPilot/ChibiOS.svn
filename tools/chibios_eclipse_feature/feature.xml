@@ -36,14 +36,20 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
    </url>
 
    <requires>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.resources" version="3.7.101" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.runtime" version="3.7.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui" version="3.7.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.console" version="3.5.100" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.cdt.debug.mi.core"/>
+      <import plugin="org.eclipse.ui.ide" version="3.7.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.core" version="5.3.2" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.managedbuilder.core" version="8.0.2" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.dsf.ui"/>
+      <import plugin="org.eclipse.cdt.dsf.gdb"/>
+      <import plugin="org.eclipse.cdt.dsf"/>
       <import plugin="org.eclipse.debug.ui"/>
       <import plugin="org.eclipse.cdt.debug.core"/>
+      <import plugin="org.eclipse.swt"/>
+      <import plugin="org.eclipse.cdt.dsf.gdb.ui"/>
    </requires>
 
    <plugin

@@ -61,22 +61,28 @@
 /*lint -save -e9075 [8.4] All symbols are invoked from asm context.*/
 void SVC_Handler(void) {
 /*lint -restore*/
-  struct port_extctx *ctxp;
+  uint32_t psp = __get_PSP();
 
 #if CORTEX_USE_FPU
   /* Enforcing unstacking of the FP part of the context.*/
   FPU->FPCCR &= ~FPU_FPCCR_LSPACT_Msk;
 #endif
 
-  /* The port_extctx structure is pointed by the PSP register.*/
-  ctxp = (struct port_extctx *)__get_PSP();
-
   /* Discarding the current exception context and positioning the stack to
      point to the real one.*/
-  ctxp++;
+  psp += sizeof (struct port_extctx);
+
+#if PORT_PRESERVE_CONTROL_REGISTER == TRUE
+  {
+    /* Restoring previous privileges by restoring CONTROL.*/
+    struct port_midctx *mctxp = (struct port_midctx *)psp;
+    __set_CONTROL((uint32_t)mctxp->control);
+    psp += sizeof (struct port_midctx);
+  }
+#endif
 
   /* Restoring real position of the original stack frame.*/
-  __set_PSP((uint32_t)ctxp);
+  __set_PSP(psp);
 
   /* Restoring the normal interrupts status.*/
   port_unlock_from_isr();
@@ -93,22 +99,28 @@ void SVC_Handler(void) {
 /*lint -save -e9075 [8.4] All symbols are invoked from asm context.*/
 void PendSV_Handler(void) {
 /*lint -restore*/
-  struct port_extctx *ctxp;
+  uint32_t psp = __get_PSP();
 
 #if CORTEX_USE_FPU
   /* Enforcing unstacking of the FP part of the context.*/
   FPU->FPCCR &= ~FPU_FPCCR_LSPACT_Msk;
 #endif
 
-  /* The port_extctx structure is pointed by the PSP register.*/
-  ctxp = (struct port_extctx *)__get_PSP();
-
   /* Discarding the current exception context and positioning the stack to
      point to the real one.*/
-  ctxp++;
+  psp += sizeof (struct port_extctx);
 
-  /* Writing back the modified PSP value.*/
-  __set_PSP((uint32_t)ctxp);
+#if PORT_PRESERVE_CONTROL_REGISTER == TRUE
+  {
+    /* Restoring previous privileges by restoring CONTROL.*/
+    struct port_midctx *mctxp = (struct port_midctx *)psp;
+    __set_CONTROL((uint32_t)mctxp->control);
+    psp += sizeof (struct port_midctx);
+  }
+#endif
+
+  /* Restoring real position of the original stack frame.*/
+  __set_PSP(psp);
 }
 #endif /* CORTEX_SIMPLIFIED_PRIORITY == TRUE */
 
@@ -124,6 +136,10 @@ void PendSV_Handler(void) {
 void port_init(os_instance_t *oip) {
 
   (void)oip;
+
+  /* Starting in a known IRQ configuration.*/
+  __set_BASEPRI(CORTEX_BASEPRI_DISABLED);
+  __enable_irq();
 
   /* Initializing priority grouping.*/
   NVIC_SetPriorityGrouping(CORTEX_PRIGROUP_INIT);
@@ -181,18 +197,35 @@ void _port_irq_epilogue(void) {
   port_lock_from_isr();
   if ((SCB->ICSR & SCB_ICSR_RETTOBASE_Msk) != 0U) {
     struct port_extctx *ctxp;
+    uint32_t psp = __get_PSP();
 
 #if CORTEX_USE_FPU == TRUE
-      /* Enforcing a lazy FPU state save by accessing the FPCSR register.*/
-      (void) __get_FPSCR();
+    /* Enforcing a lazy FPU state save by accessing the FPCSR register.*/
+    (void) __get_FPSCR();
 #endif
 
-    /* The port_extctx structure is pointed by the PSP register.*/
-    ctxp = (struct port_extctx *)__get_PSP();
+#if PORT_PRESERVE_CONTROL_REGISTER == TRUE
+    {
+      /* Saving CONTROL into a port_midctx structure.*/
+      uint32_t control = __get_CONTROL();
+      struct port_midctx *mctxp;
+
+      psp -= sizeof (struct port_midctx);
+      mctxp = (struct port_midctx *)psp;
+      mctxp->control = (regarm_t)control;
+
+      /* Enforcing privileged mode during the context switch because
+         it is performed in thread state.*/
+      __set_CONTROL(control & ~1U);
+    }
+#endif
 
     /* Adding an artificial exception return context, there is no need to
        populate it fully.*/
-    ctxp--;
+    psp -= sizeof (struct port_extctx);
+
+    /* The port_extctx structure is pointed by the PSP register.*/
+    ctxp = (struct port_extctx *)psp;
 
     /* Setting up a fake XPSR register value.*/
     ctxp->xpsr = (regarm_t)0x01000000;
@@ -201,7 +234,7 @@ void _port_irq_epilogue(void) {
 #endif
 
     /* Writing back the modified PSP value.*/
-    __set_PSP((uint32_t)ctxp);
+    __set_PSP(psp);
 
     /* The exit sequence is different depending on if a preemption is
        required or not.*/

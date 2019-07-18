@@ -71,6 +71,16 @@
 /*===========================================================================*/
 
 /**
+ * @brief   Preserves the @p CONTROL register.
+ * @details If enabled then the @p CONTROL register is preserved in the
+ *          external context structure. This is only used when using
+ *          non-privileged state for threads.
+ */
+#if !defined(PORT_PRESERVE_CONTROL_REGISTER) || defined(__DOXYGEN__)
+#define PORT_PRESERVE_CONTROL_REGISTER  TRUE
+#endif
+
+/**
  * @brief   Enables stack overflow guard pages using MPU.
  * @note    This option can only be enabled if also option
  *          @p CH_DBG_ENABLE_STACK_CHECK is enabled.
@@ -314,6 +324,19 @@
 /* The following code is not processed when the file is included from an
    asm module.*/
 #if !defined(_FROM_ASM_)
+
+#if (PORT_PRESERVE_CONTROL_REGISTER == TRUE) || defined(__DOXYGEN__)
+/**
+ * @brief   Middle context structure.
+ * @details This structure is used when there is the need to save extra
+ *          context information that is not part of the registers stacked
+ *          in HW.
+ */
+struct port_midctx {
+  regarm_t      control;
+  regarm_t      reserved;
+};
+#endif
 
 /* The documentation of the following declarations is in chconf.h in order
    to not have duplicated structure names into the documentation.*/

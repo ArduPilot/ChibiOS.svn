@@ -71,16 +71,6 @@
 /*===========================================================================*/
 
 /**
- * @brief   Preserves the @p CONTROL register.
- * @details If enabled then the @p CONTROL register is preserved in the
- *          external context structure. This is only used when using
- *          non-privileged state for threads.
- */
-#if !defined(PORT_PRESERVE_CONTROL_REGISTER) || defined(__DOXYGEN__)
-#define PORT_PRESERVE_CONTROL_REGISTER  TRUE
-#endif
-
-/**
  * @brief   Implements a syscall interface on SVC.
  */
 #if !defined(PORT_USE_SYSCALL) || defined(__DOXYGEN__)
@@ -332,7 +322,7 @@
    asm module.*/
 #if !defined(_FROM_ASM_)
 
-#if (PORT_PRESERVE_CONTROL_REGISTER == TRUE) || defined(__DOXYGEN__)
+#if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Middle context structure.
  * @details This structure is used when there is the need to save extra

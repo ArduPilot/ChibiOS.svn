@@ -78,28 +78,30 @@ void SVC_Handler(void) {
               "not process");
 
 #if PORT_USE_SYSCALL == TRUE
-  struct port_extctx *ctxp = (struct port_extctx *)psp;
-  uint32_t n = (uint32_t)*(((const uint16_t *)ctxp->pc) - 1U) & 255U;
+  struct port_extctx *ctxp;
+  uint32_t n;
+
+  /* Caller context.*/
+  ctxp = (struct port_extctx *)psp;
+
+  /* Number of the SVC instruction.*/
+  n = (uint32_t)*(((const uint16_t *)ctxp->pc) - 1U) & 255U;
 
   /* SVC0 is used for unstacking, all other codes are used for
      system calls.*/
   if (n != 0U) {
+    uint32_t control;
+    struct port_midctx *mctxp;
     struct port_extctx *newctxp;
 
-#if PORT_PRESERVE_CONTROL_REGISTER == TRUE
-    {
-      /* Saving CONTROL into a port_midctx structure.*/
-      uint32_t control = __get_CONTROL();
-      struct port_midctx *mctxp;
+    /* Saving CONTROL into a port_midctx structure.*/
+    control = __get_CONTROL();
+    psp -= sizeof (struct port_midctx);
+    mctxp = (struct port_midctx *)psp;
+    mctxp->control = (regarm_t)control;
 
-      psp -= sizeof (struct port_midctx);
-      mctxp = (struct port_midctx *)psp;
-      mctxp->control = (regarm_t)control;
-
-      /* Enforcing privileged mode before returning.*/
-      __set_CONTROL(control & ~1U);
-    }
-#endif
+    /* Enforcing privileged mode before returning.*/
+    __set_CONTROL(control & ~1U);
 
     /* Building an artificial return context, we need to make this
        return in the syscall dispatcher in privileged mode.*/
@@ -125,7 +127,7 @@ void SVC_Handler(void) {
     FPU->FPCCR &= ~FPU_FPCCR_LSPACT_Msk;
 #endif
 
-#if PORT_PRESERVE_CONTROL_REGISTER == TRUE
+#if PORT_USE_SYSCALL == TRUE
     {
       /* Restoring previous privileges by restoring CONTROL.*/
       struct port_midctx *mctxp = (struct port_midctx *)psp;
@@ -164,7 +166,7 @@ void PendSV_Handler(void) {
      point to the real one.*/
   psp += sizeof (struct port_extctx);
 
-#if PORT_PRESERVE_CONTROL_REGISTER == TRUE
+#if PORT_USE_SYSCALL == TRUE
   {
     /* Restoring previous privileges by restoring CONTROL.*/
     struct port_midctx *mctxp = (struct port_midctx *)psp;
@@ -258,7 +260,7 @@ void _port_irq_epilogue(void) {
     (void) __get_FPSCR();
 #endif
 
-#if PORT_PRESERVE_CONTROL_REGISTER == TRUE
+#if PORT_USE_SYSCALL == TRUE
     {
       /* Saving CONTROL into a port_midctx structure.*/
       uint32_t control = __get_CONTROL();

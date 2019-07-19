@@ -51,6 +51,17 @@
 /* Module interrupt handlers.                                                */
 /*===========================================================================*/
 
+#if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
+__attribute__((weak))
+void port_syscall(struct port_extctx *ctxp, uint32_t n) {
+
+  (void)ctxp;
+  (void)n;
+
+  chSysHalt("svc");
+}
+#endif
+
 #if (CORTEX_SIMPLIFIED_PRIORITY == FALSE) || defined(__DOXYGEN__)
 /**
  * @brief   SVC vector.
@@ -61,7 +72,27 @@
 /*lint -save -e9075 [8.4] All symbols are invoked from asm context.*/
 void SVC_Handler(void) {
 /*lint -restore*/
+
+  chDbgAssert(((uint32_t)__builtin_return_address(0) & 4U) == 0U,
+              "not process");
+
+#if PORT_USE_SYSCALL == TRUE
+  uint32_t n;
+  struct port_extctx *xsp;
+  if (((uint32_t)__builtin_return_address(0) & 4U) != 0U) {
+    xsp = (struct port_extctx *)__get_MSP();
+  }
+  else {
+    xsp = (struct port_extctx *)psp;
+  }
+  n = (uint32_t)*(((const uint16_t *)xsp->pc) - 1U) & 255U;
+  if (n != 0) {
+    port_syscall(xsp, n);
+    return;
+  }
+#else
   uint32_t psp = __get_PSP();
+#endif
 
 #if CORTEX_USE_FPU
   /* Enforcing unstacking of the FP part of the context.*/

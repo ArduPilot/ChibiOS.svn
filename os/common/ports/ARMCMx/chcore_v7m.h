@@ -81,6 +81,13 @@
 #endif
 
 /**
+ * @brief   Implements a syscall interface on SVC.
+ */
+#if !defined(PORT_USE_SYSCALL) || defined(__DOXYGEN__)
+#define PORT_USE_SYSCALL                TRUE
+#endif
+
+/**
  * @brief   Enables stack overflow guard pages using MPU.
  * @note    This option can only be enabled if also option
  *          @p CH_DBG_ENABLE_STACK_CHECK is enabled.

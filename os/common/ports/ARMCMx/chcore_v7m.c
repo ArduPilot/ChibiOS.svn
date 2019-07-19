@@ -66,57 +66,80 @@ void port_syscall(struct port_extctx *ctxp, uint32_t n) {
 /**
  * @brief   SVC vector.
  * @details The SVC vector is used for exception mode re-entering after a
- *          context switch.
- * @note    The PendSV vector is only used in advanced kernel mode.
+ *          context switch and, optionally, for system calls.
+ * @note    The SVC vector is only used in advanced kernel mode.
  */
 /*lint -save -e9075 [8.4] All symbols are invoked from asm context.*/
 void SVC_Handler(void) {
 /*lint -restore*/
+  uint32_t psp = __get_PSP();
 
   chDbgAssert(((uint32_t)__builtin_return_address(0) & 4U) == 0U,
               "not process");
 
 #if PORT_USE_SYSCALL == TRUE
-  uint32_t n;
-  struct port_extctx *xsp;
-  if (((uint32_t)__builtin_return_address(0) & 4U) != 0U) {
-    xsp = (struct port_extctx *)__get_MSP();
-  }
-  else {
-    xsp = (struct port_extctx *)psp;
-  }
-  n = (uint32_t)*(((const uint16_t *)xsp->pc) - 1U) & 255U;
-  if (n != 0) {
-    port_syscall(xsp, n);
-    return;
-  }
-#else
-  uint32_t psp = __get_PSP();
-#endif
+  struct port_extctx *ctxp = (struct port_extctx *)psp;
+  uint32_t n = (uint32_t)*(((const uint16_t *)ctxp->pc) - 1U) & 255U;
 
-#if CORTEX_USE_FPU
-  /* Enforcing unstacking of the FP part of the context.*/
-  FPU->FPCCR &= ~FPU_FPCCR_LSPACT_Msk;
-#endif
-
-  /* Discarding the current exception context and positioning the stack to
-     point to the real one.*/
-  psp += sizeof (struct port_extctx);
+  /* SVC0 is used for unstacking, all other codes are used for
+     system calls.*/
+  if (n != 0U) {
+    struct port_extctx *newctxp;
 
 #if PORT_PRESERVE_CONTROL_REGISTER == TRUE
-  {
-    /* Restoring previous privileges by restoring CONTROL.*/
-    struct port_midctx *mctxp = (struct port_midctx *)psp;
-    __set_CONTROL((uint32_t)mctxp->control);
-    psp += sizeof (struct port_midctx);
-  }
+    {
+      /* Saving CONTROL into a port_midctx structure.*/
+      uint32_t control = __get_CONTROL();
+      struct port_midctx *mctxp;
+
+      psp -= sizeof (struct port_midctx);
+      mctxp = (struct port_midctx *)psp;
+      mctxp->control = (regarm_t)control;
+
+      /* Enforcing privileged mode before returning.*/
+      __set_CONTROL(control & ~1U);
+    }
 #endif
 
-  /* Restoring real position of the original stack frame.*/
-  __set_PSP(psp);
+    /* Building an artificial return context, we need to make this
+       return in the syscall dispatcher in privileged mode.*/
+    psp -= sizeof (struct port_extctx);
+    newctxp = (struct port_extctx *)psp;
+    newctxp->r0     = (regarm_t)ctxp;
+    newctxp->r1     = (regarm_t)n;
+    newctxp->pc     = (regarm_t)port_syscall;
+    newctxp->xpsr   = (regarm_t)0x01000000;
+#if CORTEX_USE_FPU == TRUE
+    newctxp->fpscr  = (regarm_t)FPU->FPDSCR;
+#endif
+  }
+  else
+#endif
+  {
+    /* Unstacking procedure, discarding the current exception context and
+       positioning the stack to point to the real one.*/
+    psp += sizeof (struct port_extctx);
 
-  /* Restoring the normal interrupts status.*/
-  port_unlock_from_isr();
+#if CORTEX_USE_FPU == TRUE
+    /* Enforcing unstacking of the FP part of the context.*/
+    FPU->FPCCR &= ~FPU_FPCCR_LSPACT_Msk;
+#endif
+
+#if PORT_PRESERVE_CONTROL_REGISTER == TRUE
+    {
+      /* Restoring previous privileges by restoring CONTROL.*/
+      struct port_midctx *mctxp = (struct port_midctx *)psp;
+      __set_CONTROL((uint32_t)mctxp->control);
+      psp += sizeof (struct port_midctx);
+    }
+#endif
+
+    /* Restoring real position of the original stack frame.*/
+    __set_PSP(psp);
+
+    /* Restoring the normal interrupts status.*/
+    port_unlock_from_isr();
+  }
 }
 #endif /* CORTEX_SIMPLIFIED_PRIORITY == FALSE */
 

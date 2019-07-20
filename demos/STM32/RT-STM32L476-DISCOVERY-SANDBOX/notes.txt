@@ -1,0 +1,31 @@
+*** Single Instance with single spin-lock ***
+
++ Single spin-lock to take.
+  + Easy to embed in chSysLock/Unlock.
+  - All cores always compete for the same spin-lock.
+- Hard to handle threads affinity.
++ Easy handling of threads with no affinity.
++ Transparent to HAL.
+
+*** Multiple instances with single spin-lock ***
+
++ Single spin-lock to take.
+  + Easy to embed in chSysLock/Unlock.
+  - All cores always compete for the same spin-lock.
+- Handling thread with no affinity is more tricky.
++ Transparent to HAL.
++ More object oriented approach.
++ Would allow for independent OS instances running without spin-locks.
++ Least impact.
+
+*** Multiple instances with separate spin-locks ***
+
++ chSysLock/Unlock would only take the current instance spin-lock.
+  - Other instances spin-locks has to be taken in chSchReadyI() and
+    chSchWakeupS() explicitly.
+  - Synchronization objects would need their own spin-lock:
+    - Per-object spin-lock,
+    - Common spin-lock.
+- Requires taking up to 3 spin-locks for some operations.
+- Handling thread with no affinity is more tricky.
+- Lots of changes in synchronization objects, HAL would be affected.

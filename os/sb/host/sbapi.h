@@ -19,9 +19,9 @@
 
 /**
  * @file    sb/sbapi.h
- * @brief   ARMv7-M sandbox standard API macros and structures.
+ * @brief   ARMv7-M sandbox host API macros and structures.
  *
- * @addtogroup ARMV7M_SANDBOX_API
+ * @addtogroup ARMV7M_SANDBOX_HOSTAPI
  * @{
  */
 
@@ -33,6 +33,9 @@
 /*===========================================================================*/
 
 #define SB_SVC1_HANDLER         sb_api_exit
+#define SB_SVC2_HANDLER         sb_api_systime
+#define SB_SVC3_HANDLER         sb_api_sleep
+#define SB_SVC4_HANDLER         sb_api_sleep_until_windowed
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -59,6 +62,9 @@
 extern "C" {
 #endif
   uint32_t sb_api_exit(struct port_extctx *ctxp);
+  uint32_t sb_api_systime(struct port_extctx *ctxp);
+  uint32_t sb_api_sleep(struct port_extctx *ctxp);
+  uint32_t sb_api_sleep_until_windowed(struct port_extctx *ctxp);
 #ifdef __cplusplus
 }
 #endif

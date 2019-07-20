@@ -19,9 +19,9 @@
 
 /**
  * @file    sb/sbhost.c
- * @brief   ARMv7-M sandbox host API code.
+ * @brief   ARMv7-M sandbox standard API code.
  *
- * @addtogroup ARMV7M_SANDBOX_HOSTAPI
+ * @addtogroup ARMV7M_SANDBOX_API
  * @{
  */
 

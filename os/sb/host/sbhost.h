@@ -29,6 +29,9 @@
 #define SBHOST_H
 
 #include "sbapi.h"
+#if defined(SB_INCLUDE_USERAPI)
+#include "sbuserapi.h"
+#endif
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -38,7 +41,9 @@
  * @brief   Sandbox error codes
  * @{
  */
+#define SB_ERR_NOERROR                      0U
 #define SB_ERR_NOT_IMPLEMENTED              0xFFFFFFFFU
+#define SB_ERR_MEMORY_FAULT                 0xFFFFFFFEU
 /** @} */
 
 /*===========================================================================*/

@@ -18,66 +18,60 @@
 */
 
 /**
- * @file    sb/sbhost.c
- * @brief   ARMv7-M sandbox host API code.
+ * @file    sb/sbapi.h
+ * @brief   ARMv7-M sandbox user API macros and structures.
  *
- * @addtogroup ARMV7M_SANDBOX_HOSTAPI
+ * @addtogroup ARMV7M_SANDBOX_USERAPI
  * @{
  */
 
-#include "ch.h"
-#include "sbhost.h"
+#ifndef SBUSER_H
+#define SBUSER_H
 
 /*===========================================================================*/
-/* Module local definitions.                                                 */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Module exported variables.                                                */
+/* Module constants.                                                         */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Module local types.                                                       */
+/* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Module local variables.                                                   */
+/* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Module local functions.                                                   */
+/* Module data structures and types.                                         */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Module exported functions.                                                */
+/* Module macros.                                                            */
 /*===========================================================================*/
 
-uint32_t sb_api_exit(struct port_extctx *ctxp) {
 
-  chThdExit((msg_t)ctxp->r0);
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
 
-  return SB_ERR_NOT_IMPLEMENTED;
+#ifdef __cplusplus
+extern "C" {
+#endif
+  uint32_t sb_api_exit(struct port_extctx *ctxp);
+  uint32_t sb_api_systime(struct port_extctx *ctxp);
+  uint32_t sb_api_sleep(struct port_extctx *ctxp);
+  uint32_t sb_api_sleep_until_windowed(struct port_extctx *ctxp);
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
+
+static inline void sbThdExit(msg_t msg) {
+
 }
 
-uint32_t sb_api_systime(struct port_extctx *ctxp) {
-
-  (void)ctxp;
-
-  return (uint32_t)chVTGetSystemTimeX();
-}
-
-uint32_t sb_api_sleep(struct port_extctx *ctxp) {
-
-  chThdSleep((sysinterval_t)ctxp->r0);
-
-  return SB_ERR_NOERROR;
-}
-
-uint32_t sb_api_sleep_until_windowed(struct port_extctx *ctxp) {
-
-  chThdSleepUntilWindowed((systime_t)ctxp->r0, (systime_t)ctxp->r1);
-
-  return SB_ERR_NOERROR;
-}
+#endif /* SBUSER_H */
 
 /** @} */

@@ -131,7 +131,7 @@ void port_syscall(struct port_extctx *ctxp, uint32_t n) {
 
   ctxp->r0 = (regarm_t)syscalls[n](ctxp);
 
-  asm volatile ("svc #0");
+  __SVC(0);
 
   chSysHalt("svc");
 }

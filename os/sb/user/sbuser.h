@@ -48,6 +48,42 @@
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @name   SVC instruction wrappers.
+ *
+ * @{
+ */
+#define __syscall0(x)                                                       \
+  asm volatile ("svc " #x : : : "memory")
+
+#define __syscall0r(x)                                                      \
+  register uint32_t r0 asm ("r0");                                          \
+  asm volatile ("svc " #x : "=r" (r0) : : "memory")
+
+#define __syscall1r(x, p1)                                                  \
+  register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
+  asm volatile ("svc " #x : "=r" (r0) : "r" (r0) : "memory")
+
+#define __syscall2r(x, p1, p2)                                              \
+  register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
+  register uint32_t r1 asm ("r1") = (uint32_t)(p2);                         \
+  asm volatile ("svc " #x : "=r" (r0) : "r" (r0), "r" (r1) : "memory")
+
+#define __syscall3r(x, p1, p2, p3)                                          \
+  register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
+  register uint32_t r1 asm ("r1") = (uint32_t)(p2);                         \
+  register uint32_t r2 asm ("r2") = (uint32_t)(p3);                         \
+  asm volatile ("svc " #x : "=r" (r0) : "r" (r0), "r" (r1),                 \
+                                        "r" (r2) : "memory")
+
+#define __syscall4r(x, p1, p2, p3, p4)                                      \
+  register uint32_t r0 asm ("r0") = (uint32_t)(p1);                         \
+  register uint32_t r1 asm ("r1") = (uint32_t)(p2);                         \
+  register uint32_t r2 asm ("r2") = (uint32_t)(p3);                         \
+  register uint32_t r3 asm ("r3") = (uint32_t)(p4);                         \
+  asm volatile ("svc " #x : "=r" (r0) : "r" (r0), "r" (r1),                 \
+                                        "r" (r2), "r" (r3) : "memory")
+/** @} */
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -56,10 +92,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  uint32_t sb_api_exit(struct port_extctx *ctxp);
-  uint32_t sb_api_systime(struct port_extctx *ctxp);
-  uint32_t sb_api_sleep(struct port_extctx *ctxp);
-  uint32_t sb_api_sleep_until_windowed(struct port_extctx *ctxp);
+
 #ifdef __cplusplus
 }
 #endif
@@ -68,8 +101,25 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-static inline void sbThdExit(msg_t msg) {
+static inline void sbExit(msg_t msg) {
 
+  __syscall1r(1, msg);
+}
+
+static inline systime_t sbGetSystemTime(void) {
+
+  __syscall0r(2);
+  return (systime_t)r0;
+}
+
+static inline void sbSleepMilliseconds(uint32_t milliseconds) {
+
+  __syscall1r(3, milliseconds);
+}
+
+static inline void sbSleepUntil(systime_t start, systime_t end) {
+
+  __syscall2r(4, start, end);
 }
 
 #endif /* SBUSER_H */

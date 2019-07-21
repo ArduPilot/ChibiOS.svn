@@ -68,7 +68,7 @@ uint32_t sb_api_systime(struct port_extctx *ctxp) {
 
 uint32_t sb_api_sleep(struct port_extctx *ctxp) {
 
-  chThdSleep((sysinterval_t)ctxp->r0);
+  chThdSleepMilliseconds((sysinterval_t)ctxp->r0);
 
   return SB_ERR_NOERROR;
 }

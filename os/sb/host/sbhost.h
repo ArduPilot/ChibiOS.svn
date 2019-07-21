@@ -71,6 +71,8 @@ typedef uint32_t (*port_syscall_t)(struct port_extctx *ctx);
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+#define __SVC(x) asm volatile ("svc " #x)
+
 /*
  * All handlers defaulted to a common function.
  */

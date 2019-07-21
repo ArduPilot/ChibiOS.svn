@@ -19,7 +19,7 @@
 
 /**
  * @file    sb/sbhost.c
- * @brief   ARMv7-M sandbox standard API code.
+ * @brief   ARMv7-M sandbox user API code.
  *
  * @addtogroup ARMV7M_SANDBOX_API
  * @{
@@ -51,33 +51,5 @@
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
-
-uint32_t sb_api_exit(struct port_extctx *ctxp) {
-
-  chThdExit((msg_t)ctxp->r0);
-
-  return SB_ERR_NOT_IMPLEMENTED;
-}
-
-uint32_t sb_api_systime(struct port_extctx *ctxp) {
-
-  (void)ctxp;
-
-  return (uint32_t)chVTGetSystemTimeX();
-}
-
-uint32_t sb_api_sleep(struct port_extctx *ctxp) {
-
-  chThdSleep((sysinterval_t)ctxp->r0);
-
-  return SB_ERR_NOERROR;
-}
-
-uint32_t sb_api_sleep_until_windowed(struct port_extctx *ctxp) {
-
-  chThdSleepUntilWindowed((systime_t)ctxp->r0, (systime_t)ctxp->r1);
-
-  return SB_ERR_NOERROR;
-}
 
 /** @} */

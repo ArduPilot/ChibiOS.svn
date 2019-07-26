@@ -72,25 +72,22 @@ void port_syscall(struct port_extctx *ctxp, uint32_t n) {
 /*lint -save -e9075 [8.4] All symbols are invoked from asm context.*/
 void SVC_Handler(void) {
 /*lint -restore*/
+  uint32_t control;
   uint32_t psp = __get_PSP();
 
   chDbgAssert(((uint32_t)__builtin_return_address(0) & 4U) == 0U,
               "not process");
 
 #if PORT_USE_SYSCALL == TRUE
-  struct port_extctx *ctxp;
-  uint32_t n;
-
   /* Caller context.*/
-  ctxp = (struct port_extctx *)psp;
+  struct port_extctx *ctxp = (struct port_extctx *)psp;
 
-  /* Number of the SVC instruction.*/
-  n = (uint32_t)*(((const uint16_t *)ctxp->pc) - 1U) & 255U;
-
-  /* SVC0 is used for unstacking, all other codes are used for
-     system calls.*/
-  if (n != 0U) {
-    uint32_t control;
+  /* Checking if the SVC instruction has been used from privileged or
+     non-privileged mode.*/
+  control = __get_CONTROL();
+  if ((control & 1U) != 0) {
+    /* From non-privileged mode, it must be handled as a syscall.*/
+    uint32_t n;
     struct port_midctx *mctxp;
     struct port_extctx *newctxp;
 
@@ -102,6 +99,9 @@ void SVC_Handler(void) {
 
     /* Enforcing privileged mode before returning.*/
     __set_CONTROL(control & ~1U);
+
+    /* Number of the SVC instruction.*/
+    n = (uint32_t)*(((const uint16_t *)ctxp->pc) - 1U) & 255U;
 
     /* Building an artificial return context, we need to make this
        return in the syscall dispatcher in privileged mode.*/
@@ -118,6 +118,9 @@ void SVC_Handler(void) {
   else
 #endif
   {
+    /* From privileged mode, it is used for context discarding in the
+       preemption code.*/
+
     /* Unstacking procedure, discarding the current exception context and
        positioning the stack to point to the real one.*/
     psp += sizeof (struct port_extctx);

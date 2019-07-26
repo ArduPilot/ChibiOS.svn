@@ -63,7 +63,7 @@ uint32_t sb_undef_handler(struct port_extctx *ctxp) {
 void port_syscall(struct port_extctx *ctxp, uint32_t n) {
 
   static const port_syscall_t syscalls[256] = {
-    sb_undef_handler,  SB_SVC1_HANDLER,   SB_SVC2_HANDLER,   SB_SVC3_HANDLER,
+    SB_SVC0_HANDLER,   SB_SVC1_HANDLER,   SB_SVC2_HANDLER,   SB_SVC3_HANDLER,
     SB_SVC4_HANDLER,   SB_SVC5_HANDLER,   SB_SVC6_HANDLER,   SB_SVC7_HANDLER,
     SB_SVC8_HANDLER,   SB_SVC9_HANDLER,   SB_SVC10_HANDLER,  SB_SVC11_HANDLER,
     SB_SVC12_HANDLER,  SB_SVC13_HANDLER,  SB_SVC14_HANDLER,  SB_SVC15_HANDLER,
@@ -134,6 +134,13 @@ void port_syscall(struct port_extctx *ctxp, uint32_t n) {
   __SVC(0);
 
   chSysHalt("svc");
+}
+
+/**
+ * @brief   Starts a sandboxed thread.
+ */
+bool sbStart(const sb_header_t *sbhp) {
+
 }
 
 /** @} */

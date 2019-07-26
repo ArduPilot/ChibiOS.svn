@@ -38,6 +38,14 @@
 /*===========================================================================*/
 
 /**
+ * @brief   Magic numbers
+ * @{
+ */
+#define SB_MAGIC1                           0xFE9154C0U
+#define SB_MAGIC1                           0x0C4519EFU
+/** @} */
+
+/**
  * @brief   Sandbox error codes
  * @{
  */
@@ -67,6 +75,57 @@
  */
 typedef uint32_t (*port_syscall_t)(struct port_extctx *ctx);
 
+/**
+ * @brief   Type of a sandbox applet header.
+ */
+typedef struct {
+  /**
+   * @brief   Magic number 1.
+   */
+  uint32_t                      hdr_magic1;
+  /**
+   * @brief   Magic number 2.
+   */
+  uint32_t                      hdr_magic2;
+  /**
+   * @brief   Header size, inclusive of magic numbers.
+   */
+  uint32_t                      hdr_size;
+  /**
+   * @brief   Used-defined parameters, defaulted to zero.
+   */
+  uint32_t                      user;
+  /**
+   * @brief   Read-only segment address.
+   * @details This segments groups all the read-only sections of the
+   *          sandbox applet.
+   * @note    Alignment is constrained to be the same of the MPU region
+   *          (or subregions) programmed to contain this segment.
+   */
+  uint32_t                      ro_address;
+  /**
+   * @brief   Read-only segment size.
+   * @note    Must be aligned to a 4 bytes boundary and fall within the
+   *          sandbox.
+   * @note    Set to zero if the applet is loaded in RAM exclusively.
+   */
+  uint32_t                      ro_size;
+  /**
+   * @brief   Read-Write segment address.
+   * @details This segments groups all the read-write sections of the
+   *          sandbox applet.
+   * @note    Alignment is constrained to be the same of the MPU region
+   *          (or subregions) programmed to contain this segment.
+   */
+  uint32_t                      rw_address;
+  /**
+   * @brief   Read-Write segment size.
+   * @note    Must be aligned to a 4 bytes boundary and fall within the
+   *          sandbox.
+   */
+  uint32_t                      rw_size;
+} sb_header_t;
+
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
@@ -76,6 +135,9 @@ typedef uint32_t (*port_syscall_t)(struct port_extctx *ctx);
 /*
  * All handlers defaulted to a common function.
  */
+#if !defined(SB_SVC0_HANDLER)
+#define SB_SVC0_HANDLER         sb_undef_handler
+#endif
 #if !defined(SB_SVC1_HANDLER)
 #define SB_SVC1_HANDLER         sb_undef_handler
 #endif
@@ -850,6 +912,7 @@ typedef uint32_t (*port_syscall_t)(struct port_extctx *ctx);
 extern "C" {
 #endif
   void port_syscall(struct port_extctx *ctxp, uint32_t n);
+  bool sbStart(const sb_header_t *sbhp);
 #ifdef __cplusplus
 }
 #endif

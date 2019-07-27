@@ -42,7 +42,7 @@
  * @{
  */
 #define SB_MAGIC1                           0xFE9154C0U
-#define SB_MAGIC1                           0x0C4519EFU
+#define SB_MAGIC2                           0x0C4519EFU
 /** @} */
 
 /**

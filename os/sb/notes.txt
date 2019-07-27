@@ -1,0 +1,45 @@
+
+1) IRQ from user:
+   - Push port_extctx in U-PSP (by HW).
+   - Serve IRQ.
+   - Switch to S-PSP (from thread context).
+   - Push port_midctx (CONTROL, pointer to port_exctx).
+   - Go supervisor modifying CONTROL.
+   - Return to the switch handler.
+   - SVC 0
+     - Discard SVC 0 context.
+     - Pop port_midctx restoring CONTROL and PSP.
+     - Return from SVC (user process mode).
+
+2) IRQ from supervisor:
+   - Push port_extctx in S-PSP (by HW).
+   - Serve IRQ.
+   - Already on S-PSP. <<<< Different >>>>
+   - Push port_midctx (control, pointer to port_exctx).
+   - Go supervisor modifying CONTROL (not necessary, to keep procedure equal).
+   - Return to the switch handler.
+   - SVC 0
+     - Discard SVC 0 context.
+     - Pop port_midctx restoring CONTROL and PSP.
+     - Return from SVC (supervisor process mode).
+
+3) Syscall from user:
+   - Push port_extctx in U-PSP (by HW).
+   - Switch to S-PSP (from thread context).
+   - Push port_midctx (CONTROL, pointer to port_exctx).
+   - Go supervisor modifying CONTROL.
+   - Return to the syscall handler (supervisor process mode).
+   - SVC 0
+     - Discard SVC 0 context.
+     - Pop port_midctx restoring CONTROL and PSP.
+     - Return from SVC (supervisor process mode).
+
+4) GO user mode from supervisor:
+   - Store S-PSP in thread context.
+   - Push port_extctx in U-PSP (by SW, top of RAM box initially).
+   - Push port_midctx (CONTROL(user), U-PSP).
+   - SVC 0
+     - Discard SVC 0 context.
+     - Pop port_midctx restoring CONTROL and PSP.
+     - Return from SVC (supervisor process mode).
+   

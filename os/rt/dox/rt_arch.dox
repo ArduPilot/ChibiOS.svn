@@ -1,0 +1,169 @@
+/*
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio.
+
+    This file is part of ChibiOS.
+
+    ChibiOS is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * @startuml {rt_arch.png} "RT Architecture"
+ * package OS {
+ *   class ch_system_t {
+ *     # instance : os_instance_t[]
+ *   }
+ *   class os_instance_t {
+ *     # rlist : ready_list_t
+ *     # vtlist : virtual_timers_list_t
+ *     # mainthread : thread_t
+ *     # dbg : system_debug_t
+ *     # trace_buffer : trace_buffer_t
+ *     # tmc : tm_calibration_t
+ *     # kernel_stats : kernel_stats_t
+ *   }
+ *   class various_classes {
+ *     system_debug_t
+ *     trace_buffer_t
+ *     tm_calibration_t
+ *     kernel_stats_t
+ *   }
+ * }
+ * package Core {
+ *   class scheduler {
+ *     + {static} chSchReadyI()
+ *     + {static} chSchWakeupS()
+ *     + {static} chSchGoSleepS()
+ *     + {static} chSchGoSleepTimeoutS()
+ *   }
+ *   class system {
+ *     + {static} chSysLock()
+ *     + {static} chSysUnlock()
+ *     + {static} chSysLockFromISR()
+ *     + {static} chSysUnlockFromISR()
+ *     + {static} chSysSwitch()
+ *   }
+ *   class port {
+ *     + {static} port_lock()
+ *     + {static} port_unlock()
+ *     + {static} port_suspend()
+ *     + {static} port_enable()
+ *     + {static} port_disable()
+ *     + {static} port_switch()
+ *     + {static} port_timer_get_time()
+ *   }
+ * }
+ * package Synchronization {
+ *   class semaphore_t {
+ *     # cnt : cnt_t
+ *     + chSemObjectInit()
+ *     + chSemWait()
+ *     + chSemSignal()
+ *     + chSemReset()
+ *   }
+ *   class mutex_t {
+ *     # owner : thread_t *
+ *     # next : mutex_t *
+ *     # cnt : cnt_t
+ *     + chMtxObjectInit()
+ *     + chMtxLock()
+ *     + chMtxTryLock()
+ *     + chMtxUnlock()
+ *     + chMtxUnlockAll()
+ *   }
+ * }
+ * package Threads {
+ *   class thread_list_element_t {
+ *     # next : thread *
+ *   }
+ *   class thread_queue_element_t {
+ *     # prev : thread *
+ *   }
+ *   class thread_header_t {
+ *     # prio : tprio_t
+ *     # ctx : port_context
+ *     # newer : thread_t *
+ *     # older : thread_t *
+ *   }
+ *   class thread_t {
+ *     + {static} chMsgWait()
+ *     + {static} chMsgGet()
+ *     + chMsgRelease()
+ *     + chMsgSend()
+ *     + {static} chThdCreate()
+ *     + {static} chThdSleep()
+ *     + {static} chThdSleepUntil()
+ *   }
+ *   class ready_list_t {
+ *     + {static} chSchReadyI()
+ *     + {static} chSchWakeupS()
+ *     + {static} chSchGoSleepS()
+ *     + {static} chSchGoSleepTimeoutS()
+ *   }
+ * }
+ * package VirtualTimers {
+ *   class virtual_timer_header_t {
+ *     # next : virtual_timer_header_t *
+ *     # prev : virtual_timer_header_t *
+ *     # delta: sysinterval_t
+ *   }
+ *   class virtual_timer_t {
+ *     # func : vtfunc_t
+ *     # par : void *
+ *     + chVTObjectInit()
+ *     + chVTSet()
+ *     + chVTReset()
+ *   }
+ *   class virtual_timers_list_t {
+ *     # systime : systime_t
+ *     # lasttime : systime_t
+ *   }
+ * }
+ *
+ * semaphore_t o-- "1..*" thread_t : waiting\nthreads
+ * semaphore_t ..> scheduler : use
+ * semaphore_t ..> system : use
+ * thread_queue_element_t <|-- semaphore_t
+ *
+ * mutex_t o-- "1..*" thread_t : waiting\nthreads
+ * mutex_t ..> scheduler : use
+ * mutex_t ..> system : use
+ * thread_queue_element_t <|-- mutex_t
+ *
+ * virtual_timer_header_t <|-- virtual_timer_t
+ * virtual_timer_header_t <|-- virtual_timers_list_t
+ * virtual_timer_t ..> scheduler : use
+ * virtual_timer_t ..> system : use
+ * virtual_timer_t ..> port : use
+ * virtual_timers_list_t o-- "0..*" virtual_timer_t : active timers
+ *
+ * thread_list_element_t <|-- thread_queue_element_t
+ * thread_queue_element_t <|-- thread_header_t
+ * thread_header_t <|-- thread_t
+ * thread_header_t <|-r- ready_list_t
+ * thread_t ..> scheduler : use
+ * scheduler ..> system : use
+ * system .l.> port : use
+ *
+ * ch_system_t *-- "1..*" os_instance_t : configured\ncores
+ * os_instance_t *-- "1" ready_list_t
+ * os_instance_t *-- "1" virtual_timers_list_t
+ * os_instance_t *-- "1" thread_t : main\nthread
+ * os_instance_t *-- "1" various_classes : optional support\nclasses
+ *
+ *
+ * ready_list_t o-- "1..*" thread_t : ready\nthreads
+ * ready_list_t o-- "1..*" thread_t : alive\nthreads
+ * ready_list_t o-- "1" thread_t : current\nthread
+ * @enduml
+ */

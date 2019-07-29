@@ -80,34 +80,38 @@ void SVC_Handler(void) {
 
 #if PORT_USE_SYSCALL == TRUE
   /* Caller context.*/
-  struct port_extctx *ctxp = (struct port_extctx *)psp;
+  struct port_extctx *ectxp = (struct port_extctx *)psp;
 
   /* Checking if the SVC instruction has been used from privileged or
      non-privileged mode.*/
   control = __get_CONTROL();
   if ((control & 1U) != 0) {
     /* From non-privileged mode, it must be handled as a syscall.*/
-    uint32_t n;
+    uint32_t n, s_psp;
     struct port_midctx *mctxp;
     struct port_extctx *newctxp;
 
-    /* Saving CONTROL into a port_midctx structure.*/
-    control = __get_CONTROL();
-    psp -= sizeof (struct port_midctx);
-    mctxp = (struct port_midctx *)psp;
-    mctxp->control = (regarm_t)control;
+    /* Supervisor PSP from the thread context structure.*/
+    s_psp = (uint32_t)currthread->ctx.s_psp;
+
+    /* Pushing the port_midctx into the supervisor stack.*/
+    s_psp -= sizeof (struct port_midctx);
+    mctxp = (struct port_midctx *)s_psp;
+    mctxp->control = (regarm_t)(control = __get_CONTROL());
+    mctxp->ectxp = (regarm_t)ectxp;
 
     /* Enforcing privileged mode before returning.*/
     __set_CONTROL(control & ~1U);
 
     /* Number of the SVC instruction.*/
-    n = (uint32_t)*(((const uint16_t *)ctxp->pc) - 1U) & 255U;
+    n = (uint32_t)*(((const uint16_t *)ectxp->pc) - 1U) & 255U;
 
     /* Building an artificial return context, we need to make this
        return in the syscall dispatcher in privileged mode.*/
-    psp -= sizeof (struct port_extctx);
-    newctxp = (struct port_extctx *)psp;
-    newctxp->r0     = (regarm_t)ctxp;
+    s_psp -= sizeof (struct port_extctx);
+    __set_PSP(s_psp);
+    newctxp = (struct port_extctx *)s_psp;
+    newctxp->r0     = (regarm_t)ectxp;
     newctxp->r1     = (regarm_t)n;
     newctxp->pc     = (regarm_t)port_syscall;
     newctxp->xpsr   = (regarm_t)0x01000000;
@@ -132,15 +136,16 @@ void SVC_Handler(void) {
 
 #if PORT_USE_SYSCALL == TRUE
     {
-      /* Restoring previous privileges by restoring CONTROL.*/
+      /* Restoring CONTROL and the original PSP position.*/
       struct port_midctx *mctxp = (struct port_midctx *)psp;
       __set_CONTROL((uint32_t)mctxp->control);
-      psp += sizeof (struct port_midctx);
+      __set_PSP((uint32_t)mctxp->ectxp);
     }
-#endif
+#else
 
     /* Restoring real position of the original stack frame.*/
     __set_PSP(psp);
+#endif
 
     /* Restoring the normal interrupts status.*/
     port_unlock_from_isr();

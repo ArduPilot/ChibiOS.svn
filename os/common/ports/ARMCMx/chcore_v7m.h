@@ -322,19 +322,6 @@
    asm module.*/
 #if !defined(_FROM_ASM_)
 
-#if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
-/**
- * @brief   Middle context structure.
- * @details This structure is used when there is the need to save extra
- *          context information that is not part of the registers stacked
- *          in HW.
- */
-struct port_midctx {
-  regarm_t      control;
-  regarm_t      reserved;
-};
-#endif
-
 /* The documentation of the following declarations is in chconf.h in order
    to not have duplicated structure names into the documentation.*/
 #if !defined(__DOXYGEN__)
@@ -369,6 +356,19 @@ struct port_extctx {
 #endif /* CORTEX_USE_FPU */
 };
 
+#if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
+/**
+ * @brief   Middle context structure.
+ * @details This structure is used when there is the need to save extra
+ *          context information that is not part of the registers stacked
+ *          in HW.
+ */
+struct port_midctx {
+  regarm_t              control;
+  struct port_extctx    *ectxp;
+};
+#endif
+
 struct port_intctx {
 #if CORTEX_USE_FPU
   regarm_t      s16;
@@ -397,6 +397,13 @@ struct port_intctx {
   regarm_t      r10;
   regarm_t      r11;
   regarm_t      lr;
+};
+
+struct port_context {
+  struct port_intctx    *sp;
+#if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
+  regarm_t              s_psp;
+#endif
 };
 #endif /* !defined(__DOXYGEN__) */
 

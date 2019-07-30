@@ -18,7 +18,7 @@
 */
 
 /**
- * @startuml {rt_arch.png} "RT Architecture"
+ * @startuml {rt_arch.png} "RT Core"
  * package OS {
  *   class ch_system_t {
  *     # instance : os_instance_t[]
@@ -81,6 +81,18 @@
  *     + chMtxUnlock()
  *     + chMtxUnlockAll()
  *   }
+ *   class condvar_t {
+ *   }
+ * }
+ * package Communication {
+ *   class events {
+ *   }
+ *   class messages {
+ *     + {static} chMsgWait()
+ *     + {static} chMsgGet()
+ *     + chMsgRelease()
+ *     + chMsgSend()
+ *   }
  * }
  * package Threads {
  *   class thread_list_element_t {
@@ -96,19 +108,12 @@
  *     # older : thread_t *
  *   }
  *   class thread_t {
- *     + {static} chMsgWait()
- *     + {static} chMsgGet()
- *     + chMsgRelease()
- *     + chMsgSend()
  *     + {static} chThdCreate()
  *     + {static} chThdSleep()
  *     + {static} chThdSleepUntil()
  *   }
  *   class ready_list_t {
- *     + {static} chSchReadyI()
- *     + {static} chSchWakeupS()
- *     + {static} chSchGoSleepS()
- *     + {static} chSchGoSleepTimeoutS()
+ *     # current : thread *
  *   }
  * }
  * package VirtualTimers {
@@ -135,10 +140,21 @@
  * semaphore_t ..> system : use
  * thread_queue_element_t <|-- semaphore_t
  *
+ * condvar_t *-r- "1" mutex_t
+ * condvar_t ..> scheduler : use
+ * condvar_t ..> system : use
+ *
  * mutex_t o-- "1..*" thread_t : waiting\nthreads
  * mutex_t ..> scheduler : use
  * mutex_t ..> system : use
  * thread_queue_element_t <|-- mutex_t
+ * thread_queue_element_t <|-- condvar_t
+ *
+ * events ..> scheduler : use
+ * events ..> system : use
+ *
+ * messages ..> scheduler : use
+ * messages ..> system : use
  *
  * virtual_timer_header_t <|-- virtual_timer_t
  * virtual_timer_header_t <|-- virtual_timers_list_t
@@ -147,11 +163,14 @@
  * virtual_timer_t ..> port : use
  * virtual_timers_list_t o-- "0..*" virtual_timer_t : active timers
  *
- * thread_list_element_t <|-- thread_queue_element_t
+ * thread_list_element_t <|-l- thread_queue_element_t
  * thread_queue_element_t <|-- thread_header_t
  * thread_header_t <|-- thread_t
  * thread_header_t <|-r- ready_list_t
  * thread_t ..> scheduler : use
+ * thread_t *-- "1" messages
+ * thread_t *-- "1" events
+ *
  * scheduler ..> system : use
  * system .l.> port : use
  *
@@ -161,9 +180,79 @@
  * os_instance_t *-- "1" thread_t : main\nthread
  * os_instance_t *-- "1" various_classes : optional support\nclasses
  *
- *
  * ready_list_t o-- "1..*" thread_t : ready\nthreads
  * ready_list_t o-- "1..*" thread_t : alive\nthreads
  * ready_list_t o-- "1" thread_t : current\nthread
  * @enduml
+ *
+ * @startuml {rt_arch.png} "RT Synchronization"
+ * package Core {
+ *   class scheduler {
+ *   }
+ *   class system {
+ *   }
+ *   class thread_queue_element_t {
+ *   }
+ *   class thread_t {
+ *   }
+ * }
+ * package Synchronization {
+ *   class semaphore_t {
+ *     # cnt : cnt_t
+ *     + chSemObjectInit()
+ *     + chSemWait()
+ *     + chSemSignal()
+ *     + chSemReset()
+ *   }
+ *   class mutex_t {
+ *     # owner : thread_t *
+ *     # next : mutex_t *
+ *     # cnt : cnt_t
+ *     + chMtxObjectInit()
+ *     + chMtxLock()
+ *     + chMtxTryLock()
+ *     + chMtxUnlock()
+ *     + chMtxUnlockAll()
+ *   }
+ *   class condvar_t {
+ *   }
+ * }
+ * package Communication {
+ *   class events {
+ *   }
+ *   class messages {
+ *     + {static} chMsgWait()
+ *     + {static} chMsgGet()
+ *     + chMsgRelease()
+ *     + chMsgSend()
+ *   }
+ * }
+ *
+ * thread_queue_element_t <|-- semaphore_t
+ * thread_queue_element_t <|-- mutex_t
+ * thread_queue_element_t <|-- condvar_t
+ *
+ * thread_t *-- "1" messages
+ * thread_t *-- "1" events
+ *
+ * semaphore_t o-- "1..*" thread_t : waiting\nthreads
+ * semaphore_t ..> scheduler : use
+ * semaphore_t ..> system : use
+ *
+ * condvar_t *-- "1" mutex_t
+ * condvar_t ..> scheduler : use
+ * condvar_t ..> system : use
+ *
+ * mutex_t o-- "1..*" thread_t : waiting\nthreads
+ * mutex_t ..> scheduler : use
+ * mutex_t ..> system : use
+ *
+ * events ..> scheduler : use
+ * events ..> system : use
+ *
+ * messages ..> scheduler : use
+ * messages ..> system : use
+ *
+ * @enduml
+ *
  */

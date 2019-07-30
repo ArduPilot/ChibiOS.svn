@@ -20,7 +20,7 @@
 /**
  * @startuml {rt_arch.png} "RT Core"
  * package OS {
- *   class ch_system_t {
+ *   class ch_system_t <<(S,#FF7700) Singleton>> {
  *     # instance : os_instance_t[]
  *   }
  *   class os_instance_t {
@@ -38,22 +38,29 @@
  *     tm_calibration_t
  *     kernel_stats_t
  *   }
+ *   class registry <<(S,#FF7700) Singleton>> {
+ *     + chRegFirstThread()
+ *     + chRegNextThread()
+ *     + chRegFindThreadByName()
+ *     + chRegFindThreadByPointer()
+ *     + chRegFindThreadByWorkingArea()
+ *   }
  * }
  * package Core {
- *   class scheduler {
+ *   class scheduler <<(S,#FF7700) Singleton>> {
  *     + {static} chSchReadyI()
  *     + {static} chSchWakeupS()
  *     + {static} chSchGoSleepS()
  *     + {static} chSchGoSleepTimeoutS()
  *   }
- *   class system {
+ *   class system <<(S,#FF7700) Singleton>> {
  *     + {static} chSysLock()
  *     + {static} chSysUnlock()
  *     + {static} chSysLockFromISR()
  *     + {static} chSysUnlockFromISR()
  *     + {static} chSysSwitch()
  *   }
- *   class port {
+ *   class port <<(S,#FF7700) Singleton>> {
  *     + {static} port_lock()
  *     + {static} port_unlock()
  *     + {static} port_suspend()
@@ -63,43 +70,12 @@
  *     + {static} port_timer_get_time()
  *   }
  * }
- * package Synchronization {
- *   class semaphore_t {
- *     # cnt : cnt_t
- *     + chSemObjectInit()
- *     + chSemWait()
- *     + chSemSignal()
- *     + chSemReset()
- *   }
- *   class mutex_t {
- *     # owner : thread_t *
- *     # next : mutex_t *
- *     # cnt : cnt_t
- *     + chMtxObjectInit()
- *     + chMtxLock()
- *     + chMtxTryLock()
- *     + chMtxUnlock()
- *     + chMtxUnlockAll()
- *   }
- *   class condvar_t {
- *   }
- * }
- * package Communication {
- *   class events {
- *   }
- *   class messages {
- *     + {static} chMsgWait()
- *     + {static} chMsgGet()
- *     + chMsgRelease()
- *     + chMsgSend()
- *   }
- * }
  * package Threads {
  *   class thread_list_element_t {
- *     # next : thread *
+ *     # next : thread_t *
  *   }
  *   class thread_queue_element_t {
- *     # prev : thread *
+ *     # prev : thread_t *
  *   }
  *   class thread_header_t {
  *     # prio : tprio_t
@@ -113,7 +89,7 @@
  *     + {static} chThdSleepUntil()
  *   }
  *   class ready_list_t {
- *     # current : thread *
+ *     # current : thread_t *
  *   }
  * }
  * package VirtualTimers {
@@ -135,50 +111,33 @@
  *   }
  * }
  *
- * semaphore_t o-- "1..*" thread_t : waiting\nthreads
- * semaphore_t ..> scheduler : use
- * semaphore_t ..> system : use
- * thread_queue_element_t <|-- semaphore_t
- *
- * condvar_t *-r- "1" mutex_t
- * condvar_t ..> scheduler : use
- * condvar_t ..> system : use
- *
- * mutex_t o-- "1..*" thread_t : waiting\nthreads
- * mutex_t ..> scheduler : use
- * mutex_t ..> system : use
- * thread_queue_element_t <|-- mutex_t
- * thread_queue_element_t <|-- condvar_t
- *
- * events ..> scheduler : use
- * events ..> system : use
- *
- * messages ..> scheduler : use
- * messages ..> system : use
  *
  * virtual_timer_header_t <|-- virtual_timer_t
  * virtual_timer_header_t <|-- virtual_timers_list_t
- * virtual_timer_t ..> scheduler : use
  * virtual_timer_t ..> system : use
  * virtual_timer_t ..> port : use
  * virtual_timers_list_t o-- "0..*" virtual_timer_t : active timers
  *
- * thread_list_element_t <|-l- thread_queue_element_t
+ * thread_list_element_t <|-r- thread_queue_element_t
  * thread_queue_element_t <|-- thread_header_t
  * thread_header_t <|-- thread_t
- * thread_header_t <|-r- ready_list_t
- * thread_t ..> scheduler : use
- * thread_t *-- "1" messages
- * thread_t *-- "1" events
+ * thread_header_t <|-- ready_list_t
+ * thread_t .l.> scheduler : use
+ * thread_t ..> system : use
+ * thread_t ..> port : use
  *
  * scheduler ..> system : use
  * system .l.> port : use
+ *
+ * various_classes "1" --* os_instance_t : optional support\nclasses
  *
  * ch_system_t *-- "1..*" os_instance_t : configured\ncores
  * os_instance_t *-- "1" ready_list_t
  * os_instance_t *-- "1" virtual_timers_list_t
  * os_instance_t *-- "1" thread_t : main\nthread
- * os_instance_t *-- "1" various_classes : optional support\nclasses
+ * os_instance_t <-- thread_t : current\ninstance
+ * os_instance_t <-- scheduler : current\ninstance
+ * os_instance_t <-r- registry : current\ninstance
  *
  * ready_list_t o-- "1..*" thread_t : ready\nthreads
  * ready_list_t o-- "1..*" thread_t : alive\nthreads
@@ -186,21 +145,14 @@
  * @enduml
  *
  * @startuml {rt_arch.png} "RT Synchronization"
- * package Core {
- *   class scheduler {
- *   }
- *   class system {
- *   }
- *   class thread_queue_element_t {
- *   }
- *   class thread_t {
- *   }
+ * class CoreAPI <<(S,#FF7700) Singleton>> {
  * }
  * package Synchronization {
  *   class semaphore_t {
  *     # cnt : cnt_t
  *     + chSemObjectInit()
  *     + chSemWait()
+ *     + chSemWaitTimeout()
  *     + chSemSignal()
  *     + chSemReset()
  *   }
@@ -214,11 +166,24 @@
  *     + chMtxUnlock()
  *     + chMtxUnlockAll()
  *   }
- *   class condvar_t {
+ *   class condition_variable_t {
+ *     + chCondObjectInit()
+ *     + chCondSignal()
+ *     + chCondBroadcast()
+ *     + chCondWait()
+ *     + chCondWaitTimeout()
  *   }
  * }
  * package Communication {
  *   class events {
+ *     + chEvtObjectInit()
+ *     + chEvtRegister()
+ *     + chEvtBroadcastFlags()
+ *     + {static} chEvtSignal()
+ *     + {static} chEvtWaitOne()
+ *     + {static} chEvtWaitAny()
+ *     + {static} chEvtWaitAll()
+ *     + {static} chEvtDispatch()
  *   }
  *   class messages {
  *     + {static} chMsgWait()
@@ -230,28 +195,27 @@
  *
  * thread_queue_element_t <|-- semaphore_t
  * thread_queue_element_t <|-- mutex_t
- * thread_queue_element_t <|-- condvar_t
+ * thread_queue_element_t <|-- condition_variable_t
  *
- * thread_t *-- "1" messages
- * thread_t *-- "1" events
+ * thread_t -- messages
+ * thread_t -- events
+ * thread_t o-- "0..1" mutex_t: waiting on
  *
  * semaphore_t o-- "1..*" thread_t : waiting\nthreads
- * semaphore_t ..> scheduler : use
- * semaphore_t ..> system : use
+ * semaphore_t ..> CoreAPI : use
  *
- * condvar_t *-- "1" mutex_t
- * condvar_t ..> scheduler : use
- * condvar_t ..> system : use
+ * condition_variable_t --> thread_t : current
+ * condition_variable_t ..> CoreAPI : use
  *
- * mutex_t o-- "1..*" thread_t : waiting\nthreads
- * mutex_t ..> scheduler : use
- * mutex_t ..> system : use
+ * mutex_t o-- "1..*" thread_t : waiting
+ * mutex_t o-- "0..1" thread_t : owner
+ * mutex_t o-- "0..1" mutex_t : next owned
+ * mutex_t "0..*" --o thread_t : owned
+ * mutex_t ..> CoreAPI : use
  *
- * events ..> scheduler : use
- * events ..> system : use
+ * events ..> CoreAPI : use
  *
- * messages ..> scheduler : use
- * messages ..> system : use
+ * messages ..> CoreAPI : use
  *
  * @enduml
  *

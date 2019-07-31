@@ -1,0 +1,227 @@
+/*
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio.
+
+    This file is part of ChibiOS.
+
+    ChibiOS is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ *
+ * @startuml {rt_arch.png} "OSLIB"
+ * package RTOS {
+ *   class CoreAPI <<(S,#FF7700) Singleton>> {
+ *   }
+ *   class thread_reference_t {
+ *   }
+ *   class threads_queue_t {
+ *   }
+ *   class semaphore_t {
+ *   }
+ *   class mutex_t {
+ *   }
+ * }
+ * package Communication {
+ *   class mailbox_t {
+ *     + chMBObjectInit()
+ *     + chMBReset()
+ *     + chMBResetI()
+ *     + chMBPostTimeout()
+ *     + chMBPostTimeoutS()
+ *     + chMBPostI()
+ *     + chMBPostAheadTimeout()
+ *     + chMBPostAheadTimeoutS()
+ *     + chMBPostAheadI()
+ *     + chMBFetchTimeout()
+ *     + chMBFetchTimeoutS()
+ *     + chMBFetchI()
+ *   }
+ *   class objects_fifo_t {
+ *     + chFifoObjectInitAligned()
+ *     + chFifoObjectInit()
+ *     + chFifoTakeObjectI()
+ *     + chFifoTakeObjectTimeoutS()
+ *     + chFifoTakeObjectTimeout()
+ *     + chFifoReturnObjectI()
+ *     + chFifoReturnObjectS()
+ *     + chFifoReturnObject()
+ *     + chFifoSendObjectI()
+ *     + chFifoSendObjectS()
+ *     + chFifoSendObject()
+ *     + chFifoSendObjectAheadI()
+ *     + chFifoSendObjectAheadS()
+ *     + chFifoSendObjectAhead()
+ *     + chFifoReceiveObjectI()
+ *     + chFifoReceiveObjectS()
+ *     + chFifoReceiveObject()
+ *   }
+ *   class pipe_t {
+ *     + chPipeObjectInit()
+ *     + chPipeReset()
+ *     + chPipeWriteTimeout()
+ *     + chPipeReadTimeout()
+ *   }
+ * }
+ * package Memory {
+ *   class memcore_t <<(S,#FF7700) Singleton>> {
+ *     + chCoreAllocFromBaseI()
+ *     + chCoreAllocFromBase()
+ *     + chCoreAllocFromTopI()
+ *     + chCoreAllocFromTop()
+ *     + chCoreAllocAlignedI()
+ *     + chCoreAllocAligned()
+ *     + chCoreAllocI()
+ *     + chCoreAlloc()
+ *   }
+ *   class memory_heap_t {
+ *     + chHeapObjectInit()
+ *     + chHeapAllocAligned()
+ *     + chHeapFree()
+ *     + chHeapStatus()
+ *   }
+ *   class memory_pool_t {
+ *     + chPoolObjectInit()
+ *     + chPoolObjectInitAligned()
+ *     + chPoolObjectInit()
+ *     + chPoolAllocI()
+ *     + chPoolAlloc()
+ *     + chPoolFreeI()
+ *     + chPoolFree()
+ *     + chPoolAddI()
+ *     + chPoolAdd()
+ *   }
+ *   class guarded_memory_pool_t {
+ *     + chGuardedPoolObjectInit()
+ *     + chGuardedPoolObjectInitAligned()
+ *     + chGuardedPoolLoadArray()
+ *     + chGuardedPoolAllocI()
+ *     + chGuardedPoolAllocTimeoutS()
+ *     + chGuardedPoolAllocTimeout()
+ *     + chGuardedPoolFreeI()
+ *     + chGuardedPoolFreeS()
+ *     + chGuardedPoolFree()
+ *     + chGuardedPoolGetCounterI()
+ *     + chGuardedPoolAddI()
+ *     + chGuardedPoolAddS()
+ *     + chGuardedPoolAdd()
+ *   }
+ * }
+ * package Syncronization {
+ *   class binary_semaphore_t {
+ *     + chBSemObjectInit()
+ *     + chBSemWait()
+ *     + chBSemWaitS()
+ *     + chBSemWaitTimeoutS()
+ *     + chBSemWaitTimeout()
+ *     + chBSemResetI()
+ *     + chBSemReset()
+ *     + chBSemSignalI()
+ *     + chBSemSignal()
+ *     + chBSemGetStateI()
+ *   }
+ * }
+ * package Factory {
+ *   class dyn_element_t {
+ *     # next : dyn_element_t
+ *   }
+ *   class dyn_list_t {
+ *     # next : dyn_element_t
+ *   }
+ *   class registered_object_t {
+ *     + objp : void *
+ *   }
+ *   class dyn_buffer_t {
+ *     + buffer : uint8_t[]
+ *   }
+ *   class dyn_semaphore_t {
+ *     + sem : semaphore_t
+ *   }
+ *   class dyn_mailbox_t {
+ *     + mbx : mailbox_t
+ *   }
+ *   class dyn_objects_fifo_t {
+ *     + fifo : objects_fifo_t
+ *   }
+ *   class dyn_pipe_t {
+ *     + pipe : pipe_t
+ *   }
+ *   class objects_factory_t <<(S,#FF7700) Singleton>> {
+ *     + {static} chFactoryRegisterObject()
+ *     + {static} chFactoryFindObject()
+ *     + {static} chFactoryFindObjectByPointer()
+ *     + {static} chFactoryReleaseObject()
+ *     + {static} chFactoryCreateBuffer()
+ *     + {static} chFactoryFindBuffer()
+ *     + {static} chFactoryReleaseBuffer()
+ *     + {static} chFactoryCreateSemaphore()
+ *     + {static} chFactoryFindSemaphore()
+ *     + {static} chFactoryReleaseSemaphore()
+ *     + {static} chFactoryCreateMailbox()
+ *     + {static} chFactoryFindMailbox()
+ *     + {static} chFactoryReleaseMailbox()
+ *     + {static} chFactoryCreateObjectsFIFO()
+ *     + {static} chFactoryFindObjectsFIFO()
+ *     + {static} chFactoryReleaseObjectsFIFO()
+ *     + {static} chFactoryCreatePipe()
+ *     + {static} chFactoryFindPipe()
+ *     + {static} chFactoryReleasePipe()
+ *   }
+ * }
+ *
+ * binary_semaphore_t *-u- "1" semaphore_t
+ * binary_semaphore_t .u.> CoreAPI : use
+ *
+ * mailbox_t *-- "2" threads_queue_t
+ * mailbox_t ..> CoreAPI : use
+ *
+ * objects_fifo_t *-- "1" mailbox_t
+ * objects_fifo_t *-- "1" guarded_memory_pool_t
+ *
+ * pipe_t *-- "2" thread_reference_t
+ * pipe_t *-- "3" semaphore_t
+ *
+ * memcore_t ..> CoreAPI : use
+ *
+ * memory_heap_t *-- "1" mutex_t
+ * memory_heap_t ..> memcore_t : use
+ *
+ * memory_pool_t ..> CoreAPI : use
+ * memory_pool_t "1" --* guarded_memory_pool_t
+ *
+ * guarded_memory_pool_t ..> CoreAPI : use
+ * guarded_memory_pool_t *-- "1" semaphore_t
+ *
+ * objects_factory_t *-- "1" mutex_t
+ * objects_factory_t *-- "2" memory_pool_t
+ * objects_factory_t *-r- "6" dyn_list_t
+ * objects_factory_t ..> memory_heap_t : use
+ *
+ * dyn_list_t o-u- "0..*" dyn_element_t
+ *
+ * dyn_element_t <|-l- registered_object_t
+ * dyn_element_t <|-u- dyn_buffer_t
+ * dyn_element_t <|-u- dyn_semaphore_t
+ * dyn_element_t <|-u- dyn_mailbox_t
+ * dyn_element_t <|-u- dyn_objects_fifo_t
+ * dyn_element_t <|-u- dyn_pipe_t
+ * dyn_element_t o-- "0..1" dyn_element_t : next
+ *
+ * dyn_semaphore_t *-- "1" semaphore_t
+ * dyn_mailbox_t *-- "1" mailbox_t
+ * dyn_objects_fifo_t *-- "1" objects_fifo_t
+ * dyn_pipe_t *-- "1" pipe_t
+ *
+ * @enduml
+ *
+ */

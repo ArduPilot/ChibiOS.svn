@@ -71,11 +71,24 @@
  *   }
  * }
  * package Threads {
- *   class thread_list_element_t {
+ *   class thd_list_t {
  *     # next : thread_t *
+ *     # list_init()
+ *     # list_isempty()
+ *     # list_notempty()
+ *     # list_insert()
+ *     # list_remove()
  *   }
- *   class thread_queue_element_t {
+ *   class thd_queue_t {
  *     # prev : thread_t *
+ *     # queue_init()
+ *     # queue_isempty()
+ *     # queue_notempty()
+ *     # queue_prio_insert()
+ *     # queue_insert()
+ *     # queue_fifo_remove()
+ *     # queue_lifo_remove()
+ *     # queue_dequeue()
  *   }
  *   class thread_header_t {
  *     # prio : tprio_t
@@ -87,6 +100,10 @@
  *     + {static} chThdCreate()
  *     + {static} chThdSleep()
  *     + {static} chThdSleepUntil()
+ *     + {static} chThdExit()
+ *     + chThdWait()
+ *     + chThdAddRef()
+ *     + chThdRelease()
  *   }
  *   class ready_list_t {
  *     # current : thread_t *
@@ -118,13 +135,14 @@
  * virtual_timer_t ..> port : use
  * virtual_timers_list_t o-- "0..*" virtual_timer_t : active timers
  *
- * thread_list_element_t <|-r- thread_queue_element_t
- * thread_queue_element_t <|-- thread_header_t
+ * thd_list_t <|-r- thd_queue_t
+ * thd_queue_t <|-- thread_header_t
  * thread_header_t <|-- thread_t
  * thread_header_t <|-- ready_list_t
- * thread_t .l.> scheduler : use
+ * thread_t ..> scheduler : use
  * thread_t ..> system : use
  * thread_t ..> port : use
+ * thread_t o-- "0..1" thread_t : next\nprevious\nnewer\nolder\nwaiting
  *
  * scheduler ..> system : use
  * system .l.> port : use
@@ -148,6 +166,19 @@
  * class CoreAPI <<(S,#FF7700) Singleton>> {
  * }
  * package Synchronization {
+ *   class thread_reference_t {
+ *     # ref : thread_t *
+ *     + chThdSuspendS()
+ *     + chThdSuspendTimeoutS()
+ *     + chThdResumeI()
+ *     + chThdResumeS()
+ *   }
+ *   class thread_queue_t {
+ *     + chThdQueueObjectInit()
+ *     + chThdEnqueueTimeoutS()
+ *     + chThdDequeueNextI()
+ *     + chThdDequeueAllI()
+ *   }
  *   class semaphore_t {
  *     # cnt : cnt_t
  *     + chSemObjectInit()
@@ -174,7 +205,7 @@
  *     + chCondWaitTimeout()
  *   }
  * }
- * package Communication {
+ * package Messages {
  *   class events {
  *     + chEvtObjectInit()
  *     + chEvtRegister()
@@ -185,29 +216,38 @@
  *     + {static} chEvtWaitAll()
  *     + {static} chEvtDispatch()
  *   }
- *   class messages {
+ *   class messages <<(S,#FF7700) Singleton>> {
  *     + {static} chMsgWait()
  *     + {static} chMsgGet()
- *     + chMsgRelease()
- *     + chMsgSend()
+ *     + {static} chMsgRelease()
+ *     + {static} chMsgSend()
  *   }
  * }
  *
- * thread_queue_element_t <|-- semaphore_t
- * thread_queue_element_t <|-- mutex_t
- * thread_queue_element_t <|-- condition_variable_t
+ * thread_reference_t o-- "0..1" thread_t
+ * thread_reference_t ..> CoreAPI : use
  *
- * thread_t -- messages
+ * thread_queue_t o-- "0..*" thread_t : queued
+ * thread_queue_t ..> CoreAPI : use
+ *
+ * thd_queue_t <|-- thread_queue_t
+ * thd_queue_t <|-- semaphore_t
+ * thd_queue_t <|-- mutex_t
+ * thd_queue_t <|-- condition_variable_t
+ *
+ * thread_t <.. messages : use
+ *
  * thread_t -- events
  * thread_t o-- "0..1" mutex_t: waiting on
  *
- * semaphore_t o-- "1..*" thread_t : waiting\nthreads
+ * semaphore_t o-- "0..*" thread_t : waiting\nthreads
  * semaphore_t ..> CoreAPI : use
  *
  * condition_variable_t --> thread_t : current
  * condition_variable_t ..> CoreAPI : use
  *
- * mutex_t o-- "1..*" thread_t : waiting
+ * mutex_t "1" -l- "0..*" condition_variable_t : collaboration
+ * mutex_t o-- "0..*" thread_t : waiting
  * mutex_t o-- "0..1" thread_t : owner
  * mutex_t o-- "0..1" mutex_t : next owned
  * mutex_t "0..*" --o thread_t : owned

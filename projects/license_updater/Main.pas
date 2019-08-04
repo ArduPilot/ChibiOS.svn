@@ -174,6 +174,7 @@ end;
 
 procedure TLicenseChangerForm.ClearButtonClick(Sender: TObject);
 begin
+  LogMemo.Lines.Clear;
   LicenseMemo.Lines.Clear;
   LicenseMemo.SetFocus;
 end;
@@ -240,6 +241,7 @@ procedure TLicenseChangerForm.GoButtonClick(Sender: TObject);
 begin
   if MessageDlg('Proceed ?', mtConfirmation, mbOKCancel, 0) = mrOK then
   begin
+    LogMemo.Lines.Clear;
     DisableGUI;
     Scan(PathEdit.Text, '');
     EnableGUI;

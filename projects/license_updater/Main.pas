@@ -9,7 +9,11 @@ uses
   Dialogs, StdCtrls, StringUtils;
 
 type
+
+  { TLicenseChangerForm }
+
   TLicenseChangerForm = class(TForm)
+    ClearButton: TButton;
     PathEdit: TEdit;
     Label1: TLabel;
     PathButton: TButton;
@@ -24,6 +28,8 @@ type
     KeyEdit: TEdit;
     Label5: TLabel;
     NameEdit: TEdit;
+    procedure ClearButtonClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
     procedure PathButtonClick(Sender: TObject);
     procedure GoButtonClick(Sender: TObject);
     procedure StopButtonClick(Sender: TObject);
@@ -117,6 +123,15 @@ begin
         end;
         // Saves the modified file.
         try
+          // Windows-style EOLs required.
+          sl.TextLineBreakStyle := tlbsCRLF;
+//          stream := TFileStream.Create(FName, fmOpenWrite);
+//          for i := 0 to sl.Count - 1 do
+//          begin
+//            line := sl.Strings[i];
+//            stream.Write(line, Length(line));
+//          end;
+//          stream.Free;
           sl.SaveToFile(FName);
         except
           MessageDlg('Unable to save: ' + FName, mtError, [mbOK], 0);
@@ -143,13 +158,24 @@ procedure TLicenseChangerForm.PathButtonClick(Sender: TObject);
 var
   root: String;
 begin
-  root := 'C:\';
-  if SelectDirectory(root, [], 0) then
+  root := PathEdit.Text;
+  if SelectDirectory('Select Project Root', root, root, false, 0) then
   begin
     PathEdit.Text := root;
     LogMemo.Lines.Clear;
     GoButton.Enabled := True;
   end;
+end;
+
+procedure TLicenseChangerForm.FormActivate(Sender: TObject);
+begin
+  PathEdit.Text := GetCurrentDir;
+end;
+
+procedure TLicenseChangerForm.ClearButtonClick(Sender: TObject);
+begin
+  LicenseMemo.Lines.Clear;
+  LicenseMemo.SetFocus;
 end;
 
 procedure TLicenseChangerForm.StopButtonClick(Sender: TObject);
@@ -166,9 +192,9 @@ procedure TLicenseChangerForm.GoButtonClick(Sender: TObject);
   begin
     Path := ExcludeTrailingBackslash(Path);
     if Sub = '' then
-      s := Path + '\*.*'
+      s := Path + '/*'
     else
-      s := Path + '\' + Sub + '\*.*';
+      s := Path + '/' + Sub + '/*';
     if FindFirst(s, faAnyFile, rec) <> 0 then
       exit;
     try
@@ -184,7 +210,7 @@ procedure TLicenseChangerForm.GoButtonClick(Sender: TObject);
         if Sub = '' then
           s := rec.Name
         else
-          s := Sub + '\' + rec.Name;
+          s := Sub + '/' + rec.Name;
         if Length(s) > 255 then
           raise Exception.Create('Pathname too long');
 
@@ -199,7 +225,7 @@ procedure TLicenseChangerForm.GoButtonClick(Sender: TObject);
           ext := LowerCase(ExtractFileExt(rec.Name));
           if ExtMemo.Lines.IndexOf(ext) >= 0 then
           begin
-            if ReplaceLicense(Path + '\' + s) then
+            if ReplaceLicense(Path + '/' + s) then
             LogMemo.Lines.Add('Processed : ' + s)
             else
             LogMemo.Lines.Add('No License: ' + s + ' (skipped)');

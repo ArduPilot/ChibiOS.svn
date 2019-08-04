@@ -1,0 +1,150 @@
+object LicenseChangerForm: TLicenseChangerForm
+  Left = 623
+  Top = 431
+  BorderStyle = bsSingle
+  Caption = 'License Changer 2.0'
+  ClientHeight = 460
+  ClientWidth = 763
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  Position = poScreenCenter
+  PixelsPerInch = 96
+  object Label1: TLabel
+    Left = 8
+    Top = 10
+    Width = 22
+    Height = 13
+    Caption = 'Path'
+  end
+  object Label2: TLabel
+    Left = 8
+    Top = 96
+    Width = 86
+    Height = 13
+    Caption = 'New License Text'
+  end
+  object Label3: TLabel
+    Left = 0
+    Top = 290
+    Width = 18
+    Height = 13
+    Caption = 'Log'
+  end
+  object Label4: TLabel
+    Left = 8
+    Top = 42
+    Width = 18
+    Height = 13
+    Caption = 'Key'
+  end
+  object Label5: TLabel
+    Left = 8
+    Top = 74
+    Width = 28
+    Height = 13
+    Caption = 'Name'
+  end
+  object PathEdit: TEdit
+    Left = 48
+    Top = 8
+    Width = 433
+    Height = 21
+    Hint = 'Root of source tree'
+    ReadOnly = True
+    TabOrder = 0
+  end
+  object PathButton: TButton
+    Left = 492
+    Top = 8
+    Width = 25
+    Height = 25
+    Caption = '...'
+    TabOrder = 1
+    OnClick = PathButtonClick
+  end
+  object ExtMemo: TMemo
+    Left = 544
+    Top = 8
+    Width = 217
+    Height = 97
+    Hint = 'Processed extensions'
+    Lines.Strings = (
+      '.c'
+      '.cpp'
+      '.h'
+      '.hpp'
+      '.s'
+      '.dox'
+      '.ld')
+    ScrollBars = ssVertical
+    TabOrder = 2
+  end
+  object LicenseMemo: TMemo
+    Left = 0
+    Top = 112
+    Width = 761
+    Height = 169
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentFont = False
+    ScrollBars = ssVertical
+    TabOrder = 3
+    WordWrap = False
+  end
+  object GoButton: TButton
+    Left = 344
+    Top = 72
+    Width = 75
+    Height = 25
+    Hint = 'Start processing'
+    Caption = 'Go'
+    Default = True
+    Enabled = False
+    TabOrder = 4
+    OnClick = GoButtonClick
+  end
+  object LogMemo: TMemo
+    Left = 0
+    Top = 304
+    Width = 761
+    Height = 153
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 5
+  end
+  object StopButton: TButton
+    Left = 440
+    Top = 72
+    Width = 75
+    Height = 25
+    Caption = 'Stop'
+    Enabled = False
+    TabOrder = 6
+    OnClick = StopButtonClick
+  end
+  object KeyEdit: TEdit
+    Left = 48
+    Top = 40
+    Width = 257
+    Height = 21
+    Hint = 'Change only if this string is found'
+    TabOrder = 7
+    Text = 'ChibiOS is free software'
+  end
+  object NameEdit: TEdit
+    Left = 48
+    Top = 72
+    Width = 257
+    Height = 21
+    Hint = 'Change only if this string is found'
+    TabOrder = 8
+    Text = 'Giovanni Di Sirio'
+  end
+end

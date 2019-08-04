@@ -7,7 +7,8 @@ unit ChibiOSUnits;
 interface
 
 uses
-  DynamicLists, S19, LineParser, Chars, LinkedLists, ByteArrayUtils, TextStream;
+  DynamicLists, S19, LineParser, Chars, LinkedLists, ByteArrayUtils, 
+  TextStream, StringUtils;
 
 implementation
 

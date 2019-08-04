@@ -142,7 +142,8 @@
  * thread_t ..> scheduler : use
  * thread_t ..> system : use
  * thread_t ..> port : use
- * thread_t o-- "0..1" thread_t : next\nprevious\nnewer\nolder\nwaiting
+ * thread_t o-- "0..1" thread_t : next\nprevious\nnewer\nolder
+ * thread_t o-- "0..*" thread_t : waiting
  *
  * scheduler ..> system : use
  * system .l.> port : use

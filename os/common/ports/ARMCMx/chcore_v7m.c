@@ -25,6 +25,8 @@
  * @{
  */
 
+#include <string.h>
+
 #include "ch.h"
 
 /*===========================================================================*/
@@ -318,5 +320,42 @@ void _port_irq_epilogue(void) {
   }
   port_unlock_from_isr();
 }
+
+#if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
+void port_unprivileged_jump(regarm_t pc, regarm_t psp) {
+  struct port_extctx *ctxp;
+  struct port_midctx *mctxp;
+  uint32_t s_psp   = __get_PSP();
+  uint32_t control = __get_CONTROL();
+
+  /* The current PSP position will be the supervisor PSP position on
+     syscalls.*/
+  currthread->ctx.s_psp = (regarm_t)s_psp;
+
+  /* Creating a port_extctx context for user mode entry.*/
+  psp -= sizeof (struct port_extctx);
+  ctxp = (struct port_extctx *)psp;
+
+  /* Initializing the user mode entry context.*/
+  memset((void *)ctxp, 0, sizeof (struct port_extctx *));
+  ctxp->pc    = pc;
+  ctxp->xpsr  = (regarm_t)0x01000000;
+#if CORTEX_USE_FPU == TRUE
+  ctxp->fpscr = __get_FPSCR();
+#endif
+
+  /* Creating a middle context for user mode entry.*/
+  s_psp -= sizeof (struct port_midctx);
+  mctxp  = (struct port_midctx *)s_psp;
+
+  /* CONTROL and PSP values for user mode.*/
+  mctxp->control = (regarm_t)(control | 1U);
+  mctxp->ectxp   = ctxp;
+
+  asm volatile ("svc 0");
+
+  chSysHalt("svc");
+}
+#endif
 
 /** @} */

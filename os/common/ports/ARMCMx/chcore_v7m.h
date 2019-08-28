@@ -531,6 +531,9 @@ extern "C" {
   void _port_thread_start(void);
   void _port_switch_from_isr(void);
   void _port_exit_from_isr(void);
+#if PORT_USE_SYSCALL == TRUE
+  void port_unprivileged_jump(regarm_t pc, regarm_t psp);
+#endif
 #ifdef __cplusplus
 }
 #endif

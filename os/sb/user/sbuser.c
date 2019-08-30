@@ -18,15 +18,17 @@
 */
 
 /**
- * @file    sb/sbhost.c
+ * @file    sb/sbuser.c
  * @brief   ARMv7-M sandbox user API code.
  *
  * @addtogroup ARMV7M_SANDBOX_API
  * @{
  */
 
-#include "ch.h"
-#include "sbhost.h"
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "sbuser.h"
 
 /*===========================================================================*/
 /* Module local definitions.                                                 */

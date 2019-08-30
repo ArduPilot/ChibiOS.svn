@@ -76,7 +76,31 @@
 typedef uint32_t (*port_syscall_t)(struct port_extctx *ctx);
 
 /**
- * @brief   Type of a sandbox applet header.
+ * @brief   Type of a sandbox memory region.
+ */
+typedef struct {
+  /**
+   * @brief   Region 1 start address.
+   */
+  uint32_t                      r1_base;
+  /**
+   * @brief   Region 1 size.
+   */
+  uint32_t                      r1_end;
+  /**
+   * @brief   Region 2 start address.
+   * @note    Zero if not used.
+   */
+  uint32_t                      r2_base;
+  /**
+   * @brief   Region 2 end address.
+   * @note    Zero if not used.
+   */
+  uint32_t                      r2_end;
+} sb_regions_t;
+
+/**
+ * @brief   Type of a sandbox applet headers.
  */
 typedef struct {
   /**
@@ -96,34 +120,23 @@ typedef struct {
    */
   uint32_t                      user;
   /**
-   * @brief   Read-only segment address.
-   * @details This segments groups all the read-only sections of the
-   *          sandbox applet.
-   * @note    Alignment is constrained to be the same of the MPU region
-   *          (or subregions) programmed to contain this segment.
+   * @brief   Region 1 start address.
    */
-  uint32_t                      ro_address;
+  uint32_t                      r1_base;
   /**
-   * @brief   Read-only segment size.
-   * @note    Must be aligned to a 4 bytes boundary and fall within the
-   *          sandbox.
-   * @note    Set to zero if the applet is loaded in RAM exclusively.
+   * @brief   Region 1 size.
    */
-  uint32_t                      ro_size;
+  uint32_t                      r1_end;
   /**
-   * @brief   Read-Write segment address.
-   * @details This segments groups all the read-write sections of the
-   *          sandbox applet.
-   * @note    Alignment is constrained to be the same of the MPU region
-   *          (or subregions) programmed to contain this segment.
+   * @brief   Region 2 start address.
+   * @note    Zero if not used.
    */
-  uint32_t                      rw_address;
+  uint32_t                      r2_base;
   /**
-   * @brief   Read-Write segment size.
-   * @note    Must be aligned to a 4 bytes boundary and fall within the
-   *          sandbox.
+   * @brief   Region 2 end address.
+   * @note    Zero if not used.
    */
-  uint32_t                      rw_size;
+  uint32_t                      r2_end;
 } sb_header_t;
 
 /*===========================================================================*/
@@ -912,7 +925,8 @@ typedef struct {
 extern "C" {
 #endif
   void port_syscall(struct port_extctx *ctxp, uint32_t n);
-  bool sbStart(const sb_header_t *sbhp);
+  void sbStart(const sb_header_t *sbhp,
+               const sb_regions_t *rp);
 #ifdef __cplusplus
 }
 #endif

@@ -14,21 +14,27 @@
     limitations under the License.
 */
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "sbuser.h"
-
 /*
- * Application entry point.
+ * Sandbox memory setup.
  */
-int main(void) {
-
-  /*
-   * Normal main() activity, in this demo it does nothing except
-   * sleeping in a loop.
-   */
-  while (true) {
-    sbSleepMilliseconds(500);
-  }
+MEMORY
+{
+    flash0  : org = 0x080FC000, len = 16k
+    ram0    : org = 0x20017000, len = 4k
 }
+
+__r1_start__            = ORIGIN(flash0);
+__r1_size__             = LENGTH(flash0);
+__r1_end__              = __r1_start__ + __r1_size__;
+__r2_start__            = ORIGIN(ram0);
+__r2_size__             = LENGTH(ram0);
+__r2_end__              = __r2_start__ + __r2_size__;
+
+/* Flash region to be used for exception vectors.*/
+REGION_ALIAS("CODE_SPACE", flash0);
+
+/* RAM region to be used for data.*/
+REGION_ALIAS("DATA_SPACE", ram0);
+
+/* Generic rules inclusion.*/
+INCLUDE rules.ld

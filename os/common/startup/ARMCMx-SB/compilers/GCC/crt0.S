@@ -97,12 +97,12 @@
                 .globl      _sandbox
 _sandbox:       .long       0xFE9154C0U
                 .long       0x0C4519EFU
-                .long       32
-                .long       _crt0_entry
-                .long       __user_psp_end__
+                .long       64
                 .long       0
-                .long       0
-                .long       0
+                .long       __r1_start__
+                .long       __r1_end__
+                .long       __r2_start__
+                .long       __r2_end__
 
 /*
  * CRT0 entry point.
@@ -112,11 +112,15 @@ _sandbox:       .long       0xFE9154C0U
                 .global _crt0_entry
 _crt0_entry:
 
+                /* PSP stack pointers initialization.*/
+                ldr     r0, =__user_psp_end__
+                msr     PSP, r0
+
 #if CRT0_INIT_STACKS == TRUE
+                /* User process Stack initialization. Note, it assumes that the
+                   stack size is a multiple of 4 so the linker file must
+                   ensure this.*/
                 ldr     r0, =CRT0_STACKS_FILL_PATTERN
-                /* User PSP initialization. Note, it assumes that the
-                   stack size is a multiple of 4 so the linker file
-                   must ensure this.*/
                 ldr     r1, =__user_psp_base__
                 ldr     r2, =__user_psp_end__
 upsloop:
@@ -124,7 +128,7 @@ upsloop:
                 itt     lo
                 strlo   r0, [r1], #4
                 blo     upsloop
-#endif
+#endif /* CRT0_INIT_STACKS == TRUE */
 
 #if CRT0_INIT_DATA == TRUE
                 /* Data initialization. Note, it assumes that the DATA size
@@ -138,7 +142,7 @@ dloop:
                 ldrlo   r0, [r1], #4
                 strlo   r0, [r2], #4
                 blo     dloop
-#endif
+#endif /* CRT0_INIT_DATA == TRUE */
 
 #if CRT0_INIT_BSS == TRUE
                 /* BSS initialization. Note, it assumes that the DATA size
@@ -151,7 +155,7 @@ bloop:
                 itt     lo
                 strlo   r0, [r1], #4
                 blo     bloop
-#endif
+#endif /* CRT0_INIT_BSS == TRUE */
 
 #if CRT0_CALL_CONSTRUCTORS == TRUE
                 /* Constructors invocation.*/
@@ -164,7 +168,7 @@ initloop:
                 blx     r1
                 b       initloop
 endinitloop:
-#endif
+#endif /* CRT0_CALL_CONSTRUCTORS == TRUE */
 
                 /* Main program invocation, r0 contains the returned value.*/
                 bl      main
@@ -180,7 +184,7 @@ finiloop:
                 blx     r1
                 b       finiloop
 endfiniloop:
-#endif
+#endif /* CRT0_CALL_DESTRUCTORS == TRUE */
 
 .exitloop:      b       .exitloop
 

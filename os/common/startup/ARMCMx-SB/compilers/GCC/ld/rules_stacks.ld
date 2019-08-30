@@ -14,21 +14,14 @@
     limitations under the License.
 */
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "sbuser.h"
-
-/*
- * Application entry point.
- */
-int main(void) {
-
-  /*
-   * Normal main() activity, in this demo it does nothing except
-   * sleeping in a loop.
-   */
-  while (true) {
-    sbSleepMilliseconds(500);
-  }
+SECTIONS
+{
+    .upsp (NOLOAD) :
+    {
+        . = ALIGN(8);
+        __user_psp_base__ = .;
+        . += __process_stack_size__;
+        . = ALIGN(8);
+        __user_psp_end__ = .;
+    } > DATA_SPACE
 }

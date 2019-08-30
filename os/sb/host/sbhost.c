@@ -138,9 +138,49 @@ void port_syscall(struct port_extctx *ctxp, uint32_t n) {
 
 /**
  * @brief   Starts a sandboxed thread.
+ *
+ * @param[in] sbhp      pointer to the sandbox binary header
+ * @param[in] rp        pointer to the regions descriptor
+ * @return              The function returns only if the operation failed.
  */
-bool sbStart(const sb_header_t *sbhp) {
+void sbStart(const sb_header_t *sbhp,
+             const sb_regions_t *rp) {
+  uint32_t pc, psp;
 
+  /* Checking header magic numbers.*/
+  if ((sbhp->hdr_magic1 != SB_MAGIC1) || (sbhp->hdr_magic2 != SB_MAGIC2)) {
+    return;
+  }
+
+  /* Checking header size and alignment.*/
+  if (sbhp->hdr_size != sizeof (sb_header_t)) {
+    return;
+  }
+
+  /* Checking regions, applet regions and sandbox regions must match.*/
+  if ((sbhp->r1_base != rp->r1_base) || (sbhp->r1_end != rp->r1_end) ||
+      (sbhp->r2_base != rp->r2_base) || (sbhp->r2_end != rp->r2_end)) {
+    return;
+  }
+
+  /* PC initial address, by convention it is immediately after the header.*/
+  pc = (sbhp->r1_base + sbhp->hdr_size) | 1U;
+
+  /* PSP initial address, it is placed at end of the last region.*/
+  if (rp->r2_base == 0U) {
+    /* Must be in region 1.*/
+    psp = rp->r1_end;
+  }
+  else {
+    /* Must be in region 2.*/
+    psp = rp->r2_end;
+  }
+
+  /* Jumping to the unprivileged code.*/
+  port_unprivileged_jump(pc, psp);
+
+  /* Must never happen condition.*/
+  chSysHalt("returned");
 }
 
 /** @} */

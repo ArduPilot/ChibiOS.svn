@@ -23,6 +23,7 @@ MEMORY
     ram0    : org = 0x20017000, len = 4k
 }
 
+/* Symbols required by the sandbox startup file.*/
 __r1_start__            = ORIGIN(flash0);
 __r1_size__             = LENGTH(flash0);
 __r1_end__              = __r1_start__ + __r1_size__;

@@ -115,7 +115,7 @@ include $(CHIBIOS)/test/rt/rt_test.mk
 include $(CHIBIOS)/test/oslib/oslib_test.mk
 
 # Define linker script file here.
-LDSCRIPT= $(STARTUPLD)/STM32L476xG.ld
+LDSCRIPT= ./STM32L476xG_SB.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

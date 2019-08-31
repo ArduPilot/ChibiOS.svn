@@ -263,7 +263,7 @@ void _port_irq_epilogue(void) {
   port_lock_from_isr();
   if ((SCB->ICSR & SCB_ICSR_RETTOBASE_Msk) != 0U) {
     struct port_extctx *ctxp;
-    uint32_t psp = __get_PSP();
+    uint32_t s_psp;
 
 #if CORTEX_USE_FPU == TRUE
     /* Enforcing a lazy FPU state save by accessing the FPCSR register.*/
@@ -272,26 +272,46 @@ void _port_irq_epilogue(void) {
 
 #if PORT_USE_SYSCALL == TRUE
     {
-      /* Saving CONTROL into a port_midctx structure.*/
-      uint32_t control = __get_CONTROL();
       struct port_midctx *mctxp;
+      uint32_t control = __get_CONTROL();
 
-      psp -= sizeof (struct port_midctx);
-      mctxp = (struct port_midctx *)psp;
-      mctxp->control = (regarm_t)control;
+      /* Checking if the IRQ has been served in unprivileged mode.*/
+      if ((control & 1U) != 0U) {
+        /* Unprivileged mode, switching to privileged mode.*/
+        __set_CONTROL(control & ~1U);
 
-      /* Enforcing privileged mode during the context switch because
-         it is performed in thread state.*/
-      __set_CONTROL(control & ~1U);
+        /* Switching to S-PSP taking it from the thread context.*/
+        s_psp = (uint32_t)currthread->ctx.s_psp;
+
+        /* Pushing the middle context for returning to the original frame
+           and mode.*/
+        s_psp = s_psp - sizeof (struct port_midctx);
+        mctxp = (struct port_midctx *)s_psp;
+        mctxp->control = (regarm_t)control;
+        mctxp->ectxp   = (struct port_extctx *)__get_PSP();
+      }
+      else {
+        /* Privileged mode, we are already on S-PSP.*/
+        uint32_t psp = __get_PSP();
+
+        /* Pushing the middle context for returning to the original frame
+           and mode.*/
+        s_psp = psp - sizeof (struct port_midctx);
+        mctxp = (struct port_midctx *)s_psp;
+        mctxp->control = (regarm_t)control;
+        mctxp->ectxp   = (struct port_extctx *)psp;
+      }
     }
+#else
+    s_psp = __get_PSP();
 #endif
 
     /* Adding an artificial exception return context, there is no need to
        populate it fully.*/
-    psp -= sizeof (struct port_extctx);
+    s_psp -= sizeof (struct port_extctx);
 
-    /* The port_extctx structure is pointed by the PSP register.*/
-    ctxp = (struct port_extctx *)psp;
+    /* The port_extctx structure is pointed by the S-PSP register.*/
+    ctxp = (struct port_extctx *)s_psp;
 
     /* Setting up a fake XPSR register value.*/
     ctxp->xpsr = (regarm_t)0x01000000;
@@ -299,8 +319,8 @@ void _port_irq_epilogue(void) {
     ctxp->fpscr = (regarm_t)FPU->FPDSCR;
 #endif
 
-    /* Writing back the modified PSP value.*/
-    __set_PSP(psp);
+    /* Writing back the modified S-PSP value.*/
+    __set_PSP(s_psp);
 
     /* The exit sequence is different depending on if a preemption is
        required or not.*/

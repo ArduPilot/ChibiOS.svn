@@ -158,22 +158,22 @@ void sbStart(const sb_header_t *sbhp,
   }
 
   /* Checking regions, applet regions and sandbox regions must match.*/
-  if ((sbhp->r1_base != rp->r1_base) || (sbhp->r1_end != rp->r1_end) ||
-      (sbhp->r2_base != rp->r2_base) || (sbhp->r2_end != rp->r2_end)) {
+  if ((sbhp->r0_base != rp->r0_base) || (sbhp->r0_end != rp->r0_end) ||
+      (sbhp->r1_base != rp->r1_base) || (sbhp->r1_end != rp->r1_end)) {
     return;
   }
 
   /* PC initial address, by convention it is immediately after the header.*/
-  pc = (sbhp->r1_base + sbhp->hdr_size) | 1U;
+  pc = (sbhp->r0_base + sbhp->hdr_size) | 1U;
 
   /* PSP initial address, it is placed at end of the last region.*/
-  if (rp->r2_base == 0U) {
+  if (rp->r1_base == 0U) {
     /* Must be in region 1.*/
-    psp = rp->r1_end;
+    psp = rp->r0_end;
   }
   else {
     /* Must be in region 2.*/
-    psp = rp->r2_end;
+    psp = rp->r1_end;
   }
 
   /* Jumping to the unprivileged code.*/

@@ -42,6 +42,42 @@ static THD_FUNCTION(Thread1, arg) {
 }
 
 /*
+ * Unprivileged thread.
+ */
+static THD_WORKING_AREA(waUnprivileged1, 128);
+static THD_FUNCTION(Unprivileged1, arg) {
+  extern uint32_t __flash7_start__, __flash7_end__,
+                  __ram7_start__, __ram7_end__;
+  static const sb_regions_t regions = {
+    .r0_base = (uint32_t)&__flash7_start__,
+    .r0_end  = (uint32_t)&__flash7_end__,
+    .r1_base = (uint32_t)&__ram7_start__,
+    .r1_end  = (uint32_t)&__ram7_end__
+  };
+
+  (void)arg;
+  chRegSetThreadName("unprivileged");
+
+  /* MPU setup for the sandbox, both regions are used because it is
+     flash code.*/
+  mpuConfigureRegion(MPU_REGION_0,
+                     regions.r0_base,
+                     MPU_RASR_ATTR_AP_RO_RO |
+                     MPU_RASR_ATTR_CACHEABLE_WT_NWA |
+                     MPU_RASR_SIZE_16K |
+                     MPU_RASR_ENABLE);
+  mpuConfigureRegion(MPU_REGION_1,
+                     regions.r1_base,
+                     MPU_RASR_ATTR_AP_RW_RW |
+                     MPU_RASR_ATTR_CACHEABLE_WB_WA |
+                     MPU_RASR_SIZE_4K |
+                     MPU_RASR_ENABLE);
+
+  sbStart((const sb_header_t *)&__flash7_start__, &regions);
+  chSysHalt("it returned");
+}
+
+/*
  * Application entry point.
  */
 int main(void) {
@@ -64,7 +100,14 @@ int main(void) {
   /*
    * Creates the blinker thread.
    */
-  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO,
+                    Thread1, NULL);
+
+  /*
+   * Creates the unprivileged thread.
+   */
+  chThdCreateStatic(waUnprivileged1, sizeof(waUnprivileged1), NORMALPRIO - 10U,
+                    Unprivileged1, NULL);
 
   /*
    * Normal main() thread activity, in this demo it does nothing except
@@ -72,33 +115,8 @@ int main(void) {
    */
   while (true) {
     if (palReadLine(LINE_JOY_CENTER)) {
-//      test_execute((BaseSequentialStream *)&SD2, &rt_test_suite);
-//      test_execute((BaseSequentialStream *)&SD2, &oslib_test_suite);
-      extern uint32_t __flash7_start__, __flash7_end__,
-                      __ram7_start__, __ram7_end__;
-      static const sb_regions_t regions = {
-        .r1_base = (uint32_t)&__flash7_start__,
-        .r1_end  = (uint32_t)&__flash7_end__,
-        .r2_base = (uint32_t)&__ram7_start__,
-        .r2_end  = (uint32_t)&__ram7_end__
-      };
-
-      mpuConfigureRegion(MPU_REGION_0,
-                         regions.r1_base,
-                         MPU_RASR_ATTR_AP_RO_RO |
-                         MPU_RASR_ATTR_CACHEABLE_WT_NWA |
-                         MPU_RASR_SIZE_16K |
-                         MPU_RASR_ENABLE);
-
-      mpuConfigureRegion(MPU_REGION_1,
-                         regions.r2_base,
-                         MPU_RASR_ATTR_AP_RW_RW |
-                         MPU_RASR_ATTR_CACHEABLE_WB_WA |
-                         MPU_RASR_SIZE_4K |
-                         MPU_RASR_ENABLE);
-
-      sbStart((const sb_header_t *)&__flash7_start__, &regions);
-      chSysHalt("it returned");
+      test_execute((BaseSequentialStream *)&SD2, &rt_test_suite);
+      test_execute((BaseSequentialStream *)&SD2, &oslib_test_suite);
     }
     chThdSleepMilliseconds(500);
   }

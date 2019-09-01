@@ -80,23 +80,23 @@ typedef uint32_t (*port_syscall_t)(struct port_extctx *ctx);
  */
 typedef struct {
   /**
-   * @brief   Region 1 start address.
+   * @brief   Region 0 start address.
    */
-  uint32_t                      r1_base;
+  uint32_t                      r0_base;
   /**
-   * @brief   Region 1 size.
+   * @brief   Region 0 size.
    */
-  uint32_t                      r1_end;
+  uint32_t                      r0_end;
   /**
    * @brief   Region 2 start address.
    * @note    Zero if not used.
    */
-  uint32_t                      r2_base;
+  uint32_t                      r1_base;
   /**
    * @brief   Region 2 end address.
    * @note    Zero if not used.
    */
-  uint32_t                      r2_end;
+  uint32_t                      r1_end;
 } sb_regions_t;
 
 /**
@@ -120,23 +120,23 @@ typedef struct {
    */
   uint32_t                      user;
   /**
-   * @brief   Region 1 start address.
+   * @brief   Region 0 start address.
    */
-  uint32_t                      r1_base;
+  uint32_t                      r0_base;
   /**
-   * @brief   Region 1 size.
+   * @brief   Region 0 size.
    */
-  uint32_t                      r1_end;
+  uint32_t                      r0_end;
   /**
    * @brief   Region 2 start address.
    * @note    Zero if not used.
    */
-  uint32_t                      r2_base;
+  uint32_t                      r1_base;
   /**
    * @brief   Region 2 end address.
    * @note    Zero if not used.
    */
-  uint32_t                      r2_end;
+  uint32_t                      r1_end;
 } sb_header_t;
 
 /*===========================================================================*/

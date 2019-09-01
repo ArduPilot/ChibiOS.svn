@@ -2,7 +2,7 @@
 SBHOSTSRC = $(CHIBIOS)/os/sb/host/sbhost.c \
 			$(CHIBIOS)/os/sb/host/sbapi.c
           
-SBHOSTASM =
+SBHOSTASM = $(CHIBIOS)/os/sb/host/compilers/GCC/sbexc.S
 
 SBHOSTINC = $(CHIBIOS)/os/sb/host
 

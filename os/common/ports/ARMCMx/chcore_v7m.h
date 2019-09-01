@@ -358,12 +358,12 @@ struct port_extctx {
 
 #if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
 /**
- * @brief   Middle context structure.
+ * @brief   Link context structure.
  * @details This structure is used when there is the need to save extra
  *          context information that is not part of the registers stacked
  *          in HW.
  */
-struct port_midctx {
+struct port_linkctx {
   regarm_t              control;
   struct port_extctx    *ectxp;
 };

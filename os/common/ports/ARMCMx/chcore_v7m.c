@@ -90,17 +90,17 @@ void SVC_Handler(void) {
   if ((control & 1U) != 0) {
     /* From non-privileged mode, it must be handled as a syscall.*/
     uint32_t n, s_psp;
-    struct port_midctx *mctxp;
+    struct port_linkctx *lctxp;
     struct port_extctx *newctxp;
 
     /* Supervisor PSP from the thread context structure.*/
     s_psp = (uint32_t)currthread->ctx.s_psp;
 
-    /* Pushing the port_midctx into the supervisor stack.*/
-    s_psp -= sizeof (struct port_midctx);
-    mctxp = (struct port_midctx *)s_psp;
-    mctxp->control = (regarm_t)(control = __get_CONTROL());
-    mctxp->ectxp = (regarm_t)ectxp;
+    /* Pushing the port_linkctx into the supervisor stack.*/
+    s_psp -= sizeof (struct port_linkctx);
+    lctxp = (struct port_linkctx *)s_psp;
+    lctxp->control = (regarm_t)(control = __get_CONTROL());
+    lctxp->ectxp = (regarm_t)ectxp;
 
     /* Enforcing privileged mode before returning.*/
     __set_CONTROL(control & ~1U);
@@ -139,9 +139,9 @@ void SVC_Handler(void) {
 #if PORT_USE_SYSCALL == TRUE
     {
       /* Restoring CONTROL and the original PSP position.*/
-      struct port_midctx *mctxp = (struct port_midctx *)psp;
-      __set_CONTROL((uint32_t)mctxp->control);
-      __set_PSP((uint32_t)mctxp->ectxp);
+      struct port_linkctx *lctxp = (struct port_linkctx *)psp;
+      __set_CONTROL((uint32_t)lctxp->control);
+      __set_PSP((uint32_t)lctxp->ectxp);
     }
 #else
 
@@ -179,9 +179,9 @@ void PendSV_Handler(void) {
 #if PORT_USE_SYSCALL == TRUE
   {
     /* Restoring previous privileges by restoring CONTROL.*/
-    struct port_midctx *mctxp = (struct port_midctx *)psp;
-    __set_CONTROL((uint32_t)mctxp->control);
-    psp += sizeof (struct port_midctx);
+    struct port_linkctx *lctxp = (struct port_linkctx *)psp;
+    __set_CONTROL((uint32_t)lctxp->control);
+    psp += sizeof (struct port_linkctx);
   }
 #endif
 
@@ -264,7 +264,7 @@ void _port_irq_epilogue(void) {
 
   port_lock_from_isr();
   if ((SCB->ICSR & SCB_ICSR_RETTOBASE_Msk) != 0U) {
-    struct port_extctx *ctxp;
+    struct port_extctx *ectxp;
     uint32_t s_psp;
 
 #if CORTEX_USE_FPU == TRUE
@@ -274,7 +274,7 @@ void _port_irq_epilogue(void) {
 
 #if PORT_USE_SYSCALL == TRUE
     {
-      struct port_midctx *mctxp;
+      struct port_linkctx *lctxp;
       uint32_t control = __get_CONTROL();
 
       /* Checking if the IRQ has been served in unprivileged mode.*/
@@ -287,10 +287,10 @@ void _port_irq_epilogue(void) {
 
         /* Pushing the middle context for returning to the original frame
            and mode.*/
-        s_psp = s_psp - sizeof (struct port_midctx);
-        mctxp = (struct port_midctx *)s_psp;
-        mctxp->control = (regarm_t)control;
-        mctxp->ectxp   = (struct port_extctx *)__get_PSP();
+        s_psp = s_psp - sizeof (struct port_linkctx);
+        lctxp = (struct port_linkctx *)s_psp;
+        lctxp->control = (regarm_t)control;
+        lctxp->ectxp   = (struct port_extctx *)__get_PSP();
       }
       else {
         /* Privileged mode, we are already on S-PSP.*/
@@ -298,10 +298,10 @@ void _port_irq_epilogue(void) {
 
         /* Pushing the middle context for returning to the original frame
            and mode.*/
-        s_psp = psp - sizeof (struct port_midctx);
-        mctxp = (struct port_midctx *)s_psp;
-        mctxp->control = (regarm_t)control;
-        mctxp->ectxp   = (struct port_extctx *)psp;
+        s_psp = psp - sizeof (struct port_linkctx);
+        lctxp = (struct port_linkctx *)s_psp;
+        lctxp->control = (regarm_t)control;
+        lctxp->ectxp   = (struct port_extctx *)psp;
       }
     }
 #else
@@ -313,12 +313,12 @@ void _port_irq_epilogue(void) {
     s_psp -= sizeof (struct port_extctx);
 
     /* The port_extctx structure is pointed by the S-PSP register.*/
-    ctxp = (struct port_extctx *)s_psp;
+    ectxp = (struct port_extctx *)s_psp;
 
     /* Setting up a fake XPSR register value.*/
-    ctxp->xpsr = (regarm_t)0x01000000;
+    ectxp->xpsr = (regarm_t)0x01000000;
 #if CORTEX_USE_FPU == TRUE
-    ctxp->fpscr = (regarm_t)FPU->FPDSCR;
+    ectxp->fpscr = (regarm_t)FPU->FPDSCR;
 #endif
 
     /* Writing back the modified S-PSP value.*/
@@ -328,12 +328,12 @@ void _port_irq_epilogue(void) {
        required or not.*/
     if (chSchIsPreemptionRequired()) {
       /* Preemption is required we need to enforce a context switch.*/
-      ctxp->pc = (regarm_t)_port_switch_from_isr;
+      ectxp->pc = (regarm_t)_port_switch_from_isr;
     }
     else {
       /* Preemption not required, we just need to exit the exception
          atomically.*/
-      ctxp->pc = (regarm_t)_port_exit_from_isr;
+      ectxp->pc = (regarm_t)_port_exit_from_isr;
     }
 
     /* Note, returning without unlocking is intentional, this is done in
@@ -345,8 +345,8 @@ void _port_irq_epilogue(void) {
 
 #if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
 void port_unprivileged_jump(regarm_t pc, regarm_t psp) {
-  struct port_extctx *ctxp;
-  struct port_midctx *mctxp;
+  struct port_extctx *ectxp;
+  struct port_linkctx *lctxp;
   uint32_t s_psp   = __get_PSP();
   uint32_t control = __get_CONTROL();
 
@@ -356,25 +356,25 @@ void port_unprivileged_jump(regarm_t pc, regarm_t psp) {
 
   /* Creating a port_extctx context for user mode entry.*/
   psp -= sizeof (struct port_extctx);
-  ctxp = (struct port_extctx *)psp;
+  ectxp = (struct port_extctx *)psp;
 
   /* Initializing the user mode entry context.*/
-  memset((void *)ctxp, 0, sizeof (struct port_extctx));
-  ctxp->pc    = pc;
-  ctxp->xpsr  = (regarm_t)0x01000000;
+  memset((void *)ectxp, 0, sizeof (struct port_extctx));
+  ectxp->pc    = pc;
+  ectxp->xpsr  = (regarm_t)0x01000000;
 #if CORTEX_USE_FPU == TRUE
-  ctxp->fpscr = __get_FPSCR();
+  ectxp->fpscr = __get_FPSCR();
 #endif
 
   /* Creating a middle context for user mode entry.*/
-  s_psp -= sizeof (struct port_midctx);
-  mctxp  = (struct port_midctx *)s_psp;
+  s_psp -= sizeof (struct port_linkctx);
+  lctxp  = (struct port_linkctx *)s_psp;
 
   /* CONTROL and PSP values for user mode.*/
-  mctxp->control = (regarm_t)(control | 1U);
-  mctxp->ectxp   = ctxp;
+  lctxp->control = (regarm_t)(control | 1U);
+  lctxp->ectxp   = ectxp;
 
-  /* PSP now points to the port_midctx structure, it will be removed
+  /* PSP now points to the port_linkctx structure, it will be removed
      by SVC.*/
   __set_PSP(s_psp);
 

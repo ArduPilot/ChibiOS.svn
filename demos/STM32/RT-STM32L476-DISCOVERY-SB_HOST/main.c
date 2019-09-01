@@ -19,6 +19,8 @@
 #include "rt_test_root.h"
 #include "oslib_test_root.h"
 
+#include "sbhost.h"
+
 /*
  * LEDs blinker thread, times are in milliseconds.
  */
@@ -70,8 +72,18 @@ int main(void) {
    */
   while (true) {
     if (palReadLine(LINE_JOY_CENTER)) {
-      test_execute((BaseSequentialStream *)&SD2, &rt_test_suite);
-      test_execute((BaseSequentialStream *)&SD2, &oslib_test_suite);
+//      test_execute((BaseSequentialStream *)&SD2, &rt_test_suite);
+//      test_execute((BaseSequentialStream *)&SD2, &oslib_test_suite);
+      extern uint32_t __flash7_start__, __flash7_end__,
+                      __ram7_start__, __ram7_end__;
+      static const sb_regions_t regions = {
+        .r1_base = (uint32_t)&__flash7_start__,
+        .r1_end  = (uint32_t)&__flash7_end__,
+        .r2_base = (uint32_t)&__ram7_start__,
+        .r2_end  = (uint32_t)&__ram7_end__
+      };
+      sbStart((const sb_header_t *)&__flash7_start__, &regions);
+      chSysHalt("it returned");
     }
     chThdSleepMilliseconds(500);
   }

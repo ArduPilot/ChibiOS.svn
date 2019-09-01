@@ -357,7 +357,7 @@ void port_unprivileged_jump(regarm_t pc, regarm_t psp) {
   ctxp = (struct port_extctx *)psp;
 
   /* Initializing the user mode entry context.*/
-  memset((void *)ctxp, 0, sizeof (struct port_extctx *));
+  memset((void *)ctxp, 0, sizeof (struct port_extctx));
   ctxp->pc    = pc;
   ctxp->xpsr  = (regarm_t)0x01000000;
 #if CORTEX_USE_FPU == TRUE
@@ -371,6 +371,10 @@ void port_unprivileged_jump(regarm_t pc, regarm_t psp) {
   /* CONTROL and PSP values for user mode.*/
   mctxp->control = (regarm_t)(control | 1U);
   mctxp->ectxp   = ctxp;
+
+  /* PSP now points to the port_midctx structure, it will be removed
+     by SVC.*/
+  __set_PSP(s_psp);
 
   asm volatile ("svc 0");
 

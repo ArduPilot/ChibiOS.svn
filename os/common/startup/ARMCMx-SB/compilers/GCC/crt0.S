@@ -97,7 +97,7 @@
                 .globl      _sandbox
 _sandbox:       .long       0xFE9154C0U
                 .long       0x0C4519EFU
-                .long       64
+                .long       32
                 .long       0
                 .long       __r1_start__
                 .long       __r1_end__

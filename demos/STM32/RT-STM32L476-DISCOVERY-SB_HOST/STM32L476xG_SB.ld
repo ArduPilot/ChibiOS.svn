@@ -26,7 +26,7 @@ MEMORY
     flash4  : org = 0x00000000, len = 0
     flash5  : org = 0x00000000, len = 0
     flash6  : org = 0x00000000, len = 0
-    flash7  : org = 0x00000000, len = 0
+    flash7  : org = 0x08000000 + 1M - 16k, len = 16k
     ram0    : org = 0x20000000, len = 96k - 4k
     ram1    : org = 0x00000000, len = 0
     ram2    : org = 0x00000000, len = 0
@@ -34,7 +34,7 @@ MEMORY
     ram4    : org = 0x10000000, len = 32k
     ram5    : org = 0x00000000, len = 0
     ram6    : org = 0x00000000, len = 0
-    ram7    : org = 0x00000000, len = 0
+    ram7    : org = 0x20000000 + 96k - 4k, len = 4k
 }
 
 /* For each data/text section two region are defined, a virtual region

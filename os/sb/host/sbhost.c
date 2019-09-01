@@ -176,9 +176,6 @@ void sbStart(const sb_header_t *sbhp,
     psp = rp->r2_end;
   }
 
-  /* Position of supervisor PSP for this thread.*/
-  currthread->ctx.s_psp = (struct port_extctx *)__get_PSP();
-
   /* Jumping to the unprivileged code.*/
   port_unprivileged_jump((regarm_t)pc, (regarm_t)psp);
 

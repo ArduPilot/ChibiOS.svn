@@ -82,6 +82,21 @@ int main(void) {
         .r2_base = (uint32_t)&__ram7_start__,
         .r2_end  = (uint32_t)&__ram7_end__
       };
+
+      mpuConfigureRegion(MPU_REGION_0,
+                         regions.r1_base,
+                         MPU_RASR_ATTR_AP_RO_RO |
+                         MPU_RASR_ATTR_CACHEABLE_WT_NWA |
+                         MPU_RASR_SIZE_16K |
+                         MPU_RASR_ENABLE);
+
+      mpuConfigureRegion(MPU_REGION_1,
+                         regions.r2_base,
+                         MPU_RASR_ATTR_AP_RW_RW |
+                         MPU_RASR_ATTR_CACHEABLE_WB_WA |
+                         MPU_RASR_SIZE_4K |
+                         MPU_RASR_ENABLE);
+
       sbStart((const sb_header_t *)&__flash7_start__, &regions);
       chSysHalt("it returned");
     }

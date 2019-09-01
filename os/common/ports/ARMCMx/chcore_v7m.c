@@ -235,10 +235,12 @@ void port_init(os_instance_t *oip) {
                        MPU_RASR_ATTR_NON_CACHEABLE |
                        MPU_RASR_SIZE_32 |
                        MPU_RASR_ENABLE);
-
-    /* MPU is enabled.*/
-    mpuEnable(MPU_CTRL_PRIVDEFENA);
   }
+#endif
+
+#if PORT_USE_SYSCALL == TRUE
+  /* MPU is enabled.*/
+  mpuEnable(MPU_CTRL_PRIVDEFENA);
 #endif
 }
 

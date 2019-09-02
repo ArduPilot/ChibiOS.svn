@@ -53,14 +53,14 @@
 /*===========================================================================*/
 
 __attribute__((weak))
-uint32_t sb_undef_handler(struct port_extctx *ctxp) {
+uint32_t sb_undef_handler(struct port_extctx *ectxp) {
 
-  (void)ctxp;
+  (void)ectxp;
 
   return SB_ERR_NOT_IMPLEMENTED;
 }
 
-void port_syscall(struct port_extctx *ctxp, uint32_t n) {
+void port_syscall(struct port_extctx *ectxp, uint32_t n) {
 
   static const port_syscall_t syscalls[256] = {
     SB_SVC0_HANDLER,   SB_SVC1_HANDLER,   SB_SVC2_HANDLER,   SB_SVC3_HANDLER,
@@ -129,7 +129,7 @@ void port_syscall(struct port_extctx *ctxp, uint32_t n) {
     SB_SVC252_HANDLER, SB_SVC253_HANDLER, SB_SVC254_HANDLER, SB_SVC255_HANDLER
   };
 
-  ctxp->r0 = (regarm_t)syscalls[n](ctxp);
+  ectxp->r0 = (regarm_t)syscalls[n](ectxp);
 
   __SVC(0);
 

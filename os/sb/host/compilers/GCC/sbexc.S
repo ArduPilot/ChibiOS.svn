@@ -49,64 +49,85 @@
                 .thumb_func
                 .global     HardFault_Handler
 HardFault_Handler:
-                mrs         r0, CONTROL
-                ands.w      r0, r0, #1
-                bne         .exit_thd
-                bl          HardFault_Handler_SB
+                tst.w       lr, #8
+                beq.n       .normal_hf
+                mrs         r3, CONTROL
+                tst.w       r3, #1
+                bne.w       .exit_thd
+.normal_hf:     ldr         r3, =HardFault_Handler_SB
+                bx          r3
 
                 .align      2
                 .thumb_func
                 .global     MemManage_Handler
 MemManage_Handler:
-                mrs         r0, CONTROL
-                ands.w      r0, r0, #1
-                bne         .exit_thd
-                bl          MemManage_Handler_SB
+                tst.w       lr, #8
+                beq.n       .normal_mm
+                mrs         r3, CONTROL
+                tst.w       r3, #1
+                bne.w       .exit_thd
+.normal_mm:     ldr         r3, =MemManage_Handler_SB
+                bx          r3
 
                 .align      2
                 .thumb_func
                 .global     BusFault_Handler
 BusFault_Handler:
-                mrs         r0, CONTROL
-                ands.w      r0, r0, #1
-                bne         .exit_thd
-                bl          BusFault_Handler_SB
+                tst.w       lr, #8
+                beq.n       .normal_bf
+                mrs         r3, CONTROL
+                tst.w       r3, #1
+                bne.w       .exit_thd
+.normal_bf:     ldr         r3, =BusFault_Handler_SB
+                bx          r3
 
                 .align      2
                 .thumb_func
                 .global     UsageFault_Handler
 UsageFault_Handler:
-                mrs         r0, CONTROL
-                ands.w      r0, r0, #1
-                bne         .exit_thd
-                bl          UsageFault_Handler_SB
+                tst.w       lr, #8
+                beq.n       .normal_uf
+                mrs         r3, CONTROL
+                tst.w       r3, #1
+                bne.w       .exit_thd
+.normal_uf:     ldr         r3, =UsageFault_Handler_SB
+                bx          r3
 
+/*
+ * Common thread-exit handler on exception.
+ * Makes the current exception return on chThdExit() with the PSR
+ * value as exit message.
+ */
 .exit_thd:
-                bl          _unhandled_exception
+                /* Back to privileged mode.*/
+                mrs         r3, CONTROL
+                bic.w       r3, #1
+                msr         CONTROL, r3
+                mrs         r3, PSP
+                /* PSR value is the exit message.*/
+                mrs         r2, PSR
+                str         r2, [r3, #0]
+                /* Forcing return on exit syscall code.*/
+                ldr         r2, =.do_exit
+                str         r2, [r3, #24]
+                bx          lr
+.do_exit:
+                /* TODO: Restore S_PSP stack.*/
+                bl          chThdExit
+.here:          b           .here
 
                 .align      2
                 .thumb_func
                 .weak       HardFault_Handler_SB
-HardFault_Handler_SB:
-                bl          _unhandled_exception
-
-                .align      2
-                .thumb_func
                 .weak       MemManage_Handler_SB
-MemManage_Handler_SB:
-                bl          _unhandled_exception
-
-                .align      2
-                .thumb_func
                 .weak       BusFault_Handler_SB
-BusFault_Handler_SB:
-                bl          _unhandled_exception
-
-                .align      2
-                .thumb_func
                 .weak       UsageFault_Handler_SB
+HardFault_Handler_SB:
+MemManage_Handler_SB:
+BusFault_Handler_SB:
 UsageFault_Handler_SB:
-                bl          _unhandled_exception
+                ldr         r3, =_unhandled_exception
+                bx          r3
 
 #endif /* !defined(__DOXYGEN__) */
 

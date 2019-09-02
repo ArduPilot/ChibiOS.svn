@@ -19,6 +19,7 @@
 #include "rt_test_root.h"
 #include "oslib_test_root.h"
 
+#include "chprintf.h"
 #include "sbhost.h"
 
 /*
@@ -81,6 +82,8 @@ static THD_FUNCTION(Unprivileged1, arg) {
  * Application entry point.
  */
 int main(void) {
+  thread_t *tp;
+  msg_t msg;
 
   /*
    * System initializations.
@@ -92,27 +95,24 @@ int main(void) {
   halInit();
   chSysInit();
 
-  /*
-   * Activates the serial driver 2 using the driver default configuration.
-   */
+  /* Activating the serial driver 2 using the driver default configuration.*/
   sdStart(&SD2, NULL);
 
-  /*
-   * Creates the blinker thread.
-   */
+  /* Creating the blinker thread.*/
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO,
                     Thread1, NULL);
 
-  /*
-   * Creates the unprivileged thread.
-   */
-  chThdCreateStatic(waUnprivileged1, sizeof(waUnprivileged1), NORMALPRIO - 10U,
-                    Unprivileged1, NULL);
+  /* Creating the unprivileged thread.*/
+  chprintf((BaseSequentialStream *)&SD2, "Starting unprivileged thread\r\n");
+  tp = chThdCreateStatic(waUnprivileged1, sizeof(waUnprivileged1), NORMALPRIO - 10U,
+                         Unprivileged1, NULL);
 
-  /*
-   * Normal main() thread activity, in this demo it does nothing except
-   * sleeping in a loop and check the button state.
-   */
+  /* Waiting for the unprivileged thread to exit or fail.*/
+  msg = chThdWait(tp);
+  chprintf((BaseSequentialStream *)&SD2, "Exit code 0x%x\r\n", msg);
+
+  /* Normal main() thread activity, in this demo it does nothing except
+     sleeping in a loop and check the button state.*/
   while (true) {
     if (palReadLine(LINE_JOY_CENTER)) {
       test_execute((BaseSequentialStream *)&SD2, &rt_test_suite);

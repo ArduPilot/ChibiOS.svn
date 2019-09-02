@@ -19,6 +19,8 @@
 
 #include "sbuser.h"
 
+static volatile unsigned i;
+
 /*
  * Application entry point.
  */
@@ -30,5 +32,6 @@ int main(void) {
    */
   while (true) {
     sbSleepMilliseconds(500);
+    i = *((unsigned *)0x08000000U);
   }
 }

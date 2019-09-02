@@ -99,22 +99,39 @@ UsageFault_Handler:
  * value as exit message.
  */
 .exit_thd:
+                push        {r4, lr}
+
+                /* This thread is going to die so going back on
+                   S-PSP and working safely from there.*/
+                bl          port_get_s_psp
+                sub.w       r0, r0, #32 // TODO: FPU
+                msr         PSP, r0
+
+                /* Forcing return on exit syscall code with PSR
+                   value as exit message.*/
+                mrs         r2, PSR
+                str         r2, [r0, #0]
+                ldr         r2, =.do_exit
+                str         r2, [r0, #24]
+                ldr         r2, =0x01000000
+                str         r2, [r0, #28]
+
                 /* Back to privileged mode.*/
                 mrs         r3, CONTROL
                 bic.w       r3, #1
                 msr         CONTROL, r3
-                mrs         r3, PSP
-                /* PSR value is the exit message.*/
-                mrs         r2, PSR
-                str         r2, [r3, #0]
-                /* Forcing return on exit syscall code.*/
-                ldr         r2, =.do_exit
-                str         r2, [r3, #24]
-                bx          lr
+
+                /* Making sure there are no chained exceptions or interrupts
+                   in the way, we need to exit this one atomically.*/
+                bl          port_syslock_noinline
+                cpsid       i
+                pop         {r4, pc}
+
+                /* Exception exit point.*/
 .do_exit:
-                /* TODO: Restore S_PSP stack.*/
-                bl          chThdExit
-.here:          b           .here
+                cpsie       i
+                bl          chThdExitS
+.zombies:       b           .zombies
 
                 .align      2
                 .thumb_func

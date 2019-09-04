@@ -176,6 +176,10 @@ void sbStart(const sb_header_t *sbhp,
     psp = rp->r1_end;
   }
 
+  /* Additional context information.*/
+  currthread->ctx.syscall.regions = (const void *)rp;
+  currthread->ctx.syscall.psp     = (regarm_t)__get_PSP();
+
   /* Jumping to the unprivileged code.*/
   port_unprivileged_jump((regarm_t)pc, (regarm_t)psp);
 

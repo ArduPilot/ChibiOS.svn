@@ -33,9 +33,10 @@
 /*===========================================================================*/
 
 #define SB_SVC1_HANDLER         sb_api_exit
-#define SB_SVC2_HANDLER         sb_api_systime
-#define SB_SVC3_HANDLER         sb_api_sleep
-#define SB_SVC4_HANDLER         sb_api_sleep_until_windowed
+#define SB_SVC2_HANDLER         sb_api_get_systime
+#define SB_SVC3_HANDLER         sb_api_get_frequency
+#define SB_SVC4_HANDLER         sb_api_sleep
+#define SB_SVC5_HANDLER         sb_api_sleep_until_windowed
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -44,6 +45,14 @@
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
+
+#if CH_CFG_ST_RESOLUTION != 32
+#error "SandBox requires CH_CFG_ST_RESOLUTION == 32"
+#endif
+
+#if CH_CFG_INTERVALS_SIZE != 32
+#error "SandBox requires CH_CFG_INTERVALS_SIZE == 32"
+#endif
 
 /*===========================================================================*/
 /* Module data structures and types.                                         */
@@ -62,7 +71,8 @@
 extern "C" {
 #endif
   uint32_t sb_api_exit(struct port_extctx *ctxp);
-  uint32_t sb_api_systime(struct port_extctx *ctxp);
+  uint32_t sb_api_get_systime(struct port_extctx *ctxp);
+  uint32_t sb_api_get_frequency(struct port_extctx *ctxp);
   uint32_t sb_api_sleep(struct port_extctx *ctxp);
   uint32_t sb_api_sleep_until_windowed(struct port_extctx *ctxp);
 #ifdef __cplusplus

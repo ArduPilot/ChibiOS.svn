@@ -19,8 +19,6 @@
 
 #include "sbuser.h"
 
-static volatile unsigned i;
-
 /*
  * Application entry point.
  */
@@ -30,10 +28,14 @@ int main(void) {
    * Normal main() activity, in this demo it does nothing except
    * sleeping in a loop.
    */
+#if 0
+  /* Test for exception on interrupt.*/
   asm volatile ("mov r0, #64");
   asm volatile ("mov sp, r0");
   while (true) {
-//    sbSleepMilliseconds(500);
-//    i = *((unsigned *)0x08000000U);
+  }
+#endif
+  while (true) {
+    sbSleepMilliseconds(500);
   }
 }

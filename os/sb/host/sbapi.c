@@ -59,11 +59,18 @@ uint32_t sb_api_exit(struct port_extctx *ctxp) {
   return SB_ERR_NOT_IMPLEMENTED;
 }
 
-uint32_t sb_api_systime(struct port_extctx *ctxp) {
+uint32_t sb_api_get_systime(struct port_extctx *ctxp) {
 
   (void)ctxp;
 
   return (uint32_t)chVTGetSystemTimeX();
+}
+
+uint32_t sb_api_get_frequency(struct port_extctx *ctxp) {
+
+  (void)ctxp;
+
+  return (uint32_t)CH_CFG_ST_FREQUENCY;
 }
 
 uint32_t sb_api_sleep(struct port_extctx *ctxp) {

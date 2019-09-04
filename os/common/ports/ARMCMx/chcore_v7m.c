@@ -64,7 +64,7 @@ void port_syslock_noinline(void) {
 
 uint32_t port_get_s_psp(void) {
 
-  return (uint32_t)currthread->ctx.s_psp;
+  return (uint32_t)currthread->ctx.syscall.psp;
 }
 
 __attribute__((weak))
@@ -81,10 +81,6 @@ void port_unprivileged_jump(regarm_t pc, regarm_t psp) {
   struct port_linkctx *lctxp;
   uint32_t s_psp   = __get_PSP();
   uint32_t control = __get_CONTROL();
-
-  /* The current PSP position will be the supervisor PSP position on
-     syscalls.*/
-  currthread->ctx.s_psp = (regarm_t)s_psp;
 
   /* Creating a port_extctx context for user mode entry.*/
   psp -= sizeof (struct port_extctx);
@@ -146,12 +142,12 @@ void SVC_Handler(void) {
     struct port_extctx *newctxp;
 
     /* Supervisor PSP from the thread context structure.*/
-    s_psp = (uint32_t)currthread->ctx.s_psp;
+    s_psp = (uint32_t)currthread->ctx.syscall.psp;
 
     /* Pushing the port_linkctx into the supervisor stack.*/
     s_psp -= sizeof (struct port_linkctx);
     lctxp = (struct port_linkctx *)s_psp;
-    lctxp->control = (regarm_t)(control = __get_CONTROL());
+    lctxp->control = (regarm_t)control;
     lctxp->ectxp = (regarm_t)ectxp;
 
     /* Enforcing privileged mode before returning.*/
@@ -335,7 +331,7 @@ void _port_irq_epilogue(void) {
         __set_CONTROL(control & ~1U);
 
         /* Switching to S-PSP taking it from the thread context.*/
-        s_psp = (uint32_t)currthread->ctx.s_psp;
+        s_psp = (uint32_t)currthread->ctx.syscall.psp;
 
         /* Pushing the middle context for returning to the original frame
            and mode.*/

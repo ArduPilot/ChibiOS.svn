@@ -44,8 +44,15 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
-typedef uint32_t systime_t;
-typedef uint32_t msg_t;
+/**
+ * @brief   Type of system time counter.
+ */
+typedef uint32_t sb_systime_t;
+
+/**
+ * @brief   Type of a message.
+ */
+typedef uint32_t sb_msg_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
@@ -104,25 +111,31 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-static inline void sbExit(msg_t msg) {
+static inline void sbExit(sb_msg_t msg) {
 
   __syscall1r(1, msg);
 }
 
-static inline systime_t sbGetSystemTime(void) {
+static inline sb_systime_t sbGetSystemTime(void) {
 
   __syscall0r(2);
-  return (systime_t)r0;
+  return (sb_systime_t)r0;
+}
+
+static inline uint32_t sbGetFrequency(void) {
+
+  __syscall0r(3);
+  return (uint32_t)r0;
 }
 
 static inline void sbSleepMilliseconds(uint32_t milliseconds) {
 
-  __syscall1r(3, milliseconds);
+  __syscall1r(4, milliseconds);
 }
 
-static inline void sbSleepUntil(systime_t start, systime_t end) {
+static inline void sbSleepUntil(sb_systime_t start, sb_systime_t end) {
 
-  __syscall2r(4, start, end);
+  __syscall2r(5, start, end);
 }
 
 #endif /* SBUSER_H */

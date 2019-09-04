@@ -402,8 +402,10 @@ struct port_intctx {
 struct port_context {
   struct port_intctx    *sp;
 #if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
-  regarm_t              s_psp;
-  void                  *regions;
+  struct {
+    regarm_t            psp;
+    const void          *regions;
+  } syscall;
 #endif
 };
 #endif /* !defined(__DOXYGEN__) */
@@ -414,8 +416,8 @@ struct port_context {
 
 #if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
 #define __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop)                              \
-  (tp)->ctx.s_psp = (regarm_t)(wtop);                                       \
-  (tp)->ctx.regions = NULL;
+  (tp)->ctx.syscall.psp = (regarm_t)(wtop);                                 \
+  (tp)->ctx.syscall.regions = NULL;
 #else
 #define __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop)
 #endif

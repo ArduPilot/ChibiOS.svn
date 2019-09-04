@@ -403,6 +403,7 @@ struct port_context {
   struct port_intctx    *sp;
 #if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
   regarm_t              s_psp;
+  void                  *regions;
 #endif
 };
 #endif /* !defined(__DOXYGEN__) */
@@ -410,6 +411,14 @@ struct port_context {
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
+
+#if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
+#define __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop)                              \
+  (tp)->ctx.s_psp = (regarm_t)(wtop);                                       \
+  (tp)->ctx.regions = NULL;
+#else
+#define __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop)
+#endif
 
 /**
  * @brief   Platform dependent part of the @p chThdCreateI() API.
@@ -422,6 +431,7 @@ struct port_context {
   (tp)->ctx.sp->r4 = (regarm_t)(pf);                                        \
   (tp)->ctx.sp->r5 = (regarm_t)(arg);                                       \
   (tp)->ctx.sp->lr = (regarm_t)_port_thread_start;                          \
+  __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop)                                    \
 }
 
 /**

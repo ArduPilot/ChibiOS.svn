@@ -374,33 +374,6 @@ ${line + ")"}
 ${(line + " |")?right_pad(76, " ") + "\\"}
     [/#if]
   [/#list]
-  [#--
-    -- Generating LOCKR register value.
-    --]
-  [#list port.* as pin]
-    [#assign names = pin.@ID[0]?string?word_list /]
-    [#if names?size == 0]
-      [#assign name = pin?node_name?upper_case /]
-    [#else]
-      [#assign name = names[0] /]
-    [/#if]
-    [#assign lock = pin.@PinLock[0] /]
-    [#if lock == "Disabled"]
-      [#assign out = "PIN_LOCKR_DISABLED(" + port_name + "_" + name + ")" /]
-    [#else]
-      [#assign out = "PIN_LOCKR_ENABLED(" + port_name + "_" + name + ")" /]
-    [/#if]
-    [#if pin_index == 0]
-      [#assign line = "#define VAL_" + port_name + "_LOCKR             (" + out /]
-    [#else]
-      [#assign line = "                                     " + out /]
-    [/#if]
-    [#if pin_index < 15]
-${(line + " |")?right_pad(76, " ") + "\\"}
-    [#else]
-${line + ")"}
-    [/#if]
-  [/#list]
 
 [/#list]
 /*===========================================================================*/

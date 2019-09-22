@@ -29,6 +29,12 @@
     <default>resources/gencfg/xml/stm32g0board.xml</default>
     <basefilename>board</basefilename>
   </processor>
+  <processor class="board" target="STM32G4xx">
+    <name>STM32G4xx Board Configuration</name>
+    <path>resources/gencfg/processors/boards/stm32g4xx/templates</path>
+    <default>resources/gencfg/xml/stm32g4board.xml</default>
+    <basefilename>board</basefilename>
+  </processor>
   <processor class="board" target="STM32H7xx">
     <name>STM32H7xx Board Configuration</name>
     <path>resources/gencfg/processors/boards/stm32h7xx/templates</path>

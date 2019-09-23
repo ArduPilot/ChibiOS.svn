@@ -59,7 +59,6 @@ typedef struct {
   uint32_t              odr;
   uint32_t              afrl;
   uint32_t              afrh;
-  uint32_t              lockr;
 } gpio_setup_t;
 
 /**
@@ -164,7 +163,6 @@ static void gpio_init(stm32_gpio_t *gpiop, const gpio_setup_t *config) {
   gpiop->AFRL    = config->afrl;
   gpiop->AFRH    = config->afrh;
   gpiop->MODER   = config->moder;
-  gpiop->LOCKR   = config->lockr;
 }
 
 static void stm32_gpio_init(void) {

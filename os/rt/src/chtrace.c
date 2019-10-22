@@ -56,19 +56,19 @@
  */
 static NOINLINE void trace_next(void) {
 
-  ch.trace_buffer.ptr->time    = chVTGetSystemTimeX();
+  currcore->trace_buffer.ptr->time    = chVTGetSystemTimeX();
 #if PORT_SUPPORTS_RT == TRUE
-  ch.trace_buffer.ptr->rtstamp = chSysGetRealtimeCounterX();
+  currcore->trace_buffer.ptr->rtstamp = chSysGetRealtimeCounterX();
 #else
-  ch.trace_buffer.ptr->rtstamp = (rtcnt_t)0;
+  currcore->trace_buffer.ptr->rtstamp = (rtcnt_t)0;
 #endif
 
   /* Trace hook, useful in order to interface debug tools.*/
   CH_CFG_TRACE_HOOK(ch.trace_buffer.ptr);
 
-  if (++ch.trace_buffer.ptr >=
-      &ch.trace_buffer.buffer[CH_DBG_TRACE_BUFFER_SIZE]) {
-    ch.trace_buffer.ptr = &ch.trace_buffer.buffer[0];
+  if (++currcore->trace_buffer.ptr >=
+      &currcore->trace_buffer.buffer[CH_DBG_TRACE_BUFFER_SIZE]) {
+    currcore->trace_buffer.ptr = &currcore->trace_buffer.buffer[0];
   }
 }
 #endif
@@ -82,14 +82,33 @@ static NOINLINE void trace_next(void) {
  * @brief   Trace circular buffer subsystem initialization.
  * @note    Internal use only.
  */
-void _trace_init(void) {
+void __trace_init(void) {
   unsigned i;
 
-  ch.trace_buffer.suspended = (uint16_t)~CH_DBG_TRACE_MASK;
-  ch.trace_buffer.size      = CH_DBG_TRACE_BUFFER_SIZE;
-  ch.trace_buffer.ptr       = &ch.trace_buffer.buffer[0];
+  currcore->trace_buffer.suspended = (uint16_t)~CH_DBG_TRACE_MASK;
+  currcore->trace_buffer.size      = CH_DBG_TRACE_BUFFER_SIZE;
+  currcore->trace_buffer.ptr       = &currcore->trace_buffer.buffer[0];
   for (i = 0U; i < (unsigned)CH_DBG_TRACE_BUFFER_SIZE; i++) {
-    ch.trace_buffer.buffer[i].type = CH_TRACE_TYPE_UNUSED;
+    currcore->trace_buffer.buffer[i].type = CH_TRACE_TYPE_UNUSED;
+  }
+}
+
+/**
+ * @brief   Inserts in the circular debug trace buffer a ready record.
+ *
+ * @param[in] tp        the thread that just become ready
+ * @param[in] msg       the thread ready message
+ *
+ * @notapi
+ */
+void __trace_ready(thread_t *tp, msg_t msg) {
+
+  if ((currcore->trace_buffer.suspended & CH_DBG_TRACE_MASK_READY) == 0U) {
+    currcore->trace_buffer.ptr->type        = CH_TRACE_TYPE_READY;
+    currcore->trace_buffer.ptr->state       = (uint8_t)tp->state;
+    currcore->trace_buffer.ptr->u.rdy.tp    = tp;
+    currcore->trace_buffer.ptr->u.rdy.msg   = msg;
+    trace_next();
   }
 }
 
@@ -101,15 +120,15 @@ void _trace_init(void) {
  *
  * @notapi
  */
-void _trace_switch(thread_t *ntp, thread_t *otp) {
+void __trace_switch(thread_t *ntp, thread_t *otp) {
 
   (void)ntp;
 
-  if ((ch.trace_buffer.suspended & CH_DBG_TRACE_MASK_SWITCH) == 0U) {
-    ch.trace_buffer.ptr->type        = CH_TRACE_TYPE_SWITCH;
-    ch.trace_buffer.ptr->state       = (uint8_t)otp->state;
-    ch.trace_buffer.ptr->u.sw.ntp    = currp;
-    ch.trace_buffer.ptr->u.sw.wtobjp = otp->u.wtobjp;
+  if ((currcore->trace_buffer.suspended & CH_DBG_TRACE_MASK_SWITCH) == 0U) {
+    currcore->trace_buffer.ptr->type        = CH_TRACE_TYPE_SWITCH;
+    currcore->trace_buffer.ptr->state       = (uint8_t)otp->state;
+    currcore->trace_buffer.ptr->u.sw.ntp    = currthread;
+    currcore->trace_buffer.ptr->u.sw.wtobjp = otp->u.wtobjp;
     trace_next();
   }
 }
@@ -121,13 +140,13 @@ void _trace_switch(thread_t *ntp, thread_t *otp) {
  *
  * @notapi
  */
-void _trace_isr_enter(const char *isr) {
+void __trace_isr_enter(const char *isr) {
 
-  if ((ch.trace_buffer.suspended & CH_DBG_TRACE_MASK_ISR) == 0U) {
+  if ((currcore->trace_buffer.suspended & CH_DBG_TRACE_MASK_ISR) == 0U) {
     port_lock_from_isr();
-    ch.trace_buffer.ptr->type        = CH_TRACE_TYPE_ISR_ENTER;
-    ch.trace_buffer.ptr->state       = 0U;
-    ch.trace_buffer.ptr->u.isr.name  = isr;
+    currcore->trace_buffer.ptr->type        = CH_TRACE_TYPE_ISR_ENTER;
+    currcore->trace_buffer.ptr->state       = 0U;
+    currcore->trace_buffer.ptr->u.isr.name  = isr;
     trace_next();
     port_unlock_from_isr();
   }
@@ -140,13 +159,13 @@ void _trace_isr_enter(const char *isr) {
  *
  * @notapi
  */
-void _trace_isr_leave(const char *isr) {
+void __trace_isr_leave(const char *isr) {
 
-  if ((ch.trace_buffer.suspended & CH_DBG_TRACE_MASK_ISR) == 0U) {
+  if ((currcore->trace_buffer.suspended & CH_DBG_TRACE_MASK_ISR) == 0U) {
     port_lock_from_isr();
-    ch.trace_buffer.ptr->type        = CH_TRACE_TYPE_ISR_LEAVE;
-    ch.trace_buffer.ptr->state       = 0U;
-    ch.trace_buffer.ptr->u.isr.name  = isr;
+    currcore->trace_buffer.ptr->type        = CH_TRACE_TYPE_ISR_LEAVE;
+    currcore->trace_buffer.ptr->state       = 0U;
+    currcore->trace_buffer.ptr->u.isr.name  = isr;
     trace_next();
     port_unlock_from_isr();
   }
@@ -159,12 +178,12 @@ void _trace_isr_leave(const char *isr) {
  *
  * @notapi
  */
-void _trace_halt(const char *reason) {
+void __trace_halt(const char *reason) {
 
-  if ((ch.trace_buffer.suspended & CH_DBG_TRACE_MASK_HALT) == 0U) {
-    ch.trace_buffer.ptr->type          = CH_TRACE_TYPE_HALT;
-    ch.trace_buffer.ptr->state         = 0;
-    ch.trace_buffer.ptr->u.halt.reason = reason;
+  if ((currcore->trace_buffer.suspended & CH_DBG_TRACE_MASK_HALT) == 0U) {
+    currcore->trace_buffer.ptr->type          = CH_TRACE_TYPE_HALT;
+    currcore->trace_buffer.ptr->state         = 0;
+    currcore->trace_buffer.ptr->u.halt.reason = reason;
     trace_next();
   }
 }
@@ -181,11 +200,11 @@ void chDbgWriteTraceI(void *up1, void *up2) {
 
   chDbgCheckClassI();
 
-  if ((ch.trace_buffer.suspended & CH_DBG_TRACE_MASK_USER) == 0U) {
-    ch.trace_buffer.ptr->type       = CH_TRACE_TYPE_USER;
-    ch.trace_buffer.ptr->state      = 0;
-    ch.trace_buffer.ptr->u.user.up1 = up1;
-    ch.trace_buffer.ptr->u.user.up2 = up2;
+  if ((currcore->trace_buffer.suspended & CH_DBG_TRACE_MASK_USER) == 0U) {
+    currcore->trace_buffer.ptr->type       = CH_TRACE_TYPE_USER;
+    currcore->trace_buffer.ptr->state      = 0;
+    currcore->trace_buffer.ptr->u.user.up1 = up1;
+    currcore->trace_buffer.ptr->u.user.up2 = up2;
     trace_next();
   }
 }
@@ -216,7 +235,7 @@ void chDbgSuspendTraceI(uint16_t mask) {
 
   chDbgCheckClassI();
 
-  ch.trace_buffer.suspended |= mask;
+  currcore->trace_buffer.suspended |= mask;
 }
 
 /**
@@ -244,7 +263,7 @@ void chDbgResumeTraceI(uint16_t mask) {
 
   chDbgCheckClassI();
 
-  ch.trace_buffer.suspended &= ~mask;
+  currcore->trace_buffer.suspended &= ~mask;
 }
 
 /**

@@ -57,7 +57,7 @@
 /**
  * @brief   Increases the IRQ counter.
  */
-void _stats_increase_irq(void) {
+void __stats_increase_irq(void) {
 
   port_lock_from_isr();
   currcore->kernel_stats.n_irq++;
@@ -70,7 +70,7 @@ void _stats_increase_irq(void) {
  * @param[in] ntp       the thread to be switched in
  * @param[in] otp       the thread to be switched out
  */
-void _stats_ctxswc(thread_t *ntp, thread_t *otp) {
+void __stats_ctxswc(thread_t *ntp, thread_t *otp) {
 
   currcore->kernel_stats.n_ctxswc++;
   chTMChainMeasurementToX(&otp->stats, &ntp->stats);
@@ -79,7 +79,7 @@ void _stats_ctxswc(thread_t *ntp, thread_t *otp) {
 /**
  * @brief   Starts the measurement of a thread critical zone.
  */
-void _stats_start_measure_crit_thd(void) {
+void __stats_start_measure_crit_thd(void) {
 
   chTMStartMeasurementX(&currcore->kernel_stats.m_crit_thd);
 }
@@ -87,7 +87,7 @@ void _stats_start_measure_crit_thd(void) {
 /**
  * @brief   Stops the measurement of a thread critical zone.
  */
-void _stats_stop_measure_crit_thd(void) {
+void __stats_stop_measure_crit_thd(void) {
 
   chTMStopMeasurementX(&currcore->kernel_stats.m_crit_thd);
 }
@@ -95,7 +95,7 @@ void _stats_stop_measure_crit_thd(void) {
 /**
  * @brief   Starts the measurement of an ISR critical zone.
  */
-void _stats_start_measure_crit_isr(void) {
+void __stats_start_measure_crit_isr(void) {
 
   chTMStartMeasurementX(&currcore->kernel_stats.m_crit_isr);
 }
@@ -103,7 +103,7 @@ void _stats_start_measure_crit_isr(void) {
 /**
  * @brief   Stops the measurement of an ISR critical zone.
  */
-void _stats_stop_measure_crit_isr(void) {
+void __stats_stop_measure_crit_isr(void) {
 
   chTMStopMeasurementX(&currcore->kernel_stats.m_crit_isr);
 }

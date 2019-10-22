@@ -109,7 +109,7 @@
  *
  * @notapi
  */
-void _dbg_check_disable(void) {
+void __dbg_check_disable(void) {
 
   if ((currcore->dbg.isr_cnt != (cnt_t)0) ||
       (currcore->dbg.lock_cnt != (cnt_t)0)) {
@@ -122,7 +122,7 @@ void _dbg_check_disable(void) {
  *
  * @notapi
  */
-void _dbg_check_suspend(void) {
+void __dbg_check_suspend(void) {
 
   if ((currcore->dbg.isr_cnt != (cnt_t)0) ||
       (currcore->dbg.lock_cnt != (cnt_t)0)) {
@@ -135,7 +135,7 @@ void _dbg_check_suspend(void) {
  *
  * @notapi
  */
-void _dbg_check_enable(void) {
+void __dbg_check_enable(void) {
 
   if ((currcore->dbg.isr_cnt != (cnt_t)0) ||
       (currcore->dbg.lock_cnt != (cnt_t)0)) {
@@ -148,13 +148,13 @@ void _dbg_check_enable(void) {
  *
  * @notapi
  */
-void _dbg_check_lock(void) {
+void __dbg_check_lock(void) {
 
   if ((currcore->dbg.isr_cnt != (cnt_t)0) ||
       (currcore->dbg.lock_cnt != (cnt_t)0)) {
     chSysHalt("SV#4");
   }
-  _dbg_enter_lock();
+  __dbg_enter_lock();
 }
 
 /**
@@ -162,13 +162,13 @@ void _dbg_check_lock(void) {
  *
  * @notapi
  */
-void _dbg_check_unlock(void) {
+void __dbg_check_unlock(void) {
 
   if ((currcore->dbg.isr_cnt != (cnt_t)0) ||
       (currcore->dbg.lock_cnt <= (cnt_t)0)) {
     chSysHalt("SV#5");
   }
-  _dbg_leave_lock();
+  __dbg_leave_lock();
 }
 
 /**
@@ -176,13 +176,13 @@ void _dbg_check_unlock(void) {
  *
  * @notapi
  */
-void _dbg_check_lock_from_isr(void) {
+void __dbg_check_lock_from_isr(void) {
 
   if ((currcore->dbg.isr_cnt <= (cnt_t)0) ||
       (currcore->dbg.lock_cnt != (cnt_t)0)) {
     chSysHalt("SV#6");
   }
-  _dbg_enter_lock();
+  __dbg_enter_lock();
 }
 
 /**
@@ -190,13 +190,13 @@ void _dbg_check_lock_from_isr(void) {
  *
  * @notapi
  */
-void _dbg_check_unlock_from_isr(void) {
+void __dbg_check_unlock_from_isr(void) {
 
   if ((currcore->dbg.isr_cnt <= (cnt_t)0) ||
       (currcore->dbg.lock_cnt <= (cnt_t)0)) {
     chSysHalt("SV#7");
   }
-  _dbg_leave_lock();
+  __dbg_leave_lock();
 }
 
 /**
@@ -204,7 +204,7 @@ void _dbg_check_unlock_from_isr(void) {
  *
  * @notapi
  */
-void _dbg_check_enter_isr(void) {
+void __dbg_check_enter_isr(void) {
 
   port_lock_from_isr();
   if ((currcore->dbg.isr_cnt < (cnt_t)0) ||
@@ -220,7 +220,7 @@ void _dbg_check_enter_isr(void) {
  *
  * @notapi
  */
-void _dbg_check_leave_isr(void) {
+void __dbg_check_leave_isr(void) {
 
   port_lock_from_isr();
   if ((currcore->dbg.isr_cnt <= (cnt_t)0) ||

@@ -37,11 +37,12 @@
  * @{
  */
 #define CH_TRACE_TYPE_UNUSED                0U
-#define CH_TRACE_TYPE_SWITCH                1U
-#define CH_TRACE_TYPE_ISR_ENTER             2U
-#define CH_TRACE_TYPE_ISR_LEAVE             3U
-#define CH_TRACE_TYPE_HALT                  4U
-#define CH_TRACE_TYPE_USER                  5U
+#define CH_TRACE_TYPE_READY                 1U
+#define CH_TRACE_TYPE_SWITCH                2U
+#define CH_TRACE_TYPE_ISR_ENTER             3U
+#define CH_TRACE_TYPE_ISR_LEAVE             4U
+#define CH_TRACE_TYPE_HALT                  5U
+#define CH_TRACE_TYPE_USER                  6U
 /** @} */
 
 /**
@@ -50,14 +51,17 @@
  */
 #define CH_DBG_TRACE_MASK_DISABLED          255U
 #define CH_DBG_TRACE_MASK_NONE              0U
-#define CH_DBG_TRACE_MASK_SWITCH            1U
-#define CH_DBG_TRACE_MASK_ISR               2U
-#define CH_DBG_TRACE_MASK_HALT              4U
-#define CH_DBG_TRACE_MASK_USER              8U
-#define CH_DBG_TRACE_MASK_SLOW              (CH_DBG_TRACE_MASK_SWITCH |     \
+#define CH_DBG_TRACE_MASK_READY             1U
+#define CH_DBG_TRACE_MASK_SWITCH            2U
+#define CH_DBG_TRACE_MASK_ISR               4U
+#define CH_DBG_TRACE_MASK_HALT              8U
+#define CH_DBG_TRACE_MASK_USER              16U
+#define CH_DBG_TRACE_MASK_SLOW              (CH_DBG_TRACE_MASK_READY |      \
+                                             CH_DBG_TRACE_MASK_SWITCH |     \
                                              CH_DBG_TRACE_MASK_HALT |       \
                                              CH_DBG_TRACE_MASK_USER)
-#define CH_DBG_TRACE_MASK_ALL               (CH_DBG_TRACE_MASK_SWITCH |     \
+#define CH_DBG_TRACE_MASK_ALL               (CH_DBG_TRACE_MASK_READY |      \
+                                             CH_DBG_TRACE_MASK_SWITCH |     \
                                              CH_DBG_TRACE_MASK_ISR |        \
                                              CH_DBG_TRACE_MASK_HALT |       \
                                              CH_DBG_TRACE_MASK_USER)
@@ -122,7 +126,7 @@ typedef struct {
   systime_t             time;
   union {
     /**
-     * @brief   Structure representing a  context switch.
+     * @brief   Structure representing a context switch.
      */
     struct {
       /**
@@ -134,6 +138,19 @@ typedef struct {
        */
       void                  *wtobjp;
     } sw;
+    /**
+     * @brief   Structure representing a thread becoming ready.
+     */
+    struct {
+      /**
+       * @brief   Thread made ready.
+       */
+      thread_t              *tp;
+      /**
+       * @brief   Ready message.
+       */
+      msg_t                 msg;
+    } rdy;
     /**
      * @brief   Structure representing an ISR enter.
      */
@@ -200,17 +217,20 @@ typedef struct {
    an empty macro. Note that the macros can be externally redefined in
    order to interface 3rd parties tracing tools.*/
 #if CH_DBG_TRACE_MASK == CH_DBG_TRACE_MASK_DISABLED
-#if !defined(_trace_switch)
-#define _trace_switch(ntp, otp)
+#if !defined(__trace_ready)
+#define __trace_ready(tp, msg)
 #endif
-#if !defined(_trace_isr_enter)
-#define _trace_isr_enter(isr)
+#if !defined(__trace_switch)
+#define __trace_switch(ntp, otp)
 #endif
-#if !defined(_trace_isr_leave)
-#define _trace_isr_leave(isr)
+#if !defined(__trace_isr_enter)
+#define __trace_isr_enter(isr)
 #endif
-#if !defined(_trace_halt)
-#define _trace_halt(reason)
+#if !defined(__trace_isr_leave)
+#define __trace_isr_leave(isr)
+#endif
+#if !defined(__trace_halt)
+#define __trace_halt(reason)
 #endif
 #if !defined(chDbgWriteTraceI)
 #define chDbgWriteTraceI(up1, up2)
@@ -228,10 +248,11 @@ typedef struct {
 extern "C" {
 #endif
 #if (CH_DBG_TRACE_MASK != CH_DBG_TRACE_MASK_DISABLED) || defined(__DOXYGEN__)
-  void _trace_switch(thread_t *ntp, thread_t *otp);
-  void _trace_isr_enter(const char *isr);
-  void _trace_isr_leave(const char *isr);
-  void _trace_halt(const char *reason);
+  void __trace_ready(thread_t *tp, msg_t msg);
+  void __trace_switch(thread_t *ntp, thread_t *otp);
+  void __trace_isr_enter(const char *isr);
+  void __trace_isr_leave(const char *isr);
+  void __trace_halt(const char *reason);
   void chDbgWriteTraceI(void *up1, void *up2);
   void chDbgWriteTrace(void *up1, void *up2);
   void chDbgSuspendTraceI(uint16_t mask);
@@ -252,7 +273,7 @@ extern "C" {
  * @brief   Circular trace buffer subsystem initialization.
  * @note    Internal use only.
  *
- * @param[out] tbp      pointer to the @p ch_trace_buffer_t structure
+ * @param[out] tbp      pointer to the @p ch__trace_buffer_t structure
  *
  * @notapi
  */

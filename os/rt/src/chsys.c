@@ -123,7 +123,7 @@ void chSysHalt(const char *reason) {
   port_disable();
 
   /* Logging the event.*/
-  _trace_halt(reason);
+  __trace_halt(reason);
 
   /* Pointing to the passed message.*/
   currcore->dbg.panic_msg = reason;

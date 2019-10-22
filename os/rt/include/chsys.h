@@ -130,9 +130,9 @@
 #define CH_IRQ_PROLOGUE()                                                   \
   PORT_IRQ_PROLOGUE();                                                      \
   CH_CFG_IRQ_PROLOGUE_HOOK();                                               \
-  _stats_increase_irq();                                                    \
-  _trace_isr_enter(__func__);                                               \
-  _dbg_check_enter_isr()
+  __stats_increase_irq();                                                   \
+  __trace_isr_enter(__func__);                                              \
+  __dbg_check_enter_isr()
 
 /**
  * @brief   IRQ handler exit code.
@@ -143,8 +143,8 @@
  * @special
  */
 #define CH_IRQ_EPILOGUE()                                                   \
-  _dbg_check_leave_isr();                                                   \
-  _trace_isr_leave(__func__);                                               \
+  __dbg_check_leave_isr();                                                  \
+  __trace_isr_leave(__func__);                                              \
   CH_CFG_IRQ_EPILOGUE_HOOK();                                               \
   PORT_IRQ_EPILOGUE()
 
@@ -286,8 +286,8 @@
  */
 #define chSysSwitch(ntp, otp) {                                             \
                                                                             \
-  _trace_switch(ntp, otp);                                                  \
-  _stats_ctxswc(ntp, otp);                                                  \
+  __trace_switch(ntp, otp);                                                 \
+  __stats_ctxswc(ntp, otp);                                                 \
   CH_CFG_CONTEXT_SWITCH_HOOK(ntp, otp);                                     \
   port_switch(ntp, otp);                                                    \
 }
@@ -334,7 +334,7 @@ extern "C" {
 static inline void chSysDisable(void) {
 
   port_disable();
-  _dbg_check_disable();
+  __dbg_check_disable();
 }
 
 /**
@@ -351,7 +351,7 @@ static inline void chSysDisable(void) {
 static inline void chSysSuspend(void) {
 
   port_suspend();
-  _dbg_check_suspend();
+  __dbg_check_suspend();
 }
 
 /**
@@ -365,7 +365,7 @@ static inline void chSysSuspend(void) {
  */
 static inline void chSysEnable(void) {
 
-  _dbg_check_enable();
+  __dbg_check_enable();
   port_enable();
 }
 
@@ -379,8 +379,8 @@ static inline void chSysEnable(void) {
 static inline void chSysLock(void) {
 
   port_lock();
-  _stats_start_measure_crit_thd();
-  _dbg_check_lock();
+  __stats_start_measure_crit_thd();
+  __dbg_check_lock();
 }
 
 /**
@@ -392,8 +392,8 @@ static inline void chSysLock(void) {
  */
 static inline void chSysUnlock(void) {
 
-  _dbg_check_unlock();
-  _stats_stop_measure_crit_thd();
+  __dbg_check_unlock();
+  __stats_stop_measure_crit_thd();
 
   /* The following condition can be triggered by the use of i-class functions
      in a critical section not followed by a chSchResceduleS(), this means
@@ -423,8 +423,8 @@ static inline void chSysUnlock(void) {
 static inline void chSysLockFromISR(void) {
 
   port_lock_from_isr();
-  _stats_start_measure_crit_isr();
-  _dbg_check_lock_from_isr();
+  __stats_start_measure_crit_isr();
+  __dbg_check_lock_from_isr();
 }
 
 /**
@@ -444,8 +444,8 @@ static inline void chSysLockFromISR(void) {
  */
 static inline void chSysUnlockFromISR(void) {
 
-  _dbg_check_unlock_from_isr();
-  _stats_stop_measure_crit_isr();
+  __dbg_check_unlock_from_isr();
+  __stats_stop_measure_crit_isr();
   port_unlock_from_isr();
 }
 

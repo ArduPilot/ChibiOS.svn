@@ -363,11 +363,16 @@ thread_t *__sch_ready_behind(os_instance_t *oip, thread_t *tp) {
               (tp->state != CH_STATE_FINAL),
               "invalid state");
 
+  /* Tracing the event.*/
+  __trace_ready(tp, tp->u.rdymsg);
+
+  /* Scanning ready list.*/
   tp->state = CH_STATE_READY;
   cp = (thread_t *)&oip->rlist.queue;
   do {
     cp = cp->queue.next;
   } while (cp->prio >= tp->prio);
+
   /* Insertion on prev.*/
   tp->queue.next             = cp;
   tp->queue.prev             = cp->queue.prev;
@@ -404,11 +409,16 @@ thread_t *__sch_ready_ahead(thread_t *tp) {
   chDbgAssert(tp->owner == currcore, "invalid core");
 #endif
 
+  /* Tracing the event.*/
+  __trace_ready(tp, tp->u.rdymsg);
+
+  /* Scanning ready list.*/
   tp->state = CH_STATE_READY;
   cp = (thread_t *)&currcore->rlist.queue;
   do {
     cp = cp->queue.next;
   } while (cp->prio > tp->prio);
+
   /* Insertion on prev.*/
   tp->queue.next             = cp;
   tp->queue.prev             = cp->queue.prev;

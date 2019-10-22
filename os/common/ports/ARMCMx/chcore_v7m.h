@@ -74,7 +74,18 @@
  * @brief   Implements a syscall interface on SVC.
  */
 #if !defined(PORT_USE_SYSCALL) || defined(__DOXYGEN__)
-#define PORT_USE_SYSCALL                TRUE
+#define PORT_USE_SYSCALL                FALSE
+#endif
+
+/**
+ * @brief   Number of MPU regions to be saved/restored during context switch.
+ * @note    The first region is always region zero.
+ * @note    The use of this option has an overhead of 8 bytes for each
+ *          region for each thread.
+ * @note    Allowed values are 0..4, zero means none.
+ */
+#if !defined(PORT_SWITCHED_REGIONS_NUMBER) || defined(__DOXYGEN__)
+#define PORT_SWITCHED_REGIONS_NUMBER    0
 #endif
 
 /**
@@ -90,9 +101,11 @@
 
 /**
  * @brief   MPU region to be used to stack guards.
+ * @note    Make sure this region is not included in the
+ *          @p PORT_SWITCHED_REGIONS_NUMBER regions range.
  */
-#if !defined(PORT_USE_MPU_REGION) || defined(__DOXYGEN__)
-#define PORT_USE_MPU_REGION             MPU_REGION_7
+#if !defined(PORT_USE_GUARD_MPU_REGION) || defined(__DOXYGEN__)
+#define PORT_USE_GUARD_MPU_REGION       MPU_REGION_7
 #endif
 
 /**
@@ -176,6 +189,10 @@
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
+
+#if (PORT_SWITCHED_REGIONS_NUMBER < 0) || (PORT_SWITCHED_REGIONS_NUMBER > 4)
+#error "invalid PORT_SWITCHED_REGIONS_NUMBER value"
+#endif
 
 #if !defined(_FROM_ASM_)
 /**
@@ -326,33 +343,33 @@
    to not have duplicated structure names into the documentation.*/
 #if !defined(__DOXYGEN__)
 struct port_extctx {
-  regarm_t      r0;
-  regarm_t      r1;
-  regarm_t      r2;
-  regarm_t      r3;
-  regarm_t      r12;
-  regarm_t      lr_thd;
-  regarm_t      pc;
-  regarm_t      xpsr;
+  uint32_t      r0;
+  uint32_t      r1;
+  uint32_t      r2;
+  uint32_t      r3;
+  uint32_t      r12;
+  uint32_t      lr_thd;
+  uint32_t      pc;
+  uint32_t      xpsr;
 #if CORTEX_USE_FPU
-  regarm_t      s0;
-  regarm_t      s1;
-  regarm_t      s2;
-  regarm_t      s3;
-  regarm_t      s4;
-  regarm_t      s5;
-  regarm_t      s6;
-  regarm_t      s7;
-  regarm_t      s8;
-  regarm_t      s9;
-  regarm_t      s10;
-  regarm_t      s11;
-  regarm_t      s12;
-  regarm_t      s13;
-  regarm_t      s14;
-  regarm_t      s15;
-  regarm_t      fpscr;
-  regarm_t      reserved;
+  uint32_t      s0;
+  uint32_t      s1;
+  uint32_t      s2;
+  uint32_t      s3;
+  uint32_t      s4;
+  uint32_t      s5;
+  uint32_t      s6;
+  uint32_t      s7;
+  uint32_t      s8;
+  uint32_t      s9;
+  uint32_t      s10;
+  uint32_t      s11;
+  uint32_t      s12;
+  uint32_t      s13;
+  uint32_t      s14;
+  uint32_t      s15;
+  uint32_t      fpscr;
+  uint32_t      reserved;
 #endif /* CORTEX_USE_FPU */
 };
 
@@ -364,47 +381,53 @@ struct port_extctx {
  *          in HW.
  */
 struct port_linkctx {
-  regarm_t              control;
+  uint32_t              control;
   struct port_extctx    *ectxp;
 };
 #endif
 
 struct port_intctx {
+#if (PORT_SWITCHED_REGIONS_NUMBER > 0) || defined(__DOXYGEN__)
+  struct {
+    uint32_t    rbar;
+    uint32_t    rasr;
+  } regions[PORT_SWITCHED_REGIONS_NUMBER];
+#endif
 #if CORTEX_USE_FPU
-  regarm_t      s16;
-  regarm_t      s17;
-  regarm_t      s18;
-  regarm_t      s19;
-  regarm_t      s20;
-  regarm_t      s21;
-  regarm_t      s22;
-  regarm_t      s23;
-  regarm_t      s24;
-  regarm_t      s25;
-  regarm_t      s26;
-  regarm_t      s27;
-  regarm_t      s28;
-  regarm_t      s29;
-  regarm_t      s30;
-  regarm_t      s31;
+  uint32_t      s16;
+  uint32_t      s17;
+  uint32_t      s18;
+  uint32_t      s19;
+  uint32_t      s20;
+  uint32_t      s21;
+  uint32_t      s22;
+  uint32_t      s23;
+  uint32_t      s24;
+  uint32_t      s25;
+  uint32_t      s26;
+  uint32_t      s27;
+  uint32_t      s28;
+  uint32_t      s29;
+  uint32_t      s30;
+  uint32_t      s31;
 #endif /* CORTEX_USE_FPU */
-  regarm_t      r4;
-  regarm_t      r5;
-  regarm_t      r6;
-  regarm_t      r7;
-  regarm_t      r8;
-  regarm_t      r9;
-  regarm_t      r10;
-  regarm_t      r11;
-  regarm_t      lr;
+  uint32_t      r4;
+  uint32_t      r5;
+  uint32_t      r6;
+  uint32_t      r7;
+  uint32_t      r8;
+  uint32_t      r9;
+  uint32_t      r10;
+  uint32_t      r11;
+  uint32_t      lr;
 };
 
 struct port_context {
   struct port_intctx    *sp;
 #if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
   struct {
-    regarm_t            psp;
-    const void          *regions;
+    uint32_t            psp;
+    const void          *p;
   } syscall;
 #endif
 };
@@ -414,12 +437,47 @@ struct port_context {
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+/* By default threads have no syscall context information.*/
 #if (PORT_USE_SYSCALL == TRUE) || defined(__DOXYGEN__)
 #define __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop)                              \
-  (tp)->ctx.syscall.psp = (regarm_t)(wtop);                                 \
-  (tp)->ctx.syscall.regions = NULL;
+  (tp)->ctx.syscall.psp = (uint32_t)(wtop);                                 \
+  (tp)->ctx.syscall.p   = NULL;
 #else
 #define __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop)
+#endif
+
+/* By default threads have all regions disabled.*/
+#if (PORT_SWITCHED_REGIONS_NUMBER == 0) || defined(__DOXYGEN__)
+#define __PORT_SETUP_CONTEXT_MPU(tp)
+#elif (PORT_SWITCHED_REGIONS_NUMBER == 1) || defined(__DOXYGEN__)
+#define __PORT_SETUP_CONTEXT_MPU(tp)                                        \
+  (tp)->ctx.sp->regions[0].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[0].rasr  = 0U
+#elif (PORT_SWITCHED_REGIONS_NUMBER == 2) || defined(__DOXYGEN__)
+#define __PORT_SETUP_CONTEXT_MPU(tp)                                        \
+  (tp)->ctx.sp->regions[0].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[0].rasr  = 0U;                                      \
+  (tp)->ctx.sp->regions[1].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[1].rasr  = 0U
+#elif (PORT_SWITCHED_REGIONS_NUMBER == 3) || defined(__DOXYGEN__)
+#define __PORT_SETUP_CONTEXT_MPU(tp)                                        \
+  (tp)->ctx.sp->regions[0].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[0].rasr  = 0U;                                      \
+  (tp)->ctx.sp->regions[1].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[1].rasr  = 0U;                                      \
+  (tp)->ctx.sp->regions[2].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[2].rasr  = 0U
+#elif (PORT_SWITCHED_REGIONS_NUMBER == 4) || defined(__DOXYGEN__)
+#define __PORT_SETUP_CONTEXT_MPU(tp)                                        \
+  (tp)->ctx.sp->regions[0].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[0].rasr  = 0U;                                      \
+  (tp)->ctx.sp->regions[1].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[1].rasr  = 0U;                                      \
+  (tp)->ctx.sp->regions[2].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[2].rasr  = 0U;                                      \
+  (tp)->ctx.sp->regions[3].rbar  = 0U;                                      \
+  (tp)->ctx.sp->regions[3].rasr  = 0U
+#else
 #endif
 
 /**
@@ -430,10 +488,11 @@ struct port_context {
 #define PORT_SETUP_CONTEXT(tp, wbase, wtop, pf, arg) {                      \
   (tp)->ctx.sp = (struct port_intctx *)((uint8_t *)(wtop) -                 \
                                         sizeof (struct port_intctx));       \
-  (tp)->ctx.sp->r4 = (regarm_t)(pf);                                        \
-  (tp)->ctx.sp->r5 = (regarm_t)(arg);                                       \
-  (tp)->ctx.sp->lr = (regarm_t)_port_thread_start;                          \
-  __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop)                                    \
+  (tp)->ctx.sp->r4 = (uint32_t)(pf);                                        \
+  (tp)->ctx.sp->r5 = (uint32_t)(arg);                                       \
+  (tp)->ctx.sp->lr = (uint32_t)_port_thread_start;                          \
+  __PORT_SETUP_CONTEXT_MPU(tp);                                             \
+  __PORT_SETUP_CONTEXT_SYSCALL(tp, wtop);                                   \
 }
 
 /**
@@ -524,8 +583,8 @@ struct port_context {
   _port_switch(ntp, otp);                                                   \
                                                                             \
   /* Setting up the guard page for the switched-in thread.*/                \
-    mpuSetRegionAddress(PORT_USE_MPU_REGION,                                \
-                        chThdGetSelfX()->wabase);                           \
+  mpuSetRegionAddress(PORT_USE_GUARD_MPU_REGION,                            \
+                      chThdGetSelfX()->wabase);                             \
 }
 #endif
 #endif
@@ -544,7 +603,7 @@ extern "C" {
   void _port_switch_from_isr(void);
   void _port_exit_from_isr(void);
 #if PORT_USE_SYSCALL == TRUE
-  void port_unprivileged_jump(regarm_t pc, regarm_t psp);
+  void port_unprivileged_jump(uint32_t pc, uint32_t psp);
 #endif
 #ifdef __cplusplus
 }
@@ -559,7 +618,7 @@ extern "C" {
  *
  * @return              The interrupts status.
  */
-static inline syssts_t port_get_irq_status(void) {
+__STATIC_FORCEINLINE syssts_t port_get_irq_status(void) {
   syssts_t sts;
 
 #if CORTEX_SIMPLIFIED_PRIORITY == FALSE
@@ -579,7 +638,7 @@ static inline syssts_t port_get_irq_status(void) {
  * @retval false        the word specified a disabled interrupts status.
  * @retval true         the word specified an enabled interrupts status.
  */
-static inline bool port_irq_enabled(syssts_t sts) {
+__STATIC_FORCEINLINE bool port_irq_enabled(syssts_t sts) {
 
 #if CORTEX_SIMPLIFIED_PRIORITY == FALSE
   return sts == (syssts_t)CORTEX_BASEPRI_DISABLED;
@@ -595,7 +654,7 @@ static inline bool port_irq_enabled(syssts_t sts) {
  * @retval false        not running in ISR mode.
  * @retval true         running in ISR mode.
  */
-static inline bool port_is_isr_context(void) {
+__STATIC_FORCEINLINE bool port_is_isr_context(void) {
 
   return (bool)((__get_IPSR() & 0x1FFU) != 0U);
 }
@@ -605,7 +664,7 @@ static inline bool port_is_isr_context(void) {
  * @details In this port this function raises the base priority to kernel
  *          level.
  */
-static inline void port_lock(void) {
+__STATIC_FORCEINLINE void port_lock(void) {
 
 #if CORTEX_SIMPLIFIED_PRIORITY == FALSE
 #if defined(__CM7_REV)
@@ -629,7 +688,7 @@ static inline void port_lock(void) {
  * @details In this port this function lowers the base priority to user
  *          level.
  */
-static inline void port_unlock(void) {
+__STATIC_FORCEINLINE void port_unlock(void) {
 
 #if CORTEX_SIMPLIFIED_PRIORITY == FALSE
   __set_BASEPRI(CORTEX_BASEPRI_DISABLED);
@@ -644,7 +703,7 @@ static inline void port_unlock(void) {
  *          level.
  * @note    Same as @p port_lock() in this port.
  */
-static inline void port_lock_from_isr(void) {
+__STATIC_FORCEINLINE void port_lock_from_isr(void) {
 
   port_lock();
 }
@@ -655,7 +714,7 @@ static inline void port_lock_from_isr(void) {
  *          level.
  * @note    Same as @p port_unlock() in this port.
  */
-static inline void port_unlock_from_isr(void) {
+__STATIC_FORCEINLINE void port_unlock_from_isr(void) {
 
   port_unlock();
 }
@@ -665,7 +724,7 @@ static inline void port_unlock_from_isr(void) {
  * @note    In this port it disables all the interrupt sources by raising
  *          the priority mask to level 0.
  */
-static inline void port_disable(void) {
+__STATIC_FORCEINLINE void port_disable(void) {
 
   __disable_irq();
 }
@@ -675,7 +734,7 @@ static inline void port_disable(void) {
  * @note    Interrupt sources above kernel level remains enabled.
  * @note    In this port it raises/lowers the base priority to kernel level.
  */
-static inline void port_suspend(void) {
+__STATIC_FORCEINLINE void port_suspend(void) {
 
 #if (CORTEX_SIMPLIFIED_PRIORITY == FALSE) || defined(__DOXYGEN__)
   __set_BASEPRI(CORTEX_BASEPRI_KERNEL);
@@ -689,7 +748,7 @@ static inline void port_suspend(void) {
  * @brief   Enables all the interrupt sources.
  * @note    In this port it lowers the base priority to user level.
  */
-static inline void port_enable(void) {
+__STATIC_FORCEINLINE void port_enable(void) {
 
 #if (CORTEX_SIMPLIFIED_PRIORITY == FALSE) || defined(__DOXYGEN__)
   __set_BASEPRI(CORTEX_BASEPRI_DISABLED);
@@ -705,7 +764,7 @@ static inline void port_enable(void) {
  *          modes.
  * @note    Implemented as an inlined @p WFI instruction.
  */
-static inline void port_wait_for_interrupt(void) {
+__STATIC_FORCEINLINE void port_wait_for_interrupt(void) {
 
 #if CORTEX_ENABLE_WFI_IDLE == TRUE
   __WFI();
@@ -717,7 +776,7 @@ static inline void port_wait_for_interrupt(void) {
  *
  * @return              The realtime counter value.
  */
-static inline rtcnt_t port_rt_get_counter_value(void) {
+__STATIC_FORCEINLINE rtcnt_t port_rt_get_counter_value(void) {
 
   return DWT->CYCCNT;
 }

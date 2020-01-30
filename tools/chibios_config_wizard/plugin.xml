@@ -56,7 +56,7 @@
             name="http://www.chibios.org/xml/schema/boards/stm32g4xx_board.xsd"
             uri="resources/gencfg/schema/boards/stm32g4xx_board.xsd" />
           <uri
-            name="http://www.chibios.org/xml/schema/boards/stm32fhxx_board.xsd"
+            name="http://www.chibios.org/xml/schema/boards/stm32h7xx_board.xsd"
             uri="resources/gencfg/schema/boards/stm32h7xx_board.xsd" />
          <uri
             name="http://www.chibios.org/xml/schema/boards/stm32l0xx_board.xsd"

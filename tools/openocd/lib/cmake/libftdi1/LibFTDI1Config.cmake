@@ -49,5 +49,5 @@ set ( LIBFTDI_VERSION_MAJOR  "1" )
 set ( LIBFTDI_VERSION_MINOR  "4" )
 set ( LIBFTDI_VERSION_PATCH  "" )
 
-set ( LIBFTDI_PYTHON_MODULE_PATH "/mingw32/lib/python3.7/site-packages" )
+set ( LIBFTDI_PYTHON_MODULE_PATH "/mingw32/lib/python3.8/site-packages" )
 

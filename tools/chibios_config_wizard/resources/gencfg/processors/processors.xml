@@ -56,7 +56,13 @@
   <processor class="board" target="STM32L4xx">
     <name>STM32L4xx Board Configuration</name>
     <path>resources/gencfg/processors/boards/stm32l4xx/templates</path>
-    <default>resources/gencfg/xml/stm3241board.xml</default>
+    <default>resources/gencfg/xml/stm32l4board.xml</default>
+    <basefilename>board</basefilename>
+  </processor>
+  <processor class="board" target="STM32L5xx">
+    <name>STM32L5xx Board Configuration</name>
+    <path>resources/gencfg/processors/boards/stm32l5xx/templates</path>
+    <default>resources/gencfg/xml/stm32l5board.xml</default>
     <basefilename>board</basefilename>
   </processor>
 </processors>

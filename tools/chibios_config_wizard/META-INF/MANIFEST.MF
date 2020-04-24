@@ -21,3 +21,4 @@ Bundle-ClassPath: .,
  lib/oro.jar,
  lib/resolver.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: org.chibios.tools.eclipse.config

@@ -175,7 +175,7 @@ public class ConfigurationNewWizardPage extends WizardPage {
     String fpath;
     try {
       Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
-      IPath path = new Path("resources/gencfg/processors/processors.xml");
+      IPath path = new Path("resources/ftl/processors/processors.xml");
       fpath = FileLocator.toFileURL(FileLocator.find(bundle, path, null))
           .getFile();
     } catch (IOException e) {

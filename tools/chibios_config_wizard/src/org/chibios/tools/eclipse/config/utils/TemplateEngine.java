@@ -111,7 +111,7 @@ public class TemplateEngine {
     /*
      * Calculates the path for FTL libraries.
      */
-    IPath libpath = new Path("resources/gencfg/lib");
+    IPath libpath = new Path("resources/ftl/libs");
     Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
     try {
       libpath = new Path(FileLocator.toFileURL(FileLocator.find(bundle, libpath, null)).getFile());

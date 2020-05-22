@@ -1,11 +1,11 @@
 object LicenseChangerForm: TLicenseChangerForm
-  Left = 403
-  Height = 460
-  Top = 229
+  Left = 565
+  Height = 503
+  Top = 262
   Width = 763
   BorderStyle = bsSingle
   Caption = 'License Changer 2.1'
-  ClientHeight = 460
+  ClientHeight = 503
   ClientWidth = 763
   Color = clBtnFace
   Font.Color = clWindowText
@@ -25,15 +25,15 @@ object LicenseChangerForm: TLicenseChangerForm
   object Label2: TLabel
     Left = 8
     Height = 13
-    Top = 96
+    Top = 136
     Width = 97
     Caption = 'New License Text'
     ParentColor = False
   end
   object Label3: TLabel
-    Left = 0
+    Left = 8
     Height = 13
-    Top = 290
+    Top = 328
     Width = 20
     Caption = 'Log'
     ParentColor = False
@@ -50,8 +50,8 @@ object LicenseChangerForm: TLicenseChangerForm
     Left = 8
     Height = 13
     Top = 74
-    Width = 33
-    Caption = 'Name'
+    Width = 40
+    Caption = 'Name1'
     ParentColor = False
   end
   object PathEdit: TEdit
@@ -90,9 +90,9 @@ object LicenseChangerForm: TLicenseChangerForm
     TabOrder = 2
   end
   object LicenseMemo: TMemo
-    Left = 0
+    Left = 8
     Height = 169
-    Top = 112
+    Top = 152
     Width = 761
     Font.Color = clWindowText
     Font.Height = -11
@@ -114,9 +114,9 @@ object LicenseChangerForm: TLicenseChangerForm
     TabOrder = 4
   end
   object LogMemo: TMemo
-    Left = 0
+    Left = 8
     Height = 153
-    Top = 304
+    Top = 344
     Width = 761
     ReadOnly = True
     ScrollBars = ssVertical
@@ -141,7 +141,7 @@ object LicenseChangerForm: TLicenseChangerForm
     TabOrder = 7
     Text = 'ChibiOS is free software'
   end
-  object NameEdit: TEdit
+  object Name1Edit: TEdit
     Left = 48
     Height = 23
     Hint = 'Change only if this string is found'
@@ -158,5 +158,22 @@ object LicenseChangerForm: TLicenseChangerForm
     Caption = 'Clear'
     OnClick = ClearButtonClick
     TabOrder = 9
+  end
+  object Label6: TLabel
+    Left = 8
+    Height = 13
+    Top = 104
+    Width = 40
+    Caption = 'Name2'
+    ParentColor = False
+  end
+  object Name2Edit: TEdit
+    Left = 48
+    Height = 23
+    Hint = 'Change only if this string is found'
+    Top = 104
+    Width = 257
+    TabOrder = 10
+    Text = 'Rocco Marco Guglielmi'
   end
 end

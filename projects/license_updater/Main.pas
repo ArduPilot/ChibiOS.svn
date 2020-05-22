@@ -14,6 +14,8 @@ type
 
   TLicenseChangerForm = class(TForm)
     ClearButton: TButton;
+    Label6: TLabel;
+    Name2Edit: TEdit;
     PathEdit: TEdit;
     Label1: TLabel;
     PathButton: TButton;
@@ -27,7 +29,7 @@ type
     Label4: TLabel;
     KeyEdit: TEdit;
     Label5: TLabel;
-    NameEdit: TEdit;
+    Name1Edit: TEdit;
     procedure ClearButtonClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure PathButtonClick(Sender: TObject);
@@ -144,7 +146,9 @@ begin
       begin
         if Pos(KeyEdit.Text, s) > 0 then
           foundkey := True;
-        if Pos(NameEdit.Text, s) > 0 then
+        if Pos(Name1Edit.Text, s) > 0 then
+          foundname := True;
+        if Pos(Name2Edit.Text, s) > 0 then
           foundname := True;
       end;
       Inc(i);

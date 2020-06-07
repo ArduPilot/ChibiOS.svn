@@ -18,7 +18,7 @@
 */
 
 /**
- * @file    chthreads.h
+ * @file    rt/include/chthreads.h
  * @brief   Threads module macros and structures.
  *
  * @addtogroup threads
@@ -79,14 +79,6 @@ typedef struct {
    * @brief   Thread argument.
    */
   void              *arg;
-#if (CH_CFG_LOOSE_INSTANCES == FALSE) || defined(__DOXYGEN__)
-  /**
-   * @brief   OS instance where to start the thread.
-   * @note    If left at @p NULL then the thread is started on the current
-   *          core.
-   */
-  ch_instance_t     *instance;
-#endif
 } thread_descriptor_t;
 
 /*===========================================================================*/

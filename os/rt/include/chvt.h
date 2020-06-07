@@ -18,7 +18,7 @@
 */
 
 /**
- * @file    chvt.h
+ * @file    rt/include/chvt.h
  * @brief   Time and Virtual Timers module macros and structures.
  *
  * @addtogroup time
@@ -71,6 +71,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+  void _vt_init(void);
   void chVTDoSetI(virtual_timer_t *vtp, sysinterval_t delay,
                   vtfunc_t vtfunc, void *par);
   void chVTDoResetI(virtual_timer_t *vtp);
@@ -176,8 +177,8 @@ static inline sysinterval_t chVTTimeElapsedSinceX(systime_t start) {
 /**
  * @brief   Checks if the current system time is within the specified time
  *          window.
- * @note    When start==end then the function returns always true because the
- *          whole time range is specified.
+ * @note    When start==end then the function returns always false because the
+ *          time window has zero size.
  *
  * @param[in] start     the start of the time window (inclusive)
  * @param[in] end       the end of the time window (non inclusive)
@@ -194,8 +195,8 @@ static inline bool chVTIsSystemTimeWithinX(systime_t start, systime_t end) {
 /**
  * @brief   Checks if the current system time is within the specified time
  *          window.
- * @note    When start==end then the function returns always true because the
- *          whole time range is specified.
+ * @note    When start==end then the function returns always false because the
+ *          time window has zero size.
  *
  * @param[in] start     the start of the time window (inclusive)
  * @param[in] end       the end of the time window (non inclusive)

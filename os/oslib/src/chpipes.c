@@ -18,7 +18,7 @@
 */
 
 /**
- * @file    chpipes.c
+ * @file    oslib/src/chpipes.c
  * @brief   Pipes code.
  * @details Byte pipes.
  *          <h2>Operation mode</h2>
@@ -383,6 +383,6 @@ size_t chPipeReadTimeout(pipe_t *pp, uint8_t *bp,
   return max - n;
 }
 
-#endif /* CH_CFG_USE_MAILBOXES == TRUE */
+#endif /* CH_CFG_USE_PIPES == TRUE */
 
 /** @} */

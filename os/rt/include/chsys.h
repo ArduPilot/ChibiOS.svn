@@ -18,7 +18,7 @@
 */
 
 /**
- * @file    chsys.h
+ * @file    rt/include/chsys.h
  * @brief   System related macros and structures.
  *
  * @addtogroup system
@@ -343,8 +343,8 @@ static inline void chSysDisable(void) {
  *          are disabled, interrupt sources with higher priority are still
  *          enabled.
  * @note    Do not invoke this API from within a kernel lock.
- * @note    This API is no replacement for @p chSysLock()and @p chSysUnock()
- *          which could do more than just disable interrupts.
+ * @note    This API is no replacement for @p chSysLock() which
+ *          could do more than just disable interrupts.
  *
  * @special
  */
@@ -358,8 +358,8 @@ static inline void chSysSuspend(void) {
  * @brief   Lowers the system interrupt priority mask to user level.
  * @details All the interrupt sources are enabled.
  * @note    Do not invoke this API from within a kernel lock.
- * @note    This API is no replacement for @p chSysLock()and @p chSysUnock()
- *          which could do more than just disable interrupts.
+ * @note    This API is no replacement for @p chSysUnlock() which
+ *          could do more than just enable interrupts.
  *
  * @special
  */
@@ -396,7 +396,7 @@ static inline void chSysUnlock(void) {
   __stats_stop_measure_crit_thd();
 
   /* The following condition can be triggered by the use of i-class functions
-     in a critical section not followed by a chSchResceduleS(), this means
+     in a critical section not followed by a chSchRescheduleS(), this means
      that the current thread has a lower priority than the next thread in
      the ready list.*/
   chDbgAssert((currcore->rlist.queue.next == (thread_t *)&currcore->rlist.queue) ||

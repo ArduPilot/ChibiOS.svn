@@ -18,7 +18,7 @@
 */
 
 /**
- * @file    chobjfifos.h
+ * @file    oslib/include/chobjfifos.h
  * @brief   Objects FIFO structures and macros.
  * @details This module implements a generic FIFO queue of objects by
  *          coupling a Guarded Memory Pool (for objects storage) and
@@ -422,6 +422,7 @@ static inline msg_t chFifoReceiveObjectTimeout(objects_fifo_t *ofp,
 
   return chMBFetchTimeout(&ofp->mbx, (msg_t *)objpp, timeout);
 }
+
 #endif /* CH_CFG_USE_OBJ_FIFOS == TRUE */
 
 #endif /* CHOBJFIFOS_H */

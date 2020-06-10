@@ -238,9 +238,8 @@ static dyn_element_t *dyn_find_object(const char *name, dyn_list_t *dlp) {
 
 /**
  * @brief   Initializes the objects factory.
- * @note    Internal use only.
  *
- * @notapi
+ * @init
  */
 void __factory_init(void) {
 

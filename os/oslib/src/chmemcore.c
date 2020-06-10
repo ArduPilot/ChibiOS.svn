@@ -75,7 +75,6 @@ memcore_t ch_memcore;
 
 /**
  * @brief   Low level memory manager initialization.
- * @note    Internal use only.
  *
  * @notapi
  */

@@ -101,7 +101,6 @@ static memory_heap_t default_heap;
 
 /**
  * @brief   Initializes the default heap.
- * @note    Internal use only.
  *
  * @notapi
  */

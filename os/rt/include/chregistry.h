@@ -89,13 +89,14 @@ typedef struct {
  * @brief   Adds a thread to the registry list.
  * @note    This macro is not meant for use in application code.
  *
+ * @param[in] oip       pointer to the OS instance
  * @param[in] tp        thread to add to the registry
  */
-#define REG_INSERT(tp) do {                                                 \
-  (tp)->newer = (thread_t *)&currcore->rlist;                               \
-  (tp)->older = currcore->rlist.older;                                      \
+#define REG_INSERT(oip, tp) do {                                            \
+  (tp)->newer = (thread_t *)&(oip)->rlist;                                  \
+  (tp)->older = (oip)->rlist.older;                                         \
   (tp)->older->newer = (tp);                                                \
-  currcore->rlist.older = (tp);                                             \
+  (oip)->rlist.older = (tp);                                                \
 } while (0)
 
 /*===========================================================================*/
@@ -133,7 +134,7 @@ extern "C" {
 static inline void chRegSetThreadName(const char *name) {
 
 #if CH_CFG_USE_REGISTRY == TRUE
-  currcore->rlist.current->name = name;
+  __sch_get_currthread(currcore)->name = name;
 #else
   (void)name;
 #endif

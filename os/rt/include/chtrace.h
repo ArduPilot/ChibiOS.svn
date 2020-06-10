@@ -248,6 +248,7 @@ typedef struct {
 extern "C" {
 #endif
 #if (CH_DBG_TRACE_MASK != CH_DBG_TRACE_MASK_DISABLED) || defined(__DOXYGEN__)
+  void __trace_init(os_instance_t *oip);
   void __trace_ready(thread_t *tp, msg_t msg);
   void __trace_switch(thread_t *ntp, thread_t *otp);
   void __trace_isr_enter(const char *isr);
@@ -267,27 +268,6 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
-
-#if (CH_DBG_TRACE_MASK != CH_DBG_TRACE_MASK_DISABLED) || defined(__DOXYGEN__)
-/**
- * @brief   Circular trace buffer subsystem initialization.
- * @note    Internal use only.
- *
- * @param[out] tbp      pointer to the @p ch__trace_buffer_t structure
- *
- * @notapi
- */
-static inline void __trace_object_init(trace_buffer_t *tbp) {
-  unsigned i;
-
-  tbp->suspended = (uint16_t)~CH_DBG_TRACE_MASK;
-  tbp->size      = CH_DBG_TRACE_BUFFER_SIZE;
-  tbp->ptr       = &tbp->buffer[0];
-  for (i = 0U; i < (unsigned)CH_DBG_TRACE_BUFFER_SIZE; i++) {
-    tbp->buffer[i].type = CH_TRACE_TYPE_UNUSED;
-  }
-}
-#endif
 
 #endif /* CHTRACE_H */
 

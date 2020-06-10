@@ -99,7 +99,7 @@
 #include "chdebug.h"
 #include "chtime.h"
 #include "chtrace.h"
-#include "chcore.h"
+#include "chport.h"
 #include "chtm.h"
 #include "chstats.h"
 #include "chobjects.h"

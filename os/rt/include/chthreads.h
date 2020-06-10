@@ -274,7 +274,7 @@ extern "C" {
   */
 static inline thread_t *chThdGetSelfX(void) {
 
-  return currcore->rlist.current;
+  return __sch_get_currthread(currcore);
 }
 
 /**

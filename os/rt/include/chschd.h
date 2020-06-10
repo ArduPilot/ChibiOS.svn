@@ -127,14 +127,19 @@
  *
  * @notapi
  */
-#define firstprio(rlp)  ((rlp)->next->prio)
+#define firstprio(rlp)                  ((rlp)->next->prio)
 
 /**
- * @brief   Current thread pointer access macro.
+ * @brief   Current thread pointer get macro.
  * @note    This macro is not meant to be used in the application code but
  *          only from within the kernel, use @p chThdGetSelfX() instead.
  */
-#define currthread      currcore->rlist.current
+#define __sch_get_currthread(oip)       (oip)->rlist.current
+
+/**
+ * @brief   Current thread pointer set macro.
+ */
+#define __sch_set_currthread(oip, tp)   (oip)->rlist.current = (tp)
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -148,10 +153,6 @@ extern "C" {
 #endif
   void chSchObjectInit(os_instance_t *oip,
                        const os_instance_config_t *oicp);
-  thread_t *__sch_ready_behind(os_instance_t *oip, thread_t *tp);
-  thread_t *__sch_ready_ahead(thread_t *tp);
-  void __sch_reschedule_behind(void);
-  void __sch_reschedule_ahead(void);
   thread_t *chSchReadyI(thread_t *tp);
   void chSchGoSleepS(tstate_t newstate);
   msg_t chSchGoSleepTimeoutS(tstate_t newstate, sysinterval_t timeout);
@@ -159,6 +160,9 @@ extern "C" {
   void chSchRescheduleS(void);
   bool chSchIsPreemptionRequired(void);
   void chSchDoPreemption(void);
+  void chSchPreemption(void);
+  void chSchDoYieldS(void);
+  thread_t *chSchSelectFirstI(void);
 #if CH_CFG_OPTIMIZE_SPEED == FALSE
   void queue_prio_insert(thread_t *tp, threads_queue_t *tqp);
   void queue_insert(thread_t *tp, threads_queue_t *tqp);
@@ -316,87 +320,6 @@ static inline thread_t *queue_dequeue(thread_t *tp) {
   return tp;
 }
 #endif /* CH_CFG_OPTIMIZE_SPEED == TRUE */
-
-/**
- * @brief   Determines if the current thread must reschedule.
- * @details This function returns @p true if there is a ready thread with
- *          higher priority.
- *
- * @return              The priorities situation.
- * @retval false        if rescheduling is not necessary.
- * @retval true         if there is a ready thread at higher priority.
- *
- * @iclass
- */
-static inline bool chSchIsRescRequiredI(void) {
-
-  chDbgCheckClassI();
-
-  return firstprio(&currcore->rlist.queue) > currthread->prio;
-}
-
-/**
- * @brief   Determines if yielding is possible.
- * @details This function returns @p true if there is a ready thread with
- *          equal or higher priority.
- *
- * @return              The priorities situation.
- * @retval false        if yielding is not possible.
- * @retval true         if there is a ready thread at equal or higher priority.
- *
- * @sclass
- */
-static inline bool chSchCanYieldS(void) {
-
-  chDbgCheckClassS();
-
-  return firstprio(&currcore->rlist.queue) >= currthread->prio;
-}
-
-/**
- * @brief   Yields the time slot.
- * @details Yields the CPU control to the next thread in the ready list with
- *          equal or higher priority, if any.
- *
- * @sclass
- */
-static inline void chSchDoYieldS(void) {
-
-  chDbgCheckClassS();
-
-  if (chSchCanYieldS()) {
-    __sch_reschedule_behind();
-  }
-}
-
-/**
- * @brief   Inline-able preemption code.
- * @note    Not a user function, it is meant to be invoked from within
- *          the port layer in the IRQ-related preemption code.
- *
- * @special
- */
-static inline void chSchPreemption(void) {
-  tprio_t p1 = firstprio(&currcore->rlist.queue);
-  tprio_t p2 = currthread->prio;
-
-#if CH_CFG_TIME_QUANTUM > 0
-  if (currthread->ticks > (tslices_t)0) {
-    if (p1 > p2) {
-      __sch_reschedule_ahead();
-    }
-  }
-  else {
-    if (p1 >= p2) {
-      __sch_reschedule_behind();
-    }
-  }
-#else /* CH_CFG_TIME_QUANTUM == 0 */
-  if (p1 > p2) {
-    __sch_reschedule_ahead();
-  }
-#endif /* CH_CFG_TIME_QUANTUM == 0 */
-}
 
 #endif /* CHSCHD_H */
 

@@ -40,15 +40,17 @@
 /*===========================================================================*/
 
 /**
- * @brief   Global OS structure.
+ * @brief   Default OS instance.
  */
-ch_system_t ch;
+os_instance_t ch;
+
+os_instance_t * volatile chp = &ch;
 
 #if (CH_CFG_NO_IDLE_THREAD == FALSE) || defined(__DOXYGEN__)
 /**
- * @brief   Core 0 idle thread working area.
+ * @brief   Default instance idle thread working area.
  */
-THD_WORKING_AREA(ch_c0_idle_thread_wa, PORT_IDLE_THREAD_STACK_SIZE);
+THD_WORKING_AREA(ch_idle_thread_wa, PORT_IDLE_THREAD_STACK_SIZE);
 #endif
 
 /*===========================================================================*/
@@ -89,17 +91,17 @@ void chSysInit(void) {
   {
     extern stkalign_t __main_thread_stack_base__,
                       __main_thread_stack_end__;
-    static const os_instance_config_t c0_cfg = {
+    static const os_instance_config_t default_cfg = {
       .name             = "c0",
       .mainthread_base  = &__main_thread_stack_base__,
       .mainthread_end   = &__main_thread_stack_end__,
 #if CH_CFG_NO_IDLE_THREAD == FALSE
-      .idlethread_base  = THD_WORKING_AREA_BASE(ch_c0_idle_thread_wa),
-      .idlethread_end   = THD_WORKING_AREA_END(ch_c0_idle_thread_wa)
+      .idlethread_base  = THD_WORKING_AREA_BASE(ch_idle_thread_wa),
+      .idlethread_end   = THD_WORKING_AREA_END(ch_idle_thread_wa)
 #endif
     };
 
-    chSchObjectInit(&ch.instance[0], &c0_cfg);
+    chSchObjectInit(&ch, &default_cfg);
   }
 
   /* It is alive now.*/
@@ -161,6 +163,7 @@ void chSysHalt(const char *reason) {
  * @iclass
  */
 bool chSysIntegrityCheckI(unsigned testmask) {
+  os_instance_t *oip = currcore;
   cnt_t n;
 
   chDbgCheckClassI();
@@ -171,15 +174,15 @@ bool chSysIntegrityCheckI(unsigned testmask) {
 
     /* Scanning the ready list forward.*/
     n = (cnt_t)0;
-    tp = currcore->rlist.queue.next;
-    while (tp != (thread_t *)&currcore->rlist.queue) {
+    tp = oip->rlist.queue.next;
+    while (tp != (thread_t *)&oip->rlist.queue) {
       n++;
       tp = tp->queue.next;
     }
 
     /* Scanning the ready list backward.*/
-    tp = currcore->rlist.queue.prev;
-    while (tp != (thread_t *)&currcore->rlist.queue) {
+    tp = oip->rlist.queue.prev;
+    while (tp != (thread_t *)&oip->rlist.queue) {
       n--;
       tp = tp->queue.prev;
     }
@@ -196,15 +199,15 @@ bool chSysIntegrityCheckI(unsigned testmask) {
 
     /* Scanning the timers list forward.*/
     n = (cnt_t)0;
-    vtp = currcore->vtlist.next;
-    while (vtp != (virtual_timer_t *)&currcore->vtlist) {
+    vtp = oip->vtlist.next;
+    while (vtp != (virtual_timer_t *)&oip->vtlist) {
       n++;
       vtp = vtp->next;
     }
 
     /* Scanning the timers list backward.*/
-    vtp = currcore->vtlist.prev;
-    while (vtp != (virtual_timer_t *)&currcore->vtlist) {
+    vtp = oip->vtlist.prev;
+    while (vtp != (virtual_timer_t *)&oip->vtlist) {
       n--;
       vtp = vtp->prev;
     }
@@ -221,15 +224,15 @@ bool chSysIntegrityCheckI(unsigned testmask) {
 
     /* Scanning the ready list forward.*/
     n = (cnt_t)0;
-    tp = currcore->rlist.newer;
-    while (tp != (thread_t *)&currcore->rlist) {
+    tp = oip->rlist.newer;
+    while (tp != (thread_t *)&oip->rlist) {
       n++;
       tp = tp->newer;
     }
 
     /* Scanning the ready list backward.*/
-    tp = currcore->rlist.older;
-    while (tp != (thread_t *)&currcore->rlist) {
+    tp = oip->rlist.older;
+    while (tp != (thread_t *)&oip->rlist) {
       n--;
       tp = tp->older;
     }
@@ -262,18 +265,21 @@ bool chSysIntegrityCheckI(unsigned testmask) {
  * @iclass
  */
 void chSysTimerHandlerI(void) {
+#if (CH_CFG_TIME_QUANTUM > 0) || (CH_DBG_THREADS_PROFILING == TRUE)
+  thread_t *currtp = chThdGetSelfX();
+#endif
 
   chDbgCheckClassI();
 
 #if CH_CFG_TIME_QUANTUM > 0
   /* Running thread has not used up quantum yet? */
-  if (currp->ticks > (tslices_t)0) {
+  if (currtp->ticks > (tslices_t)0) {
     /* Decrement remaining quantum.*/
-    currp->ticks--;
+    currtp->ticks--;
   }
 #endif
 #if CH_DBG_THREADS_PROFILING == TRUE
-  currp->time++;
+  currtp->time++;
 #endif
   chVTDoTickI();
   CH_CFG_SYSTEM_TICK_HOOK();

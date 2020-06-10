@@ -52,18 +52,6 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-#if !defined(PORT_CORES_NUMBER)
-#define PORT_CORES_NUMBER                   1
-#endif
-
-#if CH_CFG_INSTANCES_NUMBER < 1
-#error "CH_CFG_INSTANCES_NUMBER must be greater than zero"
-#endif
-
-#if CH_CFG_INSTANCES_NUMBER > PORT_CORES_NUMBER
-#error "CH_CFG_INSTANCES_NUMBER greater than PORT_CORES_NUMBER"
-#endif
-
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/
@@ -71,11 +59,7 @@
 /**
  * @brief   Access to current core's instance structure.
  */
-#if !defined(PORT_INSTANCE_ACCESS) || defined(__DOXYGEN__)
-#define currcore                            (&ch.instance[0])
-#else
 #define currcore                            PORT_INSTANCE_ACCESS
-#endif
 
 /*===========================================================================*/
 /* Module macros.                                                            */
@@ -297,7 +281,8 @@
 /*===========================================================================*/
 
 #if !defined(__DOXYGEN__)
-extern ch_system_t ch;
+extern os_instance_t ch;
+extern os_instance_t * volatile chp;
 extern stkalign_t ch_idle_thread_wa[];
 #endif
 
@@ -477,7 +462,7 @@ static inline void chSysUnconditionalUnlock(void) {
   }
 }
 
-#if (CH_CFG_LOOSE_INSTANCES == FALSE) || defined(__DOXYGEN__)
+#if (CH_CFG_SMP_MODE != FALSE) || defined(__DOXYGEN__)
 /**
  * @brief   Notifies an OS instance to check for reschedule.
  * @details An OS instance is notified to check if a reschedule is required,

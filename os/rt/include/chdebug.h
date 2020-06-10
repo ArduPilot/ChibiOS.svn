@@ -84,16 +84,9 @@ typedef struct ch_system_debug {
 /* Module macros.                                                            */
 /*===========================================================================*/
 
-#if CH_DBG_SYSTEM_STATE_CHECK == TRUE
-#define __dbg_enter_lock() (currcore->dbg.lock_cnt = (cnt_t)1)
-#define __dbg_leave_lock() (currcore->dbg.lock_cnt = (cnt_t)0)
-#endif
-
 /* When the state checker feature is disabled then the following functions
    are replaced by an empty macro.*/
 #if CH_DBG_SYSTEM_STATE_CHECK == FALSE
-#define __dbg_enter_lock()
-#define __dbg_leave_lock()
 #define __dbg_check_disable()
 #define __dbg_check_suspend()
 #define __dbg_check_enable()

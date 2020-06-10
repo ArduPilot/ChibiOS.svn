@@ -49,12 +49,8 @@
 #endif
 
 /* System settings checks.*/
-#if !defined(CH_CFG_INSTANCES_NUMBER)
-#error "CH_CFG_INSTANCES_NUMBER not defined in chconf.h"
-#endif
-
-#if !defined(CH_CFG_LOOSE_INSTANCES)
-#error "CH_CFG_LOOSE_INSTANCES not defined in chconf.h"
+#if !defined(CH_CFG_SMP_MODE)
+#error "CH_CFG_SMP_MODE not defined in chconf.h"
 #endif
 
 /* System timers checks.*/
@@ -253,12 +249,6 @@
 
 #if !defined(CH_CFG_TRACE_HOOK)
 #error "CH_CFG_TRACE_HOOK not defined in chconf.h"
-#endif
-
-/* Enforcement of options under special conditions.*/
-#if CH_CFG_INSTANCES_NUMBER == 1
-#undef CH_CFG_LOOSE_INSTANCES
-#define CH_CFG_LOOSE_INSTANCES              TRUE
 #endif
 
 /*===========================================================================*/

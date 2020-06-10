@@ -18,7 +18,7 @@
 */
 
 /**
- * @file    chsem.c
+ * @file    rt/src/chsem.c
  * @brief   Semaphores code.
  *
  * @addtogroup semaphores
@@ -141,7 +141,6 @@ void chSemResetWithMessage(semaphore_t *sp, cnt_t n, msg_t msg) {
  * @iclass
  */
 void chSemResetWithMessageI(semaphore_t *sp, cnt_t n, msg_t msg) {
-  cnt_t cnt;
 
   chDbgCheckClassI();
   chDbgCheck((sp != NULL) && (n >= (cnt_t)0));
@@ -149,9 +148,8 @@ void chSemResetWithMessageI(semaphore_t *sp, cnt_t n, msg_t msg) {
               ((sp->cnt < (cnt_t)0) && queue_notempty(&sp->queue)),
               "inconsistent semaphore");
 
-  cnt = sp->cnt;
   sp->cnt = n;
-  while (++cnt <= (cnt_t)0) {
+  while (queue_notempty(&sp->queue)) {
     chSchReadyI(queue_lifo_remove(&sp->queue))->u.rdymsg = msg;
   }
 }
@@ -199,11 +197,12 @@ msg_t chSemWaitS(semaphore_t *sp) {
               "inconsistent semaphore");
 
   if (--sp->cnt < (cnt_t)0) {
-    currthread->u.wtsemp = sp;
-    sem_insert(currthread, &sp->queue);
+    thread_t *currtp = chThdGetSelfX();
+    currtp->u.wtsemp = sp;
+    sem_insert(currtp, &sp->queue);
     chSchGoSleepS(CH_STATE_WTSEM);
 
-    return currthread->u.rdymsg;
+    return currtp->u.rdymsg;
   }
 
   return MSG_OK;
@@ -271,8 +270,9 @@ msg_t chSemWaitTimeoutS(semaphore_t *sp, sysinterval_t timeout) {
 
       return MSG_TIMEOUT;
     }
-    currthread->u.wtsemp = sp;
-    sem_insert(currthread, &sp->queue);
+    thread_t *currtp = chThdGetSelfX();
+    currtp->u.wtsemp = sp;
+    sem_insert(currtp, &sp->queue);
 
     return chSchGoSleepTimeoutS(CH_STATE_WTSEM, timeout);
   }
@@ -387,11 +387,11 @@ msg_t chSemSignalWait(semaphore_t *sps, semaphore_t *spw) {
     chSchReadyI(queue_fifo_remove(&sps->queue))->u.rdymsg = MSG_OK;
   }
   if (--spw->cnt < (cnt_t)0) {
-    thread_t *ctp = currthread;
-    sem_insert(ctp, &spw->queue);
-    ctp->u.wtsemp = spw;
+    thread_t *currtp = chThdGetSelfX();
+    sem_insert(currtp, &spw->queue);
+    currtp->u.wtsemp = spw;
     chSchGoSleepS(CH_STATE_WTSEM);
-    msg = ctp->u.rdymsg;
+    msg = currtp->u.rdymsg;
   }
   else {
     chSchRescheduleS();

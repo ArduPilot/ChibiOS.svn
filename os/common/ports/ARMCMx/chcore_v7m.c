@@ -64,7 +64,7 @@ void port_syslock_noinline(void) {
 
 uint32_t port_get_s_psp(void) {
 
-  return (uint32_t)currthread->ctx.syscall.psp;
+  return (uint32_t)currp->ctx.syscall.psp;
 }
 
 __attribute__((weak))
@@ -124,13 +124,15 @@ void SVC_Handler(void) {
 /*lint -restore*/
   uint32_t psp = __get_PSP();
 
-  chDbgAssert(((uint32_t)__builtin_return_address(0) & 4U) != 0U,
-              "not process");
-
 #if PORT_USE_SYSCALL == TRUE
   uint32_t control;
   /* Caller context.*/
   struct port_extctx *ectxp = (struct port_extctx *)psp;
+
+#if defined(__GNUC__)
+  chDbgAssert(((uint32_t)__builtin_return_address(0) & 4U) != 0U,
+              "not process");
+#endif
 
   /* Checking if the SVC instruction has been used from privileged or
      non-privileged mode.*/
@@ -142,7 +144,7 @@ void SVC_Handler(void) {
     struct port_extctx *newctxp;
 
     /* Supervisor PSP from the thread context structure.*/
-    s_psp = (uint32_t)currthread->ctx.syscall.psp;
+    s_psp = (uint32_t)currp->ctx.syscall.psp;
 
     /* Pushing the port_linkctx into the supervisor stack.*/
     s_psp -= sizeof (struct port_linkctx);
@@ -246,14 +248,15 @@ void PendSV_Handler(void) {
  * @brief   Port-related initialization code.
  *
  * @param[in, out] oip  pointer to the @p os_instance_t structure
+ *
+ * @notapi
  */
 void port_init(os_instance_t *oip) {
 
   (void)oip;
 
   /* Starting in a known IRQ configuration.*/
-  __set_BASEPRI(CORTEX_BASEPRI_DISABLED);
-  __enable_irq();
+  port_suspend();
 
   /* Initializing priority grouping.*/
   NVIC_SetPriorityGrouping(CORTEX_PRIGROUP_INIT);
@@ -277,7 +280,7 @@ void port_init(os_instance_t *oip) {
 
     /* Setting up the guard page on the main() function stack base
        initially.*/
-    mpuConfigureRegion(PORT_USE_MPU_REGION,
+    mpuConfigureRegion(PORT_USE_GUARD_MPU_REGION,
                        &__main_thread_stack_base__,
                        MPU_RASR_ATTR_AP_NA_NA |
                        MPU_RASR_ATTR_NON_CACHEABLE |
@@ -300,7 +303,7 @@ void port_init(os_instance_t *oip) {
  */
 void _port_set_region(void) {
 
-  mpuSetRegionAddress(PORT_USE_MPU_REGION,
+  mpuSetRegionAddress(PORT_USE_GUARD_MPU_REGION,
                       chThdGetSelfX()->wabase);
 }
 #endif
@@ -308,7 +311,7 @@ void _port_set_region(void) {
 /**
  * @brief   Exception exit redirection to _port_switch_from_isr().
  */
-void _port_irq_epilogue(void) {
+void __port_irq_epilogue(void) {
 
   port_lock_from_isr();
   if ((SCB->ICSR & SCB_ICSR_RETTOBASE_Msk) != 0U) {
@@ -331,7 +334,7 @@ void _port_irq_epilogue(void) {
         __set_CONTROL(control & ~1U);
 
         /* Switching to S-PSP taking it from the thread context.*/
-        s_psp = (uint32_t)currthread->ctx.syscall.psp;
+        s_psp = (uint32_t)currp->ctx.syscall.psp;
 
         /* Pushing the middle context for returning to the original frame
            and mode.*/
@@ -376,12 +379,12 @@ void _port_irq_epilogue(void) {
        required or not.*/
     if (chSchIsPreemptionRequired()) {
       /* Preemption is required we need to enforce a context switch.*/
-      ectxp->pc = (uint32_t)_port_switch_from_isr;
+      ectxp->pc = (uint32_t)__port_switch_from_isr;
     }
     else {
       /* Preemption not required, we just need to exit the exception
          atomically.*/
-      ectxp->pc = (uint32_t)_port_exit_from_isr;
+      ectxp->pc = (uint32_t)__port_exit_from_isr;
     }
 
     /* Note, returning without unlocking is intentional, this is done in

@@ -128,9 +128,14 @@
 
 /* Handling a GCC problem impacting ARMv6-M.*/
 #if defined(__GNUC__) && !defined(PORT_IGNORE_GCC_VERSION_CHECK)
-#if __GNUC__ > 5
-#warning "This compiler has a know problem with Cortex-M0, see bugs: 88167, 88656."
-#warning "*** Use GCC version 5 or below ***"
+#if ( __GNUC__ > 5 ) && ( __GNUC__ < 10 )
+#define GCC_VERSION ( __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ )
+#if ( __GNUC__ == 7 ) && ( GCC_VERSION >= 70500 )
+#elif ( __GNUC__ == 8 ) && ( GCC_VERSION >= 80400 )
+#elif ( __GNUC__ == 9 ) && ( GCC_VERSION >= 90300 )
+#else
+#warning "This compiler has a know problem with Cortex-M0, see GCC bugs: 88167, 88656."
+#endif
 #endif
 #endif
 
@@ -327,7 +332,7 @@ struct port_context {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void port_init(void);
+  void port_init(os_instance_t *oip);
   void _port_irq_epilogue(uint32_t lr);
   void _port_switch(thread_t *ntp, thread_t *otp);
   void _port_thread_start(void);

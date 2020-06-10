@@ -29,7 +29,27 @@
 #define CHCONF_H
 
 #define _CHIBIOS_RT_CONF_
-#define _CHIBIOS_RT_CONF_VER_6_1_
+#define _CHIBIOS_RT_CONF_VER_7_0_
+
+/*===========================================================================*/
+/**
+ * @name System settings
+ * @{
+ */
+/*===========================================================================*/
+
+/**
+ * @brief   Handling of instances.
+ * @note    If enabled then threads assigned to various instances can
+ *          interact each other using the same synchronization objects.
+ *          If disabled then each OS instance is a separate world, no
+ *          direct interactions are handled by the OS.
+ */
+#if !defined(CH_CFG_SMP_MODE)
+#define CH_CFG_SMP_MODE                     FALSE
+#endif
+
+/** @} */
 
 /*===========================================================================*/
 /**
@@ -148,6 +168,15 @@
  * @{
  */
 /*===========================================================================*/
+
+/**
+ * @brief   Virtual Timers reload APIs.
+ * @note    If enabled then the virtual timers reload APIs are included in
+ *          the kernel.
+ */
+#if !defined(CH_CFG_USE_VT_RELOAD)
+#define CH_CFG_USE_VT_RELOAD                TRUE
+#endif
 
 /**
  * @brief   Time Measurement APIs.
@@ -643,6 +672,22 @@
 }
 
 /**
+ * @brief   System instance structure extension.
+ * @details User fields added to the end of the @p ch_instance_t structure.
+ */
+#define CH_CFG_INSTANCE_EXTRA_FIELDS                                        \
+  /* Add threads custom fields here.*/
+
+/**
+ * @brief   System instance initialization hook.
+ * @details User initialization code added to the @p chSchObjectInit()
+ *          function.
+ */
+#define CH_CFG_INSTANCE_INIT_HOOK(oip) {                                    \
+  /* Add OS instance initialization code here.*/                            \
+}
+
+/**
  * @brief   Threads descriptor structure extension.
  * @details User fields added to the end of the @p thread_t structure.
  */
@@ -754,3 +799,4 @@
 #endif  /* CHCONF_H */
 
 /** @} */
+

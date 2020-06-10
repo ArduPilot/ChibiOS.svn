@@ -104,8 +104,12 @@ void PendSV_Handler(void) {
 
 /**
  * @brief   Port-related initialization code.
+ *
+ * @param[in, out] oip  pointer to the @p os_instance_t structure
  */
-void port_init(void) {
+void port_init(os_instance_t *oip) {
+
+  (void)oip;
 
   NVIC_SetPriority(PendSV_IRQn, CORTEX_PRIORITY_PENDSV);
 }

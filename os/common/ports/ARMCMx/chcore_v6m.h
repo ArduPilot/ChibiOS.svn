@@ -332,7 +332,7 @@ struct port_context {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void port_init(void);
+  void port_init(os_instance_t *oip);
   void _port_irq_epilogue(uint32_t lr);
   void _port_switch(thread_t *ntp, thread_t *otp);
   void _port_thread_start(void);

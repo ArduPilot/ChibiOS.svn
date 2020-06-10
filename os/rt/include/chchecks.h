@@ -44,8 +44,13 @@
 #error "invalid configuration file"
 #endif
 
-#if !defined(_CHIBIOS_RT_CONF_VER_6_1_)
+#if !defined(_CHIBIOS_RT_CONF_VER_7_0_)
 #error "obsolete or unknown configuration file"
+#endif
+
+/* System settings checks.*/
+#if !defined(CH_CFG_SMP_MODE)
+#error "CH_CFG_SMP_MODE not defined in chconf.h"
 #endif
 
 /* System timers checks.*/
@@ -69,6 +74,10 @@
 #error "CH_CFG_ST_TIMEDELTA not defined in chconf.h"
 #endif
 
+#if !defined(CH_CFG_USE_VT_RELOAD)
+#error "CH_CFG_USE_VT_RELOAD not defined in chconf.h"
+#endif
+
 /* Kernel parameters and options checks.*/
 #if !defined(CH_CFG_TIME_QUANTUM)
 #error "CH_CFG_TIME_QUANTUM not defined in chconf.h"
@@ -88,6 +97,10 @@
 #endif
 
 /* Subsystem options checks.*/
+#if !defined(CH_CFG_USE_VT_RELOAD)
+#error "CH_CFG_USE_VT_RELOAD not defined in chconf.h"
+#endif
+
 #if !defined(CH_CFG_USE_TM)
 #error "CH_CFG_USE_TM not defined in chconf.h"
 #endif
@@ -182,12 +195,20 @@
 #endif
 
 /* System hooks checks.*/
+#if !defined(CH_CFG_SYSTEM_EXTRA_FIELDS)
+#error "CH_CFG_SYSTEM_EXTRA_FIELDS not defined in chconf.h"
+#endif
+
+#if !defined(CH_CFG_INSTANCE_EXTRA_FIELDS)
+#error "CH_CFG_INSTANCE_EXTRA_FIELDS not defined in chconf.h"
+#endif
+
 #if !defined(CH_CFG_SYSTEM_INIT_HOOK)
 #error "CH_CFG_SYSTEM_INIT_HOOK not defined in chconf.h"
 #endif
 
-#if !defined(CH_CFG_SYSTEM_EXTRA_FIELDS)
-#error "CH_CFG_SYSTEM_EXTRA_FIELDS not defined in chconf.h"
+#if !defined(CH_CFG_INSTANCE_INIT_HOOK)
+#error "CH_CFG_INSTANCE_INIT_HOOK not defined in chconf.h"
 #endif
 
 #if !defined(CH_CFG_THREAD_EXTRA_FIELDS)

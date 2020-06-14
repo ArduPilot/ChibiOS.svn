@@ -250,7 +250,7 @@ void chVTDoSetI(virtual_timer_t *vtp, sysinterval_t delay,
     delta = chTimeDiffX(vtlp->lasttime, now) + delay;
 
     if (delta < chTimeDiffX(vtlp->lasttime, now)) {
-      /* Scenario where a very large delay excedeed the numeric range, it
+      /* Scenario where a very large delay exceeded the numeric range, it
          requires a special handling. We need to skip the first element and
          adjust the delta to wrap back in the previous numeric range.*/
       delta -= p->delta;

@@ -175,7 +175,7 @@
  *          the kernel.
  */
 #if !defined(CH_CFG_USE_VT_RELOAD)
-#define CH_CFG_USE_VT_RELOAD                TRUE
+#define CH_CFG_USE_VT_RELOAD                FALSE
 #endif
 
 /**

@@ -551,33 +551,63 @@ public class ChibiView extends ViewPart {
       switch (typen) {
       case 1:
         // Searches the current thread into the threads map.
-        String currentaddr = map.get("sw_ntp");
-        HashMap<String, String> thread = lhmthreads.get(currentaddr);
-        String currentname;
-        if (thread != null)
-          currentname = thread.get("name");
-        else
-          currentname = "";
-        String current = makeHex(currentaddr);
-        String wtobjp = makeHex(map.get("sw_wtobjp"));
+        {
+          String tpaddr = map.get("sw_tp");
+          HashMap<String, String> thread = lhmthreads.get(tpaddr);
+          String name;
+          if (thread != null)
+            name = thread.get("name");
+          else
+            name = "";
+          String tp = makeHex(tpaddr);
+          String msg = makeHex(map.get("sw_msg"));
 
-        line = new String[] {
-          "",
-          entry.getKey(),
-          "Switch",
-          time,
-          rtstamp,
-          prev,
-          prevname,
-          state,
-          wtobjp,
-          current,
-          currentname
-        };
-        prev = current;
-        prevname = currentname;
+          line = new String[] {
+            "",
+            entry.getKey(),
+            "Ready",
+            time,
+            rtstamp,
+            tp,
+            name,
+            "",
+            msg,
+            "",
+            ""
+          };
+        }
         break;
       case 2:
+        // Searches the current thread into the threads map.
+        {
+          String currentaddr = map.get("sw_ntp");
+          HashMap<String, String> thread = lhmthreads.get(currentaddr);
+          String currentname;
+          if (thread != null)
+            currentname = thread.get("name");
+          else
+            currentname = "";
+          String current = makeHex(currentaddr);
+          String wtobjp = makeHex(map.get("sw_wtobjp"));
+
+          line = new String[] {
+            "",
+            entry.getKey(),
+            "Switch",
+            time,
+            rtstamp,
+            prev,
+            prevname,
+            state,
+            wtobjp,
+            current,
+            currentname
+          };
+          prev = current;
+          prevname = currentname;
+        }
+        break;
+      case 3:
         line = new String[] {
           "",
           entry.getKey(),
@@ -592,7 +622,7 @@ public class ChibiView extends ViewPart {
           ""
         };
         break;
-      case 3:
+      case 4:
         line = new String[] {
           "",
           entry.getKey(),
@@ -607,7 +637,7 @@ public class ChibiView extends ViewPart {
           ""
         };
         break;
-      case 4:
+      case 5:
         line = new String[] {
           "",
           entry.getKey(),
@@ -622,7 +652,7 @@ public class ChibiView extends ViewPart {
           ""
         };
         break;
-      case 5:
+      case 6:
         line = new String[] {
           "",
           entry.getKey(),
@@ -715,7 +745,7 @@ public class ChibiView extends ViewPart {
     refreshAction.setDisabledImageDescriptor(ResourceManager.getPluginImageDescriptor("org.eclipse.cdt.ui", "/icons/dlcl16/refresh_nav.gif"));
     refreshAction.setImageDescriptor(ResourceManager.getPluginImageDescriptor("org.eclipse.cdt.ui", "/icons/elcl16/refresh_nav.gif"));
     refreshAction.setText("Refresh");
-    refreshAction.setToolTipText("Refresh timers list");
+    refreshAction.setToolTipText("Refresh current view");
   }
 
   private void showMessage(String message) {

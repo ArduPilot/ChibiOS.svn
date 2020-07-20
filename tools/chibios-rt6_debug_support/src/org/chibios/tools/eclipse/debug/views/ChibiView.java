@@ -715,7 +715,7 @@ public class ChibiView extends ViewPart {
     refreshAction.setDisabledImageDescriptor(ResourceManager.getPluginImageDescriptor("org.eclipse.cdt.ui", "/icons/dlcl16/refresh_nav.gif"));
     refreshAction.setImageDescriptor(ResourceManager.getPluginImageDescriptor("org.eclipse.cdt.ui", "/icons/elcl16/refresh_nav.gif"));
     refreshAction.setText("Refresh");
-    refreshAction.setToolTipText("Refresh timers list");
+    refreshAction.setToolTipText("Refresh current view");
   }
 
   private void showMessage(String message) {

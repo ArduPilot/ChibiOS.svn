@@ -217,8 +217,18 @@ public class KernelObjects extends DebugProxy {
       n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->flags");
       map.put("flags", Long.toString(n));
 
-      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->prio");
-      map.put("prio", Long.toString(n));
+      try {
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->hdr.pqueue.prio");
+        map.put("prio", Long.toString(n));
+      } catch (DebugProxyException e) {
+      	// Fallback for older ChibiOS versions.
+        try {
+          n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->prio");
+          map.put("prio", Long.toString(n));
+        } catch (DebugProxyException ex) {
+          map.put("prio", "-");
+        }
+      }
 
       try {
         n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->refs");
@@ -315,7 +325,12 @@ public class KernelObjects extends DebugProxy {
     while (true) {
       
       // Fetching next timer in the delta list (next link).
-      current = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->next");
+      try {
+        current = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->dlist.next");
+      } catch (DebugProxyException e) {
+      	// Fallback for older ChibiOS versions.
+        current = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->next");
+      }
 
       // This can happen if the kernel is not initialized yet or if the
       // delta list is corrupted.
@@ -325,7 +340,13 @@ public class KernelObjects extends DebugProxy {
       // TODO: integrity check on the pointer value (alignment, range).
 
       // The previous timer in the delta list is fetched as a integrity check.
-      String prev = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->prev");
+      String prev;
+      try {
+        prev = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->dlist.prev");
+      } catch (DebugProxyException e) {
+      	// Fallback for older ChibiOS versions.
+        prev = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->prev");
+      }
       if (prev.compareTo("0") == 0)
         throw new DebugProxyException("ChibiOS/RT delta list integrity check failed, NULL pointer");
       if (previous.compareTo(prev) != 0)
@@ -340,7 +361,13 @@ public class KernelObjects extends DebugProxy {
 
       // Fetch of the various fields in the virtual_timer_t structure. Some fields
       // are optional so are placed within try-catch.
-      long n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->delta");
+      long n;
+      try {
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->dlist.delta");
+      } catch (DebugProxyException e) {
+      	// Fallback for older ChibiOS versions.
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->delta");
+      }
       map.put("delta", Long.toString(n));
 
       n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->func");
@@ -496,12 +523,20 @@ public class KernelObjects extends DebugProxy {
     LinkedHashMap<String, String> map = new LinkedHashMap<String, String>(16);
 
     try {
+        String vt_lasttime = evaluateExpression("(uint32_t)ch.vtlist.dlist.delta");
+        if (vt_lasttime == null)
+          return null;
+        map.put("vt_lasttime", vt_lasttime);
+    } catch (DebugProxyException e) {
+    	// Fallback for older ChibiOS versions.
+      try {
         String vt_lasttime = evaluateExpression("(uint32_t)ch.vtlist.delta");
         if (vt_lasttime == null)
           return null;
         map.put("vt_lasttime", vt_lasttime);
-    } catch (DebugProxyException e1) {
-      throw new DebugProxyException("virtual timers list not found on target");
+      } catch (DebugProxyException ex) {
+        throw new DebugProxyException("virtual timers list not found on target");
+      }
     } catch (Exception e) {
       return null;
     }

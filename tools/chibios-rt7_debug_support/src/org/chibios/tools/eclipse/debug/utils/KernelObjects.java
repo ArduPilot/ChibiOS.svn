@@ -217,7 +217,7 @@ public class KernelObjects extends DebugProxy {
       n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->flags");
       map.put("flags", Long.toString(n));
 
-      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->prio");
+      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->hdr.pqueue.prio");
       map.put("prio", Long.toString(n));
 
       try {
@@ -315,7 +315,7 @@ public class KernelObjects extends DebugProxy {
     while (true) {
       
       // Fetching next timer in the delta list (next link).
-      current = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->next");
+      current = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->dlist.next");
 
       // This can happen if the kernel is not initialized yet or if the
       // delta list is corrupted.
@@ -325,7 +325,7 @@ public class KernelObjects extends DebugProxy {
       // TODO: integrity check on the pointer value (alignment, range).
 
       // The previous timer in the delta list is fetched as a integrity check.
-      String prev = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->prev");
+      String prev = evaluateExpression("(uint32_t)((struct ch_virtual_timer *)" + current + ")->dlist.prev");
       if (prev.compareTo("0") == 0)
         throw new DebugProxyException("ChibiOS/RT delta list integrity check failed, NULL pointer");
       if (previous.compareTo(prev) != 0)
@@ -340,7 +340,7 @@ public class KernelObjects extends DebugProxy {
 
       // Fetch of the various fields in the virtual_timer_t structure. Some fields
       // are optional so are placed within try-catch.
-      long n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->delta");
+      long n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->dlist.delta");
       map.put("delta", Long.toString(n));
 
       n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->func");
@@ -505,7 +505,7 @@ public class KernelObjects extends DebugProxy {
     LinkedHashMap<String, String> map = new LinkedHashMap<String, String>(16);
 
     try {
-        String vt_lasttime = evaluateExpression("(uint32_t)ch.vtlist.delta");
+        String vt_lasttime = evaluateExpression("(uint32_t)ch.vtlist.dlist.delta");
         if (vt_lasttime == null)
           return null;
         map.put("vt_lasttime", vt_lasttime);

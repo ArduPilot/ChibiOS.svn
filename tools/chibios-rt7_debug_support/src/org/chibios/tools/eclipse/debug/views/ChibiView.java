@@ -169,6 +169,10 @@ public class ChibiView extends ViewPart {
     tblclmnGlobalVariableValue.setWidth(300);
     tblclmnGlobalVariableValue.setText("Value");
 
+    TableColumn tblclmnGlobalVariableFiller = new TableColumn(globalTable, SWT.FILL);
+    tblclmnGlobalVariableFiller.setWidth(1);
+    tblclmnGlobalVariableFiller.setText("");
+
     tbtmThreads = new CTabItem(tabFolder, SWT.NONE);
     tbtmThreads.setText("Threads");
 
@@ -234,6 +238,10 @@ public class ChibiView extends ViewPart {
     tblclmnThreadCumulativeTime.setWidth(192);
     tblclmnThreadCumulativeTime.setText("Cumulative Time");
 
+    TableColumn tblclmnThreadFiller = new TableColumn(threadsTable, SWT.FILL);
+    tblclmnThreadFiller.setWidth(1);
+    tblclmnThreadFiller.setText("");
+
     tbtmTimers = new CTabItem(tabFolder, SWT.NONE);
     tbtmTimers.setText("Timers");
 
@@ -262,6 +270,18 @@ public class ChibiView extends ViewPart {
     TableColumn tblclmnTimerParameter = new TableColumn(timersTable, SWT.LEFT);
     tblclmnTimerParameter.setWidth(72);
     tblclmnTimerParameter.setText("Param");
+
+    TableColumn tblclmnTimerLastDeadline = new TableColumn(timersTable, SWT.RIGHT);
+    tblclmnTimerLastDeadline.setWidth(100);
+    tblclmnTimerLastDeadline.setText("Last Deadline");
+
+    TableColumn tblclmnTimerReload = new TableColumn(timersTable, SWT.RIGHT);
+    tblclmnTimerReload.setWidth(100);
+    tblclmnTimerReload.setText("Reload");
+
+    TableColumn tblclmnTimerFiller = new TableColumn(timersTable, SWT.FILL);
+    tblclmnTimerFiller.setWidth(1);
+    tblclmnTimerFiller.setText("");
 
     tbtmTraceBuffer = new CTabItem(tabFolder, SWT.NONE);
     tbtmTraceBuffer.setText("TraceBuffer");
@@ -315,7 +335,11 @@ public class ChibiView extends ViewPart {
     TableColumn tblclmnTraceBufferCurrentName = new TableColumn(tbTable, SWT.LEFT);
     tblclmnTraceBufferCurrentName.setWidth(144);
     tblclmnTraceBufferCurrentName.setText("Name");
-    
+
+    TableColumn tblclmnTraceBufferFiller = new TableColumn(tbTable, SWT.FILL);
+    tblclmnTraceBufferFiller.setWidth(1);
+    tblclmnTraceBufferFiller.setText("");
+
     tbtmStatistics = new CTabItem(tabFolder, SWT.NONE);
     tbtmStatistics.setText("Statistics");
     
@@ -347,6 +371,10 @@ public class ChibiView extends ViewPart {
     TableColumn tblclmnStatsCumulative = new TableColumn(statisticsTable, SWT.RIGHT);
     tblclmnStatsCumulative.setWidth(192);
     tblclmnStatsCumulative.setText("Cumulative Time");
+
+    TableColumn tblclmnStatsFiller = new TableColumn(statisticsTable, SWT.FILL);
+    tblclmnStatsFiller.setWidth(1);
+    tblclmnStatsFiller.setText("");
 
     makeActions();
     hookContextMenu();
@@ -499,7 +527,9 @@ public class ChibiView extends ViewPart {
         Long.toString(time),
         "+" + HexUtils.parseNumber(map.get("delta")),
         makeHex(map.get("func")),
-        makeHex(map.get("par"))
+        makeHex(map.get("par")),
+        map.get("last"),
+        map.get("reload")
       });          
     }
   }

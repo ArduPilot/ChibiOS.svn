@@ -358,6 +358,20 @@ public class KernelObjects extends DebugProxy {
       n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->par");
       map.put("par", Long.toString(n));
 
+      try {
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->last");
+        map.put("last", Long.toString(n));
+      } catch (DebugProxyException e) {
+        map.put("last", "-");
+      }
+
+      try {
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_virtual_timer *)" + current + ")->reload");
+        map.put("reload", Long.toString(n));
+      } catch (DebugProxyException e) {
+        map.put("reload", "-");
+      }
+
       // Inserting the new thread map into the threads list.
       lhm.put(current, map);
 

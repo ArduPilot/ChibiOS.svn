@@ -61,7 +61,7 @@ public class KernelObjects extends DebugProxy {
     // been initialized.
     String r_current;
     try {
-      r_current = evaluateExpression("(uint32_t)ch.rlist.current");
+      r_current = evaluateExpression("(uint32_t)ch0.rlist.current");
       if (r_current == null)
         return true;
     } catch (DebugProxyException e) {
@@ -111,10 +111,10 @@ public class KernelObjects extends DebugProxy {
       return null;
 
     // rlist structure address.
-    String rlist;
+    String reglist;
     try {
-      rlist = evaluateExpression("(uint32_t)&ch.rlist");
-      if (rlist == null)
+    	reglist = evaluateExpression("(uint32_t)&ch0.reglist");
+      if (reglist == null)
         return null;
     } catch (DebugProxyException e) {
       throw new DebugProxyException("ready list not found on target");
@@ -125,37 +125,46 @@ public class KernelObjects extends DebugProxy {
     // Scanning registry.
     LinkedHashMap<String, HashMap<String, String>> lhm =
         new LinkedHashMap<String, HashMap<String, String>>(10);
-    String current = rlist;
-    String previous = rlist;
+    String current_reg = reglist;
+    String previous_reg = reglist;
     while (true) {
-      
+    	String current_thread;
+    	
       // Fetching next thread in the registry (newer link). This fetch fails
       // if the register is not enabled in the kernel and the "newer" field
       // does not exist.
       try {
-        current = evaluateExpression("(uint32_t)((struct ch_thread *)" + current + ")->newer");
+        current_reg = evaluateExpression("(uint32_t)((ch_queue_t *)" + current_reg + ")->next");
       } catch (DebugProxyException e1) {
         throw new DebugProxyException("ChibiOS/RT registry not enabled in kernel");
       }
 
       // This can happen if the kernel is not initialized yet or if the
       // registry is corrupted.
-      if (current.compareTo("0") == 0)
+      if (current_reg.compareTo("0") == 0)
         throw new DebugProxyException("ChibiOS/RT registry integrity check failed, NULL pointer");
 
       // TODO: integrity check on the pointer value (alignment, range).
 
-      // The previous thread in the list is fetched as a integrity check.
-      String older = evaluateExpression("(uint32_t)((struct ch_thread *)" + current + ")->older");
+      // The previous thread in the list is fetched as an integrity check.
+      String older = evaluateExpression("(uint32_t)((ch_queue_t *)" + current_reg + ")->prev");
       if (older.compareTo("0") == 0)
         throw new DebugProxyException("ChibiOS/RT registry integrity check failed, NULL pointer");
-      if (previous.compareTo(older) != 0)
+      if (previous_reg.compareTo(older) != 0)
         throw new DebugProxyException("ChibiOS/RT registry integrity check failed, double linked list violation");
 
       // End of the linked list condition.
-      if (current.compareTo(rlist) == 0)
+      if (current_reg.compareTo(reglist) == 0)
         break;
 
+      // Thread associated to this registry entry.
+      try {
+        long current_thread_address = evaluateExpressionNumber(current_reg + " - ((char *)(&((thread_t *)0)->rqueue) - (char *)0)");
+        current_thread = Long.toString(current_thread_address);
+      } catch (DebugProxyException e1) {
+        throw new DebugProxyException("ChibiOS/RT registry offset calculation error");
+      }
+      
       // Hash of threads fields.
       HashMap<String, String> map = new HashMap<String, String>(16);
 
@@ -163,7 +172,7 @@ public class KernelObjects extends DebugProxy {
       // are optional so are placed within try-catch.
       long stklimit;
       try {
-        stklimit = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->wabase");
+        stklimit = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->wabase");
         map.put("stklimit", Long.toString(stklimit));
       } catch (DebugProxyException e) {
         map.put("stklimit", "-");
@@ -172,11 +181,11 @@ public class KernelObjects extends DebugProxy {
 
       long stack;
       try {
-        stack = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->ctx.r13");
+        stack = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->ctx.r13");
         map.put("stack", Long.toString(stack));
       } catch (DebugProxyException e) {
         try {
-          stack = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->ctx.sp");
+          stack = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->ctx.sp");
           map.put("stack", Long.toString(stack));
         } catch (DebugProxyException ex) {
           map.put("stack", "-");
@@ -197,7 +206,7 @@ public class KernelObjects extends DebugProxy {
 
       long n;
       try {
-        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->name");
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->name");
         if (n == 0)
           map.put("name", "<no name>");
         else
@@ -206,7 +215,7 @@ public class KernelObjects extends DebugProxy {
         map.put("name", "-");
       }
 
-      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->state");
+      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->state");
       map.put("state", Long.toString(n));
       if ((n >= 0) && (n < threadStates.length)) {
         map.put("state_s", threadStates[(int)n]);
@@ -214,58 +223,58 @@ public class KernelObjects extends DebugProxy {
       else
         map.put("state_s", "unknown");
 
-      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->flags");
+      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->flags");
       map.put("flags", Long.toString(n));
 
-      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->hdr.pqueue.prio");
+      n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->hdr.pqueue.prio");
       map.put("prio", Long.toString(n));
 
       try {
-        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->refs");
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->refs");
         map.put("refs", Long.toString(n));
       } catch (DebugProxyException e) {
         map.put("refs", "-");
       }
 
       try {
-        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->time");
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->time");
         map.put("time", Long.toString(n));
       } catch (DebugProxyException e) {
         map.put("time", "-");
       }
 
       try {
-        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->u.wtobjp");
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->u.wtobjp");
         map.put("wtobjp", Long.toString(n));
       } catch (DebugProxyException e) {
         map.put("wtobjp", "-");
       }
 
       try {
-        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->stats.n");
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->stats.n");
         map.put("stats_n", Long.toString(n));
       } catch (DebugProxyException e) {
         map.put("stats_n", "-");
       }
 
       try {
-        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current + ")->stats.worst");
+        n = evaluateExpressionNumber("(uint32_t)((struct ch_thread *)" + current_thread + ")->stats.worst");
         map.put("stats_worst", Long.toString(n));
       } catch (DebugProxyException e) {
         map.put("stats_worst", "-");
       }
 
       try {
-        n = evaluateExpressionNumber("(uint64_t)((struct ch_thread *)" + current + ")->stats.cumulative");
+        n = evaluateExpressionNumber("(uint64_t)((struct ch_thread *)" + current_thread + ")->stats.cumulative");
         map.put("stats_cumulative", Long.toString(n));
       } catch (DebugProxyException e) {
         map.put("stats_cumulative", "-");
       }
 
       // Inserting the new thread map into the threads list.
-      lhm.put(current, map);
+      lhm.put(current_thread, map);
 
-      previous = current;
+      previous_reg = current_reg;
     }
     return lhm;
   }
@@ -298,7 +307,7 @@ public class KernelObjects extends DebugProxy {
     // Delta list structure address.
     String vtlist;
     try {
-      vtlist = evaluateExpression("(uint32_t)&ch.vtlist");
+      vtlist = evaluateExpression("(uint32_t)&ch0.vtlist");
       if (vtlist == null)
         return null;
     } catch (DebugProxyException e) {
@@ -375,7 +384,7 @@ public class KernelObjects extends DebugProxy {
    *                                the target is running.
    *
    * @throws DebugProxyException    If the debugger is active but the structure
-   *                                @p ch.trace_buffer is not found, not
+   *                                @p ch0.trace_buffer is not found, not
    *                                initialized or corrupted.
    */
   public LinkedHashMap<String, HashMap<String, String>> readTraceBuffer()
@@ -387,7 +396,7 @@ public class KernelObjects extends DebugProxy {
     // Trace buffer size.
     String s;
     try {
-      s = evaluateExpression("(uint32_t)ch.trace_buffer.size");
+      s = evaluateExpression("(uint32_t)ch0.trace_buffer.size");
       if (s == null)
         return null;
     } catch (DebugProxyException e) {
@@ -398,9 +407,9 @@ public class KernelObjects extends DebugProxy {
 
     int tbsize = (int)HexUtils.parseNumber(s);
     int tbrecsize = (int)evaluateExpressionNumber("(uint32_t)sizeof (trace_event_t)");
-    long tbstart = evaluateExpressionNumber("(uint32_t)ch.trace_buffer.buffer");
-    long tbend = evaluateExpressionNumber("(uint32_t)&ch.trace_buffer.buffer[" + tbsize + "]");
-    long tbptr = evaluateExpressionNumber("(uint32_t)ch.trace_buffer.ptr");
+    long tbstart = evaluateExpressionNumber("(uint32_t)ch0.trace_buffer.buffer");
+    long tbend = evaluateExpressionNumber("(uint32_t)&ch0.trace_buffer.buffer[" + tbsize + "]");
+    long tbptr = evaluateExpressionNumber("(uint32_t)ch0.trace_buffer.ptr");
 
     // Scanning the trace buffer from the oldest event to the newest.
     LinkedHashMap<String, HashMap<String, String>> lhm =
@@ -505,7 +514,7 @@ public class KernelObjects extends DebugProxy {
     LinkedHashMap<String, String> map = new LinkedHashMap<String, String>(16);
 
     try {
-        String vt_lasttime = evaluateExpression("(uint32_t)ch.vtlist.dlist.delta");
+        String vt_lasttime = evaluateExpression("(uint32_t)ch0.vtlist.dlist.delta");
         if (vt_lasttime == null)
           return null;
         map.put("vt_lasttime", vt_lasttime);
@@ -516,21 +525,21 @@ public class KernelObjects extends DebugProxy {
     }
 
     try {
-      String vt_systime = evaluateExpression("(uint32_t)ch.vtlist.systime");
+      String vt_systime = evaluateExpression("(uint32_t)ch0.vtlist.systime");
       if (vt_systime == null)
         return null;
       map.put("vt_systime", vt_systime);
     } catch (DebugProxyException e) {}
 
     try {
-        String vt_lasttime = evaluateExpression("(uint32_t)ch.vtlist.lasttime");
+        String vt_lasttime = evaluateExpression("(uint32_t)ch0.vtlist.lasttime");
         if (vt_lasttime == null)
           return null;
         map.put("vt_lasttime", vt_lasttime);
     } catch (DebugProxyException e) {}
 
     try {
-      long r_current = evaluateExpressionNumber("(uint32_t)ch.rlist.current");
+      long r_current = evaluateExpressionNumber("(uint32_t)ch0.rlist.current");
       if (r_current != 0) {
         String name;
         try {
@@ -549,12 +558,12 @@ public class KernelObjects extends DebugProxy {
     } catch (DebugProxyException e) {}
 
     try {
-      String r_preempt = evaluateExpression("(uint32_t)ch.rlist.preempt");
+      String r_preempt = evaluateExpression("(uint32_t)ch0.rlist.preempt");
       map.put("r_preempt", r_preempt);
     } catch (DebugProxyException e) {}
 
     try {
-      Long addr = evaluateExpressionNumber("(uint32_t)ch.dbg.panic_msg");
+      Long addr = evaluateExpressionNumber("(uint32_t)ch0.dbg.panic_msg");
       if (addr == 0)
         map.put("dbg_panic_msg", "<NULL>");
       else
@@ -564,7 +573,7 @@ public class KernelObjects extends DebugProxy {
     }
 
     try {
-      Long isr_cnt = evaluateExpressionNumber("(uint32_t)ch.dbg.isr_cnt");
+      Long isr_cnt = evaluateExpressionNumber("(uint32_t)ch0.dbg.isr_cnt");
       if (isr_cnt == 0)
         map.put("dbg_isr_cnt", "not within ISR");
       else
@@ -574,7 +583,7 @@ public class KernelObjects extends DebugProxy {
     }
 
     try {
-      Long lock_cnt = evaluateExpressionNumber("(uint32_t)ch.dbg.lock_cnt");
+      Long lock_cnt = evaluateExpressionNumber("(uint32_t)ch0.dbg.lock_cnt");
       if (lock_cnt == 0)
         map.put("dbg_lock_cnt", "not within lock");
       else
@@ -613,7 +622,7 @@ public class KernelObjects extends DebugProxy {
     // Statistics structure.
     String s;
     try {
-      s = evaluateExpression("(uint32_t)&ch.kernel_stats");
+      s = evaluateExpression("(uint32_t)&ch0.kernel_stats");
       if (s == null)
         return null;
     } catch (DebugProxyException e) {
@@ -626,7 +635,7 @@ public class KernelObjects extends DebugProxy {
             new LinkedHashMap<String, HashMap<String, String>>(64);
 
     try {
-        long n_irq = evaluateExpressionNumber("(uint32_t)ch.kernel_stats.n_irq");
+        long n_irq = evaluateExpressionNumber("(uint32_t)ch0.kernel_stats.n_irq");
         HashMap<String, String> map = new HashMap<String, String>(4);
         map.put("best", "");
         map.put("worst", "");
@@ -636,7 +645,7 @@ public class KernelObjects extends DebugProxy {
     } catch (DebugProxyException e) {}
 
     try {
-        long n_ctxswc = evaluateExpressionNumber("(uint32_t)ch.kernel_stats.n_ctxswc");
+        long n_ctxswc = evaluateExpressionNumber("(uint32_t)ch0.kernel_stats.n_ctxswc");
         HashMap<String, String> map = new HashMap<String, String>(4);
         map.put("best", "");
         map.put("worst", "");
@@ -646,10 +655,10 @@ public class KernelObjects extends DebugProxy {
     } catch (DebugProxyException e) {}
 
     try {
-        long m_crit_thd_best = evaluateExpressionNumber("(uint32_t)ch.kernel_stats.m_crit_thd.best");
-        long m_crit_thd_worst = evaluateExpressionNumber("(uint32_t)ch.kernel_stats.m_crit_thd.worst");
-        long m_crit_thd_n = evaluateExpressionNumber("(uint32_t)ch.kernel_stats.m_crit_thd.n");
-        String m_crit_thd_cumulative = evaluateExpression("(uint64_t)ch.kernel_stats.m_crit_thd.cumulative");
+        long m_crit_thd_best = evaluateExpressionNumber("(uint32_t)ch0.kernel_stats.m_crit_thd.best");
+        long m_crit_thd_worst = evaluateExpressionNumber("(uint32_t)ch0.kernel_stats.m_crit_thd.worst");
+        long m_crit_thd_n = evaluateExpressionNumber("(uint32_t)ch0.kernel_stats.m_crit_thd.n");
+        String m_crit_thd_cumulative = evaluateExpression("(uint64_t)ch0.kernel_stats.m_crit_thd.cumulative");
         HashMap<String, String> map = new HashMap<String, String>(4);
         map.put("best", Long.toString(m_crit_thd_best));
         map.put("worst", Long.toString(m_crit_thd_worst));
@@ -659,10 +668,10 @@ public class KernelObjects extends DebugProxy {
     } catch (DebugProxyException e) {}
 
     try {
-        long m_crit_isr_best = evaluateExpressionNumber("(uint32_t)ch.kernel_stats.m_crit_isr.best");
-        long m_crit_isr_worst = evaluateExpressionNumber("(uint32_t)ch.kernel_stats.m_crit_isr.worst");
-        long m_crit_isr_n = evaluateExpressionNumber("(uint32_t)ch.kernel_stats.m_crit_isr.n");
-        String m_crit_isr_cumulative = evaluateExpression("(uint64_t)ch.kernel_stats.m_crit_isr.cumulative");
+        long m_crit_isr_best = evaluateExpressionNumber("(uint32_t)ch0.kernel_stats.m_crit_isr.best");
+        long m_crit_isr_worst = evaluateExpressionNumber("(uint32_t)ch0.kernel_stats.m_crit_isr.worst");
+        long m_crit_isr_n = evaluateExpressionNumber("(uint32_t)ch0.kernel_stats.m_crit_isr.n");
+        String m_crit_isr_cumulative = evaluateExpression("(uint64_t)ch0.kernel_stats.m_crit_isr.cumulative");
         HashMap<String, String> map = new HashMap<String, String>(4);
         map.put("best", Long.toString(m_crit_isr_best));
         map.put("worst", Long.toString(m_crit_isr_worst));

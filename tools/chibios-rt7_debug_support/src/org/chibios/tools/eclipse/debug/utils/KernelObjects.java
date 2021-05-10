@@ -113,11 +113,21 @@ public class KernelObjects extends DebugProxy {
     // rlist structure address.
     String reglist;
     try {
-    	reglist = evaluateExpression("(uint32_t)&ch0.reglist");
+    	// First checking if it is placed in "ch_system", SMP scenario.
+    	reglist = evaluateExpression("(uint32_t)&ch_system.reglist");
       if (reglist == null)
         return null;
     } catch (DebugProxyException e) {
-      throw new DebugProxyException("ready list not found on target");
+    	// Then trying in ch0, non-SMP scenario.
+      try {
+      	reglist = evaluateExpression("(uint32_t)&ch0.reglist");
+        if (reglist == null)
+          return null;
+      } catch (DebugProxyException e1) {
+        throw new DebugProxyException("ready list not found on target");
+      } catch (Exception e1) {
+        return null;
+      }
     } catch (Exception e) {
       return null;
     }

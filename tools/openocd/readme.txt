@@ -1,4 +1,4 @@
-Open On-Chip Debugger 0.10.0+dev-01135-gdca1c6ca1-dirty (2020-03-17-11:50)
+Open On-Chip Debugger 0.11.0 (2021-07-24-12:57)
 
 Built by RoccoMarco <guglielmir@playembedded.org>
 This has been built under windows using msys2. For more info about the procedure take a look at 

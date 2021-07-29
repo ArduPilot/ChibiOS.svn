@@ -46,7 +46,7 @@ while test $# -gt 0; do
       echo_exec_prefix=yes
       ;;
     --version)
-      echo 1.4
+      echo 1.5
       exit 0
       ;;
     --cflags)

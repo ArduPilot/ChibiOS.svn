@@ -118,10 +118,10 @@ def make(args):
 
         case_name = 'make ' + target
         case_log = ' '.join(cmd_target)
-        classname = '{}.{}'.format(package, path)
+        case_classname = path.replace('/', '.')
         case = junit_xml.TestCase(
             case_name,
-            classname=classname,
+            classname=case_classname,
             file=path,
             log=case_log,
             timestamp=timestamp,

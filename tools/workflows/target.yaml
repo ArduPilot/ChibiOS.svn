@@ -5,4 +5,4 @@
 
 demos/various/RT-ARMCM4-MAKELIB/Makefile:
   - lib
-    clean
+  - clean

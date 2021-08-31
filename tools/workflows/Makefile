@@ -59,12 +59,14 @@ makefiles : $(makefiles)
 $(single_makefiles) : $(external) $(makefile_venv)
 	@mkdir -p $(TEST_RESULTS)/$(subst $(ROOT)/,,$(@D))
 	+$(python) $(WORKFLOWS)/make.py -C $(@D) -f $(@F) -p $(ROOT)/ \
-		-r $(TEST_RESULTS) -s $(WORKFLOWS)/skip.yaml $(TARGETS)
+		-r $(TEST_RESULTS) -s $(WORKFLOWS)/skip.yaml \
+		-t $(WORKFLOWS)/target.yaml $(TARGETS)
 
 $(multi_makefiles) : $(external) $(makefile_venv)
 	@mkdir -p $(TEST_RESULTS)/$(subst $(ROOT)/,,$(@D))
 	+$(python) $(WORKFLOWS)/make.py -C $(dir $(@D)) -f make/$(@F) -p $(ROOT)/ \
-		-r $(TEST_RESULTS) -s $(WORKFLOWS)/skip.yaml $(TARGETS)
+		-r $(TEST_RESULTS) -s $(WORKFLOWS)/skip.yaml \
+		-t $(WORKFLOWS)/target.yaml $(TARGETS)
 
 # External projects
 external : $(external)

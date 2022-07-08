@@ -32,15 +32,40 @@
 /*===========================================================================*/
 
 /**
- * @name    SIO status flags
+ * @name    SIO events
  * @{
  */
-#define SIO_NO_ERROR           0    /**< @brief No pending conditions.      */
-#define SIO_PARITY_ERROR       4    /**< @brief Parity error happened.      */
-#define SIO_FRAMING_ERROR      8    /**< @brief Framing error happened.     */
-#define SIO_OVERRUN_ERROR      16   /**< @brief Overflow happened.          */
-#define SIO_NOISE_ERROR        32   /**< @brief Noise on the line.          */
-#define SIO_BREAK_DETECTED     64   /**< @brief Break detected.             */
+#define SIO_EV_NONE             0   /**< @brief No pending events.          */
+#define SIO_EV_RXFULL           1   /**< @brief RX data in the buffer.      */
+#define SIO_EV_TXEMPTY          2   /**< @brief TX buffer empty.            */
+#define SIO_EV_ALL_DATA         (SIO_EV_RXFULL          |                     \
+                                 SIO_EV_TXEMPTY)
+#define SIO_EV_RXIDLE           4   /**< @brief RX line idling.             */
+#define SIO_EV_TXEND            8   /**< @brief Last TX frame transmitted.  */
+#define SIO_EV_BREAK            16  /**< @brief LIN break detected.         */
+#define SIO_EV_ALL_PROTOCOL     (SIO_EV_RXIDLE          |                     \
+                                 SIO_EV_TXEND           |                     \
+                                 SIO_EV_BREAK)
+#define SIO_EV_PARITY_ERROR     256 /**< @brief Parity error happened.      */
+#define SIO_EV_FRAMING_ERROR    512 /**< @brief Framing error happened.     */
+#define SIO_EV_OVERRUN_ERROR    1024/**< @brief Overflow happened.          */
+#define SIO_EV_NOISE_ERROR      2048/**< @brief Noise on the line.          */
+#define SIO_EV_ALL_ERRORS       (SIO_EV_PARITY_ERROR    |                   \
+                                 SIO_EV_FRAMING_ERROR   |                   \
+                                 SIO_EV_OVERRUN_ERROR   |                   \
+                                 SIO_EV_NOISE_ERROR)
+/** @} */
+
+/**
+ * @name    SIO status flags (legacy)
+ * @{
+ */
+#define SIO_NO_ERROR           SIO_EV_NONE
+#define SIO_PARITY_ERROR       SIO_EV_PARITY_ERROR
+#define SIO_FRAMING_ERROR      SIO_EV_FRAMING_ERROR
+#define SIO_OVERRUN_ERROR      SIO_EV_OVERRUN_ERROR
+#define SIO_NOISE_ERROR        SIO_EV_NOISE_ERROR
+#define SIO_BREAK_DETECTED     SIO_EV_BREAK
 /** @} */
 
 /**

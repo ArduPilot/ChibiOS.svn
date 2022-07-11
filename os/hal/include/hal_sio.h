@@ -32,44 +32,40 @@
 /*===========================================================================*/
 
 /**
- * @name    SIO events
+ * @name    Events enable flags
  * @{
  */
-#define SIO_EV_NONE             0   /**< @brief No pending events.          */
-#define SIO_EV_RXFULL           1   /**< @brief RX data in the buffer.      */
-#define SIO_EV_TXEMPTY          2   /**< @brief TX buffer empty.            */
-#define SIO_EV_ALL_DATA         (SIO_EV_RXFULL          |                     \
-                                 SIO_EV_TXEMPTY)
-#define SIO_EV_RXIDLE           4   /**< @brief RX line idling.             */
-#define SIO_EV_TXEND            8   /**< @brief Last TX frame transmitted.  */
-#define SIO_EV_BREAK            16  /**< @brief LIN break detected.         */
-#define SIO_EV_ALL_PROTOCOL     (SIO_EV_RXIDLE          |                     \
-                                 SIO_EV_TXEND           |                     \
-                                 SIO_EV_BREAK)
-#define SIO_EV_PARITY_ERROR     256 /**< @brief Parity error happened.      */
-#define SIO_EV_FRAMING_ERROR    512 /**< @brief Framing error happened.     */
-#define SIO_EV_OVERRUN_ERROR    1024/**< @brief Overflow happened.          */
-#define SIO_EV_NOISE_ERROR      2048/**< @brief Noise on the line.          */
-#define SIO_EV_ALL_ERRORS       (SIO_EV_PARITY_ERROR    |                   \
-                                 SIO_EV_FRAMING_ERROR   |                   \
-                                 SIO_EV_OVERRUN_ERROR   |                   \
-                                 SIO_EV_NOISE_ERROR)
+#define SIO_FL_NONE             0   /**< @brief No events enabled.          */
+#define SIO_FL_RXNOTEMPY        1   /**< @brief RX buffer not empty event.  */
+#define SIO_FL_TXNOTFULL        2   /**< @brief TX buffer not full event.   */
+#define SIO_FL_ALL_DATA         (SIO_FL_RXNOTEMPY       |                   \
+                                 SIO_FL_TXNOTFULL)
+#define SIO_FL_RXIDLE           4   /**< @brief RX line idling event.       */
+#define SIO_FL_TXDONE           8   /**< @brief TX complete event.          */
+#define SIO_FL_BREAK            16  /**< @brief LIN break event.            */
+#define SIO_FL_ALL_PROTOCOL     (SIO_FL_RXIDLE          |                   \
+                                 SIO_FL_TXDONE          |                   \
+                                 SIO_FL_BREAK)
+#define SIO_FL_ERRORS           32  /**< @brief RX error events.            */
 /** @} */
 
 /**
- * @name    SIO status flags (legacy)
+ * @name    Event flags (compatible with channel and serial events)
  * @{
  */
-#define SIO_NO_ERROR           SIO_EV_NONE
-#define SIO_PARITY_ERROR       SIO_EV_PARITY_ERROR
-#define SIO_FRAMING_ERROR      SIO_EV_FRAMING_ERROR
-#define SIO_OVERRUN_ERROR      SIO_EV_OVERRUN_ERROR
-#define SIO_NOISE_ERROR        SIO_EV_NOISE_ERROR
-#define SIO_BREAK_DETECTED     SIO_EV_BREAK
+#define SIO_EV_RXNOTEMPY        CHN_INPUT_AVAILABLE     /* 4 */
+#define SIO_EV_TXNOTFULL        CHN_OUTPUT_EMPTY        /* 8 */
+#define SIO_EV_TXDONE           CHN_TRANSMISSION_END    /* 16 */
+#define SIO_EV_PARITY_ERR       32
+#define SIO_EV_FRAMING_ERR      64
+#define SIO_EV_OVERRUN_ERR      128
+#define SIO_EV_NOISE_ERR        256
+#define SIO_EV_BREAK            512
+#define SIO_EV_RXIDLE           2048
 /** @} */
 
 /**
- * @name    SIO additional messages
+ * @name    Additional messages
  * @{
  */
 #define SIO_MSG_IDLE                        1
@@ -110,9 +106,14 @@
 /*===========================================================================*/
 
 /**
- * @brief   SIO driver condition flags type.
+ * @brief   Type of events enable flags.
  */
-typedef uint_fast8_t sioflags_t;
+typedef uint_least8_t sioflags_t;
+
+/**
+ * @brief   Type of event flags.
+ */
+typedef eventflags_t sioevents_t;
 
 /**
  * @brief   Type of structure representing a SIO driver.
@@ -123,11 +124,6 @@ typedef struct hal_sio_driver SIODriver;
  * @brief   Type of structure representing a SIO configuration.
  */
 typedef struct hal_sio_config SIOConfig;
-
-/**
- * @brief   Type of structure representing a SIO operation.
- */
-typedef struct hal_sio_operation SIOOperation;
 
 /**
  * @brief   Generic SIO notification callback type.
@@ -194,9 +190,17 @@ struct hal_sio_driver {
    */
   const SIOConfig          *config;
   /**
-   * @brief   Current configuration data.
+   * @brief   Enabled conditions flags.
    */
-  const SIOOperation       *operation;
+  sioflags_t                enabled;
+  /**
+   * @brief   Pending events.
+   */
+  sioevents_t               events;
+  /**
+   * @brief   Current callback or @p NULL.
+   */
+  siocb_t                   cb;
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
   /**
    * @brief   Synchronization point for RX.
@@ -216,37 +220,6 @@ struct hal_sio_driver {
 #endif
   /* End of the mandatory fields.*/
   sio_lld_driver_fields;
-};
-
-/**
- * @brief   Structure representing a SIO operation.
- */
-struct hal_sio_operation {
-  /**
-   * @brief   Receive non-empty callback.
-   * @note    Can be @p NULL.
-   */
-  siocb_t                   rx_cb;
-  /**
-   * @brief   Receive idle callback.
-   * @note    Can be @p NULL.
-   */
-  siocb_t                   rx_idle_cb;
-  /**
-   * @brief   Transmission buffer non-full callback.
-   * @note    Can be @p NULL.
-   */
-  siocb_t                   tx_cb;
-  /**
-   * @brief   Physical end of transmission callback.
-   * @note    Can be @p NULL.
-   */
-  siocb_t                   tx_end_cb;
-  /**
-   * @brief   Receive event callback.
-   * @note    Can be @p NULL.
-   */
-  siocb_t                   rx_evt_cb;
 };
 
 /*===========================================================================*/
@@ -278,14 +251,60 @@ struct hal_sio_operation {
 #define sioIsTXFullX(siop) sio_lld_is_tx_full(siop)
 
 /**
- * @brief   Return the pending SIO events flags.
+ * @brief   Adds flags to the condition flags mask.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @return              The pending event flags.
+ *
+ * @iclass
+ */
+#define sioSetEnableFlagsI(siop, flags) do {                                \
+  (siop)->enabled |= (flags);                                               \
+  sio_update_enable_flags(siop);                                            \
+} while (false)
+
+/**
+ * @brief   Clears flags from the condition flags mask.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ *
+ * @iclass
+ */
+#define sioClearEnableFlagsI(siop, flags) do {                              \
+  (siop)->enabled &= ~(flags);                                              \
+  sio_update_enable_flags(siop);                                            \
+} while (false)
+
+/**
+ * @brief   Return the enabled condition flags mask.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ *
+ * @xclass
+ */
+#define sioGetEnableFlagsX(siop) (siop)->eflags
+
+/**
+ * @brief   Return the pending SIO event flags.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The condition flags.
  *
  * @iclass
  */
 #define sioGetAndClearEventsI(siop) sio_lld_get_and_clear_events(siop)
+
+/**
+ * @brief   Changes the callback function.
+ * @note    Setting @p NULL disables callbacks.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @param[in] cb        new callback function or @p NULL
+ *
+ * @xclass
+ */
+#define sioSetCallbackX(siop, data) do {                                    \
+  (siop)->cb = (cb);                                                        \
+} while (false)
 
 /**
  * @brief   Returns one frame from the RX FIFO.
@@ -362,69 +381,17 @@ struct hal_sio_operation {
  * @{
  */
 /**
- * @brief   RX callback.
+ * @brief   SIO callback.
  *
  * @param[in] siop      pointer to the @p SIODriver object
  *
  * @notapi
  */
-#define __sio_callback_rx(siop) {                                           \
-  if ((siop)->operation->rx_cb != NULL) {                                   \
-    (siop)->operation->rx_cb(siop);                                         \
+#define __sio_callback(siop) do {                                           \
+  if ((siop)->cb != NULL) {                                                 \
+    (siop)->cb(siop);                                                       \
   }                                                                         \
-}
-
-/**
- * @brief   RX idle callback.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_callback_rx_idle(siop) {                                      \
-  if ((siop)->operation->rx_idle_cb != NULL) {                              \
-    (siop)->operation->rx_idle_cb(siop);                                    \
-  }                                                                         \
-}
-
-/**
- * @brief   TX callback.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_callback_tx(siop) {                                           \
-  if ((siop)->operation->tx_cb != NULL) {                                   \
-    (siop)->operation->tx_cb(siop);                                         \
-  }                                                                         \
-}
-
-/**
- * @brief   TX end callback.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_callback_tx_end(siop) {                                       \
-  if ((siop)->operation->tx_end_cb != NULL) {                               \
-    (siop)->operation->tx_end_cb(siop);                                     \
-  }                                                                         \
-}
-
-/**
- * @brief   RX event callback.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_callback_rx_evt(siop) {                                       \
-  if ((siop)->operation->rx_evt_cb != NULL) {                               \
-    (siop)->operation->rx_evt_cb(siop);                                     \
-  }                                                                         \
-}
+} while (false)
 
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
 /**
@@ -435,11 +402,11 @@ struct hal_sio_operation {
  *
  * @notapi
  */
-#define __sio_wakeup_rx(siop, msg) {                                        \
+#define __sio_wakeup_rx(siop, msg) do {                                     \
   osalSysLockFromISR();                                                     \
   osalThreadResumeI(&(siop)->sync_rx, msg);                                 \
   osalSysUnlockFromISR();                                                   \
-}
+} while (false)
 
 /**
  * @brief   Wakes up the TX-waiting thread.
@@ -449,11 +416,11 @@ struct hal_sio_operation {
  *
  * @notapi
  */
-#define __sio_wakeup_tx(siop, msg) {                                        \
+#define __sio_wakeup_tx(siop, msg) do {                                     \
   osalSysLockFromISR();                                                     \
   osalThreadResumeI(&(siop)->sync_tx, msg);                                 \
   osalSysUnlockFromISR();                                                   \
-}
+} while (false)
 
 /**
  * @brief   Wakes up the TXend-waiting thread.
@@ -463,11 +430,11 @@ struct hal_sio_operation {
  *
  * @notapi
  */
-#define __sio_wakeup_txend(siop, msg) {                                     \
+#define __sio_wakeup_txend(siop, msg) do {                                  \
   osalSysLockFromISR();                                                     \
   osalThreadResumeI(&(siop)->sync_txend, msg);                              \
   osalSysUnlockFromISR();                                                   \
-}
+} while (false)
 #else /* !SIO_USE_SYNCHRONIZATION */
 #define __sio_wakeup_rx(siop, msg)
 #define __sio_wakeup_tx(siop, msg)
@@ -486,9 +453,9 @@ extern "C" {
   void sioObjectInit(SIODriver *siop);
   msg_t sioStart(SIODriver *siop, const SIOConfig *config);
   void sioStop(SIODriver *siop);
-  void sioStartOperation(SIODriver *siop, const SIOOperation *operation);
-  void sioStopOperation(SIODriver *siop);
-  sio_events_mask_t sioGetAndClearEvents(SIODriver *siop);
+  void sioSetEnableFlags(SIODriver *siop, sioflags_t flags);
+  void sioClearEnableFlags(SIODriver *siop, sioflags_t flags);
+  sioevents_t sioGetAndClearEvents(SIODriver *siop);
   size_t sioAsyncRead(SIODriver *siop, uint8_t *buffer, size_t n);
   size_t sioAsyncWrite(SIODriver *siop, const uint8_t *buffer, size_t n);
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)

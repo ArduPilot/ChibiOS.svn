@@ -38,14 +38,6 @@
 /* Driver local variables and types.                                         */
 /*===========================================================================*/
 
-static const SIOOperation default_operation = {
-  .rx_cb      = NULL,
-  .rx_idle_cb = NULL,
-  .tx_cb      = NULL,
-  .tx_end_cb  = NULL,
-  .rx_evt_cb  = NULL
-};
-
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
@@ -229,6 +221,9 @@ void sioObjectInit(SIODriver *siop) {
 #endif
   siop->state   = SIO_STOP;
   siop->config  = NULL;
+  siop->enabled = (sioflags_t)0;
+  siop->events  = (sioevents_t)0;
+  siop->cb      = NULL;
 
   /* Optional, user-defined initializer.*/
 #if defined(SIO_DRIVER_EXT_INIT_HOOK)
@@ -293,6 +288,7 @@ void sioStop(SIODriver *siop) {
   osalSysUnlock();
 }
 
+#if 0
 /**
  * @brief   Starts a SIO operation.
  *
@@ -382,6 +378,66 @@ sio_events_mask_t sioGetAndClearEvents(SIODriver *siop) {
   osalSysUnlock();
 
   return evtmask;
+}
+#endif
+
+/**
+ * @brief   Adds flags to the condition flags mask.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ *
+ * @api
+ */
+void sioSetEnableFlags(SIODriver *siop, sioflags_t flags) {
+
+  osalDbgCheck(siop != NULL);
+
+  osalSysLock();
+
+  sioSetEnableFlagsI(siop, flags);
+
+  osalSysUnlock();
+}
+
+/**
+ * @brief   Clears flags from the condition flags mask.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ *
+ * @api
+ */
+void sioClearEnableFlags(SIODriver *siop, sioflags_t flags) {
+
+  osalDbgCheck(siop != NULL);
+
+  osalSysLock();
+
+  sioClearEnableFlagsI(siop, flags);
+
+  osalSysUnlock();
+}
+
+/**
+ * @brief   Return the pending SIO condition flags.
+ * @note    Only enabled flags are returned.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The pending event flags.
+ *
+ * @api
+ */
+sioevents_t sioGetAndClearEvents(SIODriver *siop) {
+  sioevents_t events;
+
+  osalDbgCheck(siop != NULL);
+
+  osalSysLock();
+
+  events = sioGetAndClearEventsI(siop);
+
+  osalSysUnlock();
+
+  return events;
 }
 
 /**

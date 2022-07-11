@@ -300,11 +300,6 @@
 /*===========================================================================*/
 
 /**
- * @brief   Type of a SIO events mask.
- */
-typedef uint32_t sio_events_mask_t;
-
-/**
  * @brief   Low level fields of the SIO driver structure.
  */
 #define sio_lld_driver_fields                                               \
@@ -423,7 +418,8 @@ extern "C" {
   void sio_lld_stop(SIODriver *siop);
   void sio_lld_start_operation(SIODriver *siop);
   void sio_lld_stop_operation(SIODriver *siop);
-  sio_events_mask_t sio_lld_get_and_clear_events(SIODriver *siop);
+  void sio_update_enable_flags(SIODriver *siop);
+  sioevents_t sio_lld_get_and_clear_events(SIODriver *siop);
   size_t sio_lld_read(SIODriver *siop, uint8_t *buffer, size_t n);
   size_t sio_lld_write(SIODriver *siop, const uint8_t *buffer, size_t n);
   msg_t sio_lld_get(SIODriver *siop);

@@ -389,7 +389,9 @@ struct hal_sio_driver {
  */
 #define __sio_callback(siop) do {                                           \
   if ((siop)->cb != NULL) {                                                 \
-    (siop)->cb(siop);                                                       \
+    if ((siop)->events != (sioevents_t)0) {                                 \
+      (siop)->cb(siop);                                                     \
+    }                                                                       \
   }                                                                         \
 } while (false)
 

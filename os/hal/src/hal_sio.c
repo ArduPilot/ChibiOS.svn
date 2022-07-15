@@ -225,7 +225,6 @@ void sioObjectInit(SIODriver *siop) {
   siop->state       = SIO_STOP;
   siop->config      = NULL;
   siop->enabled     = (sioflags_t)0;
-  siop->events      = (sioevents_t)0;
   siop->cb          = NULL;
 
   /* Optional, user-defined initializer.*/

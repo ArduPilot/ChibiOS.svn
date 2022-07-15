@@ -303,6 +303,8 @@
  * @brief   Low level fields of the SIO driver structure.
  */
 #define sio_lld_driver_fields                                               \
+  /* ISR bits to be checked as event flags.*/                               \
+  uint32_t                  isrmask;                                        \
   /* Pointer to the USARTx registers block.*/                               \
   USART_TypeDef             *usart;                                         \
   /* Clock frequency for the associated USART/UART.*/                       \
@@ -335,18 +337,6 @@
  */
 #define sio_lld_is_rx_empty(siop)                                           \
   (bool)(((siop)->usart->ISR & USART_ISR_RXNE_RXFNE) == 0U)
-
-/**
- * @brief   Determines the state of the receiver state.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The RX FIFO state.
- * @retval false        if RX FIFO is not empty
- * @retval true         if RX FIFO is empty
- *
- * @notapi
- */
-#define sio_lld_is_rx_ongoing(siop) true
 
 /**
  * @brief   Determines the state of the TX FIFO.

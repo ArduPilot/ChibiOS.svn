@@ -269,58 +269,69 @@ void sio_lld_init(void) {
   /* Driver instances initialization.*/
 #if STM32_SIO_USE_USART1 == TRUE
   sioObjectInit(&SIOD1);
-  SIOD1.usart = USART1;
-  SIOD1.clock = STM32_USART1CLK;
+  SIOD1.isrmask     = 0U;
+  SIOD1.usart       = USART1;
+  SIOD1.clock       = STM32_USART1CLK;
 #endif
 #if STM32_SIO_USE_USART2 == TRUE
   sioObjectInit(&SIOD2);
-  SIOD2.usart = USART2;
-  SIOD2.clock = STM32_USART2CLK;
+  SIOD2.isrmask     = 0U;
+  SIOD2.usart       = USART2;
+  SIOD2.clock       = STM32_USART2CLK;
 #endif
 #if STM32_SIO_USE_USART3 == TRUE
   sioObjectInit(&SIOD3);
-  SIOD3.usart = USART3;
-  SIOD3.clock = STM32_USART3CLK;
+  SIOD3.isrmask     = 0U;
+  SIOD3.usart       = USART3;
+  SIOD3.clock       = STM32_USART3CLK;
 #endif
 #if STM32_SIO_USE_UART4 == TRUE
   sioObjectInit(&SIOD4);
-  SIOD4.usart = UART4;
-  SIOD4.clock = STM32_UART4CLK;
+  SIOD4.isrmask     = 0U;
+  SIOD4.usart       = UART4;
+  SIOD4.clock       = STM32_UART4CLK;
 #endif
 #if STM32_SIO_USE_UART5 == TRUE
   sioObjectInit(&SIOD5);
-  SIOD5.usart = UART5;
-  SIOD5.clock = STM32_UART5CLK;
+  SIOD5.isrmask     = 0U;
+  SIOD5.usart       = UART5;
+  SIOD5.clock       = STM32_UART5CLK;
 #endif
 #if STM32_SIO_USE_USART6 == TRUE
   sioObjectInit(&SIOD6);
-  SIOD6.usart = USART6;
-  SIOD6.clock = STM32_USART6CLK;
+  SIOD6.isrmask     = 0U;
+  SIOD6.usart       = USART6;
+  SIOD6.clock       = STM32_USART6CLK;
 #endif
 #if STM32_SIO_USE_UART7 == TRUE
   sioObjectInit(&SIOD7);
-  SIOD7.usart = UART7;
-  SIOD7.clock = STM32_UART7CLK;
+  SIOD7.isrmask     = 0U;
+  SIOD7.usart       = UART7;
+  SIOD7.clock       = STM32_UART7CLK;
 #endif
 #if STM32_SIO_USE_UART8 == TRUE
   sioObjectInit(&SIOD8);
-  SIOD8.usart = UART8;
-  SIOD8.clock = STM32_UART8CLK;
+  SIOD8.isrmask     = 0U;
+  SIOD8.usart       = UART8;
+  SIOD8.clock       = STM32_UART8CLK;
 #endif
 #if STM32_SIO_USE_UART9 == TRUE
   sioObjectInit(&SIOD9);
-  SIOD9.usart = UART9;
-  SIOD9.clock = STM32_UART9CLK;
+  SIOD9.isrmask     = 0U;
+  SIOD9.usart       = UART9;
+  SIOD9.clock       = STM32_UART9CLK;
 #endif
 #if STM32_SIO_USE_USART10 == TRUE
   sioObjectInit(&SIOD10);
-  SIOD10.usart = USART10;
-  SIOD10.clock = STM32_USART10CLK;
+  SIOD10.isrmask    = 0U;
+  SIOD10.usart      = USART10;
+  SIOD10.clock      = STM32_USART10CLK;
 #endif
 #if STM32_SIO_USE_LPUART1 == TRUE
   sioObjectInit(&LPSIOD1);
-  LPSIOD1.usart = LPUART1;
-  LPSIOD1.clock = STM32_LPUART1CLK;
+  LPSIOD1.isrmask   = 0U;
+  LPSIOD1.usart     = LPUART1;
+  LPSIOD1.clock     = STM32_LPUART1CLK;
 #endif
 }
 
@@ -585,30 +596,41 @@ void sio_lld_stop_operation(SIODriver *siop) {
  * @param[in] siop      pointer to the @p SIODriver object
  */
 void sio_update_enable_flags(SIODriver *siop) {
-  uint32_t cr1irq, cr2irq, cr3irq;
+  uint32_t cr1irq, cr2irq, cr3irq, isrmask;
 
   cr1irq  = 0U;
   cr2irq  = 0U;
   cr3irq  = 0U;
+  isrmask = 0U;
   if ((siop->enabled & SIO_FL_RXNOTEMPY) != 0U) {
-    cr3irq |= USART_CR3_RXFTIE;
+    cr3irq  |= USART_CR3_RXFTIE;
+    isrmask |= USART_ISR_RXNE_RXFNE;        /* USART_ISR_RXFT ??? */
   }
   if ((siop->enabled & SIO_FL_RXIDLE) != 0U) {
-    cr1irq |= USART_CR1_IDLEIE;
+    cr1irq  |= USART_CR1_IDLEIE;
+    isrmask |= USART_ISR_IDLE;
+  }
+  if ((siop->enabled & SIO_FL_BREAK) != 0U) {
+    cr2irq  |= USART_CR2_LBDIE;
+    isrmask |= USART_ISR_LBDF;
   }
   if ((siop->enabled & SIO_FL_TXNOTFULL) != 0U) {
-    cr3irq |= USART_CR3_TXFTIE;
+    cr3irq  |= USART_CR3_TXFTIE;
+    isrmask |= USART_ISR_TXE_TXFNF;         /* USART_ISR_TXFT ??? */
   }
   if ((siop->enabled & SIO_FL_TXDONE) != 0U) {
-    cr1irq |= USART_CR1_TCIE;
+    cr1irq  |= USART_CR1_TCIE;
+    isrmask |= USART_ISR_TC;
   }
   if ((siop->enabled & SIO_FL_EVENTS) != 0U) {
-    cr1irq |= USART_CR1_PEIE;
-    cr2irq |= USART_CR2_LBDIE;
-    cr3irq |= USART_CR3_EIE;
+    cr1irq  |= USART_CR1_PEIE;
+    cr2irq  |= USART_CR2_LBDIE;
+    cr3irq  |= USART_CR3_EIE;
+    isrmask |= USART_ISR_FE | USART_ISR_NE | USART_ISR_PE;
   }
 
   /* Setting up the operation.*/
+  siop->isrmask     = isrmask;
   siop->usart->ICR  = siop->usart->ISR;
   siop->usart->CR2 |= cr2irq;
   siop->usart->CR3 |= cr3irq;
@@ -625,16 +647,8 @@ void sio_update_enable_flags(SIODriver *siop) {
  * @notapi
  */
 sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
-  sioevents_t events;
-
-  events = siop->events;
-  siop->events = (sioevents_t)0;
-
-  /* Events interrupts can be enabled again.*/
-  usart_enable_rx_evt_irq(siop);
-
-#if 0
   uint32_t isr;
+  sioevents_t events;
 
   /* Getting and clearing all relevant ISR flags (and only those).*/
   isr = siop->usart->ISR & (USART_ISR_PE  | USART_ISR_LBDF | USART_ISR_FE    |
@@ -645,7 +659,7 @@ sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
   usart_enable_rx_evt_irq(siop);
 
   /* Translating the status flags in SIO events.*/
-  events = 0U;
+  events = (sioevents_t)0;
   if ((isr & USART_ISR_ORE) != 0U) {
     events |= SIO_EV_OVERRUN_ERR;
   }
@@ -664,7 +678,9 @@ sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
   if ((isr & USART_ISR_IDLE) != 0U) {
     events |= SIO_EV_RXIDLE;
   }
-#endif
+
+  /* Events interrupts can be enabled again.*/
+  usart_enable_rx_evt_irq(siop);
 
   return events;
 }
@@ -819,6 +835,7 @@ msg_t sio_lld_control(SIODriver *siop, unsigned int operation, void *arg) {
 void sio_lld_serve_interrupt(SIODriver *siop) {
   USART_TypeDef *u = siop->usart;
   uint32_t isr, cr1, cr2, cr3, evtmask, irqmask;
+  bool do_callback = false;
 
   osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
@@ -839,36 +856,28 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
                                               USART_ISR_IDLE;
   evtmask = isr & irqmask;
   if (evtmask != 0U) {
-    sioevents_t events;
-
-    events = (sioevents_t)0;
     if ((evtmask & USART_ISR_NE) != 0U) {
-      events |= SIO_EV_NOISE_ERR;
-      cr3    &= ~USART_CR3_EIE;     /* Note this also disables eventual FEs.*/
+      cr3 &= ~USART_CR3_EIE;        /* Note this also disables eventual FEs.*/
     }
     if ((evtmask & USART_ISR_FE) != 0U) {
-      events |= SIO_EV_FRAMING_ERR;
-      cr3    &= ~USART_CR3_EIE;     /* Note this also disables eventual NEs.*/
+      cr3 &= ~USART_CR3_EIE;        /* Note this also disables eventual NEs.*/
     }
     if ((evtmask & USART_ISR_PE) != 0U) {
-      events |= SIO_EV_PARITY_ERR;
-      cr1    &= ~USART_CR1_PEIE;
+      cr1 &= ~USART_CR1_PEIE;
     }
     if ((evtmask & USART_ISR_IDLE) != 0U) {
-      events |= SIO_EV_RXIDLE;
-      u->ICR = USART_ICR_IDLECF;        /* The idle flag requires clearing.*/
+      cr1 &= USART_CR1_IDLEIE;
     }
     if ((evtmask & USART_ISR_LBDF) != 0U) {
-      events |= SIO_EV_BREAK;
-      cr2    &= ~USART_CR2_LBDIE;
-      u->CR2 = cr2;                     /* CR2 value no more needed.*/
+      cr2 &= ~USART_CR2_LBDIE;
+      u->CR2 = cr2;                 /* CR2 value no more needed.            */
     }
-
-    /* Setting all found events.*/
-    siop->events |= events;
 
     /* Waiting thread woken, if any.*/
     __sio_wakeup_rx(siop, SIO_MSG_ERRORS);
+
+    /* Callback required.*/
+    do_callback = true;
   }
 
   /* RX FIFO events, this includes ORE.*/
@@ -881,35 +890,32 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
        not empty.*/
     if ((isr & USART_ISR_ORE) != 0U) {
 
-      /* Overrun error event.*/
-      siop->events |= SIO_EV_RXNOTEMPY | SIO_EV_OVERRUN_ERR;
-
       /* Waiting thread woken, if any.*/
       __sio_wakeup_rx(siop, SIO_MSG_ERRORS);
     }
     /* Then checking if the RX FIFO is non-empty.*/
-    else if ((isr & USART_ISR_RXFT) != 0U) {
-
-      /* Data available event.*/
-      siop->events |= SIO_EV_RXNOTEMPY;
+    else if ((isr & USART_ISR_RXFT) != 0U) {    /* USART_ISR_RXNE_RXFNE ??? */
 
       /* Waiting thread woken, if any.*/
       __sio_wakeup_rx(siop, MSG_OK);
     }
+
+    /* Callback required.*/
+    do_callback = true;
   }
 
   /* TX FIFO is non-full.*/
   if (((cr3 & USART_CR3_TXFTIE) != 0U) &&
-      (isr & USART_ISR_TXFT) != 0U) {
+      (isr & USART_ISR_TXFT) != 0U) { /* USART_ISR_TXE_TXFNF ??? */
 
     /* Interrupt source disabled.*/
     cr3 &= ~USART_CR3_TXFTIE;
 
-    /* TX FIFO not full event.*/
-    siop->events |= SIO_EV_TXNOTFULL;
-
     /* Waiting thread woken, if any.*/
     __sio_wakeup_tx(siop, MSG_OK);
+
+    /* Callback required.*/
+    do_callback = true;
   }
 
   /* Physical transmission end.*/
@@ -919,11 +925,11 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
     /* Interrupt source disabled.*/
     cr1 &= ~USART_CR1_TCIE;
 
-    /* TX complete event.*/
-    siop->events |= SIO_EV_TXDONE;
-
     /* Waiting thread woken, if any.*/
     __sio_wakeup_txend(siop, MSG_OK);
+
+    /* Callback required.*/
+    do_callback = true;
   }
 
   /* Updating control registers, some sources could have been disabled.*/
@@ -932,7 +938,9 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
 
   /* The callback, if defined, is invoked if there are events
      to be notified.*/
-  __sio_callback(siop);
+  if (do_callback) {
+    __sio_callback(siop);
+  }
 }
 
 #endif /* HAL_USE_SIO == TRUE */

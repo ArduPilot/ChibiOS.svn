@@ -193,10 +193,6 @@ struct hal_sio_driver {
    */
   sioflags_t                enabled;
   /**
-   * @brief   Pending events.
-   */
-  sioevents_t               events;
-  /**
    * @brief   Current callback or @p NULL.
    */
   siocb_t                   cb;
@@ -388,9 +384,7 @@ struct hal_sio_driver {
  */
 #define __sio_callback(siop) do {                                           \
   if ((siop)->cb != NULL) {                                                 \
-    if ((siop)->events != (sioevents_t)0) {                                 \
-      (siop)->cb(siop);                                                     \
-    }                                                                       \
+    (siop)->cb(siop);                                                       \
   }                                                                         \
 } while (false)
 

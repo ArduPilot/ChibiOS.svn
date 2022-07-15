@@ -46,7 +46,7 @@
 #define SIO_FL_ALL_PROTOCOL     (SIO_FL_RXIDLE          |                   \
                                  SIO_FL_TXDONE          |                   \
                                  SIO_FL_BREAK)
-#define SIO_FL_ERRORS           32  /**< @brief RX error events.            */
+#define SIO_FL_EVENTS           32  /**< @brief RX events.                  */
 /** @} */
 
 /**
@@ -68,8 +68,7 @@
  * @name    Additional messages
  * @{
  */
-#define SIO_MSG_IDLE                        1
-#define SIO_MSG_ERRORS                      2
+#define SIO_MSG_ERRORS                      1
 /** @} */
 
 /*===========================================================================*/

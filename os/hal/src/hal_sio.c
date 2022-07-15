@@ -217,13 +217,16 @@ void sioInit(void) {
 void sioObjectInit(SIODriver *siop) {
 
 #if SIO_USE_SYNCHRONIZATION == TRUE
-  siop->vmt     = &vmt;
+  siop->vmt         = &vmt;
+  siop->sync_rx     = NULL;
+  siop->sync_tx     = NULL;
+  siop->sync_txend  = NULL;
 #endif
-  siop->state   = SIO_STOP;
-  siop->config  = NULL;
-  siop->enabled = (sioflags_t)0;
-  siop->events  = (sioevents_t)0;
-  siop->cb      = NULL;
+  siop->state       = SIO_STOP;
+  siop->config      = NULL;
+  siop->enabled     = (sioflags_t)0;
+  siop->events      = (sioevents_t)0;
+  siop->cb          = NULL;
 
   /* Optional, user-defined initializer.*/
 #if defined(SIO_DRIVER_EXT_INIT_HOOK)
@@ -506,8 +509,7 @@ size_t sioAsyncWrite(SIODriver *siop, const uint8_t *buffer, size_t n) {
  * @return                  The synchronization result.
  * @retval MSG_OK           if there is data in the RX FIFO.
  * @retval MSG_TIMEOUT      if synchronization timed out.
- * @retval MSG_RESET        operation has been stopped while waiting.
- * @retval SIO_MSG_IDLE     if RX line went idle.
+ * @retval MSG_RESET        it the operation has been stopped while waiting.
  * @retval SIO_MSG_ERRORS   if RX errors occurred during wait.
  *
  * @api

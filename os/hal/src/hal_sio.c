@@ -420,8 +420,7 @@ void sioClearEnableFlags(SIODriver *siop, sioflags_t flags) {
 }
 
 /**
- * @brief   Return the pending SIO condition flags.
- * @note    Only enabled flags are returned.
+ * @brief   Return the pending SIO event flags.
  *
  * @param[in] siop      pointer to the @p SIODriver object
  * @return              The pending event flags.

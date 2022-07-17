@@ -282,7 +282,7 @@ struct hal_sio_driver {
  * @brief   Return the pending SIO event flags.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @return              The condition flags.
+ * @return              The pending event flags.
  *
  * @iclass
  */

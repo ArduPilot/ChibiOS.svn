@@ -156,50 +156,32 @@ static const SIOConfig default_config = {
 
 __STATIC_INLINE void usart_enable_rx_irq(SIODriver *siop) {
 
-#if SIO_USE_SYNCHRONIZATION == TRUE
-  siop->usart->CR3 |= USART_CR3_RXFTIE;
-#else
   if ((siop->enabled & SIO_FL_RXNOTEMPY) != 0U) {
     siop->usart->CR3 |= USART_CR3_RXFTIE;
   }
-#endif
 }
 
 __STATIC_INLINE void usart_enable_rx_evt_irq(SIODriver *siop) {
 
-#if SIO_USE_SYNCHRONIZATION == TRUE
-  siop->usart->CR1 |= USART_CR1_PEIE;
-  siop->usart->CR2 |= USART_CR2_LBDIE;
-  siop->usart->CR3 |= USART_CR3_EIE;
-#else
   if ((siop->enabled & SIO_FL_EVENTS) != 0U) {
     siop->usart->CR1 |= USART_CR1_PEIE;
     siop->usart->CR2 |= USART_CR2_LBDIE;
     siop->usart->CR3 |= USART_CR3_EIE;
   }
-#endif
 }
 
 __STATIC_INLINE void usart_enable_tx_irq(SIODriver *siop) {
 
-#if SIO_USE_SYNCHRONIZATION == TRUE
-  siop->usart->CR3 |= USART_CR3_TXFTIE;
-#else
   if ((siop->enabled & SIO_FL_TXNOTFULL) != 0U) {
     siop->usart->CR3 |= USART_CR3_TXFTIE;
   }
-#endif
 }
 
 __STATIC_INLINE void usart_enable_tx_end_irq(SIODriver *siop) {
 
-#if SIO_USE_SYNCHRONIZATION == TRUE
-  siop->usart->CR1 |= USART_CR1_TCIE;
-#else
   if ((siop->enabled & SIO_FL_TXDONE) != 0U) {
     siop->usart->CR1 |= USART_CR1_TCIE;
   }
-#endif
 }
 
 /**
@@ -604,7 +586,7 @@ void sio_update_enable_flags(SIODriver *siop) {
   isrmask = 0U;
   if ((siop->enabled & SIO_FL_RXNOTEMPY) != 0U) {
     cr3irq  |= USART_CR3_RXFTIE;
-    isrmask |= USART_ISR_RXNE_RXFNE;        /* USART_ISR_RXFT ??? */
+    isrmask |= USART_ISR_RXNE_RXFNE;
   }
   if ((siop->enabled & SIO_FL_RXIDLE) != 0U) {
     cr1irq  |= USART_CR1_IDLEIE;
@@ -616,7 +598,7 @@ void sio_update_enable_flags(SIODriver *siop) {
   }
   if ((siop->enabled & SIO_FL_TXNOTFULL) != 0U) {
     cr3irq  |= USART_CR3_TXFTIE;
-    isrmask |= USART_ISR_TXE_TXFNF;         /* USART_ISR_TXFT ??? */
+    isrmask |= USART_ISR_TXE_TXFNF;
   }
   if ((siop->enabled & SIO_FL_TXDONE) != 0U) {
     cr1irq  |= USART_CR1_TCIE;
@@ -636,11 +618,10 @@ void sio_update_enable_flags(SIODriver *siop) {
 }
 
 /**
- * @brief   Return the pending SIO condition flags.
- * @note    Only enabled flags are returned.
+ * @brief   Return the pending SIO event flags.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @return              The pending condition flags.
+ * @return              The pending event flags.
  *
  * @notapi
  */
@@ -649,8 +630,10 @@ sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
   sioevents_t events;
 
   /* Getting and clearing all relevant ISR flags (and only those).*/
-  isr = siop->usart->ISR & (USART_ISR_PE  | USART_ISR_LBDF | USART_ISR_FE    |
-                            USART_ISR_ORE | USART_ISR_NE);
+  isr = siop->usart->ISR & (USART_ISR_ORE  | USART_ISR_NE   | USART_ISR_FE   |
+                            USART_ISR_PE   | USART_ISR_LBDF | USART_ISR_IDLE |
+                            USART_ISR_RXNE_RXFNE |
+                            USART_ISR_TXE_TXFNF);
   siop->usart->ICR = isr;
 
   /* Status flags cleared, now the related interrupts can be enabled again.*/
@@ -658,23 +641,35 @@ sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
 
   /* Translating the status flags in SIO events.*/
   events = (sioevents_t)0;
-  if ((isr & USART_ISR_ORE) != 0U) {
-    events |= SIO_EV_OVERRUN_ERR;
+  if ((isr & (USART_ISR_ORE  | USART_ISR_NE   | USART_ISR_FE   |
+              USART_ISR_PE   | USART_ISR_LBDF | USART_ISR_IDLE)) != 0U) {
+    if ((isr & USART_ISR_PE) != 0U) {
+      events |= SIO_EV_PARITY_ERR;
+    }
+    if ((isr & USART_ISR_FE) != 0U) {
+      events |= SIO_EV_FRAMING_ERR;
+    }
+    if ((isr & USART_ISR_NE) != 0U) {
+      events |= SIO_EV_NOISE_ERR;
+    }
+    if ((isr & USART_ISR_ORE) != 0U) {
+      events |= SIO_EV_OVERRUN_ERR;
+    }
+    if ((isr & USART_ISR_IDLE) != 0U) {
+      events |= SIO_EV_RXIDLE;
+    }
+    if ((isr & USART_ISR_TC) != 0U) {
+      events |= SIO_FL_TXDONE;
+    }
+    if ((isr & USART_ISR_LBDF) != 0U) {
+      events |= SIO_EV_BREAK;
+    }
   }
-  if ((isr & USART_ISR_NE) != 0U) {
-    events |= SIO_EV_NOISE_ERR;
+  if ((isr & USART_ISR_RXNE_RXFNE) != 0U) {
+    events |= SIO_FL_RXNOTEMPY;
   }
-  if ((isr & USART_ISR_FE) != 0U) {
-    events |= SIO_EV_FRAMING_ERR;
-  }
-  if ((isr & USART_ISR_PE) != 0U) {
-    events |= SIO_EV_PARITY_ERR;
-  }
-  if ((isr & USART_ISR_LBDF) != 0U) {
-    events |= SIO_EV_BREAK;
-  }
-  if ((isr & USART_ISR_IDLE) != 0U) {
-    events |= SIO_EV_RXIDLE;
+  if ((isr & USART_ISR_TXE_TXFNF) != 0U) {
+    events |= SIO_FL_TXNOTFULL;
   }
 
   /* Events interrupts can be enabled again.*/

@@ -832,115 +832,96 @@ msg_t sio_lld_control(SIODriver *siop, unsigned int operation, void *arg) {
  */
 void sio_lld_serve_interrupt(SIODriver *siop) {
   USART_TypeDef *u = siop->usart;
-  uint32_t isr, cr1, cr2, cr3;
-  bool do_callback = false;
+  uint32_t isr;
 
   osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
   /* Note, ISR flags are just read but not cleared, ISR sources are
      disabled instead.*/
-  isr = u->ISR;
+  isr = u->ISR & siop->isrmask;
+  if (isr != 0U) {
+    uint32_t cr1, cr2, cr3;
 
-  /* Read on control registers.*/
-  cr1 = u->CR1;
-  cr2 = u->CR2;
-  cr3 = u->CR3;
+    /* Read on control registers.*/
+    cr1 = u->CR1;
+    cr2 = u->CR2;
+    cr3 = u->CR3;
 
-  /* Enabled errors/events handling.*/
-  isr = isr & siop->isrmask;
+    /* Error events handled as a group, except ORE.*/
+    if ((isr & (USART_ISR_NE | USART_ISR_FE | USART_ISR_PE | USART_ISR_ORE)) != 0U) {
+      cr3 &= ~USART_CR3_EIE;
+      cr1 &= ~USART_CR1_PEIE;
 
-  /* Error events handled as a group, except ORE.*/
-  if ((isr & (USART_ISR_NE | USART_ISR_FE | USART_ISR_PE | USART_ISR_ORE)) != 0U) {
-    cr3 &= ~USART_CR3_EIE;
-    cr1 &= ~USART_CR1_PEIE;
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_rx(siop, SIO_MSG_EVENTS);
+    }
 
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_rx(siop, SIO_MSG_ERRORS);
+    /* Line break event.*/
+    if ((isr & USART_ISR_LBDF) != 0U) {
+      cr2 &= ~USART_CR2_LBDIE;
 
-    /* Callback required.*/
-    do_callback = true;
-  }
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_rx(siop, SIO_MSG_EVENTS);
+    }
 
-  /* Line break event.*/
-  if ((isr & USART_ISR_LBDF) != 0U) {
-    cr2 &= ~USART_CR2_LBDIE;
-    u->CR2 = cr2;                 /* CR2 value no more needed.            */
+    /* Idle RX event.*/
+    if ((isr & USART_ISR_IDLE) != 0U) {
+      cr1 &= USART_CR1_IDLEIE;
 
-    /* Callback required.*/
-    do_callback = true;
-  }
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_rx(siop, SIO_MSG_EVENTS);
+    }
 
-  /* Idle RX event.*/
-  if ((isr & USART_ISR_IDLE) != 0U) {
-    cr1 &= USART_CR1_IDLEIE;
+    /* First checking if there is an overrun error, this implies RX FIFO
+       not empty.*/
+    if ((isr & USART_ISR_ORE) != 0U) {
 
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_rx(siop, SIO_MSG_ERRORS);
+      /* Interrupt source disabled.*/
+      cr3 &= ~USART_CR3_RXFTIE;
 
-    /* Callback required.*/
-    do_callback = true;
-  }
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_rx(siop, SIO_MSG_EVENTS);
+    }
+    /* Then checking if the RX FIFO is non-empty.*/
+    else if ((isr & USART_ISR_RXFT) != 0U) {    /* USART_ISR_RXNE_RXFNE ??? */
 
-  /* First checking if there is an overrun error, this implies RX FIFO
-     not empty.*/
-  if ((isr & USART_ISR_ORE) != 0U) {
+      /* Interrupt source disabled.*/
+      cr3 &= ~USART_CR3_RXFTIE;
 
-    /* Interrupt source disabled.*/
-    cr3 &= ~USART_CR3_RXFTIE;
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_rx(siop, MSG_OK);
+    }
 
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_rx(siop, SIO_MSG_ERRORS);
+    /* TX FIFO is non-full.*/
+    if ((isr & USART_ISR_TXFT) != 0U) { /* USART_ISR_TXE_TXFNF ??? */
 
-    /* Callback required.*/
-    do_callback = true;
-  }
-  /* Then checking if the RX FIFO is non-empty.*/
-  else if ((isr & USART_ISR_RXFT) != 0U) {    /* USART_ISR_RXNE_RXFNE ??? */
+      /* Interrupt source disabled.*/
+      cr3 &= ~USART_CR3_TXFTIE;
 
-    /* Interrupt source disabled.*/
-    cr3 &= ~USART_CR3_RXFTIE;
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_tx(siop, MSG_OK);
+    }
 
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_rx(siop, MSG_OK);
+    /* Physical transmission end.*/
+    if ((isr & USART_ISR_TC) != 0U) {
 
-    /* Callback required.*/
-    do_callback = true;
-  }
+      /* Interrupt source disabled.*/
+      cr1 &= ~USART_CR1_TCIE;
 
-  /* TX FIFO is non-full.*/
-  if ((isr & USART_ISR_TXFT) != 0U) { /* USART_ISR_TXE_TXFNF ??? */
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_txend(siop, MSG_OK);
+    }
 
-    /* Interrupt source disabled.*/
-    cr3 &= ~USART_CR3_TXFTIE;
+    /* Updating control registers, some sources could have been disabled.*/
+    u->CR1 = cr1;
+    u->CR2 = cr2;
+    u->CR3 = cr3;
 
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_tx(siop, MSG_OK);
-
-    /* Callback required.*/
-    do_callback = true;
-  }
-
-  /* Physical transmission end.*/
-  if ((isr & USART_ISR_TC) != 0U) {
-
-    /* Interrupt source disabled.*/
-    cr1 &= ~USART_CR1_TCIE;
-
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_txend(siop, MSG_OK);
-
-    /* Callback required.*/
-    do_callback = true;
-  }
-
-  /* Updating control registers, some sources could have been disabled.*/
-  u->CR1 = cr1;
-  u->CR3 = cr3;
-
-  /* The callback, if defined, is invoked if there are events
-     to be notified.*/
-  if (do_callback) {
+    /* The callback is invoked.*/
     __sio_callback(siop);
+  }
+  else {
+    osalDbgAssert(false, "spurious interrupt");
   }
 }
 

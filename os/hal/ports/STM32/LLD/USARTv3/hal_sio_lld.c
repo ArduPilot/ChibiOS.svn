@@ -552,7 +552,7 @@ void sio_lld_update_enable_flags(SIODriver *siop) {
   isrmask = 0U;
   if ((siop->enabled & SIO_FL_RXNOTEMPY) != 0U) {
     cr3irq  |= USART_CR3_RXFTIE;
-    isrmask |= USART_ISR_RXNE_RXFNE;
+    isrmask |= USART_ISR_RXFT;
   }
   if ((siop->enabled & SIO_FL_RXIDLE) != 0U) {
     cr1irq  |= USART_CR1_IDLEIE;
@@ -563,11 +563,11 @@ void sio_lld_update_enable_flags(SIODriver *siop) {
     isrmask |= USART_ISR_LBDF;
   }
   if ((siop->enabled & SIO_FL_TXNOTFULL) != 0U) {
-    cr3irq  |= USART_CR3_TXFTIE;
-    isrmask |= USART_ISR_TXE_TXFNF;
+    /*cr3irq  |= USART_CR3_TXFTIE;*/ /* Not enabled initially.*/
+    isrmask |= USART_ISR_TXFT;
   }
   if ((siop->enabled & SIO_FL_TXDONE) != 0U) {
-    cr1irq  |= USART_CR1_TCIE;
+    /*acr1irq  |= USART_CR1_TCIE;*/ /* Not enabled initially.*/
     isrmask |= USART_ISR_TC;
   }
   if ((siop->enabled & SIO_FL_ALL_ERRORS) != 0U) {

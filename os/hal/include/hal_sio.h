@@ -32,36 +32,96 @@
 /*===========================================================================*/
 
 /**
+ * @name    Events enable flags offsets
+ * @{
+ */
+#define SIO_FL_RXNOTEMPY_POS            1
+#define SIO_FL_TXNOTFULL_POS            2
+#define SIO_FL_RXIDLE_POS               3
+#define SIO_FL_TXDONE_POS               4
+#define SIO_FL_BREAK_POS                5
+#define SIO_FL_ALL_ERRORS_POS           6
+/** @} */
+
+/**
  * @name    Events enable flags
  * @{
  */
-#define SIO_FL_NONE             0   /**< @brief No events enabled.          */
-#define SIO_FL_RXNOTEMPY        1   /**< @brief RX buffer not empty event.  */
-#define SIO_FL_TXNOTFULL        2   /**< @brief TX buffer not full event.   */
-#define SIO_FL_ALL_DATA         (SIO_FL_RXNOTEMPY       |                   \
-                                 SIO_FL_TXNOTFULL)
-#define SIO_FL_RXIDLE           4   /**< @brief RX line idling event.       */
-#define SIO_FL_TXDONE           8   /**< @brief TX complete event.          */
-#define SIO_FL_BREAK            16  /**< @brief LIN break event.            */
-#define SIO_FL_ALL_PROTOCOL     (SIO_FL_RXIDLE          |                   \
-                                 SIO_FL_TXDONE          |                   \
-                                 SIO_FL_BREAK)
-#define SIO_FL_EVENTS           32  /**< @brief RX events.                  */
+/**
+ * @brief No events enabled.
+ */
+#define SIO_FL_NONE                     0U
+/**
+ * @brief   RX buffer not empty event.
+ */
+#define SIO_FL_RXNOTEMPY                (1U << SIO_FL_RXNOTEMPY_POS)
+/**
+ * @brief   TX buffer not full event.
+ */
+#define SIO_FL_TXNOTFULL                (1U << SIO_FL_TXNOTFULL_POS)
+/**
+ * @brief   All data-related events.
+ */
+#define SIO_FL_ALL_DATA                 (SIO_FL_RXNOTEMPY       |           \
+                                         SIO_FL_TXNOTFULL)
+/**
+ * @brief RX line idling event.
+ */
+#define SIO_FL_RXIDLE                   (1U << SIO_FL_RXIDLE_POS)
+/**
+ * @brief   TX complete event.
+ */
+#define SIO_FL_TXDONE                   (1U << SIO_FL_TXDONE_POS)
+/**
+ * @brief   LIN break event.
+ */
+#define SIO_FL_BREAK                    (1U << SIO_FL_BREAK_POS)
+/**
+ * @brief   All protocol-related events.
+ */
+#define SIO_FL_ALL_PROTOCOL             (SIO_FL_RXIDLE          |           \
+                                         SIO_FL_TXDONE          |           \
+                                         SIO_FL_BREAK)
+/**
+ * @brief   All RX error events.
+ */
+#define SIO_FL_ALL_ERRORS               (1U << SIO_FL_ALL_ERRORS_POS)
+/**
+ * @brief   All events.
+ */
+#define SIO_FL_ALL                      (SIO_FL_ALL_DATA        |           \
+                                         SIO_FL_ALL_PROTOCOL    |           \
+                                         SIO_FL_ALL_ERRORS)
+/** @} */
+
+/**
+ * @name    Event flags offsets
+ * @{
+ */
+#define SIO_EV_RXNOTEMPY_POS            2   /* CHN_INPUT_AVAILABLE */
+#define SIO_EV_TXNOTFULL_POS            3   /* CHN_OUTPUT_EMPTY */
+#define SIO_EV_TXDONE_POS               4   /* CHN_TRANSMISSION_END */
+#define SIO_EV_PARITY_ERR_POS           5
+#define SIO_EV_FRAMING_ERR_POS          6
+#define SIO_EV_OVERRUN_ERR_POS          7
+#define SIO_EV_NOISE_ERR_POS            8
+#define SIO_EV_BREAK_POS                9
+#define SIO_EV_RXIDLE_POS               11
 /** @} */
 
 /**
  * @name    Event flags (compatible with channel and serial events)
  * @{
  */
-#define SIO_EV_RXNOTEMPY        CHN_INPUT_AVAILABLE     /* 4 */
-#define SIO_EV_TXNOTFULL        CHN_OUTPUT_EMPTY        /* 8 */
-#define SIO_EV_TXDONE           CHN_TRANSMISSION_END    /* 16 */
-#define SIO_EV_PARITY_ERR       32
-#define SIO_EV_FRAMING_ERR      64
-#define SIO_EV_OVERRUN_ERR      128
-#define SIO_EV_NOISE_ERR        256
-#define SIO_EV_BREAK            512
-#define SIO_EV_RXIDLE           2048
+#define SIO_EV_RXNOTEMPY                (1U << SIO_EV_RXNOTEMPY_POS)
+#define SIO_EV_TXNOTFULL                (1U << SIO_EV_TXNOTFULL_POS)
+#define SIO_EV_TXDONE                   (1U << SIO_EV_TXDONE_POS)
+#define SIO_EV_PARITY_ERR               (1U << SIO_EV_PARITY_ERR_POS)
+#define SIO_EV_FRAMING_ERR              (1U << SIO_EV_FRAMING_ERR_POS)
+#define SIO_EV_OVERRUN_ERR              (1U << SIO_EV_OVERRUN_ERR_POS)
+#define SIO_EV_NOISE_ERR                (1U << SIO_EV_NOISE_ERR_POS)
+#define SIO_EV_BREAK                    (1U << SIO_EV_BREAK_POS)
+#define SIO_EV_RXIDLE                   (1U << SIO_EV_RXIDLE_POS)
 /** @} */
 
 /**
@@ -123,6 +183,11 @@ typedef struct hal_sio_driver SIODriver;
  * @brief   Type of structure representing a SIO configuration.
  */
 typedef struct hal_sio_config SIOConfig;
+
+/**
+ * @brief   Type of structure representing a SIO operation.
+ */
+typedef struct hal_sio_operation SIOOperation;
 
 /**
  * @brief   Generic SIO notification callback type.
@@ -193,9 +258,9 @@ struct hal_sio_driver {
    */
   sioflags_t                enabled;
   /**
-   * @brief   Current callback or @p NULL.
+   * @brief   Current configuration data.
    */
-  siocb_t                   cb;
+  const SIOOperation       *operation;
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
   /**
    * @brief   Synchronization point for RX.
@@ -215,6 +280,17 @@ struct hal_sio_driver {
 #endif
   /* End of the mandatory fields.*/
   sio_lld_driver_fields;
+};
+
+/**
+ * @brief   Structure representing a SIO operation.
+ */
+struct hal_sio_operation {
+  /**
+   * @brief   Events callback.
+   * @note    Can be @p NULL.
+   */
+  siocb_t                   cb;
 };
 
 /*===========================================================================*/
@@ -254,7 +330,7 @@ struct hal_sio_driver {
  */
 #define sioSetEnableFlagsI(siop, flags) do {                                \
   (siop)->enabled |= (flags);                                               \
-  sio_update_enable_flags(siop);                                            \
+  sio_lld_update_enable_flags(siop);                                        \
 } while (false)
 
 /**
@@ -266,7 +342,7 @@ struct hal_sio_driver {
  */
 #define sioClearEnableFlagsI(siop, flags) do {                              \
   (siop)->enabled &= ~(flags);                                              \
-  sio_update_enable_flags(siop);                                            \
+  sio_lld_update_enable_flags(siop);                                        \
 } while (false)
 
 /**
@@ -287,19 +363,6 @@ struct hal_sio_driver {
  * @iclass
  */
 #define sioGetAndClearEventsI(siop) sio_lld_get_and_clear_events(siop)
-
-/**
- * @brief   Changes the callback function.
- * @note    Setting @p NULL disables callbacks.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] cb        new callback function or @p NULL
- *
- * @xclass
- */
-#define sioSetCallbackX(siop, data) do {                                    \
-  (siop)->cb = (cb);                                                        \
-} while (false)
 
 /**
  * @brief   Returns one frame from the RX FIFO.
@@ -383,8 +446,8 @@ struct hal_sio_driver {
  * @notapi
  */
 #define __sio_callback(siop) do {                                           \
-  if ((siop)->cb != NULL) {                                                 \
-    (siop)->cb(siop);                                                       \
+  if ((siop)->operation->cb != NULL) {                                      \
+    (siop)->operation->cb(siop);                                            \
   }                                                                         \
 } while (false)
 
@@ -437,6 +500,16 @@ struct hal_sio_driver {
 #endif /* !SIO_USE_SYNCHRONIZATION */
 /** @} */
 
+/**
+ * @brief   Relocates a bit field.
+ *
+ * @param[in] v         value
+ * @param[in] m         mask of the bit field
+ * @param[in] s         source bit offset
+ * @param[in] d         destination bit offset
+ */
+#define __sio_reloc_field(v, m, s, d)   ((((v) & m) >> (s)) << (d))
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -448,6 +521,8 @@ extern "C" {
   void sioObjectInit(SIODriver *siop);
   msg_t sioStart(SIODriver *siop, const SIOConfig *config);
   void sioStop(SIODriver *siop);
+  void sioStartOperation(SIODriver *siop, const SIOOperation *operation);
+  void sioStopOperation(SIODriver *siop);
   void sioSetEnableFlags(SIODriver *siop, sioflags_t flags);
   void sioClearEnableFlags(SIODriver *siop, sioflags_t flags);
   sioevents_t sioGetAndClearEvents(SIODriver *siop);

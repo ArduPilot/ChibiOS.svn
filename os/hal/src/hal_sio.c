@@ -38,6 +38,10 @@
 /* Driver local variables and types.                                         */
 /*===========================================================================*/
 
+static const SIOOperation default_operation = {
+  .cb       = NULL
+};
+
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
@@ -225,7 +229,6 @@ void sioObjectInit(SIODriver *siop) {
   siop->state       = SIO_STOP;
   siop->config      = NULL;
   siop->enabled     = (sioflags_t)0;
-  siop->cb          = NULL;
 
   /* Optional, user-defined initializer.*/
 #if defined(SIO_DRIVER_EXT_INIT_HOOK)
@@ -290,7 +293,6 @@ void sioStop(SIODriver *siop) {
   osalSysUnlock();
 }
 
-#if 0
 /**
  * @brief   Starts a SIO operation.
  *
@@ -320,6 +322,18 @@ void sioStartOperation(SIODriver *siop, const SIOOperation *operation) {
   }
 
   if (siop->state == SIO_READY) {
+    sioClearEnableFlagsI(siop, SIO_FL_ALL);
+#if SIO_USE_SYNCHRONIZATION == TRUE
+    /* If synchronization is enabled then some events are enabled by
+       default.*/
+    sioSetEnableFlagsI(siop, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS);
+#else
+    /* If synchronization is not enabled then events are initially enabled only
+       if a callback is defined.*/
+    if (siop->operation->cb != NULL) {
+      sioSetEnableFlagsI(siop, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS);
+    }
+#endif
     sio_lld_start_operation(siop);
     siop->state     = SIO_ACTIVE;
   }
@@ -359,29 +373,6 @@ void sioStopOperation(SIODriver *siop) {
 
   osalSysUnlock();
 }
-
-/**
- * @brief   Return the pending SIO events flags.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The pending event flags.
- *
- * @api
- */
-sio_events_mask_t sioGetAndClearEvents(SIODriver *siop) {
-  sio_events_mask_t evtmask;
-
-  osalDbgCheck(siop != NULL);
-
-  osalSysLock();
-
-  evtmask = sioGetAndClearEventsI(siop);
-
-  osalSysUnlock();
-
-  return evtmask;
-}
-#endif
 
 /**
  * @brief   Adds flags to the condition flags mask.

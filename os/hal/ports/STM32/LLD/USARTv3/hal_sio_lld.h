@@ -420,7 +420,7 @@ extern "C" {
   void sio_lld_stop(SIODriver *siop);
   void sio_lld_start_operation(SIODriver *siop);
   void sio_lld_stop_operation(SIODriver *siop);
-  void sio_update_enable_flags(SIODriver *siop);
+  void sio_lld_update_enable_flags(SIODriver *siop);
   sioevents_t sio_lld_get_and_clear_events(SIODriver *siop);
   size_t sio_lld_read(SIODriver *siop, uint8_t *buffer, size_t n);
   size_t sio_lld_write(SIODriver *siop, const uint8_t *buffer, size_t n);

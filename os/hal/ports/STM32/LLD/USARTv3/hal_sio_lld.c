@@ -569,9 +569,11 @@ void sio_lld_update_enable_flags(SIODriver *siop) {
 sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
   uint32_t isr;
   sioevents_t events = (sioevents_t)0;
-;
 
-  /* Getting all relevant ISR flags (and only those).*/
+  /* Getting all relevant ISR flags (and only those).
+     NOTE: Do not trust the position of other bits in ISR/ICR because
+           some scientist decided to use different positions for some
+           of them.*/
   isr = siop->usart->ISR & (USART_ISR_ORE  | USART_ISR_NE   | USART_ISR_FE   |
                             USART_ISR_PE   | USART_ISR_LBDF | USART_ISR_IDLE |
                             USART_ISR_RXNE_RXFNE |
@@ -788,6 +790,8 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
 
     /* Error events handled as a group, except ORE.*/
     if ((isr & (USART_ISR_NE | USART_ISR_FE | USART_ISR_PE | USART_ISR_ORE)) != 0U) {
+
+      /* Interrupt sources disabled.*/
       cr3 &= ~USART_CR3_EIE;
       cr1 &= ~USART_CR1_PEIE;
 
@@ -797,6 +801,8 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
 
     /* Line break event.*/
     if ((isr & USART_ISR_LBDF) != 0U) {
+
+      /* Interrupt source disabled.*/
       cr2 &= ~USART_CR2_LBDIE;
 
       /* Waiting thread woken, if any.*/
@@ -805,6 +811,8 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
 
     /* Idle RX event.*/
     if ((isr & USART_ISR_IDLE) != 0U) {
+
+      /* Interrupt source disabled.*/
       cr1 &= ~USART_CR1_IDLEIE;
 
       /* Waiting thread woken, if any.*/

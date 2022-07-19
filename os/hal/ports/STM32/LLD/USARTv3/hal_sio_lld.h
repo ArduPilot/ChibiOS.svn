@@ -303,8 +303,6 @@
  * @brief   Low level fields of the SIO driver structure.
  */
 #define sio_lld_driver_fields                                               \
-  /* ISR bits to be checked as event flags.*/                               \
-  uint32_t                  isrmask;                                        \
   /* Pointer to the USARTx registers block.*/                               \
   USART_TypeDef             *usart;                                         \
   /* Clock frequency for the associated USART/UART.*/                       \

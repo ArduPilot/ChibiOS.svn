@@ -568,20 +568,26 @@ void sio_lld_update_enable_flags(SIODriver *siop) {
  */
 sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
   uint32_t isr;
-  sioevents_t events;
+  sioevents_t events = (sioevents_t)0;
+;
 
-  /* Getting and clearing all relevant ISR flags (and only those).*/
+  /* Getting all relevant ISR flags (and only those).*/
   isr = siop->usart->ISR & (USART_ISR_ORE  | USART_ISR_NE   | USART_ISR_FE   |
                             USART_ISR_PE   | USART_ISR_LBDF | USART_ISR_IDLE |
                             USART_ISR_RXNE_RXFNE |
                             USART_ISR_TXE_TXFNF);
+
+#if defined(SIO_LLD_GET_CLEAR_EVENTS_HOOK)
+    SIO_LLD_ISRHANDLE_HOOK(siop, events, isr);
+#endif
+
+  /* Clearing captured events.*/
   siop->usart->ICR = isr;
 
   /* Status flags cleared, now the related interrupts can be enabled again.*/
   usart_enable_rx_evt_irq(siop);
 
   /* Translating the status flags in SIO events.*/
-  events  = (sioevents_t)0;
   events |= __sio_reloc_field(isr, USART_ISR_RXNE_RXFNE_Msk, USART_ISR_RXNE_RXFNE_Pos, SIO_FL_RXNOTEMPY_POS) |
             __sio_reloc_field(isr, USART_ISR_TXE_TXFNF_Msk,  USART_ISR_TXE_TXFNF_Pos,  SIO_FL_TXNOTFULL_POS);
   events |= __sio_reloc_field(isr, USART_ISR_IDLE_Msk, USART_ISR_IDLE_Pos, SIO_EV_RXIDLE_POS) |
@@ -759,7 +765,7 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
      instead of a dedicated IER (ISR, ICR, see the pattern?).*/
   isrmask = __sio_reloc_field(cr3, USART_CR3_EIE_Msk,    USART_CR3_EIE_Pos,    USART_ISR_NE_Pos)   |
             __sio_reloc_field(cr3, USART_CR3_EIE_Msk,    USART_CR3_EIE_Pos,    USART_ISR_FE_Pos)   |
-            __sio_reloc_field(cr3, USART_CR3_EIE_Msk,    USART_CR3_EIE_Pos,    USART_ISR_ORE_Pos)   |
+            __sio_reloc_field(cr3, USART_CR3_EIE_Msk,    USART_CR3_EIE_Pos,    USART_ISR_ORE_Pos)  |
             __sio_reloc_field(cr1, USART_CR1_PEIE_Msk,   USART_CR1_PEIE_Pos,   USART_ISR_PE_Pos)   |
             __sio_reloc_field(cr2, USART_CR2_LBDIE_Msk,  USART_CR2_LBDIE_Pos,  USART_ISR_LBDF_Pos) |
             __sio_reloc_field(cr1, USART_CR1_IDLEIE_Msk, USART_CR1_IDLEIE_Pos, USART_ISR_IDLE_Pos) |
@@ -767,10 +773,18 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
             __sio_reloc_field(cr3, USART_CR3_TXFTIE_Msk, USART_CR3_TXFTIE_Pos, USART_ISR_TXFT_Pos) |
             __sio_reloc_field(cr1, USART_CR1_TCIE_Msk,   USART_CR1_TCIE_Pos,   USART_ISR_TC_Pos);
 
+#if defined(SIO_LLD_ISRMASK_HOOK)
+  SIO_LLD_ISRMASK_HOOK(siop, isrmask, cr1, cr2, cr3);
+#endif
+
   /* Note, ISR flags are just read but not cleared, ISR sources are
      disabled instead.*/
   isr = u->ISR & isrmask;
   if (isr != 0U) {
+
+#if defined(SIO_LLD_ISRHANDLE_HOOK)
+    SIO_LLD_ISRHANDLE_HOOK(siop, isr, cr1, cr2, cr3);
+#endif
 
     /* Error events handled as a group, except ORE.*/
     if ((isr & (USART_ISR_NE | USART_ISR_FE | USART_ISR_PE | USART_ISR_ORE)) != 0U) {

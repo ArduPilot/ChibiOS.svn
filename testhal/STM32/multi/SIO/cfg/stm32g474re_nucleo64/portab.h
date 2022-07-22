@@ -38,7 +38,7 @@
 #define PORTAB_BUTTON_PRESSED       PAL_HIGH
 
 #define PORTAB_SIO1                 LPSIOD1
-#define PORTAB_SIO2                 SIOD2
+#define PORTAB_SIO2                 SIOD1
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */

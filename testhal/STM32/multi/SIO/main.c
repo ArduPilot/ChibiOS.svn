@@ -20,6 +20,24 @@
 #include "portab.h"
 
 /*
+ * RX consumer thread, times are in milliseconds.
+ */
+static THD_WORKING_AREA(waThread1, 256);
+static THD_FUNCTION(Thread1, arg) {
+
+  (void)arg;
+
+  chRegSetThreadName("consumer");
+
+  while (true) {
+    uint8_t buf[1];
+
+    chnRead(&PORTAB_SIO2, buf, 1);
+    chnWrite(&PORTAB_SIO1, buf, 1);
+  }
+}
+
+/*
  * Application entry point.
  */
 int main(void) {
@@ -35,15 +53,34 @@ int main(void) {
   chSysInit();
 
   /*
-   * Activates the SIO driver using the default configuration.
+   * Activates the SIO drivers using the default configuration.
    */
   sioStart(&PORTAB_SIO1, NULL);
   sioStartOperation(&PORTAB_SIO1, NULL);
+  sioStart(&PORTAB_SIO2, NULL);
+  sioStartOperation(&PORTAB_SIO2, NULL);
 
   /*
-   * Creates the blinker thread.
+   * Creates the RX consumer thread.
    */
-//  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+
+  /*
+   * Short TX writes.
+   */
+  do {
+    char c;
+
+    for (c = 'A'; c <= 'Z'; c++) {
+      chnWrite(&PORTAB_SIO2, (const uint8_t *)&c, 1);
+      chThdSleepMilliseconds(100);
+    }
+  } while (palReadLine(PORTAB_LINE_BUTTON) != PORTAB_BUTTON_PRESSED);
+
+  /* Waiting button release.*/
+  while (palReadLine(PORTAB_LINE_BUTTON) == PORTAB_BUTTON_PRESSED) {
+    chThdSleepMilliseconds(100);
+  }
 
   /*
    * Normal main() thread activity, in this demo it does nothing.

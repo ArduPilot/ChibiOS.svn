@@ -58,7 +58,7 @@ static size_t sync_write(void *ip, const uint8_t *bp, size_t n,
     msg_t msg;
 
     msg = sioSynchronizeTX(siop, timeout);
-    if (msg < MSG_OK) {
+    if (msg != MSG_OK) {
       break;
     }
 
@@ -80,7 +80,7 @@ static size_t sync_read(void *ip, uint8_t *bp, size_t n,
     msg_t msg;
 
     msg = sioSynchronizeRX(siop, timeout);
-    if (msg < MSG_OK) {
+    if (msg != MSG_OK) {
       break;
     }
 

@@ -310,6 +310,20 @@ struct hal_sio_operation {
 #define sioIsRXEmptyX(siop) sio_lld_is_rx_empty(siop)
 
 /**
+ * @brief   Determines if RX has pending events to be read and cleared.
+ * @note    Only error and protocol errors are handled, data events are not
+ *          considered.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The RX events state.
+ * @retval false        if RX has no pending events
+ * @retval true         if RX has pending events
+ *
+ * @xclass
+ */
+#define sioHasRXEventsX(siop)  sio_lld_has_rx_events(siop)
+
+/**
  * @brief   Determines the state of the TX FIFO.
  *
  * @param[in] siop      pointer to the @p SIODriver object
@@ -320,6 +334,18 @@ struct hal_sio_operation {
  * @xclass
  */
 #define sioIsTXFullX(siop) sio_lld_is_tx_full(siop)
+
+/**
+ * @brief   Determines the transmission state.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The TX FIFO state.
+ * @retval false        if transmission is idle
+ * @retval true         if transmission is ongoing
+ *
+ * @xclass
+ */
+#define sioIsTXOngoingX(siop) sio_lld_is_tx_ongoing(siop)
 
 /**
  * @brief   Adds flags to the condition flags mask.

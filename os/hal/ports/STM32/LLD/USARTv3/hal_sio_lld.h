@@ -33,6 +33,13 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
+/**
+ * @brief   Mask of RX-related events in the ISR register.
+ */
+#define SIO_LLD_ISR_RX_EVENTS           (USART_ISR_NE   | USART_ISR_FE   |  \
+                                         USART_ISR_PE   | USART_ISR_ORE  |  \
+                                         USART_ISR_LBDF | USART_ISR_IDLE)
+
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -335,6 +342,21 @@
  */
 #define sio_lld_is_rx_empty(siop)                                           \
   (bool)(((siop)->usart->ISR & USART_ISR_RXNE_RXFNE) == 0U)
+
+/**
+ * @brief   Determines if RX has pending events to be read and cleared.
+ * @note    Only error and protocol errors are handled, data events are not
+ *          considered.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The RX events state.
+ * @retval false        if RX has no pending events
+ * @retval true         if RX has pending events
+ *
+ * @notapi
+ */
+#define sio_lld_has_rx_events(siop)                                         \
+  (bool)(((siop)->usart->ISR & SIO_LLD_ISR_RX_EVENTS) != 0U)
 
 /**
  * @brief   Determines the state of the TX FIFO.

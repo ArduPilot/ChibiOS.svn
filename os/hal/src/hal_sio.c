@@ -504,7 +504,7 @@ size_t sioAsyncWrite(SIODriver *siop, const uint8_t *buffer, size_t n) {
  * @api
  */
 msg_t sioSynchronizeRX(SIODriver *siop, sysinterval_t timeout) {
-  msg_t msg = MSG_OK;
+  msg_t msg;
 
   osalDbgCheck(siop != NULL);
 
@@ -512,13 +512,18 @@ msg_t sioSynchronizeRX(SIODriver *siop, sysinterval_t timeout) {
 
   osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
+  if (sioHasRXEventsX(siop)) {
+    return SIO_MSG_EVENTS;
+  }
+
+  msg = MSG_OK;
   /*lint -save -e506 -e681 [2.1] Silencing this error because it is
     tested with a template implementation of sio_lld_is_rx_empty() which
     is constant.*/
-  while (sio_lld_is_rx_empty(siop)) {
+  while (sioIsRXEmptyX(siop)) {
   /*lint -restore*/
     msg = osalThreadSuspendTimeoutS(&siop->sync_rx, timeout);
-    if (msg < MSG_OK) {
+    if (msg != MSG_OK) {
       break;
     }
   }
@@ -544,7 +549,7 @@ msg_t sioSynchronizeRX(SIODriver *siop, sysinterval_t timeout) {
  * @api
  */
 msg_t sioSynchronizeTX(SIODriver *siop, sysinterval_t timeout) {
-  msg_t msg = MSG_OK;
+  msg_t msg;
 
   osalDbgCheck(siop != NULL);
 
@@ -552,13 +557,14 @@ msg_t sioSynchronizeTX(SIODriver *siop, sysinterval_t timeout) {
 
   osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
+  msg = MSG_OK;
   /*lint -save -e506 -e681 [2.1] Silencing this error because it is
     tested with a template implementation of sio_lld_is_tx_full() which
     is constant.*/
-  while (sio_lld_is_tx_full(siop)) {
+  while (sioIsTXFullX(siop)) {
   /*lint -restore*/
     msg = osalThreadSuspendTimeoutS(&siop->sync_tx, timeout);
-    if (msg < MSG_OK) {
+    if (msg != MSG_OK) {
       break;
     }
   }
@@ -592,7 +598,7 @@ msg_t sioSynchronizeTXEnd(SIODriver *siop, sysinterval_t timeout) {
   /*lint -save -e506 -e774 [2.1, 14.3] Silencing this error because
     it is tested with a template implementation of sio_lld_is_tx_ongoing()
     which is constant.*/
-  if (sio_lld_is_tx_ongoing(siop)) {
+  if (sioIsTXOngoingX(siop)) {
   /*lint -restore*/
     msg = osalThreadSuspendTimeoutS(&siop->sync_txend, timeout);
   }

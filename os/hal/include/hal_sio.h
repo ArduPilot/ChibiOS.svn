@@ -348,9 +348,23 @@ struct hal_sio_operation {
 #define sioIsTXOngoingX(siop) sio_lld_is_tx_ongoing(siop)
 
 /**
- * @brief   Adds flags to the condition flags mask.
+ * @brief   Writes the condition flags mask.
  *
  * @param[in] siop      pointer to the @p SIODriver object
+ * @param[in] flags     flags mask to be written
+ *
+ * @iclass
+ */
+#define sioWriteEnableFlagsI(siop, flags) do {                              \
+  (siop)->enabled = (flags);                                                \
+  sio_lld_update_enable_flags(siop);                                        \
+} while (false)
+
+/**
+ * @brief   Enables flags to the condition flags mask.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @param[in] flags     flags mask to be enabled
  *
  * @iclass
  */
@@ -360,9 +374,10 @@ struct hal_sio_operation {
 } while (false)
 
 /**
- * @brief   Clears flags from the condition flags mask.
+ * @brief   Disables flags from the condition flags mask.
  *
  * @param[in] siop      pointer to the @p SIODriver object
+ * @param[in] flags     flags mask to be disabled
  *
  * @iclass
  */

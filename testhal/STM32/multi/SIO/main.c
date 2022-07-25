@@ -24,6 +24,7 @@
  */
 static THD_WORKING_AREA(waThread1, 256);
 static THD_FUNCTION(Thread1, arg) {
+  size_t n;
 
   (void)arg;
 
@@ -32,8 +33,13 @@ static THD_FUNCTION(Thread1, arg) {
   while (true) {
     uint8_t buf[1];
 
-    chnRead(&PORTAB_SIO2, buf, 1);
-    chnWrite(&PORTAB_SIO1, buf, 1);
+    n = chnRead(&PORTAB_SIO2, buf, 1);
+    if (n > 0) {
+      chnWrite(&PORTAB_SIO1, buf, n);
+    }
+    else {
+      sioGetAndClearEvents(&PORTAB_SIO2);
+    }
   }
 }
 

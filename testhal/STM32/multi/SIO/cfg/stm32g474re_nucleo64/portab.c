@@ -55,10 +55,10 @@ void portab_setup(void) {
   /*
    * USART1 I/O pins setup.
    */
-  palSetPadMode(GPIOA,  9, PAL_MODE_ALTERNATE(7) |
-                           PAL_STM32_OSPEED_HIGHEST);       /* USART1 TX.   */
-  palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(7) |
-                           PAL_STM32_OSPEED_HIGHEST);       /* USART1 RX.   */
+  palSetPadMode(GPIOC, 4, PAL_MODE_ALTERNATE(7) |
+                          PAL_STM32_OSPEED_HIGHEST);       /* USART1 TX.   */
+  palSetPadMode(GPIOC, 5, PAL_MODE_ALTERNATE(7) |
+                          PAL_STM32_OSPEED_HIGHEST);       /* USART1 RX.   */
 }
 
 /** @} */

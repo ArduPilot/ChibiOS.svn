@@ -375,9 +375,29 @@ void sioStopOperation(SIODriver *siop) {
 }
 
 /**
- * @brief   Adds flags to the condition flags mask.
+ * @brief   Writes the condition flags mask.
  *
  * @param[in] siop      pointer to the @p SIODriver object
+ * @param[in] flags     flags mask to be written
+ *
+ * @api
+ */
+void sioWriteEnableFlags(SIODriver *siop, sioflags_t flags) {
+
+  osalDbgCheck(siop != NULL);
+
+  osalSysLock();
+
+  sioWriteEnableFlagsI(siop, flags);
+
+  osalSysUnlock();
+}
+
+/**
+ * @brief   Enables flags to the condition flags mask.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @param[in] flags     flags mask to be enabled
  *
  * @api
  */
@@ -393,9 +413,10 @@ void sioSetEnableFlags(SIODriver *siop, sioflags_t flags) {
 }
 
 /**
- * @brief   Clears flags from the condition flags mask.
+ * @brief   Disables flags from the condition flags mask.
  *
  * @param[in] siop      pointer to the @p SIODriver object
+ * @param[in] flags     flags mask to be disabled
  *
  * @api
  */
@@ -513,6 +534,7 @@ msg_t sioSynchronizeRX(SIODriver *siop, sysinterval_t timeout) {
   osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
   if (sioHasRXEventsX(siop)) {
+    osalSysUnlock();
     return SIO_MSG_EVENTS;
   }
 

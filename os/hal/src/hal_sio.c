@@ -322,16 +322,15 @@ void sioStartOperation(SIODriver *siop, const SIOOperation *operation) {
   }
 
   if (siop->state == SIO_READY) {
-    sioClearEnableFlagsI(siop, SIO_FL_ALL);
 #if SIO_USE_SYNCHRONIZATION == TRUE
     /* If synchronization is enabled then some events are enabled by
        default.*/
-    sioSetEnableFlagsI(siop, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS);
+    sioWriteEnableFlagsI(siop, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS);
 #else
     /* If synchronization is not enabled then events are initially enabled only
        if a callback is defined.*/
     if (siop->operation->cb != NULL) {
-      sioSetEnableFlagsI(siop, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS);
+      sioWriteEnableFlagsI(siop, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS);
     }
 #endif
     sio_lld_start_operation(siop);

@@ -59,6 +59,11 @@ int main(void) {
   chSysInit();
 
   /*
+   * Board-dependent setup code.
+   */
+  portab_setup();
+
+  /*
    * Activates the SIO drivers using the default configuration.
    */
   sioStart(&PORTAB_SIO1, NULL);

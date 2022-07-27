@@ -34,11 +34,11 @@
 /*===========================================================================*/
 
 /**
- * @brief   Mask of RX-related events in the ISR register.
+ * @brief   Mask of RX-related errors in the ISR register.
  */
-#define SIO_LLD_ISR_RX_EVENTS           (USART_ISR_NE   | USART_ISR_FE   |  \
+#define SIO_LLD_ISR_RX_ERRORS           (USART_ISR_NE   | USART_ISR_FE   |  \
                                          USART_ISR_PE   | USART_ISR_ORE  |  \
-                                         USART_ISR_LBDF | USART_ISR_IDLE)
+                                         USART_ISR_LBDF)
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
@@ -344,19 +344,32 @@
   (bool)(((siop)->usart->ISR & USART_ISR_RXNE_RXFNE) == 0U)
 
 /**
- * @brief   Determines if RX has pending events to be read and cleared.
+ * @brief   Determines the activity state of the receiver.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The RX activity state.
+ * @retval false        if RX is in active state.
+ * @retval true         if RX is in idle state.
+ *
+ * @notapi
+ */
+#define sio_lld_is_rx_idle(siop)                                            \
+  (bool)(((siop)->usart->ISR & USART_ISR_IDLE) != 0U)
+
+/**
+ * @brief   Determines if RX has pending error events to be read and cleared.
  * @note    Only error and protocol errors are handled, data events are not
  *          considered.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @return              The RX events state.
+ * @return              The RX error events.
  * @retval false        if RX has no pending events
  * @retval true         if RX has pending events
  *
  * @notapi
  */
-#define sio_lld_has_rx_events(siop)                                         \
-  (bool)(((siop)->usart->ISR & SIO_LLD_ISR_RX_EVENTS) != 0U)
+#define sio_lld_has_rx_errors(siop)                                         \
+  (bool)(((siop)->usart->ISR & SIO_LLD_ISR_RX_ERRORS) != 0U)
 
 /**
  * @brief   Determines the state of the TX FIFO.

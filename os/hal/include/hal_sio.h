@@ -128,7 +128,7 @@
  * @name    Additional messages
  * @{
  */
-#define SIO_MSG_EVENTS                      1
+#define SIO_MSG_ERRORS                      1
 /** @} */
 
 /*===========================================================================*/
@@ -263,9 +263,13 @@ struct hal_sio_driver {
   const SIOOperation       *operation;
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
   /**
-   * @brief   Synchronization point for RX.
+    * @brief   Synchronization point for RX.
+    */
+   thread_reference_t        sync_rx;
+  /**
+   * @brief   Synchronization point for RX idle.
    */
-  thread_reference_t        sync_rx;
+  thread_reference_t        sync_rxidle;
   /**
    * @brief   Synchronization point for TX.
    */
@@ -302,34 +306,45 @@ struct hal_sio_operation {
  *
  * @param[in] siop      pointer to the @p SIODriver object
  * @return              The RX FIFO state.
- * @retval false        if RX FIFO is not empty
- * @retval true         if RX FIFO is empty
+ * @retval false        if RX FIFO is not empty.
+ * @retval true         if RX FIFO is empty.
  *
  * @xclass
  */
 #define sioIsRXEmptyX(siop) sio_lld_is_rx_empty(siop)
 
 /**
- * @brief   Determines if RX has pending events to be read and cleared.
- * @note    Only error and protocol errors are handled, data events are not
- *          considered.
+ * @brief   Determines the activity state of the receiver.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @return              The RX events state.
- * @retval false        if RX has no pending events
- * @retval true         if RX has pending events
+ * @return              The RX activity state.
+ * @retval false        if RX is in active state.
+ * @retval true         if RX is in idle state.
  *
  * @xclass
  */
-#define sioHasRXEventsX(siop)  sio_lld_has_rx_events(siop)
+#define sioIsRXIdleX(siop) sio_lld_is_rx_idle(siop)
+
+/**
+ * @brief   Determines if RX has pending errors to be read and cleared.
+ * @note    Only errors are handled, data and idle events are not considered.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The RX error events.
+ * @retval false        if RX has no pending events.
+ * @retval true         if RX has pending events.
+ *
+ * @xclass
+ */
+#define sioHasRXErrorsX(siop)  sio_lld_has_rx_errors(siop)
 
 /**
  * @brief   Determines the state of the TX FIFO.
  *
  * @param[in] siop      pointer to the @p SIODriver object
  * @return              The TX FIFO state.
- * @retval false        if TX FIFO is not full
- * @retval true         if TX FIFO is full
+ * @retval false        if TX FIFO is not full.
+ * @retval true         if TX FIFO is full.
  *
  * @xclass
  */
@@ -340,8 +355,8 @@ struct hal_sio_operation {
  *
  * @param[in] siop      pointer to the @p SIODriver object
  * @return              The TX FIFO state.
- * @retval false        if transmission is idle
- * @retval true         if transmission is ongoing
+ * @retval false        if transmission is over.
+ * @retval true         if transmission is ongoing.
  *
  * @xclass
  */
@@ -494,16 +509,42 @@ struct hal_sio_operation {
 
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
 /**
- * @brief   Wakes up the RX-waiting thread.
+ * @brief   Wakes up because RX errors.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] msg       the wake up message
  *
  * @notapi
  */
-#define __sio_wakeup_rx(siop, msg) do {                                     \
+#define __sio_wakeup_events(siop) do {                                      \
   osalSysLockFromISR();                                                     \
-  osalThreadResumeI(&(siop)->sync_rx, msg);                                 \
+  osalThreadResumeI(&(siop)->sync_rx, SIO_MSG_ERRORS);                      \
+  osalThreadResumeI(&(siop)->sync_rxidle, SIO_MSG_ERRORS);                  \
+  osalSysUnlockFromISR();                                                   \
+} while (false)
+
+/**
+ * @brief   Wakes up the RX-waiting thread.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ *
+ * @notapi
+ */
+#define __sio_wakeup_rx(siop) do {                                          \
+  osalSysLockFromISR();                                                     \
+  osalThreadResumeI(&(siop)->sync_rx, MSG_OK);                              \
+  osalSysUnlockFromISR();                                                   \
+} while (false)
+
+/**
+ * @brief   Wakes up the RX-idle-waiting thread.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ *
+ * @notapi
+ */
+#define __sio_wakeup_rxidle(siop) do {                                      \
+  osalSysLockFromISR();                                                     \
+  osalThreadResumeI(&(siop)->sync_rxidle, MSG_OK);                          \
   osalSysUnlockFromISR();                                                   \
 } while (false)
 
@@ -515,9 +556,9 @@ struct hal_sio_operation {
  *
  * @notapi
  */
-#define __sio_wakeup_tx(siop, msg) do {                                     \
+#define __sio_wakeup_tx(siop) do {                                          \
   osalSysLockFromISR();                                                     \
-  osalThreadResumeI(&(siop)->sync_tx, msg);                                 \
+  osalThreadResumeI(&(siop)->sync_tx, MSG_OK);                              \
   osalSysUnlockFromISR();                                                   \
 } while (false)
 
@@ -529,9 +570,9 @@ struct hal_sio_operation {
  *
  * @notapi
  */
-#define __sio_wakeup_txend(siop, msg) do {                                  \
+#define __sio_wakeup_txend(siop) do {                                       \
   osalSysLockFromISR();                                                     \
-  osalThreadResumeI(&(siop)->sync_txend, msg);                              \
+  osalThreadResumeI(&(siop)->sync_txend, MSG_OK);                           \
   osalSysUnlockFromISR();                                                   \
 } while (false)
 #else /* !SIO_USE_SYNCHRONIZATION */
@@ -571,6 +612,7 @@ extern "C" {
   size_t sioAsyncWrite(SIODriver *siop, const uint8_t *buffer, size_t n);
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
   msg_t sioSynchronizeRX(SIODriver *siop, sysinterval_t timeout);
+  msg_t sioSynchronizeRXIdle(SIODriver *siop, sysinterval_t timeout);
   msg_t sioSynchronizeTX(SIODriver *siop, sysinterval_t timeout);
   msg_t sioSynchronizeTXEnd(SIODriver *siop, sysinterval_t timeout);
 #endif

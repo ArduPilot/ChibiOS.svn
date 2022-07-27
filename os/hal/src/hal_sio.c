@@ -223,6 +223,7 @@ void sioObjectInit(SIODriver *siop) {
 #if SIO_USE_SYNCHRONIZATION == TRUE
   siop->vmt         = &vmt;
   siop->sync_rx     = NULL;
+  siop->sync_rxidle = NULL;
   siop->sync_tx     = NULL;
   siop->sync_txend  = NULL;
 #endif
@@ -360,6 +361,7 @@ void sioStopOperation(SIODriver *siop) {
 #if SIO_USE_SYNCHRONIZATION == TRUE
     /* Informing waiting threads, if any.*/
     osalThreadResumeI(&siop->sync_rx, MSG_RESET);
+    osalThreadResumeI(&siop->sync_rxidle, MSG_RESET);
     osalThreadResumeI(&siop->sync_tx, MSG_RESET);
     osalThreadResumeI(&siop->sync_txend, MSG_RESET);
 #endif
@@ -519,7 +521,7 @@ size_t sioAsyncWrite(SIODriver *siop, const uint8_t *buffer, size_t n) {
  * @retval MSG_OK           if there is data in the RX FIFO.
  * @retval MSG_TIMEOUT      if synchronization timed out.
  * @retval MSG_RESET        it the operation has been stopped while waiting.
- * @retval SIO_MSG_EVENTS   if RX errors occurred during wait.
+ * @retval SIO_MSG_ERRORS   if RX errors occurred during wait.
  *
  * @api
  */
@@ -532,9 +534,10 @@ msg_t sioSynchronizeRX(SIODriver *siop, sysinterval_t timeout) {
 
   osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
-  if (sioHasRXEventsX(siop)) {
+  /* Checking for errors before going to sleep.*/
+  if (((siop->enabled & SIO_FL_ALL_ERRORS) != 0U) && sioHasRXErrorsX(siop)) {
     osalSysUnlock();
-    return SIO_MSG_EVENTS;
+    return SIO_MSG_ERRORS;
   }
 
   msg = MSG_OK;
@@ -544,6 +547,51 @@ msg_t sioSynchronizeRX(SIODriver *siop, sysinterval_t timeout) {
   while (sioIsRXEmptyX(siop)) {
   /*lint -restore*/
     msg = osalThreadSuspendTimeoutS(&siop->sync_rx, timeout);
+    if (msg != MSG_OK) {
+      break;
+    }
+  }
+
+  osalSysUnlock();
+
+  return msg;
+}
+/**
+ * @brief   Synchronizes with RX going idle.
+ * @note    This function can only be called by a single thread at time.
+ *
+ * @param[in] siop          pointer to an @p SIODriver structure
+ * @param[in] timeout       synchronization timeout
+ * @return                  The synchronization result.
+ * @retval MSG_OK           if RW went idle.
+ * @retval MSG_TIMEOUT      if synchronization timed out.
+ * @retval MSG_RESET        it the operation has been stopped while waiting.
+ * @retval SIO_MSG_ERRORS   if RX errors occurred during wait.
+ *
+ * @api
+ */
+msg_t sioSynchronizeRXIdle(SIODriver *siop, sysinterval_t timeout) {
+  msg_t msg;
+
+  osalDbgCheck(siop != NULL);
+
+  osalSysLock();
+
+  osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
+
+  /* Checking for errors before going to sleep.*/
+  if (((siop->enabled & SIO_FL_ALL_ERRORS) != 0U) && sioHasRXErrorsX(siop)) {
+    osalSysUnlock();
+    return SIO_MSG_ERRORS;
+  }
+
+  msg = MSG_OK;
+  /*lint -save -e506 -e681 [2.1] Silencing this error because it is
+    tested with a template implementation of sio_lld_is_rx_empty() which
+    is constant.*/
+  while (!sioIsRXIdleX(siop)) {
+  /*lint -restore*/
+    msg = osalThreadSuspendTimeoutS(&siop->sync_rxidle, timeout);
     if (msg != MSG_OK) {
       break;
     }

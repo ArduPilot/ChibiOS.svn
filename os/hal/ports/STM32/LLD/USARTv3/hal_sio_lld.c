@@ -796,7 +796,7 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
       cr1 &= ~USART_CR1_PEIE;
 
       /* Waiting thread woken, if any.*/
-      __sio_wakeup_rx(siop, SIO_MSG_EVENTS);
+      __sio_wakeup_events(siop);
     }
 
     /* Line break event.*/
@@ -806,7 +806,7 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
       cr2 &= ~USART_CR2_LBDIE;
 
       /* Waiting thread woken, if any.*/
-      __sio_wakeup_rx(siop, SIO_MSG_EVENTS);
+      __sio_wakeup_events(siop);
     }
 
     /* Idle RX event.*/
@@ -816,7 +816,7 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
       cr1 &= ~USART_CR1_IDLEIE;
 
       /* Waiting thread woken, if any.*/
-      __sio_wakeup_rx(siop, SIO_MSG_EVENTS);
+      __sio_wakeup_rxidle(siop);
     }
 
     /* RX FIFO is non-empty.*/
@@ -826,7 +826,7 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
       cr3 &= ~USART_CR3_RXFTIE;
 
       /* Waiting thread woken, if any.*/
-      __sio_wakeup_rx(siop, MSG_OK);
+      __sio_wakeup_rx(siop);
     }
 
     /* TX FIFO is non-full.*/
@@ -836,7 +836,7 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
       cr3 &= ~USART_CR3_TXFTIE;
 
       /* Waiting thread woken, if any.*/
-      __sio_wakeup_tx(siop, MSG_OK);
+      __sio_wakeup_tx(siop);
     }
 
     /* Physical transmission end.*/
@@ -846,7 +846,7 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
       cr1 &= ~USART_CR1_TCIE;
 
       /* Waiting thread woken, if any.*/
-      __sio_wakeup_txend(siop, MSG_OK);
+      __sio_wakeup_txend(siop);
     }
 
     /* Updating control registers, some sources could have been disabled.*/

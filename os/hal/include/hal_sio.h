@@ -39,8 +39,7 @@
 #define SIO_FL_TXNOTFULL_POS            2
 #define SIO_FL_RXIDLE_POS               3
 #define SIO_FL_TXDONE_POS               4
-#define SIO_FL_BREAK_POS                5
-#define SIO_FL_ALL_ERRORS_POS           6
+#define SIO_FL_ALL_ERRORS_POS           5
 /** @} */
 
 /**
@@ -73,15 +72,10 @@
  */
 #define SIO_FL_TXDONE                   (1U << SIO_FL_TXDONE_POS)
 /**
- * @brief   LIN break event.
- */
-#define SIO_FL_BREAK                    (1U << SIO_FL_BREAK_POS)
-/**
  * @brief   All protocol-related events.
  */
 #define SIO_FL_ALL_PROTOCOL             (SIO_FL_RXIDLE          |           \
-                                         SIO_FL_TXDONE          |           \
-                                         SIO_FL_BREAK)
+                                         SIO_FL_TXDONE)
 /**
  * @brief   All RX error events.
  */

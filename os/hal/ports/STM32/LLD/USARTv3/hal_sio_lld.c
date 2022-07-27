@@ -165,10 +165,8 @@ __STATIC_INLINE void usart_enable_rx_evt_irq(SIODriver *siop) {
 
   if ((siop->enabled & SIO_FL_ALL_ERRORS) != 0U) {
     siop->usart->CR1 |= USART_CR1_PEIE;
-    siop->usart->CR3 |= USART_CR3_EIE;
-  }
-  if ((siop->enabled & SIO_FL_BREAK) != 0U) {
     siop->usart->CR2 |= USART_CR2_LBDIE;
+    siop->usart->CR3 |= USART_CR3_EIE;
   }
   if ((siop->enabled & SIO_FL_RXIDLE) != 0U) {
     siop->usart->CR1 |= USART_CR1_IDLEIE;
@@ -547,7 +545,7 @@ void sio_lld_update_enable_flags(SIODriver *siop) {
   cr1irq |= __sio_reloc_field(siop->enabled, SIO_FL_RXIDLE,     SIO_FL_RXIDLE_POS,     USART_CR1_IDLEIE_Pos) |
             __sio_reloc_field(siop->enabled, SIO_FL_TXDONE,     SIO_FL_TXDONE_POS,     USART_CR1_TCIE_Pos)   |
             __sio_reloc_field(siop->enabled, SIO_FL_ALL_ERRORS, SIO_FL_ALL_ERRORS_POS, USART_CR1_PEIE_Pos);
-  cr2irq |= __sio_reloc_field(siop->enabled, SIO_FL_BREAK,      SIO_FL_BREAK_POS,      USART_CR2_LBDIE_Pos);
+  cr2irq |= __sio_reloc_field(siop->enabled, SIO_FL_ALL_ERRORS, SIO_FL_ALL_ERRORS_POS, USART_CR2_LBDIE_Pos);
   cr3irq |= __sio_reloc_field(siop->enabled, SIO_FL_RXNOTEMPY,  SIO_FL_RXNOTEMPY_POS,  USART_CR3_RXFTIE_Pos) |
             __sio_reloc_field(siop->enabled, SIO_FL_TXNOTFULL,  SIO_FL_TXNOTFULL_POS,  USART_CR3_TXFTIE_Pos) |
             __sio_reloc_field(siop->enabled, SIO_FL_ALL_ERRORS, SIO_FL_ALL_ERRORS_POS, USART_CR3_EIE_Pos);
@@ -789,21 +787,13 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
 #endif
 
     /* Error events handled as a group, except ORE.*/
-    if ((isr & (USART_ISR_NE | USART_ISR_FE | USART_ISR_PE | USART_ISR_ORE)) != 0U) {
+    if ((isr & (USART_ISR_LBDF | USART_ISR_NE | USART_ISR_FE |
+                USART_ISR_PE | USART_ISR_ORE)) != 0U) {
 
       /* Interrupt sources disabled.*/
       cr3 &= ~USART_CR3_EIE;
-      cr1 &= ~USART_CR1_PEIE;
-
-      /* Waiting thread woken, if any.*/
-      __sio_wakeup_events(siop);
-    }
-
-    /* Line break event.*/
-    if ((isr & USART_ISR_LBDF) != 0U) {
-
-      /* Interrupt source disabled.*/
       cr2 &= ~USART_CR2_LBDIE;
+      cr1 &= ~USART_CR1_PEIE;
 
       /* Waiting thread woken, if any.*/
       __sio_wakeup_events(siop);

@@ -405,7 +405,17 @@ struct hal_sio_operation {
 #define sioGetEnableFlagsX(siop) (siop)->eflags
 
 /**
- * @brief   Return the pending SIO event flags.
+ * @brief   Get and clears SIO error event flags.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The pending error event flags.
+ *
+ * @iclass
+ */
+#define sioGetAndClearErrorsI(siop) sio_lld_get_and_clear_errors(siop)
+
+/**
+ * @brief   Get and clears SIO event flags.
  *
  * @param[in] siop      pointer to the @p SIODriver object
  * @return              The pending event flags.
@@ -601,6 +611,7 @@ extern "C" {
   void sioStopOperation(SIODriver *siop);
   void sioSetEnableFlags(SIODriver *siop, sioflags_t flags);
   void sioClearEnableFlags(SIODriver *siop, sioflags_t flags);
+  sioevents_t sioGetAndClearErrors(SIODriver *siop) ;
   sioevents_t sioGetAndClearEvents(SIODriver *siop);
   size_t sioAsyncRead(SIODriver *siop, uint8_t *buffer, size_t n);
   size_t sioAsyncWrite(SIODriver *siop, const uint8_t *buffer, size_t n);

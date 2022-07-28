@@ -433,7 +433,29 @@ void sioClearEnableFlags(SIODriver *siop, sioflags_t flags) {
 }
 
 /**
- * @brief   Return the pending SIO event flags.
+ * @brief   Get and clears SIO error event flags.
+ *
+ * @param[in] siop      pointer to the @p SIODriver object
+ * @return              The pending error event flags.
+ *
+ * @api
+ */
+sioevents_t sioGetAndClearErrors(SIODriver *siop) {
+  sioevents_t errors;
+
+  osalDbgCheck(siop != NULL);
+
+  osalSysLock();
+
+  errors = sioGetAndClearErrorsI(siop);
+
+  osalSysUnlock();
+
+  return errors;
+}
+
+/**
+ * @brief   Get and clears SIO event flags.
  *
  * @param[in] siop      pointer to the @p SIODriver object
  * @return              The pending event flags.

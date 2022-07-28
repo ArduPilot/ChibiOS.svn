@@ -38,7 +38,7 @@ static THD_FUNCTION(Thread1, arg) {
       chnWrite(&PORTAB_SIO1, buf, n);
     }
     else {
-      sioGetAndClearEvents(&PORTAB_SIO2);
+      sioGetAndClearErrors(&PORTAB_SIO2);
     }
   }
 }

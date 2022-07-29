@@ -31,15 +31,17 @@ static THD_FUNCTION(Thread1, arg) {
   chRegSetThreadName("consumer");
 
   while (true) {
-    uint8_t buf[1];
+    sioevents_t errors;
+    uint8_t buf[16];
 
-    n = chnRead(&PORTAB_SIO2, buf, 1);
+    n = chnRead(&PORTAB_SIO2, buf, 16);
     if (n > 0) {
       chnWrite(&PORTAB_SIO1, buf, n);
     }
-    else {
-      sioGetAndClearErrors(&PORTAB_SIO2);
-    }
+    errors = sioGetAndClearErrors(&PORTAB_SIO2);
+    (void) errors;
+
+    sioSynchronizeRXIdle(&PORTAB_SIO2, TIME_INFINITE);
   }
 }
 
@@ -70,6 +72,7 @@ int main(void) {
   sioStartOperation(&PORTAB_SIO1, NULL);
   sioStart(&PORTAB_SIO2, NULL);
   sioStartOperation(&PORTAB_SIO2, NULL);
+  sioWriteEnableFlagsI(&PORTAB_SIO2, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS | SIO_FL_ALL_PROTOCOL);
 
   /*
    * Creates the RX consumer thread.
@@ -84,8 +87,23 @@ int main(void) {
 
     for (c = 'A'; c <= 'Z'; c++) {
       chnWrite(&PORTAB_SIO2, (const uint8_t *)&c, 1);
+      sioSynchronizeTXEnd(&PORTAB_SIO2, TIME_INFINITE);
       chThdSleepMilliseconds(100);
     }
+  } while (palReadLine(PORTAB_LINE_BUTTON) != PORTAB_BUTTON_PRESSED);
+
+  /* Waiting button release.*/
+  while (palReadLine(PORTAB_LINE_BUTTON) == PORTAB_BUTTON_PRESSED) {
+    chThdSleepMilliseconds(100);
+  }
+
+  /*
+   * Long TX writes.
+   */
+  do {
+    chnWrite(&PORTAB_SIO2, (const uint8_t *)"Hello World!!!\r\n", 16);
+    sioSynchronizeTXEnd(&PORTAB_SIO2, TIME_INFINITE);
+    chThdSleepMilliseconds(100);
   } while (palReadLine(PORTAB_LINE_BUTTON) != PORTAB_BUTTON_PRESSED);
 
   /* Waiting button release.*/

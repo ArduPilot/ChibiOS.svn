@@ -72,7 +72,6 @@ int main(void) {
   sioStartOperation(&PORTAB_SIO1, NULL);
   sioStart(&PORTAB_SIO2, NULL);
   sioStartOperation(&PORTAB_SIO2, NULL);
-  sioWriteEnableFlagsI(&PORTAB_SIO2, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS | SIO_FL_ALL_PROTOCOL);
 
   /*
    * Creates the RX consumer thread.

@@ -266,18 +266,6 @@ msg_t sioStart(SIODriver *siop, const SIOConfig *config) {
     siop->state = SIO_STOP;
   }
 
-#if SIO_USE_SYNCHRONIZATION == TRUE
-    /* If synchronization is enabled then some events are enabled by
-       default.*/
-    sioWriteEnableFlagsI(siop, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS);
-#else
-    /* If synchronization is not enabled then events are initially enabled only
-       if a callback is defined.*/
-    if (siop->operation->cb != NULL) {
-      sioWriteEnableFlagsI(siop, SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS);
-    }
-#endif
-
   osalSysUnlock();
 
   return msg;
@@ -337,6 +325,13 @@ void sioStartOperation(SIODriver *siop, const SIOOperation *operation) {
   if (siop->state == SIO_READY) {
     sio_lld_start_operation(siop);
     siop->state     = SIO_ACTIVE;
+
+#if SIO_USE_SYNCHRONIZATION == TRUE
+    /* If synchronization is enabled then some events are enforced by
+       default.*/
+    sioWriteEnableFlagsI(siop,
+                         SIO_FL_ALL_DATA | SIO_FL_ALL_ERRORS | SIO_FL_ALL_PROTOCOL);
+#endif
   }
 
   osalSysUnlock();
@@ -390,8 +385,7 @@ void sioWriteEnableFlags(SIODriver *siop, sioflags_t flags) {
 
   osalSysLock();
 
-  osalDbgAssert((siop->state == SIO_READY) || (siop->state == SIO_ACTIVE),
-                "invalid state");
+  osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
   sioWriteEnableFlagsI(siop, flags);
 
@@ -412,8 +406,7 @@ void sioSetEnableFlags(SIODriver *siop, sioflags_t flags) {
 
   osalSysLock();
 
-  osalDbgAssert((siop->state == SIO_READY) || (siop->state == SIO_ACTIVE),
-                "invalid state");
+  osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
   sioSetEnableFlagsI(siop, flags);
 
@@ -434,8 +427,7 @@ void sioClearEnableFlags(SIODriver *siop, sioflags_t flags) {
 
   osalSysLock();
 
-  osalDbgAssert((siop->state == SIO_READY) || (siop->state == SIO_ACTIVE),
-                "invalid state");
+  osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
   sioClearEnableFlagsI(siop, flags);
 
@@ -457,8 +449,7 @@ sioevents_t sioGetAndClearErrors(SIODriver *siop) {
 
   osalSysLock();
 
-  osalDbgAssert((siop->state == SIO_READY) || (siop->state == SIO_ACTIVE),
-                "invalid state");
+  osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
   errors = sioGetAndClearErrorsI(siop);
 
@@ -482,8 +473,7 @@ sioevents_t sioGetAndClearEvents(SIODriver *siop) {
 
   osalSysLock();
 
-  osalDbgAssert((siop->state == SIO_READY) || (siop->state == SIO_ACTIVE),
-                "invalid state");
+  osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
   events = sioGetAndClearEventsI(siop);
 

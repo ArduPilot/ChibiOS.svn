@@ -582,10 +582,10 @@ sioevents_t sio_lld_get_and_clear_errors(SIODriver *siop) {
   usart_enable_rx_errors_irq(siop);
 
   /* Translating the status flags in SIO events.*/
-  errors |= __sio_reloc_field(isr, USART_ISR_LBDF_Msk, USART_ISR_LBDF_Pos, SIO_EV_BREAK_POS) |
-            __sio_reloc_field(isr, USART_ISR_PE_Msk,   USART_ISR_PE_Pos,   SIO_EV_PARITY_ERR_POS) |
+  errors |= __sio_reloc_field(isr, USART_ISR_LBDF_Msk, USART_ISR_LBDF_Pos, SIO_EV_BREAK_POS)       |
+            __sio_reloc_field(isr, USART_ISR_PE_Msk,   USART_ISR_PE_Pos,   SIO_EV_PARITY_ERR_POS)  |
             __sio_reloc_field(isr, USART_ISR_FE_Msk,   USART_ISR_FE_Pos,   SIO_EV_FRAMING_ERR_POS) |
-            __sio_reloc_field(isr, USART_ISR_NE_Msk,   USART_ISR_NE_Pos,   SIO_EV_NOISE_ERR_POS) |
+            __sio_reloc_field(isr, USART_ISR_NE_Msk,   USART_ISR_NE_Pos,   SIO_EV_NOISE_ERR_POS)   |
             __sio_reloc_field(isr, USART_ISR_ORE_Msk,  USART_ISR_ORE_Pos,  SIO_EV_OVERRUN_ERR_POS);
 
   return errors;
@@ -620,14 +620,14 @@ sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
   usart_enable_rx_errors_irq(siop);
 
   /* Translating the status flags in SIO events.*/
-  events |= __sio_reloc_field(isr, USART_ISR_RXNE_RXFNE_Msk, USART_ISR_RXNE_RXFNE_Pos, SIO_FL_RXNOTEMPY_POS) |
-            __sio_reloc_field(isr, USART_ISR_TXE_TXFNF_Msk,  USART_ISR_TXE_TXFNF_Pos,  SIO_FL_TXNOTFULL_POS) |
-            __sio_reloc_field(isr, USART_ISR_IDLE_Msk, USART_ISR_IDLE_Pos, SIO_EV_RXIDLE_POS) |
-            __sio_reloc_field(isr, USART_ISR_TC_Msk,   USART_ISR_TC_Pos,   SIO_EV_TXDONE_POS) |
-            __sio_reloc_field(isr, USART_ISR_LBDF_Msk, USART_ISR_LBDF_Pos, SIO_EV_BREAK_POS) |
-            __sio_reloc_field(isr, USART_ISR_PE_Msk,   USART_ISR_PE_Pos,   SIO_EV_PARITY_ERR_POS) |
+  events |= __sio_reloc_field(isr, USART_ISR_RXNE_RXFNE_Msk, USART_ISR_RXNE_RXFNE_Pos, SIO_EV_RXNOTEMPY_POS) |
+            __sio_reloc_field(isr, USART_ISR_TXE_TXFNF_Msk,  USART_ISR_TXE_TXFNF_Pos,  SIO_EV_TXNOTFULL_POS) |
+            __sio_reloc_field(isr, USART_ISR_IDLE_Msk, USART_ISR_IDLE_Pos, SIO_EV_RXIDLE_POS)      |
+            __sio_reloc_field(isr, USART_ISR_TC_Msk,   USART_ISR_TC_Pos,   SIO_EV_TXDONE_POS)      |
+            __sio_reloc_field(isr, USART_ISR_LBDF_Msk, USART_ISR_LBDF_Pos, SIO_EV_BREAK_POS)       |
+            __sio_reloc_field(isr, USART_ISR_PE_Msk,   USART_ISR_PE_Pos,   SIO_EV_PARITY_ERR_POS)  |
             __sio_reloc_field(isr, USART_ISR_FE_Msk,   USART_ISR_FE_Pos,   SIO_EV_FRAMING_ERR_POS) |
-            __sio_reloc_field(isr, USART_ISR_NE_Msk,   USART_ISR_NE_Pos,   SIO_EV_NOISE_ERR_POS) |
+            __sio_reloc_field(isr, USART_ISR_NE_Msk,   USART_ISR_NE_Pos,   SIO_EV_NOISE_ERR_POS)   |
             __sio_reloc_field(isr, USART_ISR_ORE_Msk,  USART_ISR_ORE_Pos,  SIO_EV_OVERRUN_ERR_POS);
 
   return events;

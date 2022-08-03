@@ -31,6 +31,14 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
+/**
+ * @brief   Mask of RX-related errors in the MIS/RIS registers.
+ */
+#define SIO_LLD_ISR_RX_ERRORS           (UART_UARTMIS_OEMIS |               \
+                                         UART_UARTMIS_BEMIS |               \
+                                         UART_UARTMIS_PEMIS |               \
+                                         UART_UARTMIS_FEMIS)
+
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -156,7 +164,7 @@
  * @notapi
  */
 #define sio_lld_has_rx_errors(siop)                                         \
-  (bool)(((siop)->usart->ISR & SIO_LLD_ISR_RX_ERRORS) != 0U)
+  (bool)(((siop)->uart->UARTMIS & SIO_LLD_ISR_RX_ERRORS) != 0U)
 
 /**
  * @brief   Determines the state of the TX FIFO.

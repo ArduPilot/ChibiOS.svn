@@ -555,7 +555,11 @@ sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
      NOTE: Do not trust the position of other bits in ISR/ICR because
            some scientist decided to use different positions for some
            of them.*/
-  isr = siop->usart->ISR & (SIO_LLD_ISR_RX_ERRORS | USART_ISR_RXNE | USART_ISR_TXE);
+  isr = siop->usart->ISR & (SIO_LLD_ISR_RX_ERRORS |
+                            USART_ISR_RXNE        |
+                            USART_ISR_IDLE        |
+                            USART_ISR_TXE         |
+							USART_ISR_TC);
 
   /* Clearing captured events.*/
   siop->usart->ICR = isr;

@@ -608,8 +608,10 @@ sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
            some scientist decided to use different positions for some
            of them.*/
   isr = siop->usart->ISR & (SIO_LLD_ISR_RX_ERRORS |
-                            USART_ISR_RXNE_RXFNE |
-                            USART_ISR_TXE_TXFNF);
+							USART_ISR_RXNE_RXFNE  |
+                            USART_ISR_IDLE        |
+                            USART_ISR_TXE_TXFNF   |
+							USART_ISR_TC);
 
   /* Clearing captured events.*/
   siop->usart->ICR = isr;

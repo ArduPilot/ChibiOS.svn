@@ -85,15 +85,15 @@ __STATIC_INLINE void uart_enable_rx_irq(SIODriver *siop) {
   }
 }
 
-__STATIC_INLINE void usart_enable_rx_errors_irq(SIODriver *siop) {
+__STATIC_INLINE void uart_enable_rx_errors_irq(SIODriver *siop) {
 
   if ((siop->enabled & SIO_FL_ALL_ERRORS) != 0U) {
-  siop->uart->UARTIMSC |= UART_UARTIMSC_OEIM | UART_UARTIMSC_BEIM |
-                          UART_UARTIMSC_PEIM | UART_UARTIMSC_FEIM;
+    siop->uart->UARTIMSC |= UART_UARTIMSC_OEIM | UART_UARTIMSC_BEIM |
+                            UART_UARTIMSC_PEIM | UART_UARTIMSC_FEIM;
   }
 }
 
-__STATIC_INLINE void usart_enable_tx_irq(SIODriver *siop) {
+__STATIC_INLINE void uart_enable_tx_irq(SIODriver *siop) {
 
   if ((siop->enabled & SIO_FL_TXNOTFULL) != 0U) {
     siop->uart->UARTIMSC |= UART_UARTIMSC_TXIM;
@@ -275,24 +275,24 @@ void sio_lld_stop_operation(SIODriver *siop) {
  * @param[in] siop      pointer to the @p SIODriver object
  */
 void sio_lld_update_enable_flags(SIODriver *siop) {
-  uint32_t cr1irq, cr2irq, cr3irq;
+  uint32_t imsc;
 
-  cr1irq = siop->usart->CR1 & ~(USART_CR1_IDLEIE | USART_CR1_TCIE | USART_CR1_PEIE);
-  cr2irq = siop->usart->CR2 & ~(USART_CR2_LBDIE);
-  cr3irq = siop->usart->CR3 & ~(USART_CR3_RXFTIE | USART_CR3_TXFTIE | USART_CR3_EIE);
+  osalDbgAssert((siop->enabled & SIO_FL_TXDONE) == 0U, "unsupported event");
 
-  cr1irq |= __sio_reloc_field(siop->enabled, SIO_FL_RXIDLE,     SIO_FL_RXIDLE_POS,     USART_CR1_IDLEIE_Pos) |
-            __sio_reloc_field(siop->enabled, SIO_FL_TXDONE,     SIO_FL_TXDONE_POS,     USART_CR1_TCIE_Pos)   |
-            __sio_reloc_field(siop->enabled, SIO_FL_ALL_ERRORS, SIO_FL_ALL_ERRORS_POS, USART_CR1_PEIE_Pos);
-  cr2irq |= __sio_reloc_field(siop->enabled, SIO_FL_ALL_ERRORS, SIO_FL_ALL_ERRORS_POS, USART_CR2_LBDIE_Pos);
-  cr3irq |= __sio_reloc_field(siop->enabled, SIO_FL_RXNOTEMPY,  SIO_FL_RXNOTEMPY_POS,  USART_CR3_RXFTIE_Pos) |
-            __sio_reloc_field(siop->enabled, SIO_FL_TXNOTFULL,  SIO_FL_TXNOTFULL_POS,  USART_CR3_TXFTIE_Pos) |
-            __sio_reloc_field(siop->enabled, SIO_FL_ALL_ERRORS, SIO_FL_ALL_ERRORS_POS, USART_CR3_EIE_Pos);
+  if ((siop->enabled & SIO_FL_ALL_ERRORS) == 0U) {
+    imsc = 0U;
+  }
+  else {
+    imsc = UART_UARTIMSC_OEIM | UART_UARTIMSC_BEIM |
+           UART_UARTIMSC_PEIM | UART_UARTIMSC_FEIM;
+  }
+
+  imsc |= __sio_reloc_field(siop->enabled, SIO_FL_RXNOTEMPY,  SIO_FL_RXNOTEMPY_POS,  UART_UARTIMSC_RXIM_Pos) |
+          __sio_reloc_field(siop->enabled, SIO_FL_TXNOTFULL,  SIO_FL_TXNOTFULL_POS,  UART_UARTIMSC_TXIM_Pos) |
+          __sio_reloc_field(siop->enabled, SIO_FL_RXIDLE,     SIO_FL_RXIDLE_POS,     UART_UARTIMSC_RTIM_Pos);
 
   /* Setting up the operation.*/
-  siop->usart->CR1 = cr1irq;
-  siop->usart->CR2 = cr2irq;
-  siop->usart->CR3 = cr3irq;
+  siop->uart->UARTIMSC |= imsc;
 }
 
 /**
@@ -304,28 +304,21 @@ void sio_lld_update_enable_flags(SIODriver *siop) {
  * @notapi
  */
 sioevents_t sio_lld_get_and_clear_errors(SIODriver *siop) {
-  uint32_t isr;
+  uint32_t ris;
   sioevents_t errors = (sioevents_t)0;
 
-  /* Getting all error ISR flags (and only those).
-     NOTE: Do not trust the position of other bits in ISR/ICR because
-           some scientist decided to use different positions for some
-           of them.*/
-  isr = siop->usart->ISR & SIO_LLD_ISR_RX_ERRORS;
+  /* Getting and clearing all relevant RIS flags (and only those).*/
+  ris = siop->uart->UARTRIS & SIO_LLD_ISR_RX_ERRORS;
+  siop->uart->UARTICR = ris;
 
-  /* Clearing captured events.*/
-  siop->usart->ICR = isr;
-
-  /* Status flags cleared, now the RX errors-related interrupts can be
-     enabled again.*/
-  usart_enable_rx_errors_irq(siop);
+  /* Status flags cleared, now the related interrupts can be enabled again.*/
+  uart_enable_rx_errors_irq(siop);
 
   /* Translating the status flags in SIO events.*/
-  errors |= __sio_reloc_field(isr, USART_ISR_LBDF_Msk, USART_ISR_LBDF_Pos, SIO_EV_BREAK_POS)       |
-            __sio_reloc_field(isr, USART_ISR_PE_Msk,   USART_ISR_PE_Pos,   SIO_EV_PARITY_ERR_POS)  |
-            __sio_reloc_field(isr, USART_ISR_FE_Msk,   USART_ISR_FE_Pos,   SIO_EV_FRAMING_ERR_POS) |
-            __sio_reloc_field(isr, USART_ISR_NE_Msk,   USART_ISR_NE_Pos,   SIO_EV_NOISE_ERR_POS)   |
-            __sio_reloc_field(isr, USART_ISR_ORE_Msk,  USART_ISR_ORE_Pos,  SIO_EV_OVERRUN_ERR_POS);
+  errors |= __sio_reloc_field(ris, UART_UARTMIS_OEMIS_Msk, UART_UARTMIS_OEMIS_Pos, SIO_EV_OVERRUN_ERR_POS) |
+            __sio_reloc_field(ris, UART_UARTMIS_BEMIS_Msk, UART_UARTMIS_BEMIS_Pos, SIO_EV_BREAK_POS)       |
+            __sio_reloc_field(ris, UART_UARTMIS_PEMIS_Msk, UART_UARTMIS_PEMIS_Pos, SIO_EV_PARITY_ERR_POS)  |
+            __sio_reloc_field(ris, UART_UARTMIS_FEMIS_Msk, UART_UARTMIS_FEMIS_Pos, SIO_EV_FRAMING_ERR_POS);
 
   return errors;
 }
@@ -339,35 +332,31 @@ sioevents_t sio_lld_get_and_clear_errors(SIODriver *siop) {
  * @notapi
  */
 sioevents_t sio_lld_get_and_clear_events(SIODriver *siop) {
-  uint32_t isr;
+  uint32_t ris;
   sioevents_t events = (sioevents_t)0;
 
-  /* Getting all ISR flags.
-     NOTE: Do not trust the position of other bits in ISR/ICR because
-           some scientist decided to use different positions for some
-           of them.*/
-  isr = siop->usart->ISR & (SIO_LLD_ISR_RX_ERRORS |
-                            USART_ISR_RXNE_RXFNE |
-                            USART_ISR_TXE_TXFNF);
+  /* Getting all RIS flags.*/
+  ris = siop->uart->UARTRIS & (SIO_LLD_ISR_RX_ERRORS |
+                               UART_UARTMIS_RTMIS    |
+                               UART_UARTMIS_RXMIS    |
+                               UART_UARTMIS_TXMIS);
 
   /* Clearing captured events.*/
-  siop->usart->ICR = isr;
+  siop->uart->UARTICR = ris;
 
   /* Status flags cleared, now the RX-related interrupts can be
      enabled again.*/
-  usart_enable_rx_irq(siop);
-  usart_enable_rx_errors_irq(siop);
+  uart_enable_rx_irq(siop);
+  uart_enable_rx_errors_irq(siop);
 
   /* Translating the status flags in SIO events.*/
-  events |= __sio_reloc_field(isr, USART_ISR_RXNE_RXFNE_Msk, USART_ISR_RXNE_RXFNE_Pos, SIO_EV_RXNOTEMPY_POS) |
-            __sio_reloc_field(isr, USART_ISR_TXE_TXFNF_Msk,  USART_ISR_TXE_TXFNF_Pos,  SIO_EV_TXNOTFULL_POS) |
-            __sio_reloc_field(isr, USART_ISR_IDLE_Msk, USART_ISR_IDLE_Pos, SIO_EV_RXIDLE_POS)      |
-            __sio_reloc_field(isr, USART_ISR_TC_Msk,   USART_ISR_TC_Pos,   SIO_EV_TXDONE_POS)      |
-            __sio_reloc_field(isr, USART_ISR_LBDF_Msk, USART_ISR_LBDF_Pos, SIO_EV_BREAK_POS)       |
-            __sio_reloc_field(isr, USART_ISR_PE_Msk,   USART_ISR_PE_Pos,   SIO_EV_PARITY_ERR_POS)  |
-            __sio_reloc_field(isr, USART_ISR_FE_Msk,   USART_ISR_FE_Pos,   SIO_EV_FRAMING_ERR_POS) |
-            __sio_reloc_field(isr, USART_ISR_NE_Msk,   USART_ISR_NE_Pos,   SIO_EV_NOISE_ERR_POS)   |
-            __sio_reloc_field(isr, USART_ISR_ORE_Msk,  USART_ISR_ORE_Pos,  SIO_EV_OVERRUN_ERR_POS);
+  events |= __sio_reloc_field(ris, UART_UARTMIS_RXMIS_Msk, UART_UARTMIS_RXMIS_Pos, SIO_EV_RXNOTEMPY_POS)   |
+            __sio_reloc_field(ris, UART_UARTMIS_TXMIS_Msk, UART_UARTMIS_TXMIS_Pos, SIO_EV_TXNOTFULL_POS)   |
+            __sio_reloc_field(ris, UART_UARTMIS_RTMIS_Msk, UART_UARTMIS_RTMIS_Pos, SIO_EV_RXIDLE_POS)   |
+            __sio_reloc_field(ris, UART_UARTMIS_OEMIS_Msk, UART_UARTMIS_OEMIS_Pos, SIO_EV_OVERRUN_ERR_POS) |
+            __sio_reloc_field(ris, UART_UARTMIS_BEMIS_Msk, UART_UARTMIS_BEMIS_Pos, SIO_EV_BREAK_POS)       |
+            __sio_reloc_field(ris, UART_UARTMIS_PEMIS_Msk, UART_UARTMIS_PEMIS_Pos, SIO_EV_PARITY_ERR_POS)  |
+            __sio_reloc_field(ris, UART_UARTMIS_FEMIS_Msk, UART_UARTMIS_FEMIS_Pos, SIO_EV_FRAMING_ERR_POS);
 
   return events;
 }
@@ -522,7 +511,7 @@ msg_t sio_lld_control(SIODriver *siop, unsigned int operation, void *arg) {
  */
 void sio_lld_serve_interrupt(SIODriver *siop) {
   UART_TypeDef *u = siop->uart;
-  uint32_t mis, imsc, evtmask;
+  uint32_t mis, imsc;
 
   osalDbgAssert(siop->state == SIO_ACTIVE, "invalid state");
 
@@ -533,65 +522,72 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
   /* Read on control registers.*/
   imsc = u->UARTIMSC;
 
-  /* Enabled errors/events handling.*/
-  evtmask = mis & (UART_UARTMIS_OEMIS | UART_UARTMIS_BEMIS |
-                   UART_UARTMIS_PEMIS | UART_UARTMIS_FEMIS);
+  /* Note, ISR flags are just read but not cleared, ISR sources are
+     disabled instead.*/
+  if (mis != 0U) {
 
-  if (evtmask != 0U) {
-    /* Disabling event sources.*/
-    u->UARTIMSC = imsc & ~(UART_UARTIMSC_OEIM | UART_UARTIMSC_BEIM |
-             UART_UARTIMSC_PEIM | UART_UARTIMSC_FEIM);
+    /* Error events handled as a group, except ORE.*/
+    if ((mis & SIO_LLD_ISR_RX_ERRORS) != 0U) {
 
-    /* The callback is invoked if defined.*/
-    __sio_callback_rx_evt(siop);
+#if SIO_USE_SYNCHRONIZATION
+      /* The idle flag is forcibly cleared when an RX error event is
+         detected.*/
+      imsc &= ~UART_UARTIMSC_RTIM;
+#endif
 
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_rx(siop, SIO_MSG_ERRORS);
+      /* Disabling event sources.*/
+      imsc &= ~(UART_UARTIMSC_OEIM | UART_UARTIMSC_BEIM |
+                UART_UARTIMSC_PEIM | UART_UARTIMSC_FEIM);
 
-    /* Values could have been changed by the callback. */
-    imsc = u->UARTIMSC;
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_events(siop);
+    }
+
+    /* Idle RX event.*/
+    if ((mis & UART_UARTMIS_RTMIS) != 0U) {
+
+      /* Called once then the interrupt source is disabled.*/
+       imsc &= ~UART_UARTIMSC_RTIM;
+
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_rxidle(siop);
+    }
+
+    /* RX FIFO is non-empty.*/
+    if ((mis & UART_UARTMIS_RXMIS) != 0U) {
+
+#if SIO_USE_SYNCHRONIZATION
+      /* The idle flag is forcibly cleared when an RX data event is
+         detected.*/
+      imsc &= ~UART_UARTIMSC_RTIM;
+#endif
+
+      /* Called once then the interrupt source is disabled.*/
+      imsc &= ~UART_UARTIMSC_RXIM;
+
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_rx(siop);
+    }
+
+    /* TX FIFO is non-full.*/
+    if ((mis & UART_UARTMIS_TXMIS) != 0U) {
+
+      /* Called once then the interrupt source is disabled.*/
+      imsc &= ~UART_UARTIMSC_TXIM;
+
+      /* Waiting thread woken, if any.*/
+      __sio_wakeup_tx(siop);
+    }
+
+    /* Updating IMSC, some sources could have been disabled.*/
+    u->UARTIMSC = imsc;
+
+    /* The callback is invoked.*/
+    __sio_callback(siop);
+
   }
-
-  /* RX FIFO is non-empty.*/
-  if (((mis & UART_UARTMIS_RXMIS) != 0U)) {
-    /* Called once then the interrupt source is disabled.*/
-    u->UARTIMSC = imsc & ~UART_UARTIMSC_RXIM;
-
-    /* The callback is invoked if defined.*/
-    __sio_callback_rx(siop);
-
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_rx(siop, MSG_OK);
-
-    /* Values could have been changed by the callback. */
-    imsc = u->UARTIMSC;
-  }
-
-  /* RX idle condition.*/
-  if ((mis & UART_UARTMIS_RTMIS) != 0U) {
-    /* Called once then the interrupt source is disabled.*/
-     u->UARTIMSC = imsc & ~UART_UARTIMSC_RTIM;
-
-    /* The callback is invoked if defined.*/
-    __sio_callback_rx_idle(siop);
-
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_rx(siop, SIO_MSG_IDLE);
-
-    /* Values could have been changed by the callback. */
-    imsc = u->UARTIMSC;
-  }
-
-  /* TX FIFO is non-full.*/
-  if ((mis & UART_UARTMIS_TXMIS) != 0U) {
-    /* Called once then the interrupt source is disabled.*/
-    u->UARTIMSC = imsc & ~UART_UARTIMSC_TXIM;
-
-    /* The callback is invoked if defined.*/
-    __sio_callback_tx(siop);
-
-    /* Waiting thread woken, if any.*/
-    __sio_wakeup_tx(siop, MSG_OK);
+  else {
+    osalDbgAssert(false, "spurious interrupt");
   }
 }
 

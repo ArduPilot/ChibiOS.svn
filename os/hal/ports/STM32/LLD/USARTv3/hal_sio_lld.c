@@ -397,7 +397,7 @@ msg_t sio_lld_start(SIODriver *siop) {
     }
 #endif
     else {
-      osalDbgAssert(false, "invalid USART instance");
+      osalDbgAssert(false, "invalid SIO instance");
     }
 
     /* Driver object low level initializations.*/
@@ -496,7 +496,7 @@ void sio_lld_stop(SIODriver *siop) {
     }
 #endif
     else {
-      osalDbgAssert(false, "invalid USART instance");
+      osalDbgAssert(false, "invalid SIO instance");
     }
   }
 }

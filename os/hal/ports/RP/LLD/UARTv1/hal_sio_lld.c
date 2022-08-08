@@ -549,6 +549,11 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
       /* Called once then the interrupt source is disabled.*/
        imsc &= ~UART_UARTIMSC_RTIM;
 
+       /* Workaround for RX FIFO threshold problem.*/
+       if(!sio_lld_is_rx_empty(siop)) {
+         __sio_wakeup_rx(siop);
+       }
+
       /* Waiting thread woken, if any.*/
       __sio_wakeup_rxidle(siop);
     }

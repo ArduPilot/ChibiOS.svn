@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Class/interfaces definitions -->
+<instance
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/oop/classes.xsd">
+  <configuration_settings>
+  </configuration_settings>
+  <files>
+    <file name="oop_base_object_test">
+      <classes>
+        <class name="base_object" prefix="bo" ancestor="">
+          <fields>
+            <field name="last" ctype="int" multiplicity="" visibility="private" />
+          </fields>
+          <methods>
+            <method name="add" type="virtual">
+              <return>int</return>
+              <params>int a, int b</params>
+              <implementation><![CDATA[
+this->last = a + b;
+return this->last;]]></implementation>
+            </method>
+          </methods>
+        </class>
+      </classes>
+    </file>
+  </files>
+</instance>

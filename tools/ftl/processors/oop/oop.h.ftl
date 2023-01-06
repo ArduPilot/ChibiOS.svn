@@ -15,17 +15,93 @@
     limitations under the License.
   --]
 [#import "/@ftllibs/libutils.ftl" as utils /]
+[#import "/@ftllibs/liblicense.ftl" as license /]
 [@pp.dropOutputFile /]
 [#assign instance = xml.instance /]
-[#--Scanning all files to be generated.--]
+[#-- Scanning all files to be generated.--]
 [#list instance.files.file as file]
-  [@pp.changeOutputFile name="include/" + file.@name[0]?trim + ".h" /]
-  [#--Scanning all classes to be generated in this file.--]
+  [#-- Generating the header file.--]
+  [#assign basename   = file.@name[0]?trim /]
+  [#assign headername = "include/" + basename + ".h" /]
+  [#assign docgroup   = file.@docgroup[0]?trim /]
+  [@pp.changeOutputFile name=headername /]
+/*
+[@license.EmitLicenseAsText /]
+*/
+
+/**
+ * @file    ${headername}
+ * @brief   Generated OOP header.
+ * @details TODO
+ *
+ * @addtogroup ${docgroup}
+ * @{
+ */
+
+  [#-- Generating inclusions.--]
+  
+  [#-- Scanning all classes to be generated in this file.--]
   [#list file.classes.class as class]
-    [#assign classname     = class.@name[0]?trim /]
-    [#assign classprefix   = class.@prefix[0]?trim /]
-    [#assign classancestor = class.@ancestor[0]?trim /]
-hello world
+    [#assign classname      = class.@name[0]?trim /]
+    [#assign classnamespace = class.@namespace[0]?trim /]
+    [#assign classpostfix   = class.@postfix[0]?trim /]
+    [#assign classancestor  = class.@ancestor[0]?trim /]
+    [#assign classdescr     = class.@descr[0]?trim /]
+    [#assign classtype      = classname + classpostfix]
+/*===========================================================================*/
+/* Class ${(classtype + ".")?right_pad(68)}*/
+/*===========================================================================*/
+
+/**
+ * @brief   Type of a ${classdescr} class.
+ * @details TODO
+ */
+typedef struct ${classname} ${classtype};
+
+/**
+ * @brief   @p ${classtype} specific methods.
+ */
+    [#assign methodsdefine = "__" + classname?lower_case + "_methods" /]
+#define ${methodsdefine?right_pad(68) + "\\"}
+    [#if classancestor?length == 0]
+  /* Instance offset, used for multiple inheritance, normally zero. It
+     represents the offset between the current object and the container
+     object*/                                                               \
+  size_t instance_offset;                                                   \
+    [#else]
+    [/#if]
+  /* end methods */
+
+/**
+ * @brief   @p ${classtype} specific data.
+ * @details TODO
+ */
+    [#assign datadefine = "__" + classname?lower_case + "_data" /]
+#define ${datadefine?right_pad(68) + "\\"}
+    [#if classancestor?length > 0]
+  __${(classancestor + "_data")?right_pad(66) + "\\"}
+    [#else]
+    [/#if]
+  /* end data */
+
+/**
+ * @brief   @p ${classtype} virtual methods table.
+ */
+struct ${classname?lower_case}_vmt {
+  ${methodsdefine}
+};
+
+/**
+ * @brief   Structure representing a ${classdescr} class.
+ */
+struct ${classname?lower_case} {
+  /**
+   * @brief   Virtual Methods Table.
+   */
+  const struct ${(classname?lower_case + "_vmt")?right_pad(28)} *vmt;
+  ${datadefine}
+};
+
   [/#list]
 [/#list]
 

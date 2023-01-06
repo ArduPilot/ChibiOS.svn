@@ -6,9 +6,11 @@
   <configuration_settings>
   </configuration_settings>
   <files>
-    <file name="oop_base_object_test">
+    <file name="oop_base_object_test" docgroup="OOP_BASE_OBJECT">
       <classes>
-        <class name="base_object" prefix="bo" ancestor="">
+        <class name="base_object" namespace="bo" postfix="_c" ancestor="" descr="base object">
+          <details>
+          </details>
           <fields>
             <field name="last" ctype="int" multiplicity="" visibility="private" />
           </fields>

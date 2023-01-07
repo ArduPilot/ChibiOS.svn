@@ -16,15 +16,19 @@
   --]
 [#import "/@ftllibs/libutils.ftl" as utils /]
 [#import "/@ftllibs/liblicense.ftl" as license /]
+[@pp.changeOutputFile name="classgen/tmp.txt" /]
 [@pp.dropOutputFile /]
 [#assign instance = xml.instance /]
+[#assign class_suffix = "_c" /]
 [#-- Scanning all files to be generated.--]
 [#list instance.files.file as file]
   [#-- Generating the header file.--]
   [#assign basename   = file.@name[0]?trim /]
-  [#assign headername = "include/" + basename + ".h" /]
+  [#assign headername = basename + ".h" /]
+  [#assign sourcename = basename + ".c" /]
   [#assign docgroup   = file.@docgroup[0]?trim /]
-  [@pp.changeOutputFile name=headername /]
+  [#-- Generating class header.--]
+  [@pp.changeOutputFile name="../include/" + headername /]
 /*
 [@license.EmitLicenseAsText /]
 */
@@ -37,33 +41,40 @@
  * @addtogroup ${docgroup}
  * @{
  */
-
+ 
+ #ifndef ${basename?upper_case}_H
+ #define ${basename?upper_case}_H
   [#-- Generating inclusions.--]
-  
+/* TODO inclusions */
   [#-- Scanning all classes to be generated in this file.--]
+  [#assign allabstract=true /]
   [#list file.classes.class as class]
-    [#assign classname      = class.@name[0]?trim /]
-    [#assign classnamespace = class.@namespace[0]?trim /]
-    [#assign classpostfix   = class.@postfix[0]?trim /]
-    [#assign classancestor  = class.@ancestor[0]?trim /]
-    [#assign classdescr     = class.@descr[0]?trim /]
-    [#assign classtype      = classname + classpostfix]
+    [#assign classname        = class.@name[0]?trim /]
+    [#assign classfullname    = classname + class_suffix]
+    [#assign classdescr       = class.@descr[0]?trim /]
+    [#assign classtype        = class.@type[0]?trim /]
+    [#assign ancestorname     = class.@ancestor[0]?trim /]
+    [#assign ancestorfullname = classname + class_suffix]
+    [#if classtype != "abstract"]
+      [#assign allabstract=false /]
+    [/#if]
+
 /*===========================================================================*/
-/* Class ${(classtype + ".")?right_pad(68)}*/
+/* Class ${(classfullname + ".")?right_pad(68)}*/
 /*===========================================================================*/
 
 /**
  * @brief   Type of a ${classdescr} class.
  * @details TODO
  */
-typedef struct ${classname} ${classtype};
+typedef struct ${classname} ${classfullname};
 
 /**
- * @brief   @p ${classtype} specific methods.
+ * @brief   @p ${classfullname} specific methods.
  */
     [#assign methodsdefine = "__" + classname?lower_case + "_methods" /]
 #define ${methodsdefine?right_pad(68) + "\\"}
-    [#if classancestor?length == 0]
+    [#if ancestorname?length == 0]
   /* Instance offset, used for multiple inheritance, normally zero. It
      represents the offset between the current object and the container
      object*/                                                               \
@@ -73,19 +84,19 @@ typedef struct ${classname} ${classtype};
   /* end methods */
 
 /**
- * @brief   @p ${classtype} specific data.
+ * @brief   @p ${classfullname} specific data.
  * @details TODO
  */
     [#assign datadefine = "__" + classname?lower_case + "_data" /]
 #define ${datadefine?right_pad(68) + "\\"}
-    [#if classancestor?length > 0]
-  __${(classancestor + "_data")?right_pad(66) + "\\"}
+    [#if ancestorname?length > 0]
+  __${(ancestorname + "_data")?right_pad(66) + "\\"}
     [#else]
     [/#if]
   /* end data */
 
 /**
- * @brief   @p ${classtype} virtual methods table.
+ * @brief   @p ${classfullname} virtual methods table.
  */
 struct ${classname?lower_case}_vmt {
   ${methodsdefine}
@@ -102,221 +113,100 @@ struct ${classname?lower_case} {
   ${datadefine}
 };
 
-  [/#list]
-[/#list]
-
-
-[#if 1 < 0]
-[#assign conf = {"instance":instance} /]
-[#assign prefix_lower = conf.instance.global_data_and_code.code_prefix.value[0]?trim?lower_case /]
-[#assign prefix_upper = conf.instance.global_data_and_code.code_prefix.value[0]?trim?upper_case /]
-[#list conf.instance.sequences.sequence as sequence]
-  [@pp.changeOutputFile name=prefix_lower+"test_sequence_" + (sequence_index + 1)?string("000") + ".c" /]
-[@utils.EmitIndentedCCode "" 2 conf.instance.description.copyright.value[0] /]
-
-#include "hal.h"
-#include "${prefix_lower}test_root.h"
-
 /**
- * @file    ${prefix_lower}test_sequence_${(sequence_index + 1)?string("000")}.c
- * @brief   Test Sequence ${(sequence_index + 1)?string("000")} code.
- *
- * @page ${prefix_lower}test_sequence_${(sequence_index + 1)?string("000")} [${(sequence_index + 1)?string}] ${utils.WithoutDot(sequence.brief.value[0]?string)}
- *
- * File: @ref ${prefix_lower}test_sequence_${(sequence_index + 1)?string("000")}.c
- *
- * <h2>Description</h2>
-[@utils.FormatStringAsText " * "
-                           " * "
-                           utils.WithDot(sequence.description.value[0]?string)
-                           72 /]
- *
-  [#if sequence.condition.value[0]?trim?length > 0]
- * <h2>Conditions</h2>
- * This sequence is only executed if the following preprocessor condition
- * evaluates to true:
- * - ${sequence.condition.value[0]}
- * .
- *
-  [/#if]
- * <h2>Test Cases</h2>
-  [#if sequence.cases.case?size > 0]
-    [#list sequence.cases.case as case]
- * - @subpage ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")}
-    [/#list]
- * .
-  [#else]
- * No test cases defined in the test sequence.
-  [/#if]
+ * @name    Methods implementations
+ * @{
  */
-
-  [#if sequence.condition.value[0]?trim?length > 0]
-#if (${sequence.condition.value[0]}) || defined(__DOXYGEN__)
-
-  [/#if]
-/****************************************************************************
- * Shared code.
- ****************************************************************************/
-
-  [#if sequence.shared_code.value[0]?trim?length > 0]
-[@utils.EmitIndentedCCode "" 2 sequence.shared_code.value[0] /]
-  [/#if]
-
-/****************************************************************************
- * Test cases.
- ****************************************************************************/
-
-  [#list sequence.cases.case as case]
-    [#-- Building the sequence of the requirements covered by
-         this test case.--]
-    [#assign reqseq = [] /]
-    [#list case.steps.step as step]
-        [#assign reqseq = reqseq + step.tags.value[0]?string?trim?word_list /]
-    [/#list]
-    [#assign reqseq = reqseq?sort /]
-    [#-- Checking if a condition should be generated.--]
-    [#if case.condition.value[0]?trim?length > 0]
-#if (${case.condition.value[0]?trim}) || defined(__DOXYGEN__)
-    [/#if]
-    [#-- Header generation.--]
 /**
- * @page ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")} [${(sequence_index + 1)?string}.${(case_index + 1)?string}] ${utils.WithoutDot(case.brief.value[0])}
+ * @brief   Object creation implementation.
  *
- * <h2>Description</h2>
-[@utils.FormatStringAsText " * "
-                           " * "
-                           utils.WithDot(case.description.value[0]?string)
-                           72 /]
- *
-    [#if case.condition.value[0]?trim?length > 0]
- * <h2>Conditions</h2>
- * This test is only executed if the following preprocessor condition
- * evaluates to true:
- * - ${case.condition.value[0]}
- * .
- *
-    [/#if]
- * <h2>Test Steps</h2>
-    [#list case.steps.step as step]
-[@utils.FormatStringAsText " * - "
-                           " *   "
-                           utils.WithDot("[" + (sequence_index + 1)?string + "." + (case_index + 1)?string + "." + (step_index + 1)?string + "] " + step.description.value[0]?string)
-                           72 /]
-    [/#list]
-    [#if case.steps.step?size > 0]
- * .
-    [/#if]
-    [#if reqseq?size > 0]
- * <h2>Covered Requirements</h2>
-    [#assign reqs = "" /]
-    [#list reqseq as r]
-      [#assign reqs = reqs + r /]
-      [#if r_has_next]
-        [#assign reqs = reqs + ", " /]
-      [/#if]
-    [/#list]
-[@utils.FormatStringAsText " * "
-                           " * "
-                           utils.WithDot(reqs)
-                           72 /]
-    [/#if]
+ * @param[out] ip       Pointer to a @p ${classfullname} structure
+ *                      to be initialized.
+ * @param[in] vmt       VMT pointer for the new object.
+ * @return              A new reference to the object.
  */
+CC_FORCE_INLINE
+static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
+  ${classname} *self = (${classname} *)ip;
 
-    [#if case.various_code.setup_code.value[0]?trim?length > 0]
-static void ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")}_setup(void) {
-[@utils.EmitIndentedCCode "  " 2 case.various_code.setup_code.value[0] /]
-}
+    [#if ancestorname?length == 0]
+  /* This is a root class, initializing the VMT pointer here.*/
+  self->vmt = (struct base_object_vmt *)vmt;
 
-    [/#if]
-    [#if case.various_code.teardown_code.value[0]?trim?length > 0]
-static void ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")}_teardown(void) {
-[@utils.EmitIndentedCCode "  " 2 case.various_code.teardown_code.value[0] /]
-}
-
-    [/#if]
-static void ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")}_execute(void) {
-    [#if case.various_code.local_variables.value[0]?trim?length > 0]
-[@utils.EmitIndentedCCode "  " 2 case.various_code.local_variables.value[0] /]
-    [/#if]
-    [#list case.steps.step as step]
-
-[@utils.FormatStringAsText "  /* "
-                           "     "
-                           utils.WithDot("[" + (sequence_index + 1)?string + "." + (case_index + 1)?string + "." + (step_index + 1)?string + "] " + step.description.value[0]?string) + "*/"
-                           72 /]
-  test_set_step(${(step_index + 1)?string});
-  {
-      [#if step.tags.value[0]?string?trim != ""]
-        [#assign reqseq = step.tags.value[0]?string?trim?word_list?sort /]
-        [#assign reqs = "" /]
-        [#list reqseq as r]
-          [#assign reqs = reqs + r /]
-          [#if r_has_next]
-            [#assign reqs = reqs + ", " /]
-          [/#if]
-        [/#list]
-[@utils.FormatStringAsText "    /* @covers "
-                           "               "
-                           utils.WithDot(reqs) + "*/"
-                           72 /]
-      [/#if]
-      [#if step.code.value[0]?trim?length > 0]
-[@utils.EmitIndentedCCode "    " 2 step.code.value[0] /]
-      [/#if]
-  }
-  test_end_step(${(step_index + 1)?string});
-    [/#list]
-}
-
-static const testcase_t ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")} = {
-  "${utils.WithoutDot(case.brief.value[0]?string)}",
-    [#if case.various_code.setup_code.value[0]?trim?length > 0]
-  ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")}_setup,
     [#else]
-  NULL,
+  /* Initialization of the ancestors-defined parts.*/
+  __${ancestorname}_objinit_impl(self);
+
     [/#if]
-    [#if case.various_code.teardown_code.value[0]?trim?length > 0]
-  ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")}_teardown,
+    [#if class.init.implementation[0]?? &&
+         (class.dispose.implementation[0]?trim?length > 0)]
+  /* Initialization code.*/
+[@utils.EmitIndentedCCode start="  " tab=2 ccode=class.init.implementation[0]?string /]
     [#else]
-  NULL,
-    [/#if]
-  ${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")}_execute
-};
-    [#if case.condition.value[0]?trim?length > 0]
-#endif /* ${case.condition.value[0]?trim} */
+  /* No initialization code.*/
     [/#if]
 
-  [/#list]
-/****************************************************************************
- * Exported data.
- ****************************************************************************/
+  return self;
+}
 
 /**
- * @brief   Array of test cases.
+ * @brief   Object finalization implementation.
+ *
+ * @param[in] ip        Pointer to a @p ${classfullname} structure
+ *                      to be disposed.
  */
-const testcase_t * const ${prefix_lower}test_sequence_${(sequence_index + 1)?string("000")}_array[] = {
-  [#list sequence.cases.case as case]
-   [#if case.condition.value[0]?trim?length > 0]
-#if (${case.condition.value[0]?trim}) || defined(__DOXYGEN__)
+CC_FORCE_INLINE
+static inline void __${classname}_dispose_impl(void *ip) {
+  ${classname} *self = (${classname} *)ip;
+
+    [#if ancestorname?length > 0]
+  __${ancestorname}_dispose_impl(self);
+
     [/#if]
-  &${prefix_lower}test_${(sequence_index + 1)?string("000")}_${(case_index + 1)?string("000")},
-    [#if case.condition.value[0]?trim?length > 0]
-#endif
+    [#if class.dispose.implementation[0]?? &&
+         (class.dispose.implementation[0]?trim?length > 0)]
+  /* Finalization code.*/
+[@utils.EmitIndentedCCode start="  " tab=2 ccode=class.dispose.implementation[0]?string /]
+    [#else]
+  /* No finalization code.*/
+  (void)self;
     [/#if]
+}
+/** @} */
   [/#list]
-  NULL
-};
+
+#endif /* ${basename?upper_case}_H */
+
+/** @} */
+  [#if allabstract==allabstract]
+    [#-- Generating class source, if not abstract.--]
+    [@pp.changeOutputFile name="../src/" + sourcename /]
+/*
+[@license.EmitLicenseAsText /]
+*/
 
 /**
- * @brief   ${utils.WithDot(sequence.brief.value[0]?string)}
+ * @file    ${sourcename}
+ * @brief   Generated OOP source.
+ * @details TODO
+ *
+ * @addtogroup ${docgroup}
+ * @{
  */
-const testsequence_t ${prefix_lower}test_sequence_${(sequence_index + 1)?string("000")} = {
-  "${utils.WithoutDot(sequence.brief.value[0]?string)}",
-  ${prefix_lower}test_sequence_${(sequence_index + 1)?string("000")}_array
-};
-  [#if sequence.condition.value[0]?trim?length > 0]
 
-#endif /* ${sequence.condition.value[0]} */
+#include "${headername}"
+
+  [#-- Scanning all classes to be generated in this file.--]
+    [#list file.classes.class as class]
+      [#assign classname        = class.@name[0]?trim /]
+      [#assign classfullname    = classname + class_suffix]
+      [#assign classdescr       = class.@descr[0]?trim /]
+      [#assign classtype        = class.@type[0]?trim /]
+      [#assign ancestorname     = class.@ancestor[0]?trim /]
+      [#assign ancestorfullname = classname + class_suffix]
+/*===========================================================================*/
+/* Class ${(classfullname + ".")?right_pad(68)}*/
+/*===========================================================================*/
+    [/#list]
   [/#if]
 [/#list]
-[/#if]

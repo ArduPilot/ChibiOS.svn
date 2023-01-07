@@ -8,19 +8,44 @@
   <files>
     <file name="oop_base_object_test" docgroup="OOP_BASE_OBJECT">
       <classes>
-        <class name="base_object" namespace="bo" postfix="_c" ancestor="" descr="base object">
+        <class name="base_object" ancestor="" descr="base object" type="abstract">
           <details>
           </details>
           <fields>
             <field name="last" ctype="int" multiplicity="" visibility="private" />
           </fields>
+          <init>
+            <implementation><![CDATA[ ]]></implementation>
+          </init>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
           <methods>
-            <method name="add" type="virtual">
-              <return>int</return>
-              <params>int a, int b</params>
+          </methods>
+        </class>
+        <class name="referenced_object" ancestor="base_object" descr="referenced object" type="abstract">
+          <details>
+          </details>
+          <fields>
+            <field name="references" ctype="oop_object_references_t" multiplicity="" visibility="private" />
+          </fields>
+          <init>
+            <implementation><![CDATA[
+self->last = 0;]]></implementation>
+          </init>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
+          <methods>
+            <method name="addref" type="virtual">
+              <return>void *</return>
+              <params></params>
               <implementation><![CDATA[
-this->last = a + b;
-return this->last;]]></implementation>
+self->references++;
+
+osalDbgAssert(objp->references != (oop_object_references_t)0, "overflow");
+
+return self;]]></implementation>
             </method>
           </methods>
         </class>

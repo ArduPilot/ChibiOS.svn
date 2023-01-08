@@ -1,21 +1,27 @@
 [#ftl]
 [#--
-    ChibiOS/RT - Copyright (C) 2006..2023 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+    This file is part of ChibiOS.
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    ChibiOS is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    ChibiOS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
   --]
+
 [#import "/@ftllibs/libutils.ftl" as utils /]
 [#import "/@ftllibs/liblicense.ftl" as license /]
+[#import "/@ftllibs/libdoxygen.ftl" as doxygen /]
+[@pp.dropOutputFile /]
 [@pp.changeOutputFile name="classgen/tmp.txt" /]
 [@pp.dropOutputFile /]
 [#assign instance = xml.instance /]
@@ -64,13 +70,12 @@
 /*===========================================================================*/
 
 /**
- * @brief   Type of a ${classdescr} class.
- * @details TODO
+[@doxygen.EmitBrief "" "Type of a " + classdescr + " class." /]
  */
 typedef struct ${classname} ${classfullname};
 
 /**
- * @brief   @p ${classfullname} specific methods.
+[@doxygen.EmitBrief "" "@p " + classfullname + " specific methods." /]
  */
     [#assign methodsdefine = "__" + classname?lower_case + "_methods" /]
 #define ${methodsdefine?right_pad(68) + "\\"}
@@ -84,41 +89,41 @@ typedef struct ${classname} ${classfullname};
   /* end methods */
 
 /**
- * @brief   @p ${classfullname} specific data.
- * @details TODO
+[@doxygen.EmitBrief "" "@p " + classfullname + " specific data." /]
  */
     [#assign datadefine = "__" + classname?lower_case + "_data" /]
 #define ${datadefine?right_pad(68) + "\\"}
     [#if ancestorname?length > 0]
-  __${(ancestorname + "_data")?right_pad(66) + "\\"}
+  __${(ancestorname + "_data")?right_pad(72) + "\\"}
     [#else]
     [/#if]
   /* end data */
 
 /**
- * @brief   @p ${classfullname} virtual methods table.
+[@doxygen.EmitBrief "" "@p " + classfullname + " virtual methods table." /]
  */
 struct ${classname?lower_case}_vmt {
   ${methodsdefine}
 };
 
 /**
- * @brief   Structure representing a ${classdescr} class.
+[@doxygen.EmitBrief "" "Structure representing a " + classdescr + " class." /]
  */
 struct ${classname?lower_case} {
   /**
-   * @brief   Virtual Methods Table.
+[@doxygen.EmitBrief "" "Virtual Methods Table." /]
    */
   const struct ${(classname?lower_case + "_vmt")?right_pad(28)} *vmt;
   ${datadefine}
 };
 
 /**
- * @name    Methods implementations
+ * @name    Methods implementations (${classfullname})
  * @{
  */
 /**
- * @brief   Object creation implementation.
+[@doxygen.EmitBrief "" "Implementation of object creation." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
  * @param[out] ip       Pointer to a @p ${classfullname} structure
  *                      to be initialized.
@@ -127,7 +132,7 @@ struct ${classname?lower_case} {
  */
 CC_FORCE_INLINE
 static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
-  ${classname} *self = (${classname} *)ip;
+  ${classfullname} *self = (${classfullname} *)ip;
 
     [#if ancestorname?length == 0]
   /* This is a root class, initializing the VMT pointer here.*/
@@ -150,14 +155,15 @@ static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
 }
 
 /**
- * @brief   Object finalization implementation.
+[@doxygen.EmitBrief "" "Implementation of object finalization." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
  * @param[in] ip        Pointer to a @p ${classfullname} structure
  *                      to be disposed.
  */
 CC_FORCE_INLINE
 static inline void __${classname}_dispose_impl(void *ip) {
-  ${classname} *self = (${classname} *)ip;
+  ${classfullname} *self = (${classfullname} *)ip;
 
     [#if ancestorname?length > 0]
   __${ancestorname}_dispose_impl(self);
@@ -172,6 +178,24 @@ static inline void __${classname}_dispose_impl(void *ip) {
   (void)self;
     [/#if]
 }
+    [#list class.methods.method as method]
+      [#assign methodname   = method.@name[0]?trim /]
+      [#assign methodreturn = method.return[0]?trim /]
+      [#assign methodparams = method.params[0]?trim /]
+      [#if methodparams?length > 0]
+        [#assign methodparams = ", " + methodparams /]
+      [/#if]
+
+/**
+[@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+ */
+CC_FORCE_INLINE
+static inline ${methodreturn} __${classname}_${methodname}_impl(void *ip${methodparams}) {
+  ${classfullname} *self = (${classfullname} *)ip;
+
+}
+    [/#list]
 /** @} */
   [/#list]
 

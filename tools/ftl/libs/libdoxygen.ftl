@@ -22,6 +22,7 @@
   -- Coding style global settings.
   -->
 [#assign doxygen_boundary = 80 /]
+[#assign text_align = 32 /]
 
 [#--
   -- This macro generates a brief tag description.
@@ -69,6 +70,43 @@
 [#macro EmitNote indent="" text=""]
 [@utils.FormatStringAsText indent + " * @note    "
                            indent + " *          "
+                           utils.WithDot(text?cap_first)
+                           doxygen_boundary /]
+[/#macro]
+
+[#--
+  -- This macro generates a param tag description.
+  --]
+[#macro EmitParam name="no-name" dir="boh" indent="" text="missing description"]
+    [#if dir == "in"]
+[@utils.FormatStringAsText indent + (" * @param[in]     " + name + " ")?right_pad(text_align)
+                           indent + " *"?right_pad(text_align)
+                           utils.WithDot(text?cap_first)
+                           doxygen_boundary /]
+    [#elseif dir == "out"]
+[@utils.FormatStringAsText indent + (" * @param[out]    " + name + " ")?right_pad(text_align)
+                           indent + " *"?right_pad(text_align)
+                           utils.WithDot(text?cap_first)
+                           doxygen_boundary /]
+    [#elseif dir == "both"]
+[@utils.FormatStringAsText indent + (" * @param[in,out] " + name + " ")?right_pad(text_align)
+                           indent + " *"?right_pad(text_align)
+                           utils.WithDot(text?cap_first)
+                           doxygen_boundary /]
+    [#else]
+[@utils.FormatStringAsText indent + (" * @param         " + name + " ")?right_pad(text_align)
+                           indent + " *"?right_pad(text_align)
+                           utils.WithDot(text?cap_first)
+                           doxygen_boundary /]
+    [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates a return tag description.
+  --]
+[#macro EmitReturn indent="" text=""]
+[@utils.FormatStringAsText indent + (" * @return")?right_pad(text_align)
+                           indent + " *"?right_pad(text_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
 [/#macro]

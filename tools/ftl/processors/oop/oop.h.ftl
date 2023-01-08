@@ -111,7 +111,7 @@ struct ${classname?lower_case}_vmt {
  */
 struct ${classname?lower_case} {
   /**
-[@doxygen.EmitBrief "" "Virtual Methods Table." /]
+[@doxygen.EmitBrief "  " "Virtual Methods Table." /]
    */
   const struct ${(classname?lower_case + "_vmt")?right_pad(28)} *vmt;
   ${datadefine}
@@ -125,10 +125,11 @@ struct ${classname?lower_case} {
 [@doxygen.EmitBrief "" "Implementation of object creation." /]
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
- * @param[out] ip       Pointer to a @p ${classfullname} structure
- *                      to be initialized.
- * @param[in] vmt       VMT pointer for the new object.
- * @return              A new reference to the object.
+[@doxygen.EmitParam name="ip" dir="out"
+                    text="Pointer to a @p " + classfullname + " structure to be initialized." /]
+[@doxygen.EmitParam name="vmt" dir="in"
+                    text="VMT pointer for the new object." /]
+[@doxygen.EmitReturn text="A new reference to the object." /]
  */
 CC_FORCE_INLINE
 static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
@@ -158,8 +159,8 @@ static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
 [@doxygen.EmitBrief "" "Implementation of object finalization." /]
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
- * @param[in] ip        Pointer to a @p ${classfullname} structure
- *                      to be disposed.
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to a @p " + classfullname + " structure to be disposed." /]
  */
 CC_FORCE_INLINE
 static inline void __${classname}_dispose_impl(void *ip) {

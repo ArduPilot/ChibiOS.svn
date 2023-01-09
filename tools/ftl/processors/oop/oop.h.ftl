@@ -21,6 +21,7 @@
 [#import "/@ftllibs/libutils.ftl" as utils /]
 [#import "/@ftllibs/liblicense.ftl" as license /]
 [#import "/@ftllibs/libdoxygen.ftl" as doxygen /]
+[#import "/@ftllibs/libccode.ftl" as ccode /]
 [@pp.dropOutputFile /]
 [@pp.changeOutputFile name="classgen/tmp.txt" /]
 [@pp.dropOutputFile /]
@@ -218,10 +219,18 @@ static inline void __${classname}_dispose_impl(void *ip) {
 [@doxygen.EmitParamFromNode node=method /]
  */
 CC_FORCE_INLINE
+[@ccode.GeneratePrototype modifiers=["static" "inline"]
+                          params=["void *ip"]
+                          node=method /] {
 static inline ${methodretctype} __${classname}_${methodname}_impl(void *ip, TODO) {
   ${classfullname} *self = (${classfullname} *)ip;
 
 [@utils.EmitIndentedCCode start="  " tab=2 ccode=methodimpl /]
+
+${ccode.MakeParamsSequence(["void *ip"], method)?join(", ")}
+
+[@ccode.GeneratePrototype modifiers=["static"] params=["void *ip"] node=method /]
+
 }
       [/#if]
     [/#list]

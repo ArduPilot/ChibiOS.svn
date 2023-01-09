@@ -77,7 +77,7 @@
 [#--
   -- This macro generates a param tag description.
   --]
-[#macro EmitParam name="no-name" dir="boh" indent="" text="missing description"]
+[#macro EmitParam indent="" name="no-name" dir="boh" text="missing description"]
     [#if dir == "in"]
 [@utils.FormatStringAsText indent + (" * @param[in]     " + name + " ")?right_pad(text_align)
                            indent + " *"?right_pad(text_align)
@@ -114,63 +114,66 @@
 [#--
   -- This macro generates a brief description from an XML node.
   --]
-[#macro EmitBriefFromNode object=[]]
-  [#if object.brief[0]??]
-[@doxygen.EmitBrief "" object.brief[0] /]
+[#macro EmitBriefFromNode node=[]]
+  [#if node.brief[0]??]
+[@doxygen.EmitBrief "" node.brief[0] /]
   [/#if]
 [/#macro]
 
 [#--
   -- This macro generates a detailed description from an XML node.
   --]
-[#macro EmitDetailsFromNode object=[]]
-  [#if object.details[0]??]
-[@doxygen.EmitDetails "" object.details[0] /]
+[#macro EmitDetailsFromNode node=[]]
+  [#if node.details[0]??]
+[@doxygen.EmitDetails "" node.details[0] /]
   [/#if]
 [/#macro]
 
 [#--
   -- This macro generates a pre tags list from an XML nodet.
   --]
-[#macro EmitPreFromNode object=[]]
-  [#list object.* as pre]
-    [#if pre?node_name == "pre"]
+[#macro EmitPreFromNode node=[]]
+  [#list node.pre as pre]
 [@doxygen.EmitPre "" pre[0] /]
-    [/#if]
   [/#list]
 [/#macro]
 
 [#--
   -- This macro generates a post tags list from an XML node.
   --]
-[#macro EmitPostFromNode object=[]]
-  [#list object.* as post]
-    [#if post?node_name == "post"]
+[#macro EmitPostFromNode node=[]]
+  [#list node.post as post]
 [@doxygen.EmitPost "" post[0] /]
-    [/#if]
   [/#list]
 [/#macro]
 
 [#--
   -- This macro generates a notes list from an XML node.
   --]
-[#macro EmitNoteFromNode object=[]]
-  [#list object.* as note]
-    [#if note?node_name == "note"]
+[#macro EmitNoteFromNode node=[]]
+  [#list node.note as note]
 [@doxygen.EmitNote "" note[0] /]
-    [/#if]
   [/#list]
 [/#macro]
 
 [#--
+  -- This macro generates a params list from an XML node.
+  --]
+[#macro EmitParamFromNode node=[]]
+  [#list node.param as param]
+[@doxygen.EmitParam indent="" name=param.@name[0]!"no-name" dir=param.@dir[0]!"no-dir" text=param[0]?trim /]
+  [/#list]
+[/#macro]
+name="no-name" dir="boh" indent="" text="missing description"
+[#--
   -- This macro generates a complete Doxygen documentation comment.
   --]
-[#macro EmitFullCommentNode object=[]]
+[#macro EmitFullCommentNode node=[]]
 /**
-  [@doxygen.EmitBriefFromNode object /]
-  [@doxygen.EmitDetailsFromNode object /]
-  [@doxygen.EmitPreFromNode object /]
-  [@doxygen.EmitPostFromNode object /]
-  [@doxygen.EmitNoteFromNode object /]
+  [@doxygen.EmitBriefFromNode node /]
+  [@doxygen.EmitDetailsFromNode node /]
+  [@doxygen.EmitPreFromNode node /]
+  [@doxygen.EmitPostFromNode node /]
+  [@doxygen.EmitNoteFromNode node /]
  */
 [/#macro]

@@ -5,8 +5,8 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/oop/classes.xsd">
   <configuration_settings>
   </configuration_settings>
-  <files>
-    <file name="oop_base_object_test" docgroup="OOP_BASE_OBJECT">
+  <modules>
+    <module name="oop_base_object_test">
       <classes>
         <class name="base_object" ancestor="" descr="base object" type="abstract">
           <details>
@@ -27,29 +27,45 @@
           <details>
           </details>
           <fields>
-            <field name="references" ctype="oop_object_references_t" multiplicity="" visibility="private" />
+            <field name="references" ctype="object_references_t" multiplicity="" visibility="private" />
           </fields>
           <init>
             <implementation><![CDATA[
-self->last = 0;]]></implementation>
+self->references = 0;]]></implementation>
           </init>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <methods>
             <method name="addref" type="virtual">
-              <return>void *</return>
-              <params></params>
+              <brief>New object reference creation.</brief>
+              <details>The references counter is increased and a new reference pointer is returned.</details>
+              <return ctype="void *">A new reference pointer.</return>
               <implementation><![CDATA[
 self->references++;
 
-osalDbgAssert(objp->references != (oop_object_references_t)0, "overflow");
+osalDbgAssert(self->references != (oop_object_references_t)0, "overflow");
 
 return self;]]></implementation>
+            </method>
+            <method name="release" type="virtual">
+              <brief>Release of an object reference.</brief>
+              <details>The reference counter is decreased, if the counter reaches zero then the object is disposed.</details>
+              <param name="a" ctype="int *" dir="both">This is a test parameter.</param>
+              <param name="b" ctype="int *" dir="in">This is a test parameter.</param>
+              <return ctype="object_references_t">The value of the reference counter.</return>
+              <implementation><![CDATA[
+osalDbgAssert(self->references > 0U, "zero references");
+
+if (--self->references == 0U) {
+  __referenced_object_dispose_impl(self);
+}
+
+return self->references;]]></implementation>
             </method>
           </methods>
         </class>
       </classes>
-    </file>
-  </files>
+    </module>
+  </modules>
 </instance>

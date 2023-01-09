@@ -27,12 +27,12 @@
 [#assign instance = xml.instance /]
 [#assign class_suffix = "_c" /]
 [#-- Scanning all files to be generated.--]
-[#list instance.files.file as file]
+[#list instance.modules.module as module]
   [#-- Generating the header file.--]
-  [#assign basename   = file.@name[0]?trim /]
+  [#assign basename   = module.@name[0]?trim /]
   [#assign headername = basename + ".h" /]
   [#assign sourcename = basename + ".c" /]
-  [#assign docgroup   = file.@docgroup[0]?trim /]
+  [#assign docgroup   = basename?upper_case /]
   [#-- Generating class header.--]
   [@pp.changeOutputFile name="../include/" + headername /]
 /*
@@ -41,8 +41,8 @@
 
 /**
  * @file    ${headername}
- * @brief   Generated OOP header.
- * @details TODO
+[@doxygen.EmitBrief "" "Generated OOP header." /]
+[@doxygen.EmitDetails "" "TODO" /]
  *
  * @addtogroup ${docgroup}
  * @{
@@ -52,9 +52,29 @@
  #define ${basename?upper_case}_H
   [#-- Generating inclusions.--]
 /* TODO inclusions */
+
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module pre-compile time settings.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module macros.                                                            */
+/*===========================================================================*/
   [#-- Scanning all classes to be generated in this file.--]
   [#assign allabstract=true /]
-  [#list file.classes.class as class]
+  [#list module.classes.class as class]
     [#assign classname        = class.@name[0]?trim /]
     [#assign classfullname    = classname + class_suffix]
     [#assign classdescr       = class.@descr[0]?trim /]
@@ -180,25 +200,48 @@ static inline void __${classname}_dispose_impl(void *ip) {
     [/#if]
 }
     [#list class.methods.method as method]
-      [#assign methodname   = method.@name[0]?trim /]
-      [#assign methodreturn = method.return[0]?trim /]
-      [#assign methodparams = method.params[0]?trim /]
-      [#if methodparams?length > 0]
-        [#assign methodparams = ", " + methodparams /]
+      [#assign methodname     = method.@name[0]?trim /]
+      [#assign methodtype     = method.@type[0]?trim /]
+      [#assign methodretctype = method.return.@ctype[0]?trim /]
+      [#assign methodimpl     = method.implementation[0]!""?trim /]
+      [#if methodretctype?length == 0]
+        [#assign methodretctype = "void" /]
       [/#if]
+      [#if (methodtype=="virtual") && (methodimpl?length > 0)]
 
 /**
 [@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+ *
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to a @p " + classfullname + " structure." /]
+[@doxygen.EmitParamFromNode node=method /]
  */
 CC_FORCE_INLINE
-static inline ${methodreturn} __${classname}_${methodname}_impl(void *ip${methodparams}) {
+static inline ${methodretctype} __${classname}_${methodname}_impl(void *ip, TODO) {
   ${classfullname} *self = (${classfullname} *)ip;
 
+[@utils.EmitIndentedCCode start="  " tab=2 ccode=methodimpl /]
 }
+      [/#if]
     [/#list]
 /** @} */
   [/#list]
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
 
 #endif /* ${basename?upper_case}_H */
 
@@ -222,7 +265,7 @@ static inline ${methodreturn} __${classname}_${methodname}_impl(void *ip${method
 #include "${headername}"
 
   [#-- Scanning all classes to be generated in this file.--]
-    [#list file.classes.class as class]
+    [#list module.classes.class as class]
       [#assign classname        = class.@name[0]?trim /]
       [#assign classfullname    = classname + class_suffix]
       [#assign classdescr       = class.@descr[0]?trim /]
@@ -230,8 +273,9 @@ static inline ${methodreturn} __${classname}_${methodname}_impl(void *ip${method
       [#assign ancestorname     = class.@ancestor[0]?trim /]
       [#assign ancestorfullname = classname + class_suffix]
 /*===========================================================================*/
-/* Class ${(classfullname + ".")?right_pad(68)}*/
+/* Module class ${(classfullname + ".")?right_pad(61)}*/
 /*===========================================================================*/
+
     [/#list]
   [/#if]
 [/#list]

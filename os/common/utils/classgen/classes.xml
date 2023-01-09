@@ -51,10 +51,6 @@ return self;]]></implementation>
             <method name="release" type="virtual">
               <brief>Release of an object reference.</brief>
               <details>The reference counter is decreased, if the counter reaches zero then the object is disposed.</details>
-              <param name="a" ctype="int *$" dir="both">This is a test parameter.</param>
-              <param name="b" ctype="const int *$" dir="in">This is a test parameter.</param>
-              <param name="c" ctype="int *$" dir="both">This is a test parameter.</param>
-              <param name="d" ctype="const int *$" dir="in">This is a test parameter.</param>
               <return ctype="object_references_t">The value of the reference counter.</return>
               <implementation><![CDATA[
 osalDbgAssert(self->references > 0U, "zero references");
@@ -64,6 +60,17 @@ if (--self->references == 0U) {
 }
 
 return self->references;]]></implementation>
+            </method>
+            <method name="test" type="virtual">
+              <brief>Test method.</brief>
+              <details>Nothing to see here.</details>
+              <param name="a" ctype="int *$" dir="both">This is a test parameter.</param>
+              <param name="b" ctype="const int *$" dir="in">This is a test parameter.</param>
+              <param name="c" ctype="int *$" dir="both">This is a test parameter.</param>
+              <param name="d" ctype="const int *$" dir="in">This is a test parameter.</param>
+              <return ctype="void *">Garbage.</return>
+              <implementation><![CDATA[
+(void)self;]]></implementation>
             </method>
           </methods>
         </class>

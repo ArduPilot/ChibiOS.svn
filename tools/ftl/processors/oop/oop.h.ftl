@@ -219,18 +219,13 @@ static inline void __${classname}_dispose_impl(void *ip) {
 [@doxygen.EmitParamFromNode node=method /]
  */
 CC_FORCE_INLINE
-[@ccode.GeneratePrototype modifiers=["static" "inline"]
-                          params=["void *ip"]
-                          node=method /] {
-static inline ${methodretctype} __${classname}_${methodname}_impl(void *ip, TODO) {
+[@ccode.GeneratePrototype name      = "__" + classname + "_" + methodname?lower_case + "_impl"
+                          modifiers = ["static" "inline"]
+                          params    = ["void *ip"]
+                          node      = method /] {
   ${classfullname} *self = (${classfullname} *)ip;
 
 [@utils.EmitIndentedCCode start="  " tab=2 ccode=methodimpl /]
-
-${ccode.MakeParamsSequence(["void *ip"], method)?join(", ")}
-
-[@ccode.GeneratePrototype modifiers=["static"] params=["void *ip"] node=method /]
-
 }
       [/#if]
     [/#list]

@@ -1,8 +1,6 @@
 [#ftl]
 [#--
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,
-              2011,2012,2013,2014,2015,2016,2017,2018,
-              2019,2020 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -26,7 +24,7 @@
 [#assign indentation = "  " /]
 [#assign fields_align = 44 /]
 [#assign define_value_align = 44 /]
-[#assign code_boundary = 80 /]
+[#assign boundary = 80 /]
 
 [#--
   -- Emits a C function body code reformatting the indentation using the
@@ -73,8 +71,10 @@ ${(indent + line)?chop_linebreak}
   -- This macro generates a function prototype from an XML node.
   -- @note Does not generate the final EOL.
   --]
-[#macro GeneratePrototype modifiers=[] params=[] node=[]]
-  [#local name = node.@name[0]!"no-name"?trim /]
+[#macro GeneratePrototype name="" modifiers=[] params=[] node=[]]
+  [#if name?length == 0]
+    [#local name = node.@name[0]!"no-name"?trim /]
+  [/#if]
   [#if node.return?? && node.return[0]??]
     [#local retctype = (node.return[0].@ctype[0]!"void")?trim /]
   [#else]
@@ -90,7 +90,7 @@ ${(indent + line)?chop_linebreak}
     [#if param_index == 0]
       [#local line = l1 + param /]
     [#else]
-      [#if (line + ", " + param + "  ")?length > code_boundary]
+      [#if (line + ", " + param + "  ")?length > boundary]
 ${line + ","}
         [#local line = ln + param /]
       [#else]
@@ -99,52 +99,4 @@ ${line + ","}
     [/#if]
   [/#list]
 ${line + ")"}[#rt]
-[/#macro]
-
-[#--
-  -- This macro generates a function prototype from an XML "function"
-  -- node passed as parameter.
-  -- @note Does not generate the final EOL.
-  --]
-[#macro GeneratePrototypeOld function={}]
-  [#if function.return?? && function.return[0]??]
-    [#local rettype = (function.return[0].@type[0]!"void")?trim /]
-  [#else]
-    [#local rettype = "void" /]
-  [/#if]
-  [#local name = (function.@name[0]!"no-name")?trim /]
-  [#local visibility = (function.@visibility[0]!"private")?trim /]
-  [#if function.param?? && function.param[0]??]
-    [#-- If the function has parameters then generates the parameters list --] 
-    [#local l1 = rettype + " " + name + "(" /]
-    [#if visibility == "private"]
-      [#local l1 = "static " + l1 /]
-    [/#if]
-    [#local ln = ""?right_pad(l1?length) /]
-    [#list function.param as param]
-      [#local type = (param.@type[0]!"no-type")?trim /]
-      [#if type?contains("$")]
-        [#local pstring = type?replace("$", (param.@name[0]!"no-name")?trim) /]
-      [#else]
-        [#local pstring = type + " " + (param.@name[0]!"no-name")?trim /]
-      [/#if]
-      [#local dir = (param.@dir[0]!"boh")?trim?lower_case /]
-      [#if dir == "in"]
-        [#local pstring = "const " + pstring /]
-      [/#if]
-      [#if param_index == 0]
-        [#local line = l1 + pstring /]
-      [#else]
-        [#if (line + ", " + pstring + "  ")?length > boundary]
-${line + ","}
-          [#local line = ln + pstring /]
-        [#else]
-          [#local line = line + ", " + pstring /]
-        [/#if]
-      [/#if]
-    [/#list]
-${line + ")"}[#rt]
-  [#else]
-${rettype + " " + name}(void)[#rt]
-  [/#if]
 [/#macro]

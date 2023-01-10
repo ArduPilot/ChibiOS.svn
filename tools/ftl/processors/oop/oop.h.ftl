@@ -42,18 +42,30 @@
 
 /**
  * @file    ${headername}
-[@doxygen.EmitBrief "" "Generated OOP header." /]
-[@doxygen.EmitDetails "" "TODO" /]
+[@doxygen.EmitBrief "" "Generated header." /]
  *
  * @addtogroup ${docgroup}
+[@doxygen.EmitBriefFromNode node=module.doc /]
+[@doxygen.EmitDetailsFromNode node=module.doc /]
+[@doxygen.EmitNoteFromNode node=module.doc /]
  * @{
  */
  
  #ifndef ${basename?upper_case}_H
  #define ${basename?upper_case}_H
-  [#-- Generating inclusions.--]
-/* TODO inclusions */
 
+  [#-- Generating inclusions.--]
+  [#list module.inclusions.include as include]
+    [#assign style = include.@style[0]!"regular" /]
+    [#if style == "angular"]
+#include <${include[0]}>
+    [#else]
+#include "${include[0]}"
+    [/#if]
+    [#if !include?has_next]
+
+    [/#if]
+  [/#list]
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/

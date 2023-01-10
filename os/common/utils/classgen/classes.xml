@@ -7,6 +7,17 @@
   </configuration_settings>
   <modules>
     <module name="oop_base_object_test">
+      <inclusions>
+        <include style="angular">stdint.h</include>
+        <include style="regular">osal.h</include>
+      </inclusions>
+      <doc>
+        <brief>Common ancestor abstract class.</brief>
+        <details>This abstract class is the common ancestor of all classes
+used in ChibiOS. This class just defines the position of the VMT pointer
+inside the structure.</details>
+        <note>This is a generated file, do not edit directly.</note>
+      </doc>
       <classes>
         <class name="base_object" ancestor="" descr="base object" type="abstract">
           <details>
@@ -29,11 +40,10 @@
             <field name="references" ctype="object_references_t" />
           </fields>
           <init>
-            <implementation><![CDATA[
-self->references = 0;]]></implementation>
+            <implementation><![CDATA[unused]]></implementation>
           </init>
           <dispose>
-            <implementation><![CDATA[ ]]></implementation>
+            <implementation><![CDATA[unused]]></implementation>
           </dispose>
           <methods>
             <method name="roAddRef" shortname="addref" type="virtual">

@@ -77,7 +77,7 @@
   [#assign allabstract=true /]
   [#list module.classes.class as class]
     [#assign classname        = class.@name[0]?trim /]
-    [#assign classfullname    = classname + class_suffix]
+    [#assign classctype       = classname + class_suffix]
     [#assign classdescr       = class.@descr[0]?trim /]
     [#assign classtype        = class.@type[0]?trim /]
     [#assign ancestorname     = class.@ancestor[0]?trim /]
@@ -87,16 +87,16 @@
     [/#if]
 
 /*===========================================================================*/
-/* Class ${(classfullname + ".")?right_pad(68)}*/
+/* Class ${(classctype + ".")?right_pad(68)}*/
 /*===========================================================================*/
 
 /**
 [@doxygen.EmitBrief "" "Type of a " + classdescr + " class." /]
  */
-typedef struct ${classname} ${classfullname};
+typedef struct ${classname} ${classctype};
 
 /**
-[@doxygen.EmitBrief "" "@p " + classfullname + " specific methods." /]
+[@doxygen.EmitBrief "" "@p " + classctype + " specific methods." /]
  */
     [#assign methodsdefine = "__" + classname?lower_case + "_methods" /]
 #define ${methodsdefine?right_pad(68) + "\\"}
@@ -129,7 +129,7 @@ ${fptr?right_pad(76)}\
   /* end methods */
 
 /**
-[@doxygen.EmitBrief "" "@p " + classfullname + " specific data." /]
+[@doxygen.EmitBrief "" "@p " + classctype + " specific data." /]
  */
     [#assign datadefine = "__" + classname?lower_case + "_data" /]
 #define ${datadefine?right_pad(68) + "\\"}
@@ -137,10 +137,16 @@ ${fptr?right_pad(76)}\
   __${(ancestorname + "_data")?right_pad(72) + "\\"}
     [#else]
     [/#if]
+    [#list class.fields.field as field]
+      [#assign fieldname  = field.@name[0]?trim /]
+      [#assign fieldctype = field.@ctype[0]?trim /]
+      [#assign fstring = ccode.MakeVariable("  " fieldctype fieldname)?right_pad(76) /]
+${fstring}\
+    [/#list]
   /* end data */
 
 /**
-[@doxygen.EmitBrief "" "@p " + classfullname + " virtual methods table." /]
+[@doxygen.EmitBrief "" "@p " + classctype + " virtual methods table." /]
  */
 struct ${classname?lower_case}_vmt {
   ${methodsdefine}
@@ -153,12 +159,13 @@ struct ${classname?lower_case} {
   /**
 [@doxygen.EmitBrief "  " "Virtual Methods Table." /]
    */
-  const struct ${(classname?lower_case + "_vmt")?right_pad(28)} *vmt;
+  [#assign vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N" /]
+${ccode.MakeVariable("  " vmtctype "vmt")}
   ${datadefine}
 };
 
 /**
- * @name    Methods implementations (${classfullname})
+ * @name    Methods implementations (${classctype})
  * @{
  */
 /**
@@ -166,14 +173,14 @@ struct ${classname?lower_case} {
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
 [@doxygen.EmitParam name="ip" dir="out"
-                    text="Pointer to a @p " + classfullname + " structure to be initialized." /]
+                    text="Pointer to a @p " + classctype + " structure to be initialized." /]
 [@doxygen.EmitParam name="vmt" dir="in"
                     text="VMT pointer for the new object." /]
 [@doxygen.EmitReturn text="A new reference to the object." /]
  */
 CC_FORCE_INLINE
 static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
-  ${classfullname} *self = (${classfullname} *)ip;
+  ${classctype} *self = (${classctype} *)ip;
 
     [#if ancestorname?length == 0]
   /* This is a root class, initializing the VMT pointer here.*/
@@ -200,11 +207,11 @@ static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
 [@doxygen.EmitParam name="ip" dir="both"
-                    text="Pointer to a @p " + classfullname + " structure to be disposed." /]
+                    text="Pointer to a @p " + classctype + " structure to be disposed." /]
  */
 CC_FORCE_INLINE
 static inline void __${classname}_dispose_impl(void *ip) {
-  ${classfullname} *self = (${classfullname} *)ip;
+  ${classctype} *self = (${classctype} *)ip;
 
     [#if ancestorname?length > 0]
   __${ancestorname}_dispose_impl(self);
@@ -238,7 +245,7 @@ static inline void __${classname}_dispose_impl(void *ip) {
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
 [@doxygen.EmitParam name="ip" dir="both"
-                    text="Pointer to a @p " + classfullname + " structure." /]
+                    text="Pointer to a @p " + classctype + " structure." /]
 [@doxygen.EmitParamFromNode node=method /]
  */
 CC_FORCE_INLINE
@@ -246,7 +253,7 @@ CC_FORCE_INLINE
                           modifiers = ["static" "inline"]
                           params    = ["void *ip"]
                           node      = method /] {
-  ${classfullname} *self = (${classfullname} *)ip;
+  ${classctype} *self = (${classctype} *)ip;
 
 [@utils.EmitIndentedCCode start="  " tab=2 ccode=methodimpl /]
 }
@@ -294,13 +301,13 @@ extern "C" {
   [#-- Scanning all classes to be generated in this file.--]
     [#list module.classes.class as class]
       [#assign classname        = class.@name[0]?trim /]
-      [#assign classfullname    = classname + class_suffix]
+      [#assign classctype       = classname + class_suffix]
       [#assign classdescr       = class.@descr[0]?trim /]
       [#assign classtype        = class.@type[0]?trim /]
       [#assign ancestorname     = class.@ancestor[0]?trim /]
       [#assign ancestorfullname = classname + class_suffix]
 /*===========================================================================*/
-/* Module class ${(classfullname + ".")?right_pad(61)}*/
+/* Module class ${(classctype + ".")?right_pad(61)}*/
 /*===========================================================================*/
 
     [/#list]

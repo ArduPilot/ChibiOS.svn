@@ -12,7 +12,6 @@
           <details>
           </details>
           <fields>
-            <field name="last" ctype="int" multiplicity="" visibility="private" />
           </fields>
           <init>
             <implementation><![CDATA[ ]]></implementation>
@@ -27,7 +26,7 @@
           <details>
           </details>
           <fields>
-            <field name="references" ctype="object_references_t" multiplicity="" visibility="private" />
+            <field name="references" ctype="object_references_t" />
           </fields>
           <init>
             <implementation><![CDATA[

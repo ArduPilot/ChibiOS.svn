@@ -48,11 +48,6 @@ ${(indent + line)?chop_linebreak}
   [/#list]
 [/#macro]
 
-[#--
-  -- This macro generates a variable or field.
-  -- @note Does not generate the final EOL.
-  -- @note Processes the $I and $N tokens in the ctype.
-  --]
 [#macro EmitVariable indent="" ctype="" name=""]
   [#if ctype?contains("$I")]
     [#local s1 = ctype?keep_before("$I")?trim
@@ -72,6 +67,41 @@ ${(indent + line)?chop_linebreak}
     [/#if]
   [/#if]
 ${fstring};[#rt]
+[/#macro]
+
+[#--
+  -- This function generates a variable or field declaration in a string.
+  -- @note Processes the $I and $N tokens in the ctype.
+  --]
+[#function MakeVariable indent="" ctype="" name=""]
+  [#if ctype?contains("$I")]
+    [#local s1 = ctype?keep_before("$I")?trim
+            s2 = ctype?keep_after("$I")?trim /]
+    [#local fstring = (indent + s1 + " ")?right_pad(fields_align) + s2 /]
+    [#if fstring?contains("$N")]
+      [#local fstring = fstring?replace("$N", name) /]
+    [#else]
+      [#local fstring = fstring + name /]
+    [/#if]
+  [#else]
+    [#local fstring = indent + ctype /]
+    [#if fstring?contains("$N")]
+      [#local fstring = fstring?replace("$N", name) /]
+    [#else]
+      [#local fstring = (fstring + " ")?right_pad(fields_align) + name /]
+    [/#if]
+  [/#if]
+  [#return fstring + ";"/]
+[/#function]
+
+[#--
+  -- This macro generates a variable or field.
+  -- @note Does not generate the final EOL.
+  -- @note Processes the $I and $N tokens in the ctype.
+  --]
+[#macro GenerateVariable indent="" ctype="" name=""]
+  [#assign fstring = MakeVariable(indent ctype name) /]
+${fstring}[#rt]
 [/#macro]
 
 [#--

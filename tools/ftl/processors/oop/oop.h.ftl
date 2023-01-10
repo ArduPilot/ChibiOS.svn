@@ -62,7 +62,8 @@
     [#else]
 #include "${include[0]}"
     [/#if]
-    [#if !include?has_next]
+    [#-- Empty line after last inclusion.--]
+    [#if include?is_last]
 
     [/#if]
   [/#list]
@@ -281,6 +282,11 @@ CC_FORCE_INLINE
 #ifdef __cplusplus
 extern "C" {
 #endif
+  [#list module.classes.class as class]
+    [#list class.methods.method as method]
+      [#assign methodtype = method.@type[0]?trim /]
+    [/#list]
+  [/#list]
 #ifdef __cplusplus
 }
 #endif

@@ -81,7 +81,7 @@
     [#assign classdescr       = class.@descr[0]?trim /]
     [#assign classtype        = class.@type[0]?trim /]
     [#assign ancestorname     = class.@ancestor[0]?trim /]
-    [#assign ancestorfullname = classname + class_suffix]
+    [#assign ancestorfullname = ancestorname + class_suffix]
     [#if classtype != "abstract"]
       [#assign allabstract=false /]
     [/#if]
@@ -106,6 +106,25 @@ typedef struct ${classname} ${classfullname};
      object*/                                                               \
   size_t instance_offset;                                                   \
     [#else]
+${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
+      [#list class.methods.method as method]
+        [#assign methodname     = method.@name[0]!"no-name"?trim /]
+        [#assign methodsname    = method.@shortname[0]!""?trim /]
+        [#assign methodtype     = method.@type[0]?trim /]
+        [#assign methodretctype = method.return.@ctype[0]!""?trim /]
+        [#if methodsname?length == 0]
+          [#assign methodsname = methodname?lower_case /]
+        [/#if]
+        [#if methodretctype?length == 0]
+          [#assign methodretctype = "void" /]
+        [/#if]
+        [#if methodtype=="virtual"]
+          [#assign fptr = "  " + methodretctype + " (*" + methodsname + ")(" +
+                          ccode.MakeParamsSequence(["void *ip"] method)?join(", ") +
+                          ");" /]
+${fptr?right_pad(76)}\
+        [/#if]
+      [/#list]
     [/#if]
   /* end methods */
 
@@ -202,9 +221,13 @@ static inline void __${classname}_dispose_impl(void *ip) {
 }
     [#list class.methods.method as method]
       [#assign methodname     = method.@name[0]?trim /]
+      [#assign methodsname    = method.@shortname[0]!""?trim /]
       [#assign methodtype     = method.@type[0]?trim /]
       [#assign methodretctype = method.return.@ctype[0]?trim /]
       [#assign methodimpl     = method.implementation[0]!""?trim /]
+      [#if methodsname?length == 0]
+        [#assign methodsname = methodname?lower_case /]
+      [/#if]
       [#if methodretctype?length == 0]
         [#assign methodretctype = "void" /]
       [/#if]
@@ -219,7 +242,7 @@ static inline void __${classname}_dispose_impl(void *ip) {
 [@doxygen.EmitParamFromNode node=method /]
  */
 CC_FORCE_INLINE
-[@ccode.GeneratePrototype name      = "__" + classname + "_" + methodname?lower_case + "_impl"
+[@ccode.GeneratePrototype name      = "__" + classname + "_" + methodsname + "_impl"
                           modifiers = ["static" "inline"]
                           params    = ["void *ip"]
                           node      = method /] {

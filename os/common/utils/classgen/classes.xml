@@ -37,7 +37,7 @@ self->references = 0;]]></implementation>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <methods>
-            <method name="addref" type="virtual">
+            <method name="roAddRef" shortname="addref" type="virtual">
               <brief>New object reference creation.</brief>
               <details>The references counter is increased and a new reference pointer is returned.</details>
               <return ctype="void *">A new reference pointer.</return>
@@ -48,7 +48,7 @@ osalDbgAssert(self->references != (oop_object_references_t)0, "overflow");
 
 return self;]]></implementation>
             </method>
-            <method name="release" type="virtual">
+            <method name="roRelease" shortname="release" type="virtual">
               <brief>Release of an object reference.</brief>
               <details>The reference counter is decreased, if the counter reaches zero then the object is disposed.</details>
               <return ctype="object_references_t">The value of the reference counter.</return>
@@ -61,13 +61,13 @@ if (--self->references == 0U) {
 
 return self->references;]]></implementation>
             </method>
-            <method name="test" type="virtual">
+            <method name="roTest" type="virtual">
               <brief>Test method.</brief>
               <details>Nothing to see here.</details>
-              <param name="a" ctype="int *$" dir="both">This is a test parameter.</param>
-              <param name="b" ctype="const int *$" dir="in">This is a test parameter.</param>
-              <param name="c" ctype="int *$" dir="both">This is a test parameter.</param>
-              <param name="d" ctype="const int *$" dir="in">This is a test parameter.</param>
+              <param name="a" ctype="int *$N" dir="both">This is a test parameter.</param>
+              <param name="b" ctype="const int *$N" dir="in">This is a test parameter.</param>
+              <param name="c" ctype="int *$N" dir="both">This is a test parameter.</param>
+              <param name="d" ctype="const int *$N" dir="in">This is a test parameter.</param>
               <return ctype="void *">Garbage.</return>
               <implementation><![CDATA[
 (void)self;]]></implementation>

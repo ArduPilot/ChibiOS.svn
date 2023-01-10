@@ -22,6 +22,7 @@
   -- Coding style global settings.
   -->
 [#assign indentation = "  " /]
+[#assign tab = 2 /]
 [#assign fields_align = 44 /]
 [#assign define_value_align = 44 /]
 [#assign boundary = 80 /]
@@ -30,7 +31,7 @@
   -- Emits a C function body code reformatting the indentation using the
   -- specified tab size and line prefix.
   --]
-[#macro EmitIndentedCCode indent="  " tab=2 ccode=""]
+[#macro EmitIndentedCCode indent="  " ccode=""]
   [#assign lines = ccode?string?split("^", "rm") /]
   [#list lines as line]
     [#if (line_index > 0) || (line?trim?length > 0)]
@@ -48,14 +49,41 @@ ${(indent + line)?chop_linebreak}
 [/#macro]
 
 [#--
+  -- This macro generates a variable or field.
+  -- @note Does not generate the final EOL.
+  -- @note Processes the $I and $N tokens in the ctype.
+  --]
+[#macro EmitVariable indent="" ctype="" name=""]
+  [#if ctype?contains("$I")]
+    [#local s1 = ctype?keep_before("$I")?trim
+            s2 = ctype?keep_after("$I")?trim /]
+    [#local fstring = (indent + s1 + " ")?right_pad(fields_align) + s2 /]
+    [#if fstring?contains("$N")]
+      [#local fstring = fstring?replace("$N", name) /]
+    [#else]
+      [#local fstring = fstring + name /]
+    [/#if]
+  [#else]
+    [#local fstring = indent + ctype /]
+    [#if fstring?contains("$N")]
+      [#local fstring = fstring?replace("$N", name) /]
+    [#else]
+      [#local fstring = fstring + " " + name /]
+    [/#if]
+  [/#if]
+${fstring};[#rt]
+[/#macro]
+
+[#--
   -- Creates a sequence containing function parameters taken from an XML node. 
+  -- @note Processes the $I and $N tokens in the ccode.
   --]
 [#function MakeParamsSequence params=[] node=[]]
   [#list node.param as param]
     [#local name  = param.@name[0]!"no-name"?trim
-            ctype = param.@ctype[0]!"no-type $"?trim /]
-    [#if ctype?contains("$")]
-      [#local pstring = ctype?replace("$", name) /]
+            ctype = param.@ctype[0]!"no-type $N"?trim /]
+    [#if ctype?contains("$N")]
+      [#local pstring = ctype?replace("$N", name) /]
     [#else]
       [#local pstring = ctype + " " + name /]
     [/#if]

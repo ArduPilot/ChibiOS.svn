@@ -32,7 +32,7 @@
   -- specified tab size and line prefix.
   --]
 [#macro EmitIndentedCCode indent="  " ccode=""]
-  [#assign lines = ccode?string?split("^", "rm") /]
+  [#local lines = ccode?string?split("^", "rm") /]
   [#list lines as line]
     [#if (line_index > 0) || (line?trim?length > 0)]
       [#if line?trim?length > 0]
@@ -48,6 +48,10 @@ ${(indent + line)?chop_linebreak}
   [/#list]
 [/#macro]
 
+[#--
+  -- Emits a C variable/field declararion.
+  -- @note Processes the $I and $N tokens in the ctype.
+  --]
 [#macro EmitVariable indent="" ctype="" name=""]
   [#if ctype?contains("$I")]
     [#local s1 = ctype?keep_before("$I")?trim
@@ -100,7 +104,7 @@ ${fstring};[#rt]
   -- @note Processes the $I and $N tokens in the ctype.
   --]
 [#macro GenerateVariable indent="" ctype="" name=""]
-  [#assign fstring = MakeVariable(indent ctype name) /]
+  [#local fstring = MakeVariable(indent ctype name) /]
 ${fstring}[#rt]
 [/#macro]
 
@@ -129,7 +133,7 @@ ${fstring}[#rt]
   -- This macro generates a function prototype from an XML node.
   -- @note Does not generate the final EOL.
   --]
-[#macro GeneratePrototype name="" modifiers=[] params=[] node=[]]
+[#macro GeneratePrototype indent="" name="" modifiers=[] params=[] node=[]]
   [#if name?length == 0]
     [#local name = node.@name[0]!"no-name"?trim /]
   [/#if]
@@ -142,6 +146,7 @@ ${fstring}[#rt]
   [#if modifiers?size > 0]
     [#local l1 = modifiers?join(" ") + " " + l1 /]
   [/#if]
+  [#local l1 = indent + l1 /]
   [#local ln = ""?right_pad(l1?length) /]
   [#local params = MakeParamsSequence(params node) /]
   [#list params as param]

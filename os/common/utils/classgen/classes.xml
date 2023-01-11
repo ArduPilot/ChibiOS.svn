@@ -40,10 +40,10 @@ inside the structure.</details>
             <field name="references" ctype="object_references_t" />
           </fields>
           <init>
-            <implementation><![CDATA[unused]]></implementation>
+            <implementation><![CDATA[ ]]></implementation>
           </init>
           <dispose>
-            <implementation><![CDATA[unused]]></implementation>
+            <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <methods>
             <method name="roAddRef" shortname="addref" type="virtual">

@@ -91,12 +91,12 @@
   [#-- Scanning all classes to be generated in this file.--]
   [#assign allabstract=true /]
   [#list module.classes.class as class]
-    [#assign classname        = class.@name[0]?trim /]
-    [#assign classctype       = classname + class_suffix]
-    [#assign classdescr       = class.@descr[0]?trim /]
-    [#assign classtype        = class.@type[0]?trim /]
-    [#assign ancestorname     = class.@ancestor[0]?trim /]
-    [#assign ancestorfullname = ancestorname + class_suffix]
+    [#assign classname        = class.@name[0]?trim
+             classctype       = classname + class_suffix
+             classdescr       = class.@descr[0]?trim
+             classtype        = class.@type[0]?trim
+             ancestorname     = class.@ancestor[0]?trim
+             ancestorfullname = ancestorname + class_suffix /]
     [#if classtype != "abstract"]
       [#assign allabstract=false /]
     [/#if]
@@ -130,36 +130,4 @@ extern "C" {
 #endif /* ${basename?upper_case}_H */
 
 /** @} */
-  [#if allabstract==allabstract]
-    [#-- Generating class source, if not abstract.--]
-    [@pp.changeOutputFile name="../src/" + sourcename /]
-/*
-[@license.EmitLicenseAsText /]
-*/
-
-/**
- * @file    ${sourcename}
- * @brief   Generated OOP source.
- * @details TODO
- *
- * @addtogroup ${docgroup}
- * @{
- */
-
-#include "${headername}"
-
-  [#-- Scanning all classes to be generated in this file.--]
-    [#list module.classes.class as class]
-      [#assign classname        = class.@name[0]?trim /]
-      [#assign classctype       = classname + class_suffix]
-      [#assign classdescr       = class.@descr[0]?trim /]
-      [#assign classtype        = class.@type[0]?trim /]
-      [#assign ancestorname     = class.@ancestor[0]?trim /]
-      [#assign ancestorfullname = classname + class_suffix]
-/*===========================================================================*/
-/* Module class ${(classctype + ".")?right_pad(61)}*/
-/*===========================================================================*/
-
-    [/#list]
-  [/#if]
 [/#list]

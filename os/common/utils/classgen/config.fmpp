@@ -1,4 +1,4 @@
-sourceRoot: ../../../../tools/ftl/processors/oop
+sourceRoot: ../../../../tools/ftl/processors/modules
 outputRoot: ..
 dataRoot: .
 
@@ -8,7 +8,7 @@ freemarkerLinks: {
 
 data : {
   xml:xml (
-    classes.xml
+    modules.xml
     {
     }
   )

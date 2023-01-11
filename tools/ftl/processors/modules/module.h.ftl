@@ -87,6 +87,7 @@
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
+
   [#-- Scanning all classes to be generated in this file.--]
   [#assign allabstract=true /]
   [#list module.classes.class as class]
@@ -99,16 +100,13 @@
     [#if classtype != "abstract"]
       [#assign allabstract=false /]
     [/#if]
-
 /*===========================================================================*/
 /* Class ${(classctype + ".")?right_pad(68)}*/
 /*===========================================================================*/
 
 [@cclasses.GenerateClassWrapper class /]
-
 [@cclasses.GenerateClassMethodsImplementations class /]
   [/#list]
-
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/

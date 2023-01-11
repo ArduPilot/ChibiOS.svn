@@ -214,4 +214,5 @@ CC_FORCE_INLINE
     [/#if]
   [/#list]
 /** @} */
+
 [/#macro]

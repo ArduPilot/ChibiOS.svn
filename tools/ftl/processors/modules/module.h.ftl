@@ -27,7 +27,6 @@
 [@pp.changeOutputFile name="classgen/tmp.txt" /]
 [@pp.dropOutputFile /]
 [#assign instance = xml.instance /]
-[#assign class_suffix = "_c" /]
 [#-- Scanning all files to be generated.--]
 [#list instance.modules.module as module]
   [#-- Generating the header file.--]
@@ -89,23 +88,14 @@
 /*===========================================================================*/
 
   [#-- Scanning all classes to be generated in this file.--]
-  [#assign allabstract=true /]
   [#list module.classes.class as class]
-    [#assign classname        = class.@name[0]?trim
-             classctype       = classname + class_suffix
-             classdescr       = class.@descr[0]?trim
-             classtype        = class.@type[0]?trim
-             ancestorname     = class.@ancestor[0]?trim
-             ancestorfullname = ancestorname + class_suffix /]
-    [#if classtype != "abstract"]
-      [#assign allabstract=false /]
-    [/#if]
 /*===========================================================================*/
-/* Class ${(classctype + ".")?right_pad(68)}*/
+/* Module class ${cclasses.GetClassCType(class)?right_pad(61)}*/
 /*===========================================================================*/
 
 [@cclasses.GenerateClassWrapper class /]
 [@cclasses.GenerateClassMethodsImplementations class /]
+[@cclasses.GenerateClassVirtualMethods class /]
   [/#list]
 /*===========================================================================*/
 /* External declarations.                                                    */

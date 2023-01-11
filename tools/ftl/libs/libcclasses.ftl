@@ -21,6 +21,16 @@
 [#assign class_suffix = "_c" /]
 
 [#--
+  -- Returns the C type of the class from an XML node.
+  --]
+[#function GetClassCType node=[]]
+  [#local class = node /]
+  [#local classname        = class.@name[0]?trim
+          classctype       = classname + class_suffix /]
+  [#return classctype /]
+[/#function]
+
+[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassWrapper node=[]]
@@ -180,11 +190,11 @@ static inline void __${classname}_dispose_impl(void *ip) {
   [/#if]
 }
   [#list class.methods.method as method]
-    [#local methodname     = method.@name[0]?trim /]
-    [#local methodsname    = method.@shortname[0]!""?trim /]
-    [#local methodtype     = method.@type[0]?trim /]
-    [#local methodretctype = method.return.@ctype[0]?trim /]
-    [#local methodimpl     = method.implementation[0]!""?trim /]
+    [#local methodname     = method.@name[0]?trim
+            methodsname    = method.@shortname[0]!""?trim
+            methodtype     = method.@type[0]?trim
+            methodretctype = method.return.@ctype[0]?trim
+            methodimpl     = method.implementation[0]!""?trim /]
     [#if methodsname?length == 0]
       [#local methodsname = methodname?lower_case /]
     [/#if]
@@ -215,4 +225,58 @@ CC_FORCE_INLINE
   [/#list]
 /** @} */
 
+[/#macro]
+
+[#--
+  -- This macro generates virtual methods as inline functions from an XML node.
+  --]
+[#macro GenerateClassVirtualMethods node=[]]
+  [#local class = node /]
+  [#local classname        = class.@name[0]?trim
+          classctype       = classname + class_suffix
+          classdescr       = class.@descr[0]?trim
+          classtype        = class.@type[0]?trim
+          ancestorname     = class.@ancestor[0]?trim
+          ancestorfullname = ancestorname + class_suffix /]
+  [#if class.methods.method?size > 0]
+/**
+ * @name    Virtual methods (${classctype})
+ * @{
+ */
+    [#list class.methods.method as method]
+      [#local methodname     = method.@name[0]?trim
+              methodsname    = method.@shortname[0]!""?trim
+              methodtype     = method.@type[0]?trim
+              methodretctype = method.return.@ctype[0]?trim
+              methodimpl     = method.implementation[0]!""?trim /]
+      [#if methodsname?length == 0]
+        [#local methodsname = methodname?lower_case /]
+      [/#if]
+      [#if methodretctype?length == 0]
+        [#local methodretctype = "void" /]
+      [/#if]
+      [#if methodtype == "virtual"]
+/**
+[@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+ *
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to a @p " + classctype + " structure." /]
+[@doxygen.EmitParamFromNode node=method /]
+ */
+CC_FORCE_INLINE
+[@ccode.GeneratePrototype modifiers = ["static", "inline"]
+                          params    = ["const void *ip"]
+                          node=method /] {
+  ${classctype} *self = (${classctype} *)ip;
+
+}
+      [/#if]
+      [#if method?has_next]
+
+      [/#if]
+    [/#list]
+/** @} */
+
+  [/#if]
 [/#macro]

@@ -6,10 +6,9 @@
   <configuration_settings>
   </configuration_settings>
   <modules>
-    <module name="oop_base_object_test">
+    <module name="oop_base_object">
       <inclusions>
-        <include style="angular">stdint.h</include>
-        <include style="regular">osal.h</include>
+        <include scope="global" style="regular">osal.h</include>
       </inclusions>
       <doc>
         <brief>Common ancestor abstract class.</brief>
@@ -33,6 +32,18 @@ inside the structure.</details>
           <methods>
           </methods>
         </class>
+      </classes>
+    </module>
+    <module name="oop_referenced_object">
+      <inclusions>
+        <include scope="global" style="angular">oop_base_object.h</include>
+      </inclusions>
+      <doc>
+        <brief>Common ancestor class of all reference-counted objects.</brief>
+        <details>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</details>
+        <note>This is a generated file, do not edit directly.</note>
+      </doc>
+      <classes>
         <class name="referenced_object" ancestor="base_object" descr="referenced object" type="abstract">
           <details>
           </details>
@@ -69,17 +80,6 @@ if (--self->references == 0U) {
 }
 
 return self->references;]]></implementation>
-            </method>
-            <method name="roTest" type="virtual">
-              <brief>Test method.</brief>
-              <details>Nothing to see here.</details>
-              <param name="a" ctype="int *$N" dir="both">This is a test parameter.</param>
-              <param name="b" ctype="const int *$N" dir="in">This is a test parameter.</param>
-              <param name="c" ctype="int *$N" dir="both">This is a test parameter.</param>
-              <param name="d" ctype="const int *$N" dir="in">This is a test parameter.</param>
-              <return ctype="void *">Garbage.</return>
-              <implementation><![CDATA[
-(void)self;]]></implementation>
             </method>
           </methods>
         </class>

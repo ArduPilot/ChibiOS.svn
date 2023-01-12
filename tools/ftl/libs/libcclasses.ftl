@@ -25,9 +25,48 @@
   --]
 [#function GetClassCType node=[]]
   [#local class = node /]
-  [#local classname        = class.@name[0]?trim
-          classctype       = classname + class_suffix /]
+  [#local classname  = class.@name[0]?trim
+          classctype = classname + class_suffix /]
   [#return classctype /]
+[/#function]
+
+[#--
+  -- Returns the method name from an XML node.
+  --]
+[#function GetMethodName node=[]]
+  [#local method = node /]
+  [#local methodname = method.@name[0]!"no-name"?trim /]
+  [#return methodname /]
+[/#function]
+
+[#--
+  -- Returns the method short name from an XML node.
+  --]
+[#function GetMethodShortName node=[]]
+  [#local method = node /]
+  [#local methodsname = method.@shortname[0]!""?trim /]
+    [#if methodsname?length == 0]
+      [#local methodsname = GetMethodName(method)?lower_case /]
+    [/#if]
+  [#return methodsname /]
+[/#function]
+
+[#--
+  -- Returns the method type from an XML node.
+  --]
+[#function GetMethodType node=[]]
+  [#local method = node /]
+  [#local methodtype = method.@type[0]!"regular"?trim /]
+  [#return methodtype /]
+[/#function]
+
+[#--
+  -- Returns the method return C type from an XML node.
+  --]
+[#function GetMethodCType node=[]]
+  [#local method = node /]
+  [#local methodctype = method.@ctype[0]!"void"?trim /]
+  [#return methodctype /]
 [/#function]
 
 [#--
@@ -57,20 +96,15 @@ typedef struct ${classname} ${classctype};
      represents the offset between the current object and the container
      object*/                                                               \
   size_t instance_offset;                                                   \
+  [#else]
+${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
   [/#if]
   [#-- Generating list of virtual methods in the VMT.--]
-${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
   [#list class.methods.method as method]
-    [#local methodname     = method.@name[0]!"no-name"?trim
-            methodsname    = method.@shortname[0]!""?trim
-            methodtype     = method.@type[0]?trim
-            methodretctype = method.return.@ctype[0]!""?trim /]
-    [#if methodsname?length == 0]
-      [#local methodsname = methodname?lower_case /]
-    [/#if]
-    [#if methodretctype?length == 0]
-      [#local methodretctype = "void" /]
-    [/#if]
+    [#local methodname     = GetMethodName(method)
+            methodsname    = GetMethodShortName(method)
+            methodtype     = GetMethodType(method)
+            methodretctype = GetMethodCType(method) /]
     [#if methodtype=="virtual"]
       [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
                         ccode.MakeParamsSequence(["void *ip"] method)?join(", ") +
@@ -190,17 +224,11 @@ static inline void __${classname}_dispose_impl(void *ip) {
   [/#if]
 }
   [#list class.methods.method as method]
-    [#local methodname     = method.@name[0]?trim
-            methodsname    = method.@shortname[0]!""?trim
-            methodtype     = method.@type[0]?trim
-            methodretctype = method.return.@ctype[0]?trim
+    [#local methodname     = GetMethodName(method)
+            methodsname    = GetMethodShortName(method)
+            methodtype     = GetMethodType(method)
+            methodretctype = GetMethodCType(method)
             methodimpl     = method.implementation[0]!""?trim /]
-    [#if methodsname?length == 0]
-      [#local methodsname = methodname?lower_case /]
-    [/#if]
-    [#if methodretctype?length == 0]
-      [#local methodretctype = "void" /]
-    [/#if]
     [#if (methodtype=="virtual") && (methodimpl?length > 0)]
 
 /**
@@ -244,17 +272,11 @@ CC_FORCE_INLINE
  * @{
  */
     [#list class.methods.method as method]
-      [#local methodname     = method.@name[0]?trim
-              methodsname    = method.@shortname[0]!""?trim
-              methodtype     = method.@type[0]?trim
-              methodretctype = method.return.@ctype[0]?trim
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodtype     = GetMethodType(method)
+              methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!""?trim /]
-      [#if methodsname?length == 0]
-        [#local methodsname = methodname?lower_case /]
-      [/#if]
-      [#if methodretctype?length == 0]
-        [#local methodretctype = "void" /]
-      [/#if]
       [#if methodtype == "virtual"]
 /**
 [@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]

@@ -32,7 +32,6 @@
   [#-- Generating the header file.--]
   [#assign basename   = module.@name[0]?trim /]
   [#assign headername = basename + ".h" /]
-  [#assign sourcename = basename + ".c" /]
   [#assign docgroup   = basename?upper_case /]
   [#-- Generating class header.--]
   [@pp.changeOutputFile name="../include/" + headername /]
@@ -56,11 +55,14 @@
 
   [#-- Generating inclusions.--]
   [#list module.inclusions.include as include]
-    [#assign style = include.@style[0]!"regular" /]
-    [#if style == "angular"]
+    [#assign scope = include.@scope[0]!"global"
+             style = include.@style[0]!"regular" /]
+    [#if scope == "global"]
+      [#if style == "angular"]
 #include <${include[0]}>
-    [#else]
+      [#else]
 #include "${include[0]}"
+      [/#if]
     [/#if]
     [#-- Empty line after last inclusion.--]
     [#if include?is_last]
@@ -105,8 +107,11 @@
 extern "C" {
 #endif
   [#list module.classes.class as class]
+  /* Methods of ${cclasses.GetClassCType(class)}.*/
     [#list class.methods.method as method]
-      [#assign methodtype = method.@type[0]?trim /]
+      [#assign methodtype = cclasses.GetMethodType(method) /]
+      [#if methodtype == "regular"]
+      [/#if]
     [/#list]
   [/#list]
 #ifdef __cplusplus

@@ -280,8 +280,11 @@ CC_FORCE_INLINE
               methodimpl     = method.implementation[0]!""?trim /]
       [#if methodtype == "virtual"]
 /**
-[@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
-[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+[@doxygen.EmitBriefFromNode node=method /]
+[@doxygen.EmitDetailsFromNode node=method /]
+[@doxygen.EmitPreFromNode node=method /]
+[@doxygen.EmitPostFromNode node=method /]
+[@doxygen.EmitNoteFromNode node=method /]
  *
 [@doxygen.EmitParam name="ip" dir="both"
                     text="Pointer to a @p " + classctype + " structure." /]

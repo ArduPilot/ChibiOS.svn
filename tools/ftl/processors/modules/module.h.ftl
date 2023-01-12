@@ -85,11 +85,23 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+  [#-- Scanning all types to be generated in this module.--]
+  [#list module.typedefs.typedef as typedef]
+/**
+[@doxygen.EmitBriefFromNode node=typedef /]
+[@doxygen.EmitDetailsFromNode node=typedef /]
+[@doxygen.EmitNoteFromNode node=typedef /]
+ */
+[@ccode.GenerateTypedef node=typedef /]
+    [#if typedef?is_last]
+
+    [/#if]
+  [/#list]
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
 
-  [#-- Scanning all classes to be generated in this file.--]
+  [#-- Scanning all classes to be generated in this module.--]
   [#list module.classes.class as class]
 /*===========================================================================*/
 /* Module class ${cclasses.GetClassCType(class)?right_pad(61)}*/

@@ -7,9 +7,6 @@
   </configuration_settings>
   <modules>
     <module name="oop_base_object">
-      <inclusions>
-        <include scope="global" style="regular">osal.h</include>
-      </inclusions>
       <doc>
         <brief>Common ancestor abstract class.</brief>
         <details>This abstract class is the common ancestor of all classes
@@ -17,6 +14,11 @@ used in ChibiOS. This class just defines the position of the VMT pointer
 inside the structure.</details>
         <note>This is a generated file, do not edit directly.</note>
       </doc>
+      <inclusions>
+        <include scope="global" style="regular">osal.h</include>
+      </inclusions>
+      <typedefs>
+      </typedefs>
       <classes>
         <class name="base_object" ancestor="" descr="base object" type="abstract">
           <details>
@@ -35,9 +37,6 @@ inside the structure.</details>
       </classes>
     </module>
     <module name="oop_referenced_object">
-      <inclusions>
-        <include scope="global" style="angular">oop_base_object.h</include>
-      </inclusions>
       <doc>
         <brief>Common ancestor class of all reference-counted objects.</brief>
         <details>Base class for objects that implement a reference counter
@@ -45,6 +44,15 @@ and are disposed when the number of references reaches zero. This class
 extends @p base_object_c class.</details>
         <note>This is a generated file, do not edit directly.</note>
       </doc>
+      <inclusions>
+        <include scope="global" style="angular">oop_base_object.h</include>
+      </inclusions>
+      <typedefs>
+        <typedef ctype="object_references_t">
+          <brief>Type of a references counter.</brief>
+          <reftype ctype="unsigned int" />
+        </typedef>
+      </typedefs>
       <classes>
         <class name="referenced_object" ancestor="base_object" descr="referenced object" type="abstract">
           <details>

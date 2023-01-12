@@ -238,6 +238,7 @@ static inline void __${classname}_dispose_impl(void *ip) {
 [@doxygen.EmitParam name="ip" dir="both"
                     text="Pointer to a @p " + classctype + " structure." /]
 [@doxygen.EmitParamFromNode node=method /]
+[@doxygen.EmitReturnFromNode node=method /]
  */
 CC_FORCE_INLINE
 [@ccode.GeneratePrototype indent    = ""
@@ -285,6 +286,7 @@ CC_FORCE_INLINE
 [@doxygen.EmitParam name="ip" dir="both"
                     text="Pointer to a @p " + classctype + " structure." /]
 [@doxygen.EmitParamFromNode node=method /]
+[@doxygen.EmitReturnFromNode node=method /]
  */
 CC_FORCE_INLINE
 [@ccode.GeneratePrototype modifiers = ["static", "inline"]

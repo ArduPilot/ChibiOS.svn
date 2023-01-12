@@ -77,28 +77,31 @@
 [#--
   -- This macro generates a param tag description.
   --]
-[#macro EmitParam indent="" name="no-name" dir="boh" text="missing description"]
-    [#if dir == "in"]
+[#macro EmitParam indent="" name="no-name" dir="boh" text=""]
+  [#if text?trim?length == 0]
+    [#local text="missing description" /]
+  [/#if]
+  [#if dir == "in"]
 [@utils.FormatStringAsText indent + (" * @param[in]     " + name + " ")?right_pad(text_align)
                            indent + " *"?right_pad(text_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
-    [#elseif dir == "out"]
+  [#elseif dir == "out"]
 [@utils.FormatStringAsText indent + (" * @param[out]    " + name + " ")?right_pad(text_align)
                            indent + " *"?right_pad(text_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
-    [#elseif dir == "both"]
+  [#elseif dir == "both"]
 [@utils.FormatStringAsText indent + (" * @param[in,out] " + name + " ")?right_pad(text_align)
                            indent + " *"?right_pad(text_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
-    [#else]
+  [#else]
 [@utils.FormatStringAsText indent + (" * @param         " + name + " ")?right_pad(text_align)
                            indent + " *"?right_pad(text_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
-    [/#if]
+  [/#if]
 [/#macro]
 
 [#--
@@ -116,7 +119,7 @@
   --]
 [#macro EmitBriefFromNode node=[]]
   [#if node.brief[0]??]
-[@doxygen.EmitBrief "" node.brief[0] /]
+[@doxygen.EmitBrief "" node.brief[0]!"no description" /]
   [/#if]
 [/#macro]
 
@@ -125,7 +128,7 @@
   --]
 [#macro EmitDetailsFromNode node=[]]
   [#if node.details[0]??]
-[@doxygen.EmitDetails "" node.details[0] /]
+[@doxygen.EmitDetails "" node.details[0]!"no description" /]
   [/#if]
 [/#macro]
 
@@ -134,7 +137,7 @@
   --]
 [#macro EmitPreFromNode node=[]]
   [#list node.pre as pre]
-[@doxygen.EmitPre "" pre[0] /]
+[@doxygen.EmitPre "" pre[0]!"no description" /]
   [/#list]
 [/#macro]
 
@@ -143,7 +146,7 @@
   --]
 [#macro EmitPostFromNode node=[]]
   [#list node.post as post]
-[@doxygen.EmitPost "" post[0] /]
+[@doxygen.EmitPost "" post[0]!"no description" /]
   [/#list]
 [/#macro]
 
@@ -152,7 +155,7 @@
   --]
 [#macro EmitNoteFromNode node=[]]
   [#list node.note as note]
-[@doxygen.EmitNote "" note[0] /]
+[@doxygen.EmitNote "" note[0]!"no description" /]
   [/#list]
 [/#macro]
 
@@ -161,10 +164,22 @@
   --]
 [#macro EmitParamFromNode node=[]]
   [#list node.param as param]
-[@doxygen.EmitParam indent="" name=param.@name[0]!"no-name" dir=param.@dir[0]!"no-dir" text=param[0]?trim /]
+[@doxygen.EmitParam indent=""
+                    name=param.@name[0]!"no-name"
+                    dir=param.@dir[0]!"no-dir"
+                    text=param[0]!"no description"?trim /]
   [/#list]
 [/#macro]
-name="no-name" dir="boh" indent="" text="missing description"
+
+[#--
+  -- This macro generates a return tag from an XML node.
+  --]
+[#macro EmitReturnFromNode node=[]]
+  [#list node.return as return]
+[@doxygen.EmitReturn "" return[0]!"no description" /]
+  [/#list]
+[/#macro]
+
 [#--
   -- This macro generates a complete Doxygen documentation comment.
   --]

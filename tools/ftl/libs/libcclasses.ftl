@@ -91,7 +91,7 @@ ${funcptr?right_pad(76)}\
   [#list class.fields.field as field]
     [#local fieldname  = field.@name[0]?trim
             fieldctype = field.@ctype[0]?trim
-            fieldstring = ccode.MakeVariable("  " fieldctype fieldname)?right_pad(76) /]
+            fieldstring = ccode.MakeVariableDeclaration("  " fieldctype fieldname)?right_pad(76) /]
 ${fieldstring}\
   [/#list]
   /* end data */
@@ -111,7 +111,7 @@ struct ${classname?lower_case} {
 [@doxygen.EmitBrief "  " "Virtual Methods Table." /]
    */
   [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N" /]
-${ccode.MakeVariable("  " vmtctype "vmt")}
+${ccode.MakeVariableDeclaration("  " vmtctype "vmt")}
   ${datadefine}
 };
 [/#macro]
@@ -270,6 +270,13 @@ CC_FORCE_INLINE
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
 
+      [#local callname   = "self->vmt->" + methodsname /]
+      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
+      [#if methodretctype == "void"]
+[@ccode.GenerateFunctionCall "  " "" callname callparams /]
+      [#else]
+[@ccode.GenerateFunctionCall "  " "return" callname callparams /]
+      [/#if]
 }
       [/#if]
       [#if method?has_next]

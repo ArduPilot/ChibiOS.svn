@@ -148,6 +148,7 @@ struct ${classname?lower_case} {
 ${ccode.MakeVariableDeclaration("  " vmtctype "vmt")}
   ${datadefine}
 };
+
 [/#macro]
 
 [#--
@@ -161,7 +162,7 @@ ${ccode.MakeVariableDeclaration("  " vmtctype "vmt")}
           classtype        = class.@type[0]?trim
           ancestorname     = class.@ancestor[0]?trim
           ancestorfullname = ancestorname + class_suffix /]
-**
+/**
  * @name    Methods implementations (${classctype})
  * @{
  */
@@ -248,7 +249,7 @@ CC_FORCE_INLINE
                           node      = method /] {
   ${classctype} *self = (${classctype} *)ip;
 
-[@utils.EmitIndentedCCode start="  " tab=2 ccode=methodimpl /]
+[@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
     [/#if]
   [/#list]
@@ -298,7 +299,7 @@ CC_FORCE_INLINE
   ${classctype} *self = (${classctype} *)ip;
 
       [#local callname   = "self->vmt->" + methodsname /]
-      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
+      [#local callparams = ccode.MakeParamsSequence(["ip"] method) /]
       [#if methodretctype == "void"]
 [@ccode.GenerateFunctionCall "  " "" callname callparams /]
       [#else]

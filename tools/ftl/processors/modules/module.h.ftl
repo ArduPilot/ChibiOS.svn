@@ -101,6 +101,21 @@
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+  [#-- Scanning all macros to be generated in this module.--]
+  [#list module.macros.macro as macro]
+/**
+[@doxygen.EmitBriefFromNode node=macro /]
+[@doxygen.EmitDetailsFromNode node=macro /]
+[@doxygen.EmitNoteFromNode node=macro /]
+ *
+[@doxygen.EmitParamFromNode node=macro /]
+[@doxygen.EmitReturnFromNode node=macro /]
+ */
+[@ccode.GenerateMacro node=macro /]
+    [#if macro?is_last]
+
+    [/#if]
+  [/#list]
   [#-- Scanning all classes to be generated in this module.--]
   [#list module.classes.class as class]
 /*===========================================================================*/

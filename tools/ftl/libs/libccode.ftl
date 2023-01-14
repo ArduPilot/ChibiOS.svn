@@ -25,21 +25,23 @@
 [#assign tab = 2 /]
 [#assign fields_align = 44 /]
 [#assign define_value_align = 44 /]
+[#assign backslash_align = 76 /]
 [#assign boundary = 80 /]
 
 [#--
   -- Emits a C function body code reformatting the indentation using the
-  -- specified tab size and line prefix.
+  -- specified line prefix.
   --]
 [#macro EmitIndentedCCode indent="  " ccode=""]
   [#local lines = ccode?string?split("^", "rm") /]
   [#list lines as line]
-    [#if (line_index > 0) || (line?trim?length > 0)]
-      [#if line?trim?length > 0]
-        [#if line[0] == "#"]
-${line?chop_linebreak}
+    [#local s = line?chop_linebreak /]
+    [#if (line_index > 0) || (s?trim?length > 0)]
+      [#if s?trim?length > 0]
+        [#if s[0] == "#"]
+${s}
         [#else]
-${(indent + line)?chop_linebreak}
+${indent + s}
         [/#if]
       [#else]
 
@@ -138,7 +140,7 @@ ${line + ")"}[#rt]
 [#--
   -- Creates a sequence containing parameters names taken from an XML node.
   --]
-[#function MakeCallParamsSequence params=[] node=[]]
+[#function MakeParamsSequence params=[] node=[]]
   [#list node.param as param]
     [#local name  = param.@name[0]!"no-name"?trim /]
     [#local params = params + [name] /]
@@ -169,6 +171,28 @@ ${line + ","}
     [/#if]
   [/#list]
 ${line + ");"}
+[/#macro]
+
+[#--
+  -- Generates a multi-line C macro.
+  --]
+[#macro GenerateMacro indent="  " params=[] node=[]]
+  [#local macro  = node /]
+  [#local name   = macro.@name[0]!"no-name"?trim /]
+  [#local params = MakeParamsSequence(params, macro) /]
+  [#local s      = ("#define " + name + "(" + params?join(", ") +
+                    ") ")?right_pad(backslash_align) + "\\" /]
+${s}
+  [#local macroimpl   = (macro.implementation[0])!"no-implementation" /]
+  [#local lines       = macroimpl?string?split("^", "rm") /]
+  [#list lines?filter(line -> line?trim?length > 0) as line]
+    [#local s = line?chop_linebreak /]
+    [#if line?is_last]
+${(indent + s + "")?right_pad(backslash_align)}
+    [#else]
+${(indent + s + "")?right_pad(backslash_align) + "\\"}
+    [/#if]
+  [/#list]
 [/#macro]
 
 [#--

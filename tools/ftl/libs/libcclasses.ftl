@@ -273,6 +273,7 @@ CC_FORCE_INLINE
  * @name    Virtual methods (${classctype})
  * @{
  */
+    [#local nvirt = 0 /]
     [#list class.methods.method as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
@@ -280,6 +281,10 @@ CC_FORCE_INLINE
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!""?trim /]
       [#if methodtype == "virtual"]
+        [#local nvirt = nvirt + 1 /]
+        [#if nvirt > 1]
+
+        [/#if]
 /**
 [@doxygen.EmitBriefFromNode node=method /]
 [@doxygen.EmitDetailsFromNode node=method /]
@@ -306,9 +311,6 @@ CC_FORCE_INLINE
 [@ccode.GenerateFunctionCall "  " "return" callname callparams /]
       [/#if]
 }
-      [/#if]
-      [#if method?has_next]
-
       [/#if]
     [/#list]
 /** @} */

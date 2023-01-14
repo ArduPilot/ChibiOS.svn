@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instance
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd">
+  <configuration_settings>
+  </configuration_settings>
+  <modules>
+    <module name="hal_base_driver_test">
+      <doc>
+        <brief>Common driver base abstract class.</brief>
+        <details>This abstract class is the common ancestor of all HAL
+stateful HAL drivers.</details>
+        <note>This is a generated file, do not edit directly.</note>
+      </doc>
+      <inclusions>
+        <include scope="global" style="regular">hal.h</include>
+      </inclusions>
+      <macros>
+      </macros>
+      <typedefs>
+      </typedefs>
+      <classes>
+        <class name="base_driver" ancestor="base_object" descr="base driver" type="abstract">
+          <brief>
+          </brief>
+          <details>
+          </details>
+          <fields>
+          </fields>
+          <init>
+            <implementation><![CDATA[ ]]></implementation>
+          </init>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
+          <methods>
+            <method name="__drv_protected_start" shortname="start" ctype="msg_t" type="virtual">
+              <brief>Low level driver start.</brief>
+              <return>The operation status.</return>
+            </method>
+            <method name="__drv_protected_stop" shortname="stop" ctype="void" type="virtual">
+              <brief>Low level driver stop.</brief>
+            </method>
+            <method name="drvConfigureX" shortname="configure" ctype="msg_t" type="virtual">
+              <brief>Driver configure.</brief>
+              <details>
+Applies a new configuration to the driver. The configuration
+structure is architecture-dependent.
+              </details>
+              <note>
+Applying a configuration should be done while the peripheral
+is not actively operating, this function can fail depending
+on the driver implementation and current state.
+              </note>
+            </method>
+            <method name="drvGetInterfaceX" shortname="getif" ctype="const void *" type="virtual">
+              <brief>Driver interface get.</brief>
+              <return>The driver interface or @p NULL if none.</return>
+            </method>
+            <method name="drvOpen" shortname="open" ctype="msg_t" type="regular">
+              <brief>Driver open.</brief>
+              <details>
+Returns a reference to the driver, on the 1st open the peripheral
+is physically initialized. An implementation-dependent default
+configuration is used for initialization.
+              </details>
+              <return>The operation status.</return>
+              <implementation><![CDATA[
+msg_t msg;
+
+osalDbgCheck(self != NULL);
+
+osalSysLock();
+
+if (self->opencnt == 0U) {
+  /* Physically starting the peripheral.*/
+  msg = __drv_protected_start(self);
+  if (msg == HAL_RET_SUCCESS) {
+    self->opencnt++;
+    self->state = HAL_DRV_STATE_READY;
+  }
+  else {
+    self->state = HAL_DRV_STATE_STOP;
+  }
+}
+else {
+  msg = HAL_RET_SUCCESS;
+}
+
+osalSysUnlock();
+
+return msg;]]></implementation>
+            </method>
+            <method name="drvClose" shortname="close" ctype="void" type="regular">
+              <brief>Driver close.</brief>
+              <details>
+Releases a reference to the driver, when the count reaches zero
+then the peripheral is physically uninitialized.
+              </details>
+              <implementation><![CDATA[
+osalDbgCheck(self != NULL);
+
+osalSysLock();
+
+osalDbgAssert(self->opencnt > 0U, "not opened");
+
+if (--self->opencnt == 0U) {
+  self->state = HAL_DRV_STATE_STOP;
+  self->vmt->stop(self);
+}
+
+osalSysUnlock();]]></implementation>
+            </method>
+            <param ctype="const void *" name="config">Pointer to a constant configuration structure.</param>
+            <return>The operation status.</return>
+          </methods>
+        </class>
+      </classes>
+    </module>
+  </modules>
+</instance>

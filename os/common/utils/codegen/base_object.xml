@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/module.xsd"
+  name="oop_base_object">
+  <doc>
+    <brief>Common ancestor abstract class.</brief>
+    <details>This abstract class is the common ancestor of all classes
+      used in ChibiOS. This class just defines the position of the VMT
+      pointer
+      inside the structure.
+    </details>
+    <note>This is a generated file, do not edit directly.</note>
+  </doc>
+  <inclusions>
+    <include scope="global" style="regular">osal.h</include>
+  </inclusions>
+  <macros>
+    <macro name="oopGetInstance">
+      <brief>Returns the object instance pointer starting from an
+        interface pointer.</brief>
+      <details>
+        Because multiple inheritance, an object can be composed by
+        multiple interfaces and/or classes (its ancestors).
+        This function returns the pointer to the base object starting
+        from a pointer to any of its composing classes or interfaces.
+        This is done by leveraging the offset field into each VMT table.
+      </details>
+      <param name="c">The class type of the object.</param>
+      <param name="p">A pointer to one of the object composing classes
+        or interfaces.</param>
+      <return>A pointer to an object of type @p c implementing the
+        interface/class @p p.</return>
+      <implementation><![CDATA[
+(c)(((size_t)(ip)) - (**(size_t **)(p)))]]>
+      </implementation>
+    </macro>
+  </macros>
+  <typedefs>
+  </typedefs>
+  <classes>
+    <class name="base_object" ancestor="" descr="base object"
+      type="abstract">
+      <details>
+      </details>
+      <fields>
+      </fields>
+      <init>
+        <implementation><![CDATA[ ]]></implementation>
+      </init>
+      <dispose>
+        <implementation><![CDATA[ ]]></implementation>
+      </dispose>
+      <methods>
+      </methods>
+    </class>
+  </classes>
+</module>

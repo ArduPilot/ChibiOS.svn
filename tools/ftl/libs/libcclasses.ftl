@@ -21,13 +21,59 @@
 [#assign class_suffix = "_c" /]
 
 [#--
+  -- Returns the class name from an XML node.
+  --]
+[#function GetClassName node=[]]
+  [#local class = node /]
+  [#local classname = class.@name[0]!"no-name"?trim /]
+  [#return classname /]
+[/#function]
+
+[#--
   -- Returns the C type of the class from an XML node.
   --]
 [#function GetClassCType node=[]]
   [#local class = node /]
-  [#local classname  = class.@name[0]?trim
+  [#local classname  = GetClassName(class)
           classctype = classname + class_suffix /]
   [#return classctype /]
+[/#function]
+
+[#--
+  -- Returns the class description from an XML node.
+  --]
+[#function GetClassDescription node=[]]
+  [#local class = node /]
+  [#local classdescr = class.@descr[0]!"no-descr"?trim /]
+  [#return classdescr /]
+[/#function]
+
+[#--
+  -- Returns the class ancestor name from an XML node.
+  --]
+[#function GetClassAncestorName node=[]]
+  [#local class = node /]
+  [#local ancestorname = class.@ancestor[0]!"no-ancestor"?trim /]
+  [#return ancestorname /]
+[/#function]
+
+[#--
+  -- Returns the C type of the class from an XML node.
+  --]
+[#function GetClassAncestorCType node=[]]
+  [#local class = node /]
+  [#local ancestorname  = GetClassAncestorName(class)
+          ancestorctype = ancestorname + class_suffix /]
+  [#return ancestorctype /]
+[/#function]
+
+[#--
+  -- Returns the type of the class from an XML node.
+  --]
+[#function GetClassType node=[]]
+  [#local class = node /]
+  [#local classtype = class.@type[0]!"regular"?trim /]
+  [#return classtype /]
 [/#function]
 
 [#--
@@ -74,12 +120,12 @@
   --]
 [#macro GenerateClassWrapper node=[]]
   [#local class = node /]
-  [#local classname        = class.@name[0]?trim
+  [#local classname        = GetClassName(class)
           classctype       = GetClassCType(class)
-          classdescr       = class.@descr[0]?trim
-          classtype        = class.@type[0]?trim
-          ancestorname     = class.@ancestor[0]?trim
-          ancestorfullname = ancestorname + class_suffix /]
+          classdescr       = GetClassDescription(class)
+          classtype        = GetClassType(class)
+          ancestorname     = GetClassAncestorName(class)
+          ancestorfullname = GetClassAncestorCType(class) /]
 /**
 [@doxygen.EmitBrief "" "Type of a " + classdescr + " class." /]
  */
@@ -156,12 +202,12 @@ ${ccode.MakeVariableDeclaration("  " vmtctype "vmt")}
   --]
 [#macro GenerateClassMethodsImplementations node=[]]
   [#local class = node /]
-  [#local classname        = class.@name[0]?trim
+  [#local classname        = GetClassName(class)
           classctype       = GetClassCType(class)
-          classdescr       = class.@descr[0]?trim
-          classtype        = class.@type[0]?trim
-          ancestorname     = class.@ancestor[0]?trim
-          ancestorfullname = ancestorname + class_suffix /]
+          classdescr       = GetClassDescription(class)
+          classtype        = GetClassType(class)
+          ancestorname     = GetClassAncestorName(class)
+          ancestorfullname = GetClassAncestorCType(class) /]
 /**
  * @name    Methods implementations (${classctype})
  * @{
@@ -262,12 +308,12 @@ CC_FORCE_INLINE
   --]
 [#macro GenerateClassVirtualMethods node=[]]
   [#local class = node /]
-  [#local classname        = class.@name[0]?trim
+  [#local classname        = GetClassName(class)
           classctype       = GetClassCType(class)
-          classdescr       = class.@descr[0]?trim
-          classtype        = class.@type[0]?trim
-          ancestorname     = class.@ancestor[0]?trim
-          ancestorfullname = ancestorname + class_suffix /]
+          classdescr       = GetClassDescription(class)
+          classtype        = GetClassType(class)
+          ancestorname     = GetClassAncestorName(class)
+          ancestorfullname = GetClassAncestorCType(class) /]
   [#if class.methods.method?size > 0]
 /**
  * @name    Virtual methods of (${classctype})
@@ -323,12 +369,12 @@ CC_FORCE_INLINE
   --]
 [#macro GenerateClassRegularMethods node=[]]
   [#local class = node /]
-  [#local classname        = class.@name[0]?trim
+  [#local classname        = GetClassName(class)
           classctype       = GetClassCType(class)
-          classdescr       = class.@descr[0]?trim
-          classtype        = class.@type[0]?trim
-          ancestorname     = class.@ancestor[0]?trim
-          ancestorfullname = ancestorname + class_suffix /]
+          classdescr       = GetClassDescription(class)
+          classtype        = GetClassType(class)
+          ancestorname     = GetClassAncestorName(class)
+          ancestorfullname = GetClassAncestorCType(class) /]
   [#if class.methods.method?size > 0]
 /**
  * @name    Regular methods of (${classctype})

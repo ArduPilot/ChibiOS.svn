@@ -76,6 +76,7 @@
 /* Module class ${cclasses.GetClassCType(class)?right_pad(61)}*/
 /*===========================================================================*/
 
+[@cclasses.GenerateClassRegularMethods class /]
   [/#list]
 /*===========================================================================*/
 /* Module exported functions.                                                */

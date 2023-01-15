@@ -210,14 +210,52 @@ ${s}
 [/#macro]
 
 [#--
+  -- Generates a conmfiguration definition.
+  --]
+[#macro GenerateConfig node=[]]
+  [#local config  = node /]
+  [#local name    = config.@name[0]!"no-name"?trim /]
+  [#local default = config.@default[0]!"no-default"?trim /]
+  [#local s         = ("#define " + name +  " ")?right_pad(define_value_align) +
+                      default /]
+#if !defined(${name}) || defined(__DOXYGEN__)
+${s}
+#endif
+[/#macro]
+
+[#--
+  -- Generates all single line definitions from an XML node.
+  --]
+[#macro GenerateConfigsFromNode node=[]]
+  [#local configs = node /]
+    [#if configs?children?size > 0]
+/**
+ * @name    Configuration options
+ * @{
+ */
+    [#list configs.* as this]
+      [#if this?node_name == "config"]
+[@doxygen.EmitFullCommentFromNode "" this /]
+[@ccode.GenerateConfig this /]
+      [/#if]
+      [#if !this?is_last]
+
+      [/#if]
+    [/#list]
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
   -- Generates a multi-line C macro.
   --]
 [#macro GenerateMacro indent="  " params=[] node=[]]
-  [#local macro     = node /]
-  [#local name      = macro.@name[0]!"no-name"?trim /]
-  [#local params    = MakeParamsSequence(params, macro) /]
-  [#local s         = ("#define " + name + "(" + params?join(", ") +
-                      ") ")?right_pad(backslash_align) + "\\" /]
+  [#local macro  = node /]
+  [#local name   = macro.@name[0]!"no-name"?trim /]
+  [#local params = MakeParamsSequence(params, macro) /]
+  [#local s      = ("#define " + name + "(" + params?join(", ") +
+                   ") ")?right_pad(backslash_align) + "\\" /]
 ${s}
   [#local macroimpl = (macro.implementation[0])!"no-implementation" /]
   [#local lines     = macroimpl?string?split("^", "rm") /]

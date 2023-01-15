@@ -24,6 +24,16 @@ stateful HAL drivers.</details>
           <define name="HAL_DRV_STATE_ERROR" value="4U" />
         </members>
       </definitions>
+      <configs>
+        <config name="HAL_USE_MUTUAL_EXCLUSION" default="TRUE">
+          <brief>Enables the mutual exclusion APIs on driver instances.</brief>
+          <note>Disabling this option saves both code and data space.</note>
+        </config>
+        <config name="HAL_USE_REGISTRY" default="FALSE">
+          <brief>Enables the HAL registry for drivers.</brief>
+          <note>Disabling this option saves both code and data space.</note>
+        </config>
+      </configs>
       <macros>
       </macros>
       <typedefs>
@@ -128,8 +138,34 @@ if (--self->opencnt == 0U) {
 
 osalSysUnlock();]]></implementation>
             </method>
-            <param ctype="const void *" name="config">Pointer to a constant configuration structure.</param>
-            <return>The operation status.</return>
+            <method name="drvGetStateX" ctype="driver_state_t" type="regular">
+              <brief>Driver state get.</brief>
+              <return>The driver state.</return>
+              <implementation><![CDATA[return self->state;]]></implementation>
+            </method>
+            <method name="drvSetStateX" ctype="void" type="regular">
+              <brief>Driver state set.</brief>
+              <param ctype="driver_state_t" name="state">New driver state.</param>
+              <implementation><![CDATA[self->state = state;]]></implementation>
+            </method>
+            <method name="drvGetOwnerX" ctype="void *" type="regular">
+              <brief>Driver owner get.</brief>
+              <return>The driver owner.</return>
+              <implementation><![CDATA[return self->owner;]]></implementation>
+            </method>
+            <method name="drvSetStateX" ctype="void" type="regular">
+              <brief>Driver owner set.</brief>
+              <param ctype="void *" name="state">New driver owner.</param>
+              <implementation><![CDATA[self->owner = owner;]]></implementation>
+            </method>
+            <method name="drvLock" ctype="void" type="regular">
+              <brief>Driver lock.</brief>
+              <implementation><![CDATA[osalMutexLock(&self->mutex);]]></implementation>
+            </method>
+            <method name="drvUnlock" ctype="void" type="regular">
+              <brief>Driver unlock.</brief>
+              <implementation><![CDATA[osalMutexUnlock(&self->mutex);]]></implementation>
+            </method>
           </methods>
         </class>
       </classes>

@@ -75,7 +75,7 @@
 [#macro GenerateClassWrapper node=[]]
   [#local class = node /]
   [#local classname        = class.@name[0]?trim
-          classctype       = classname + class_suffix
+          classctype       = GetClassCType(class)
           classdescr       = class.@descr[0]?trim
           classtype        = class.@type[0]?trim
           ancestorname     = class.@ancestor[0]?trim
@@ -157,7 +157,7 @@ ${ccode.MakeVariableDeclaration("  " vmtctype "vmt")}
 [#macro GenerateClassMethodsImplementations node=[]]
   [#local class = node /]
   [#local classname        = class.@name[0]?trim
-          classctype       = classname + class_suffix
+          classctype       = GetClassCType(class)
           classdescr       = class.@descr[0]?trim
           classtype        = class.@type[0]?trim
           ancestorname     = class.@ancestor[0]?trim
@@ -263,14 +263,14 @@ CC_FORCE_INLINE
 [#macro GenerateClassVirtualMethods node=[]]
   [#local class = node /]
   [#local classname        = class.@name[0]?trim
-          classctype       = classname + class_suffix
+          classctype       = GetClassCType(class)
           classdescr       = class.@descr[0]?trim
           classtype        = class.@type[0]?trim
           ancestorname     = class.@ancestor[0]?trim
           ancestorfullname = ancestorname + class_suffix /]
   [#if class.methods.method?size > 0]
 /**
- * @name    Virtual methods (${classctype})
+ * @name    Virtual methods of (${classctype})
  * @{
  */
     [#local nvirt = 0 /]
@@ -303,13 +303,67 @@ CC_FORCE_INLINE
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
 
-      [#local callname   = "self->vmt->" + methodsname /]
-      [#local callparams = ccode.MakeParamsSequence(["ip"] method) /]
-      [#if methodretctype == "void"]
+        [#local callname   = "self->vmt->" + methodsname /]
+        [#local callparams = ccode.MakeParamsSequence(["ip"] method) /]
+        [#if methodretctype == "void"]
 [@ccode.GenerateFunctionCall "  " "" callname callparams /]
-      [#else]
+        [#else]
 [@ccode.GenerateFunctionCall "  " "return" callname callparams /]
+        [/#if]
+}
       [/#if]
+    [/#list]
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates regular methods as inline functions from an XML node.
+  --]
+[#macro GenerateClassRegularMethods node=[]]
+  [#local class = node /]
+  [#local classname        = class.@name[0]?trim
+          classctype       = GetClassCType(class)
+          classdescr       = class.@descr[0]?trim
+          classtype        = class.@type[0]?trim
+          ancestorname     = class.@ancestor[0]?trim
+          ancestorfullname = ancestorname + class_suffix /]
+  [#if class.methods.method?size > 0]
+/**
+ * @name    Regular methods of (${classctype})
+ * @{
+ */
+    [#local nreg = 0 /]
+    [#list class.methods.method as method]
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodtype     = GetMethodType(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = method.implementation[0]!""?trim /]
+      [#if methodtype == "regular"]
+        [#local nreg = nreg + 1 /]
+        [#if nreg > 1]
+
+        [/#if]
+/**
+[@doxygen.EmitBriefFromNode node=method /]
+[@doxygen.EmitDetailsFromNode node=method /]
+[@doxygen.EmitPreFromNode node=method /]
+[@doxygen.EmitPostFromNode node=method /]
+[@doxygen.EmitNoteFromNode node=method /]
+ *
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to a @p " + classctype + " structure." /]
+[@doxygen.EmitParamFromNode node=method /]
+[@doxygen.EmitReturnFromNode node=method /]
+ */
+[@ccode.GeneratePrototype modifiers = []
+                          params    = ["const void *ip"]
+                          node=method /] {
+  ${classctype} *self = (${classctype} *)ip;
+
+[@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
       [/#if]
     [/#list]

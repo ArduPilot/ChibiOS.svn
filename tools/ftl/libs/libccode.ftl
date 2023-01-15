@@ -174,23 +174,67 @@ ${line + ");"}
 [/#macro]
 
 [#--
+  -- Generates a single line definition macro.
+  --]
+[#macro GenerateDefine node=[]]
+  [#local define    = node /]
+  [#local name      = define.@name[0]!"no-name"?trim /]
+  [#local value     = define.@value[0]!"no-value"?trim /]
+  [#local s         = ("#define " + name +  " ")?right_pad(define_value_align) +
+                      value /]
+${s}
+[/#macro]
+
+[#--
+  -- Generates all single line definitions from an XML node.
+  --]
+[#macro GenerateDefinesFromNode node=[]]
+  [#local definitions = node /]
+  [#list definitions.* as define]
+    [#if define?node_name == "define"]
+[@doxygen.EmitFullCommentFromNode "" define /]
+[@ccode.GenerateDefine define /]
+      [#if define?is_last]
+
+      [/#if]
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
   -- Generates a multi-line C macro.
   --]
 [#macro GenerateMacro indent="  " params=[] node=[]]
-  [#local macro  = node /]
-  [#local name   = macro.@name[0]!"no-name"?trim /]
-  [#local params = MakeParamsSequence(params, macro) /]
-  [#local s      = ("#define " + name + "(" + params?join(", ") +
-                    ") ")?right_pad(backslash_align) + "\\" /]
+  [#local macro     = node /]
+  [#local name      = macro.@name[0]!"no-name"?trim /]
+  [#local params    = MakeParamsSequence(params, macro) /]
+  [#local s         = ("#define " + name + "(" + params?join(", ") +
+                      ") ")?right_pad(backslash_align) + "\\" /]
 ${s}
-  [#local macroimpl   = (macro.implementation[0])!"no-implementation" /]
-  [#local lines       = macroimpl?string?split("^", "rm") /]
+  [#local macroimpl = (macro.implementation[0])!"no-implementation" /]
+  [#local lines     = macroimpl?string?split("^", "rm") /]
   [#list lines?filter(line -> line?trim?length > 0) as line]
     [#local s = line?chop_linebreak /]
     [#if line?is_last]
 ${(indent + s + "")?right_pad(backslash_align)}
     [#else]
 ${(indent + s + "")?right_pad(backslash_align) + "\\"}
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- Generates all macros from an XML node.
+  --]
+[#macro GenerateMacrosFromNode indent="  " node=[]]
+  [#local macros = node /]
+  [#list macros.* as macro]
+    [#if macro?node_name == "macro"]
+[@doxygen.EmitFullCommentFromNode indent macro /]
+[@ccode.GenerateMacro node=macro /]
+      [#if macro?is_last]
+
+      [/#if]
     [/#if]
   [/#list]
 [/#macro]
@@ -208,4 +252,20 @@ typedef ${reftypename} ${typename};
   [#elseif typedef.enum[0]??]
   [#else]
   [/#if]
+[/#macro]
+
+[#--
+  -- Generates all type definitions from an XML node.
+  --]
+[#macro GenerateTypedefsFromNode indent="" node=[]]
+  [#local typedefs = node /]
+  [#list typedefs.* as typedef]
+    [#if typedef?node_name == "typedef"]
+[@doxygen.EmitFullCommentFromNode indent typedef /]
+[@ccode.GenerateTypedef node=typedef /]
+      [#if typedef?is_last]
+
+      [/#if]
+    [/#if]
+  [/#list]
 [/#macro]

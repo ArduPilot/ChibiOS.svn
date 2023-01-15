@@ -117,54 +117,54 @@
 [#--
   -- This macro generates a brief description from an XML node.
   --]
-[#macro EmitBriefFromNode node=[]]
+[#macro EmitBriefFromNode indent="" node=[]]
   [#if node.brief[0]??]
-[@doxygen.EmitBrief "" node.brief[0]!"no description" /]
+[@doxygen.EmitBrief indent node.brief[0]!"no description" /]
   [/#if]
 [/#macro]
 
 [#--
   -- This macro generates a detailed description from an XML node.
   --]
-[#macro EmitDetailsFromNode node=[]]
+[#macro EmitDetailsFromNode indent="" node=[]]
   [#if node.details[0]??]
-[@doxygen.EmitDetails "" node.details[0]!"no description" /]
+[@doxygen.EmitDetails indent node.details[0]!"no description" /]
   [/#if]
 [/#macro]
 
 [#--
   -- This macro generates a pre tags list from an XML nodet.
   --]
-[#macro EmitPreFromNode node=[]]
+[#macro EmitPreFromNode indent="" node=[]]
   [#list node.pre as pre]
-[@doxygen.EmitPre "" pre[0]!"no description" /]
+[@doxygen.EmitPre indent pre[0]!"no description" /]
   [/#list]
 [/#macro]
 
 [#--
   -- This macro generates a post tags list from an XML node.
   --]
-[#macro EmitPostFromNode node=[]]
+[#macro EmitPostFromNode indent="" node=[]]
   [#list node.post as post]
-[@doxygen.EmitPost "" post[0]!"no description" /]
+[@doxygen.EmitPost indent post[0]!"no description" /]
   [/#list]
 [/#macro]
 
 [#--
   -- This macro generates a notes list from an XML node.
   --]
-[#macro EmitNoteFromNode node=[]]
+[#macro EmitNoteFromNode indent="" node=[]]
   [#list node.note as note]
-[@doxygen.EmitNote "" note[0]!"no description" /]
+[@doxygen.EmitNote indent note[0]!"no description" /]
   [/#list]
 [/#macro]
 
 [#--
   -- This macro generates a params list from an XML node.
   --]
-[#macro EmitParamFromNode node=[]]
+[#macro EmitParamFromNode indent="" node=[]]
   [#list node.param as param]
-[@doxygen.EmitParam indent=""
+[@doxygen.EmitParam indent=indent
                     name=param.@name[0]!"no-name"
                     dir=param.@dir[0]!"no-dir"
                     text=param[0]!"no description"?trim /]
@@ -174,21 +174,28 @@
 [#--
   -- This macro generates a return tag from an XML node.
   --]
-[#macro EmitReturnFromNode node=[]]
+[#macro EmitReturnFromNode indent="" node=[]]
   [#list node.return as return]
-[@doxygen.EmitReturn "" return[0]!"no description" /]
+[@doxygen.EmitReturn indent return[0]!"no description" /]
   [/#list]
 [/#macro]
 
 [#--
   -- This macro generates a complete Doxygen documentation comment.
   --]
-[#macro EmitFullCommentNode node=[]]
-/**
-  [@doxygen.EmitBriefFromNode node /]
-  [@doxygen.EmitDetailsFromNode node /]
-  [@doxygen.EmitPreFromNode node /]
-  [@doxygen.EmitPostFromNode node /]
-  [@doxygen.EmitNoteFromNode node /]
- */
+[#macro EmitFullCommentFromNode indent="" node=[]]
+  [#if node.brief[0]??]
+${indent}/**
+[@doxygen.EmitBriefFromNode indent node /]
+[@doxygen.EmitDetailsFromNode indent node /]
+[@doxygen.EmitPreFromNode indent node /]
+[@doxygen.EmitPostFromNode indent node /]
+[@doxygen.EmitNoteFromNode indent node /]
+    [#if node.param[0]?? || node.return[0]??]
+${indent} *
+[@doxygen.EmitParamFromNode indent node /]
+[@doxygen.EmitReturnFromNode indent node /]
+    [/#if]
+${indent} */
+  [/#if]
 [/#macro]

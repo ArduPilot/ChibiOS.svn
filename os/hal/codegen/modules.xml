@@ -15,9 +15,20 @@ stateful HAL drivers.</details>
       <inclusions>
         <include scope="global" style="regular">hal.h</include>
       </inclusions>
+      <definitions>
+        <define name="HAL_DRV_STATE_UNINIT" value="0U" />
+        <define name="HAL_DRV_STATE_STOP" value="1U" />
+        <define name="HAL_DRV_STATE_READY" value="2U" />
+        <define name="HAL_DRV_STATE_ACTIVE" value="3U" />
+        <define name="HAL_DRV_STATE_ERROR" value="4U" />
+      </definitions>
       <macros>
       </macros>
       <typedefs>
+        <typedef ctype="driver_state_t">
+          <brief>Type of a driver state variable.</brief>
+          <reftype ctype="unsigned int" />
+        </typedef>
       </typedefs>
       <classes>
         <class name="base_driver" ancestor="base_object" descr="base driver" type="abstract">
@@ -26,6 +37,10 @@ stateful HAL drivers.</details>
           <details>
           </details>
           <fields>
+           <field name="state" ctype="driver_state_t" />
+           <field name="opencnt" ctype="unsigned int" />
+           <field name="owner" ctype="void$I*" />
+           <field name="mutex" ctype="mutex_t" />
           </fields>
           <init>
             <implementation><![CDATA[ ]]></implementation>

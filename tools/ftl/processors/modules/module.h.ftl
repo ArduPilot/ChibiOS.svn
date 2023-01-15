@@ -73,6 +73,7 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
+[@ccode.GenerateDefinesFromNode node=module.definitions /]
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -85,37 +86,12 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
-  [#-- Scanning all types to be generated in this module.--]
-  [#list module.typedefs.typedef as typedef]
-/**
-[@doxygen.EmitBriefFromNode node=typedef /]
-[@doxygen.EmitDetailsFromNode node=typedef /]
-[@doxygen.EmitNoteFromNode node=typedef /]
- */
-[@ccode.GenerateTypedef node=typedef /]
-    [#if typedef?is_last]
-
-    [/#if]
-  [/#list]
+[@ccode.GenerateTypedefsFromNode node=module.typedefs /]
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
 
-  [#-- Scanning all macros to be generated in this module.--]
-  [#list module.macros.macro as macro]
-/**
-[@doxygen.EmitBriefFromNode node=macro /]
-[@doxygen.EmitDetailsFromNode node=macro /]
-[@doxygen.EmitNoteFromNode node=macro /]
- *
-[@doxygen.EmitParamFromNode node=macro /]
-[@doxygen.EmitReturnFromNode node=macro /]
- */
-[@ccode.GenerateMacro node=macro /]
-    [#if macro?is_last]
-
-    [/#if]
-  [/#list]
+[@ccode.GenerateMacrosFromNode node=module.macros /]
   [#-- Scanning all classes to be generated in this module.--]
   [#list module.classes.class as class]
 /*===========================================================================*/

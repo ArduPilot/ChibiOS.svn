@@ -190,13 +190,21 @@ ${s}
   --]
 [#macro GenerateDefinesFromNode node=[]]
   [#local definitions = node /]
-  [#list definitions.* as define]
-    [#if define?node_name == "define"]
-[@doxygen.EmitFullCommentFromNode "" define /]
-[@ccode.GenerateDefine define /]
-      [#if define?is_last]
+  [#list definitions.* as this]
+    [#if this?node_name == "members"]
+      [#local group = this.@group[0]!"no-name"?trim /]
+/**
+ * @name    ${group}
+ * @{
+ */
+[@ccode.GenerateDefinesFromNode this /]
+/** @} */
+    [#elseif this?node_name == "define"]
+[@doxygen.EmitFullCommentFromNode "" this /]
+[@ccode.GenerateDefine this /]
+    [/#if]
+    [#if this?is_last && (this?parent?node_name != "members")]
 
-      [/#if]
     [/#if]
   [/#list]
 [/#macro]

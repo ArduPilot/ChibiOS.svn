@@ -16,11 +16,13 @@ stateful HAL drivers.</details>
         <include scope="global" style="regular">hal.h</include>
       </inclusions>
       <definitions>
-        <define name="HAL_DRV_STATE_UNINIT" value="0U" />
-        <define name="HAL_DRV_STATE_STOP" value="1U" />
-        <define name="HAL_DRV_STATE_READY" value="2U" />
-        <define name="HAL_DRV_STATE_ACTIVE" value="3U" />
-        <define name="HAL_DRV_STATE_ERROR" value="4U" />
+        <members group="Common driver states">
+          <define name="HAL_DRV_STATE_UNINIT" value="0U" />
+          <define name="HAL_DRV_STATE_STOP" value="1U" />
+          <define name="HAL_DRV_STATE_READY" value="2U" />
+          <define name="HAL_DRV_STATE_ACTIVE" value="3U" />
+          <define name="HAL_DRV_STATE_ERROR" value="4U" />
+        </members>
       </definitions>
       <macros>
       </macros>
@@ -49,11 +51,11 @@ stateful HAL drivers.</details>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <methods>
-            <method name="__drv_protected_start" shortname="start" ctype="msg_t" type="virtual">
+            <method name="__drv_start_protected" shortname="start" ctype="msg_t" type="virtual">
               <brief>Low level driver start.</brief>
               <return>The operation status.</return>
             </method>
-            <method name="__drv_protected_stop" shortname="stop" ctype="void" type="virtual">
+            <method name="__drv_stop_protected" shortname="stop" ctype="void" type="virtual">
               <brief>Low level driver stop.</brief>
             </method>
             <method name="drvConfigureX" shortname="configure" ctype="msg_t" type="virtual">

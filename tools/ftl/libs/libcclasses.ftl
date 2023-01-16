@@ -314,23 +314,20 @@ CC_FORCE_INLINE
           classtype        = GetClassType(class)
           ancestorname     = GetClassAncestorName(class)
           ancestorfullname = GetClassAncestorCType(class) /]
-  [#if class.methods.method?size > 0]
+  [#if class.methods.virtual?size > 0]
 /**
  * @name    Virtual methods of (${classctype})
  * @{
  */
-    [#local nvirt = 0 /]
-    [#list class.methods.method as method]
+    [#list class.methods.virtual as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
               methodtype     = GetMethodType(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!""?trim /]
-      [#if methodtype == "virtual"]
-        [#local nvirt = nvirt + 1 /]
-        [#if nvirt > 1]
+      [#if method?has_next]
 
-        [/#if]
+      [/#if]
 /**
 [@doxygen.EmitBriefFromNode node=method /]
 [@doxygen.EmitDetailsFromNode node=method /]
@@ -349,15 +346,14 @@ CC_FORCE_INLINE
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
 
-        [#local callname   = "self->vmt->" + methodsname /]
-        [#local callparams = ccode.MakeParamsSequence(["ip"] method) /]
-        [#if methodretctype == "void"]
+      [#local callname   = "self->vmt->" + methodsname /]
+      [#local callparams = ccode.MakeParamsSequence(["ip"] method) /]
+      [#if methodretctype == "void"]
 [@ccode.GenerateFunctionCall "  " "" callname callparams /]
-        [#else]
+      [#else]
 [@ccode.GenerateFunctionCall "  " "return" callname callparams /]
-        [/#if]
-}
       [/#if]
+}
     [/#list]
 /** @} */
 
@@ -380,18 +376,15 @@ CC_FORCE_INLINE
  * @name    Regular methods of (${classctype})
  * @{
  */
-    [#local nreg = 0 /]
     [#list class.methods.method as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
               methodtype     = GetMethodType(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!""?trim /]
-      [#if methodtype == "regular"]
-        [#local nreg = nreg + 1 /]
-        [#if nreg > 1]
+      [#if method?has_next]
 
-        [/#if]
+      [/#if]
 /**
 [@doxygen.EmitBriefFromNode node=method /]
 [@doxygen.EmitDetailsFromNode node=method /]
@@ -411,7 +404,6 @@ CC_FORCE_INLINE
 
 [@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
-      [/#if]
     [/#list]
 /** @} */
 

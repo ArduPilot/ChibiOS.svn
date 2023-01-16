@@ -66,17 +66,17 @@
               <implementation><![CDATA[ ]]></implementation>
             </dispose>
             <methods>
-              <method name="__drv_start_protected"
-                shortname="start" ctype="msg_t" type="virtual">
+              <virtual name="__drv_start_protected"
+                shortname="start" ctype="msg_t">
                 <brief>Low level driver start.</brief>
                 <return>The operation status.</return>
-              </method>
-              <method name="__drv_stop_protected"
-                shortname="stop" ctype="void" type="virtual">
+              </virtual>
+              <virtual name="__drv_stop_protected"
+                shortname="stop" ctype="void">
                 <brief>Low level driver stop.</brief>
-              </method>
-              <method name="drvConfigureX" shortname="configure"
-                ctype="msg_t" type="virtual">
+              </virtual>
+              <virtual name="drvConfigureX" shortname="configure"
+                ctype="msg_t">
                 <brief>Driver configure.</brief>
                 <details>
                   Applies a new configuration to the driver. The configuration
@@ -87,15 +87,15 @@
                   is not actively operating, this function can fail depending
                   on the driver implementation and current state.
                 </note>
-              </method>
-              <method name="drvGetInterfaceX" shortname="getif"
-                ctype="const void *" type="virtual">
+              </virtual>
+              <virtual name="drvGetInterfaceX" shortname="getif"
+                ctype="const void *">
                 <brief>Driver interface get.</brief>
                 <return>The driver interface or @p NULL if none.
                 </return>
-              </method>
+              </virtual>
               <method name="drvOpen" shortname="open"
-                ctype="msg_t" type="regular">
+                ctype="msg_t">
                 <brief>Driver open.</brief>
                 <details>
                   Returns a reference to the driver, on the 1st open the peripheral
@@ -130,7 +130,7 @@ osalSysUnlock();
 return msg;]]></implementation>
               </method>
               <method name="drvClose" shortname="close"
-                ctype="void" type="regular">
+                ctype="void">
                 <brief>Driver close.</brief>
                 <details>
                   Releases a reference to the driver, when the count reaches zero
@@ -150,38 +150,33 @@ if (--self->opencnt == 0U) {
 
 osalSysUnlock();]]></implementation>
               </method>
-              <method name="drvGetStateX" ctype="driver_state_t"
-                type="regular">
+              <method name="drvGetStateX" ctype="driver_state_t">
                 <brief>Driver state get.</brief>
                 <return>The driver state.</return>
                 <implementation><![CDATA[return self->state;]]></implementation>
               </method>
-              <method name="drvSetStateX" ctype="void"
-                type="regular">
+              <method name="drvSetStateX" ctype="void">
                 <brief>Driver state set.</brief>
                 <param ctype="driver_state_t" name="state">New driver
                   state.</param>
                 <implementation><![CDATA[self->state = state;]]></implementation>
               </method>
-              <method name="drvGetOwnerX" ctype="void *"
-                type="regular">
+              <method name="drvGetOwnerX" ctype="void *">
                 <brief>Driver owner get.</brief>
                 <return>The driver owner.</return>
                 <implementation><![CDATA[return self->owner;]]></implementation>
               </method>
-              <method name="drvSetStateX" ctype="void"
-                type="regular">
+              <method name="drvSetStateX" ctype="void">
                 <brief>Driver owner set.</brief>
                 <param ctype="void *" name="state">New driver owner.
                 </param>
                 <implementation><![CDATA[self->owner = owner;]]></implementation>
               </method>
-              <method name="drvLock" ctype="void" type="regular">
+              <method name="drvLock" ctype="void">
                 <brief>Driver lock.</brief>
                 <implementation><![CDATA[osalMutexLock(&self->mutex);]]></implementation>
               </method>
-              <method name="drvUnlock" ctype="void"
-                type="regular">
+              <method name="drvUnlock" ctype="void">
                 <brief>Driver unlock.</brief>
                 <implementation><![CDATA[osalMutexUnlock(&self->mutex);]]></implementation>
               </method>

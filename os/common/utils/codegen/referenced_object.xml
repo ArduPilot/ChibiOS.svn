@@ -6,7 +6,8 @@
     <brief>Common ancestor class of all reference-counted objects.
     </brief>
     <details>Base class for objects that implement a reference counter
-      and are disposed when the number of references reaches zero. This
+      and are disposed when the
+      number of references reaches zero. This
       class
       extends @p base_object_c class.
     </details>
@@ -25,8 +26,8 @@
       </typedef>
     </typedefs>
     <classes>
-      <class name="referenced_object" ancestor="base_object"
-        descr="referenced object" type="abstract">
+      <class name="referenced_object" ancestor="base_object" descr="referenced object"
+        type="abstract">
         <details>
         </details>
         <fields>
@@ -39,8 +40,7 @@
           <implementation><![CDATA[ ]]></implementation>
         </dispose>
         <methods>
-          <method name="roAddRef" shortname="addref"
-            ctype="void *" type="virtual">
+          <virtual name="roAddRef" shortname="addref" ctype="void *">
             <brief>New object reference creation.</brief>
             <details>The references counter is increased and a new
               reference pointer is returned.
@@ -52,12 +52,12 @@ self->references++;
 osalDbgAssert(self->references != (oop_object_references_t)0, "overflow");
 
 return self;]]></implementation>
-          </method>
-          <method name="roRelease" shortname="release"
-            ctype="object_references_t" type="virtual">
+          </virtual>
+          <virtual name="roRelease" shortname="release" ctype="object_references_t">
             <brief>Release of an object reference.</brief>
             <details>The reference counter is decreased, if the counter
-              reaches zero then the object is disposed.
+              reaches zero then the object
+              is disposed.
             </details>
             <return>The value of the reference counter.</return>
             <implementation><![CDATA[
@@ -68,7 +68,7 @@ if (--self->references == 0U) {
 }
 
 return self->references;]]></implementation>
-          </method>
+          </virtual>
         </methods>
       </class>
     </classes>

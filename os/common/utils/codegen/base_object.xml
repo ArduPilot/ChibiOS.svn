@@ -44,8 +44,7 @@
     <typedefs>
     </typedefs>
     <classes>
-      <class name="base_object" ancestor="" descr="base object"
-        type="abstract">
+      <class name="base_object" ancestor="" descr="base object" type="abstract">
         <details>
         </details>
         <fields>

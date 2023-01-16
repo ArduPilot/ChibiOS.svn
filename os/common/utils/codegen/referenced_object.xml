@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/module.xsd"
   name="oop_referenced_object">
   <doc>
@@ -13,50 +12,55 @@
     </details>
     <note>This is a generated file, do not edit directly.</note>
   </doc>
-  <inclusions>
-    <include scope="global" style="angular">oop_base_object.h</include>
-  </inclusions>
-  <typedefs>
-    <typedef ctype="object_references_t">
-      <brief>Type of a references counter.</brief>
-      <reftype ctype="unsigned int" />
-    </typedef>
-  </typedefs>
-  <classes>
-    <class name="referenced_object" ancestor="base_object"
-      descr="referenced object" type="abstract">
-      <details>
-      </details>
-      <fields>
-        <field name="references" ctype="object_references_t" />
-      </fields>
-      <init>
-        <implementation><![CDATA[ ]]></implementation>
-      </init>
-      <dispose>
-        <implementation><![CDATA[ ]]></implementation>
-      </dispose>
-      <methods>
-        <method name="roAddRef" shortname="addref" ctype="void *"
-                type="virtual">
-          <brief>New object reference creation.</brief>
-          <details>The references counter is increased and a new
-            reference pointer is returned.</details>
-          <return>A new reference pointer.</return>
-          <implementation><![CDATA[
+  <public>
+    <configs>
+    </configs>
+    <inclusions>
+      <include style="regular">oop_base_object.h</include>
+    </inclusions>
+    <typedefs>
+      <typedef ctype="object_references_t">
+        <brief>Type of a references counter.</brief>
+        <reftype ctype="unsigned int" />
+      </typedef>
+    </typedefs>
+    <classes>
+      <class name="referenced_object" ancestor="base_object"
+        descr="referenced object" type="abstract">
+        <details>
+        </details>
+        <fields>
+          <field name="references" ctype="object_references_t" />
+        </fields>
+        <init>
+          <implementation><![CDATA[ ]]></implementation>
+        </init>
+        <dispose>
+          <implementation><![CDATA[ ]]></implementation>
+        </dispose>
+        <methods>
+          <method name="roAddRef" shortname="addref"
+            ctype="void *" type="virtual">
+            <brief>New object reference creation.</brief>
+            <details>The references counter is increased and a new
+              reference pointer is returned.
+            </details>
+            <return>A new reference pointer.</return>
+            <implementation><![CDATA[
 self->references++;
 
 osalDbgAssert(self->references != (oop_object_references_t)0, "overflow");
 
 return self;]]></implementation>
-        </method>
-        <method name="roRelease" shortname="release"
-                ctype="object_references_t" type="virtual">
-          <brief>Release of an object reference.</brief>
-          <details>The reference counter is decreased, if the counter
-            reaches zero then the object is disposed.</details>
-          <return>The value of the reference counter.</return>
-          <implementation><![CDATA[
+          </method>
+          <method name="roRelease" shortname="release"
+            ctype="object_references_t" type="virtual">
+            <brief>Release of an object reference.</brief>
+            <details>The reference counter is decreased, if the counter
+              reaches zero then the object is disposed.
+            </details>
+            <return>The value of the reference counter.</return>
+            <implementation><![CDATA[
 osalDbgAssert(self->references > 0U, "zero references");
 
 if (--self->references == 0U) {
@@ -64,8 +68,11 @@ if (--self->references == 0U) {
 }
 
 return self->references;]]></implementation>
-        </method>
-      </methods>
-    </class>
-  </classes>
+          </method>
+        </methods>
+      </class>
+    </classes>
+  </public>
+  <private>
+  </private>
 </module>

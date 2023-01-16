@@ -54,15 +54,12 @@
  #define ${basename?upper_case}_H
 
   [#-- Generating inclusions.--]
-  [#list module.inclusions.include as include]
-    [#assign scope = include.@scope[0]!"global"
-             style = include.@style[0]!"regular" /]
-    [#if scope == "global"]
-      [#if style == "angular"]
+  [#list module.public.inclusions.include as include]
+    [#assign style = include.@style[0]!"regular" /]
+    [#if style == "angular"]
 #include <${include[0]}>
-      [#else]
+    [#else]
 #include "${include[0]}"
-      [/#if]
     [/#if]
     [#-- Empty line after last inclusion.--]
     [#if include?is_last]
@@ -73,12 +70,12 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-[@ccode.GenerateDefinesFromNode node=module.definitions /]
+[@ccode.GenerateDefinesFromNode node=module.public.definitions /]
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
-[@ccode.GenerateConfigsFromNode node=module.configs /]
+[@ccode.GenerateConfigsFromNode node=module.public.configs /]
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
@@ -87,14 +84,14 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
-[@ccode.GenerateTypedefsFromNode node=module.typedefs /]
+[@ccode.GenerateTypedefsFromNode node=module.public.typedefs /]
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
 
-[@ccode.GenerateMacrosFromNode node=module.macros /]
+[@ccode.GenerateMacrosFromNode node=module.public.macros /]
   [#-- Scanning all classes to be generated in this module.--]
-  [#list module.classes.class as class]
+  [#list module.public.classes.class as class]
 /*===========================================================================*/
 /* Module class ${cclasses.GetClassCType(class)?right_pad(61)}*/
 /*===========================================================================*/
@@ -110,7 +107,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  [#list module.classes.class as class]
+  [#list module.public.classes.class as class]
   /* Methods of ${cclasses.GetClassCType(class)}.*/
     [#list class.methods.method as method]
       [#assign methodtype = cclasses.GetMethodType(method) /]

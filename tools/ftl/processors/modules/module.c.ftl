@@ -54,6 +54,7 @@
 /* Module local definitions.                                                 */
 /*===========================================================================*/
 
+[@ccode.GenerateDefinesFromNode node=module.private.definitions /]
 /*===========================================================================*/
 /* Module exported variables.                                                */
 /*===========================================================================*/
@@ -70,8 +71,8 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-  [#-- Scanning all classes to be generated in this file.--]
-  [#list module.classes.class as class]
+  [#-- Scanning all public methods to be generated in this file.--]
+  [#list module.public.classes.class as class]
 /*===========================================================================*/
 /* Module class ${cclasses.GetClassCType(class)?right_pad(61)}*/
 /*===========================================================================*/

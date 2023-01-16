@@ -232,7 +232,7 @@ ${s}
   --]
 [#macro GenerateConfigsFromNode node=[]]
   [#local configs = node /]
-    [#if configs?children?size > 0]
+    [#if configs.config[0]??]
 /**
  * @name    Configuration options
  * @{

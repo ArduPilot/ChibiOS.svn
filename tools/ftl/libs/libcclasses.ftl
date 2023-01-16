@@ -343,6 +343,31 @@ CC_FORCE_INLINE
 [#--
   -- This macro generates regular methods as inline functions from an XML node.
   --]
+[#macro GenerateClassRegularMethodsPrototypes node=[]]
+  [#local class = node /]
+  [#local classname        = GetClassName(class)
+          classctype       = GetClassCType(class)
+          classdescr       = GetClassDescription(class)
+          ancestorname     = GetClassAncestorName(class)
+          ancestorfullname = GetClassAncestorCType(class) /]
+  [#if class.methods.method?size > 0]
+  /* Methods of ${classctype}.*/
+    [#list class.methods.method as method]
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = method.implementation[0]!""?trim /]
+[@ccode.GeneratePrototype indent    = "  "
+                          modifiers = []
+                          params    = ["const void *ip"]
+                          node=method /];
+    [/#list]
+  [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates regular methods as inline functions from an XML node.
+  --]
 [#macro GenerateClassRegularMethods node=[]]
   [#local class = node /]
   [#local classname        = GetClassName(class)

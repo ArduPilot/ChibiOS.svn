@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Class type attributes:
+      - interface (no constructor/destructor, no init/dispose/method/static methods)
+      - abstract  (no constructor/destructor, no init/dispose/static methods)
+      - regular   (   constructor/destructor, no abstract methods)
+     Method nodes:
+      - objinit   (direct,    impl,    implfunc,    instance pointer)
+      - dispose   (direct,    impl,    implfunc,    instance pointer)
+      - abstract  (   VMT, no-impl, no-implfunc,    instance pointer)
+      - virtual   (   VMT,    impl,    implfunc,    instance pointer)
+      - method    (direct,    impl, no-implfunc,    instance pointer)
+      - static    (direct,    impl, no-implfunc, no-instance pointer)
+  -->
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/module.xsd"
   name="oop_base_object">
@@ -49,13 +61,13 @@
         </details>
         <fields>
         </fields>
-        <init>
-          <implementation><![CDATA[ ]]></implementation>
-        </init>
-        <dispose>
-          <implementation><![CDATA[ ]]></implementation>
-        </dispose>
         <methods>
+          <objinit>
+            <implementation><![CDATA[ ]]></implementation>
+          </objinit>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
         </methods>
       </class>
     </classes>

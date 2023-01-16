@@ -98,7 +98,7 @@
 
 [@cclasses.GenerateClassWrapper class /]
 [@cclasses.GenerateClassMethodsImplementations class /]
-[@cclasses.GenerateClassVirtualMethods class /]
+[@cclasses.GenerateClassIndirectMethods class /]
   [/#list]
 /*===========================================================================*/
 /* External declarations.                                                    */

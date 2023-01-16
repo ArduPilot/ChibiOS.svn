@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE doc [
   <!ENTITY base_object SYSTEM "base_object.xml">
-  <!ENTITY referenced_object SYSTEM "referenced_object.xml">
+  <!ENTITY base_referenced_object SYSTEM "referenced_object.xml">
+  <!ENTITY base_sequential_stream SYSTEM "sequential_stream.xml">
 ]>
 <!-- Class/interfaces definitions -->
 <instance
@@ -11,6 +12,7 @@
   </configuration_settings>
   <modules>
     &base_object;
-    &referenced_object;
+    &base_referenced_object;
+    &base_sequential_stream;
   </modules>
 </instance>

@@ -33,13 +33,13 @@
         <fields>
           <field name="references" ctype="object_references_t" />
         </fields>
-        <init>
-          <implementation><![CDATA[ ]]></implementation>
-        </init>
-        <dispose>
-          <implementation><![CDATA[ ]]></implementation>
-        </dispose>
         <methods>
+          <objinit>
+            <implementation><![CDATA[self->references = (object_references_t)0;]]></implementation>
+          </objinit>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
           <virtual name="roAddRef" shortname="addref" ctype="void *">
             <brief>New object reference creation.</brief>
             <details>The references counter is increased and a new

@@ -68,15 +68,6 @@
 [/#function]
 
 [#--
-  -- Returns the type of the class from an XML node.
-  --]
-[#function GetClassType node=[]]
-  [#local class = node /]
-  [#local classtype = class.@type[0]!"regular"?trim /]
-  [#return classtype /]
-[/#function]
-
-[#--
   -- Returns the method name from an XML node.
   --]
 [#function GetMethodName node=[]]
@@ -98,15 +89,6 @@
 [/#function]
 
 [#--
-  -- Returns the method type from an XML node.
-  --]
-[#function GetMethodType node=[]]
-  [#local method = node /]
-  [#local methodtype = method.@type[0]!"regular"?trim /]
-  [#return methodtype /]
-[/#function]
-
-[#--
   -- Returns the method return C type from an XML node.
   --]
 [#function GetMethodCType node=[]]
@@ -123,7 +105,6 @@
   [#local classname        = GetClassName(class)
           classctype       = GetClassCType(class)
           classdescr       = GetClassDescription(class)
-          classtype        = GetClassType(class)
           ancestorname     = GetClassAncestorName(class)
           ancestorfullname = GetClassAncestorCType(class) /]
 /**
@@ -146,12 +127,11 @@ typedef struct ${classname} ${classctype};
 ${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
   [/#if]
   [#-- Generating list of virtual methods in the VMT.--]
-  [#list class.methods.method as method]
+  [#list class.methods.* as method]
     [#local methodname     = GetMethodName(method)
             methodsname    = GetMethodShortName(method)
-            methodtype     = GetMethodType(method)
             methodretctype = GetMethodCType(method) /]
-    [#if methodtype=="virtual"]
+    [#if (method?node_name == "abstract") || (method?node_name == "virtual")]
       [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
                         ccode.MakeParamsSequence(["void *ip"] method)?join(", ") +
                         ");" /]
@@ -205,7 +185,6 @@ ${ccode.MakeVariableDeclaration("  " vmtctype "vmt")}
   [#local classname        = GetClassName(class)
           classctype       = GetClassCType(class)
           classdescr       = GetClassDescription(class)
-          classtype        = GetClassType(class)
           ancestorname     = GetClassAncestorName(class)
           ancestorfullname = GetClassAncestorCType(class) /]
 /**
@@ -235,10 +214,10 @@ static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
   __${ancestorname}_objinit_impl(self);
 
   [/#if]
-  [#if class.init.implementation[0]?? &&
-         (class.dispose.implementation[0]?trim?length > 0)]
+  [#if (class.methods.objinit[0].implementation[0])?? &&
+       (class.methods.objinit[0].implementation[0]?trim?length > 0)]
   /* Initialization code.*/
-[@utils.EmitIndentedCCode start="  " tab=2 ccode=class.init.implementation[0]?string /]
+[@ccode.EmitIndentedCCode indent="  " ccode=class.methods.objinit[0].implementation[0]?string /]
   [#else]
   /* No initialization code.*/
   [/#if]
@@ -261,22 +240,21 @@ static inline void __${classname}_dispose_impl(void *ip) {
   __${ancestorname}_dispose_impl(self);
 
   [/#if]
-  [#if class.dispose.implementation[0]?? &&
-       (class.dispose.implementation[0]?trim?length > 0)]
+  [#if (class.methods.dispose[0].implementation[0])?? &&
+       (class.methods.dispose[0].implementation[0]?trim?length > 0)]
   /* Finalization code.*/
-[@utils.EmitIndentedCCode start="  " tab=2 ccode=class.dispose.implementation[0]?string /]
+[@ccode.EmitIndentedCCode indent="  " ccode=class.dispose.implementation[0]?string /]
   [#else]
   /* No finalization code.*/
   (void)self;
   [/#if]
 }
-  [#list class.methods.method as method]
+  [#list class.methods.* as method]
     [#local methodname     = GetMethodName(method)
             methodsname    = GetMethodShortName(method)
-            methodtype     = GetMethodType(method)
             methodretctype = GetMethodCType(method)
             methodimpl     = method.implementation[0]!""?trim /]
-    [#if (methodtype=="virtual") && (methodimpl?length > 0)]
+    [#if method?node_name == "virtual"]
 
 /**
 [@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
@@ -304,30 +282,31 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
-  -- This macro generates virtual methods as inline functions from an XML node.
+  -- This macro generates abstract/virtual methods as inline functions
+  -- from an XML node.
   --]
-[#macro GenerateClassVirtualMethods node=[]]
+[#macro GenerateClassIndirectMethods node=[]]
   [#local class = node /]
-  [#local classname        = GetClassName(class)
-          classctype       = GetClassCType(class)
-          classdescr       = GetClassDescription(class)
-          classtype        = GetClassType(class)
-          ancestorname     = GetClassAncestorName(class)
-          ancestorfullname = GetClassAncestorCType(class) /]
-  [#if class.methods.virtual?size > 0]
+  [#if (class.methods.virtual?size > 0) || (class.methods.abstract?size > 0)]
+    [#local classname        = GetClassName(class)
+            classctype       = GetClassCType(class)
+            classdescr       = GetClassDescription(class)
+            ancestorname     = GetClassAncestorName(class)
+            ancestorfullname = GetClassAncestorCType(class) /]
 /**
- * @name    Virtual methods of (${classctype})
+ * @name    Abstract/Virtual methods of (${classctype})
  * @{
  */
-    [#list class.methods.virtual as method]
+    [#list class.methods.* as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
-              methodtype     = GetMethodType(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!""?trim /]
-      [#if method?has_next]
+      [#if (method?node_name == "abstract") ||
+           (method?node_name == "virtual")]
+        [#if method?has_next]
 
-      [/#if]
+        [/#if]
 /**
 [@doxygen.EmitBriefFromNode node=method /]
 [@doxygen.EmitDetailsFromNode node=method /]
@@ -346,14 +325,15 @@ CC_FORCE_INLINE
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
 
-      [#local callname   = "self->vmt->" + methodsname /]
-      [#local callparams = ccode.MakeParamsSequence(["ip"] method) /]
-      [#if methodretctype == "void"]
+        [#local callname   = "self->vmt->" + methodsname /]
+        [#local callparams = ccode.MakeParamsSequence(["ip"] method) /]
+        [#if methodretctype == "void"]
 [@ccode.GenerateFunctionCall "  " "" callname callparams /]
-      [#else]
+        [#else]
 [@ccode.GenerateFunctionCall "  " "return" callname callparams /]
-      [/#if]
+        [/#if]
 }
+      [/#if]
     [/#list]
 /** @} */
 
@@ -368,7 +348,6 @@ CC_FORCE_INLINE
   [#local classname        = GetClassName(class)
           classctype       = GetClassCType(class)
           classdescr       = GetClassDescription(class)
-          classtype        = GetClassType(class)
           ancestorname     = GetClassAncestorName(class)
           ancestorfullname = GetClassAncestorCType(class) /]
   [#if class.methods.method?size > 0]
@@ -379,7 +358,6 @@ CC_FORCE_INLINE
     [#list class.methods.method as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
-              methodtype     = GetMethodType(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!""?trim /]
       [#if method?has_next]

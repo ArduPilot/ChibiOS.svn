@@ -360,9 +360,6 @@ CC_FORCE_INLINE
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!""?trim /]
-      [#if method?has_next]
-
-      [/#if]
 /**
 [@doxygen.EmitBriefFromNode node=method /]
 [@doxygen.EmitDetailsFromNode node=method /]
@@ -382,6 +379,9 @@ CC_FORCE_INLINE
 
 [@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
+      [#if method?has_next]
+
+      [/#if]
     [/#list]
 /** @} */
 

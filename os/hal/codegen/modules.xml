@@ -59,23 +59,23 @@
               <field name="owner" ctype="void$I*" />
               <field name="mutex" ctype="mutex_t" />
             </fields>
-            <init>
-              <implementation><![CDATA[ ]]></implementation>
-            </init>
-            <dispose>
-              <implementation><![CDATA[ ]]></implementation>
-            </dispose>
             <methods>
-              <virtual name="__drv_start_protected"
+              <objinit>
+                <implementation><![CDATA[ ]]></implementation>
+              </objinit>
+              <dispose>
+                <implementation><![CDATA[ ]]></implementation>
+              </dispose>
+              <abstract name="__drv_start_protected"
                 shortname="start" ctype="msg_t">
                 <brief>Low level driver start.</brief>
                 <return>The operation status.</return>
-              </virtual>
-              <virtual name="__drv_stop_protected"
+              </abstract>
+              <abstract name="__drv_stop_protected"
                 shortname="stop" ctype="void">
                 <brief>Low level driver stop.</brief>
-              </virtual>
-              <virtual name="drvConfigureX" shortname="configure"
+              </abstract>
+              <abstract name="drvConfigureX" shortname="configure"
                 ctype="msg_t">
                 <brief>Driver configure.</brief>
                 <details>
@@ -87,13 +87,13 @@
                   is not actively operating, this function can fail depending
                   on the driver implementation and current state.
                 </note>
-              </virtual>
-              <virtual name="drvGetInterfaceX" shortname="getif"
+              </abstract>
+              <abstract name="drvGetInterfaceX" shortname="getif"
                 ctype="const void *">
                 <brief>Driver interface get.</brief>
                 <return>The driver interface or @p NULL if none.
                 </return>
-              </virtual>
+              </abstract>
               <method name="drvOpen" shortname="open"
                 ctype="msg_t">
                 <brief>Driver open.</brief>

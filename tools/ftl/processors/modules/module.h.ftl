@@ -110,8 +110,7 @@ extern "C" {
   [#list module.public.classes.class as class]
   /* Methods of ${cclasses.GetClassCType(class)}.*/
     [#list class.methods.method as method]
-      [#assign methodtype = cclasses.GetMethodType(method) /]
-      [#if methodtype == "regular"]
+      [#if method?node_name == "regular"]
       [/#if]
     [/#list]
   [/#list]

@@ -89,7 +89,7 @@ ${fstring}[#rt]
   -- Creates a sequence containing function parameters taken from an XML node.
   -- @note Processes the $I and $N tokens in the ccode.
   --]
-[#function MakeParamsSequence params=[] node=[]]
+[#function MakeProtoParamsSequence params=[] node=[]]
   [#list node.param as param]
     [#local name  = param.@name[0]!"no-name"?trim
             ctype = param.@ctype[0]!"no-type $N"?trim /]
@@ -121,7 +121,7 @@ ${fstring}[#rt]
   [/#if]
   [#local l1 = indent + l1 /]
   [#local ln = ""?right_pad(l1?length) /]
-  [#local params = MakeParamsSequence(params node) /]
+  [#local params = MakeProtoParamsSequence(params node) /]
   [#list params as param]
     [#if param_index == 0]
       [#local line = l1 + param /]
@@ -140,7 +140,7 @@ ${line + ")"}[#rt]
 [#--
   -- Creates a sequence containing parameters names taken from an XML node.
   --]
-[#function MakeParamsSequence params=[] node=[]]
+[#function MakeCallParamsSequence params=[] node=[]]
   [#list node.param as param]
     [#local name  = param.@name[0]!"no-name"?trim /]
     [#local params = params + [name] /]
@@ -253,7 +253,7 @@ ${s}
 [#macro GenerateMacro indent="  " params=[] node=[]]
   [#local macro  = node /]
   [#local name   = macro.@name[0]!"no-name"?trim /]
-  [#local params = MakeParamsSequence(params, macro) /]
+  [#local params = MakeCallParamsSequence(params, macro) /]
   [#local s      = ("#define " + name + "(" + params?join(", ") +
                    ") ")?right_pad(backslash_align) + "\\" /]
 ${s}

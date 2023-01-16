@@ -27,7 +27,7 @@
     </typedefs>
     <classes>
       <class name="referenced_object" ancestor="base_object" descr="referenced object"
-        type="abstract">
+        type="regular">
         <details>
         </details>
         <fields>

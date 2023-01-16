@@ -133,7 +133,7 @@ ${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
             methodretctype = GetMethodCType(method) /]
     [#if (method?node_name == "abstract") || (method?node_name == "virtual")]
       [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
-                        ccode.MakeParamsSequence(["void *ip"] method)?join(", ") +
+                        ccode.MakeProtoParamsSequence(["void *ip"] method)?join(", ") +
                         ");" /]
 ${funcptr?right_pad(76)}\
     [/#if]
@@ -211,7 +211,7 @@ static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
 
   [#else]
   /* Initialization of the ancestors-defined parts.*/
-  __${ancestorname}_objinit_impl(self);
+  __${ancestorname}_objinit_impl(self, vmt);
 
   [/#if]
   [#if (class.methods.objinit[0].implementation[0])?? &&
@@ -243,7 +243,7 @@ static inline void __${classname}_dispose_impl(void *ip) {
   [#if (class.methods.dispose[0].implementation[0])?? &&
        (class.methods.dispose[0].implementation[0]?trim?length > 0)]
   /* Finalization code.*/
-[@ccode.EmitIndentedCCode indent="  " ccode=class.dispose.implementation[0]?string /]
+[@ccode.EmitIndentedCCode indent="  " ccode=class.methods.dispose[0].implementation[0]?string /]
   [#else]
   /* No finalization code.*/
   (void)self;
@@ -321,12 +321,12 @@ CC_FORCE_INLINE
  */
 CC_FORCE_INLINE
 [@ccode.GeneratePrototype modifiers = ["static", "inline"]
-                          params    = ["const void *ip"]
+                          params    = ["void *ip"]
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
 
         [#local callname   = "self->vmt->" + methodsname /]
-        [#local callparams = ccode.MakeParamsSequence(["ip"] method) /]
+        [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
         [#if methodretctype == "void"]
 [@ccode.GenerateFunctionCall "  " "" callname callparams /]
         [#else]

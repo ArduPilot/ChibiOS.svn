@@ -118,19 +118,30 @@
   <xs:complexType name="virtualMethodType">
     <xs:complexContent>
       <xs:extension base="ParameterizedItemType">
+        <xs:sequence>
+          <xs:element name="implementation" type="xs:string"></xs:element>
+        </xs:sequence>
         <xs:attribute name="ctype" type="xs:string"></xs:attribute>
+        <xs:attribute name="shortname" type="xs:string"></xs:attribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
   <xs:complexType name="abstractMethodType">
-      <xs:complexContent>
-        <xs:extension base="ParameterizedItemType">
-          <xs:attribute name="ctype" type="xs:string"></xs:attribute>
-        </xs:extension>
-      </xs:complexContent>
+    <xs:complexContent>
+      <xs:extension base="ParameterizedItemType">
+        <xs:attribute name="ctype" type="xs:string"></xs:attribute>
+        <xs:attribute name="shortname" type="xs:string"></xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="objinitMethodType">
+    <xs:sequence>
+      <xs:element name="implementation" type="xs:string"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="disposeMethodType">
+      <xs:sequence>
+        <xs:element name="implementation" type="xs:string"></xs:element>
+      </xs:sequence>
     </xs:complexType>
-
-    <xs:complexType name="objinitMethodType"></xs:complexType>
-
-    <xs:complexType name="disposeMethodType"></xs:complexType>
 </xs:schema>

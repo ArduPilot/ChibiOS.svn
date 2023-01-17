@@ -49,8 +49,6 @@
             descr="base driver" type="abstract">
             <brief>
             </brief>
-            <details>
-            </details>
             <fields>
               <field name="state" ctype="driver_state_t" />
               <field name="opencnt" ctype="unsigned int" />

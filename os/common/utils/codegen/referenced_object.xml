@@ -28,8 +28,8 @@
     <classes>
       <class name="referenced_object" ancestor="base_object" descr="referenced object"
         type="regular">
-        <details>
-        </details>
+        <brief>
+        </brief>
         <fields>
           <field name="references" ctype="object_references_t" />
         </fields>

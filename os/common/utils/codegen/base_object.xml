@@ -14,20 +14,20 @@
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/module.xsd"
   name="oop_base_object">
-  <doc>
-    <brief>Common ancestor abstract class.</brief>
-    <details>This abstract class is the common ancestor of all classes
-      used in ChibiOS. This class just defines the position of the VMT
-      pointer inside the structure.
-    </details>
-    <note>This is a generated file, do not edit directly.</note>
-  </doc>
+  <brief>Common ancestor abstract class.</brief>
+  <details>This abstract class is the common ancestor of all classes
+    used in ChibiOS. This class just defines the position of the VMT
+    pointer inside the structure.
+  </details>
+  <note>This is a generated file, do not edit directly.</note>
   <public>
-    <configs>
-    </configs>
     <inclusions>
       <include style="regular">osal.h</include>
     </inclusions>
+    <definitions>
+    </definitions>
+    <configs>
+    </configs>
     <macros>
       <macro name="oopGetInstance">
         <brief>Returns the object instance pointer starting from an
@@ -71,6 +71,8 @@
         </methods>
       </class>
     </classes>
+    <functions>
+    </functions>
   </public>
   <private>
   </private>

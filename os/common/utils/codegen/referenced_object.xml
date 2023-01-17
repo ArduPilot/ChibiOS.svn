@@ -2,23 +2,23 @@
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/module.xsd"
   name="oop_referenced_object">
-  <doc>
-    <brief>Common ancestor class of all reference-counted objects.
-    </brief>
-    <details>Base class for objects that implement a reference counter
-      and are disposed when the
-      number of references reaches zero. This
-      class
-      extends @p base_object_c class.
-    </details>
-    <note>This is a generated file, do not edit directly.</note>
-  </doc>
+  <brief>Common ancestor class of all reference-counted objects.
+  </brief>
+  <details>Base class for objects that implement a reference counter
+    and are disposed when the number of references reaches zero. This
+    class extends @p base_object_c class.
+  </details>
+  <note>This is a generated file, do not edit directly.</note>
   <public>
-    <configs>
-    </configs>
     <inclusions>
       <include style="regular">oop_base_object.h</include>
     </inclusions>
+    <definitions>
+    </definitions>
+    <configs>
+    </configs>
+    <macros>
+    </macros>
     <typedefs>
       <typedef ctype="object_references_t">
         <brief>Type of a references counter.</brief>
@@ -72,6 +72,8 @@ return self->references;]]></implementation>
         </methods>
       </class>
     </classes>
+    <functions>
+    </functions>
   </public>
   <private>
   </private>

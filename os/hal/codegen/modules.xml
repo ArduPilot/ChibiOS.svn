@@ -5,14 +5,15 @@
   </configuration_settings>
   <modules>
     <module name="hal_base_driver_test">
-      <doc>
-        <brief>Common driver base abstract class.</brief>
-        <details>This abstract class is the common ancestor of all HAL
-          stateful HAL drivers.
-        </details>
-        <note>This is a generated file, do not edit directly.</note>
-      </doc>
+      <brief>Common driver base abstract class.</brief>
+      <details>This abstract class is the common ancestor of all HAL
+        stateful HAL drivers.
+      </details>
+      <note>This is a generated file, do not edit directly.</note>
       <public>
+        <inclusions>
+          <include scope="global" style="regular">hal.h</include>
+        </inclusions>
         <configs>
           <config name="HAL_USE_MUTUAL_EXCLUSION" default="TRUE">
             <brief>Enables the mutual exclusion APIs on driver
@@ -26,9 +27,6 @@
             </note>
           </config>
         </configs>
-        <inclusions>
-          <include scope="global" style="regular">hal.h</include>
-        </inclusions>
         <definitions>
           <members group="Common driver states">
             <define name="HAL_DRV_STATE_UNINIT" value="0U" />

@@ -44,9 +44,9 @@
 [@doxygen.EmitBrief "" "Generated header." /]
  *
  * @addtogroup ${docgroup}
-[@doxygen.EmitBriefFromNode node=module.doc /]
-[@doxygen.EmitDetailsFromNode node=module.doc /]
-[@doxygen.EmitNoteFromNode node=module.doc /]
+[@doxygen.EmitBriefFromNode node=module /]
+[@doxygen.EmitDetailsFromNode node=module /]
+[@doxygen.EmitNoteFromNode node=module /]
  * @{
  */
  

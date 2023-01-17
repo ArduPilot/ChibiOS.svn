@@ -280,7 +280,7 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
   [#local macros = node /]
   [#list macros.* as macro]
     [#if macro?node_name == "macro"]
-[@doxygen.EmitFullCommentFromNode indent macro /]
+[@doxygen.EmitFullCommentFromNode "" macro /]
 [@ccode.GenerateMacro node=macro /]
       [#if macro?is_last]
 

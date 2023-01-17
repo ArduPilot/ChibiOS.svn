@@ -297,6 +297,7 @@ CC_FORCE_INLINE
  * @name    Abstract/Virtual methods of (${classctype})
  * @{
  */
+    [#local first = true /]
     [#list class.methods.* as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
@@ -304,9 +305,10 @@ CC_FORCE_INLINE
               methodimpl     = method.implementation[0]!""?trim /]
       [#if (method?node_name == "abstract") ||
            (method?node_name == "virtual")]
-        [#if method?has_next]
+        [#if !first]
 
         [/#if]
+        [#local first = false /]
 /**
 [@doxygen.EmitBriefFromNode node=method /]
 [@doxygen.EmitDetailsFromNode node=method /]

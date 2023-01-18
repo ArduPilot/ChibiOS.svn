@@ -114,6 +114,17 @@ typedef unsigned int test_state_t;
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @brief   Test macro.
+ * @details This is a long comment.
+ *
+ * @param         a             Parameter 1.
+ * @param         b             Parameter 2.
+ * @return                      A value of unspecified type.
+ */
+#define test_macro1(a, b)                                                   \
+  ((a) + (b))                                                               
+
 /*===========================================================================*/
 /* Module class test_interface_c                                             */
 /*===========================================================================*/
@@ -239,7 +250,7 @@ static inline int testStop(void *ip) {
 extern "C" {
 #endif
   /* Methods of test_interface_c.*/
-  msg_t testOpen(const void *ip);
+  int testOpen(const void *ip);
   void testClose(const void *ip);
 #ifdef __cplusplus
 }

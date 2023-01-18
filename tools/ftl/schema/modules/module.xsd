@@ -13,29 +13,26 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="module" type="moduleType"></xs:element>
-  <xs:complexType name="privateType"></xs:complexType>
+  <xs:complexType name="privateType">
+    <xs:sequence>
+      <xs:element name="inclusions" type="inclusionsType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="definitions" type="definitionsType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="types" type="typesType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="variables" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="functions" type="functionsType" maxOccurs="1" minOccurs="1"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
   <xs:complexType name="publicType">
     <xs:sequence>
-      <xs:element name="inclusions" type="inclusionsType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="inclusions" type="inclusionsType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="definitions" type="definitionsType" maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="definitions" type="definitionsType"
-        maxOccurs="1" minOccurs="1">
-      </xs:element>
-      <xs:element name="configs" type="configsType"
-        maxOccurs="1" minOccurs="1">
-      </xs:element>
-      <xs:element name="macros" type="macrosType"
-        maxOccurs="1" minOccurs="1">
-      </xs:element>
-      <xs:element name="typedefs" type="typedefsType"
-        maxOccurs="1" minOccurs="1">
-      </xs:element>
-      <xs:element name="classes" type="classesType"
-        maxOccurs="1" minOccurs="1">
-      </xs:element>
-      <xs:element name="functions" type="functionsType"
-        maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="configs" type="configsType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="macros" type="macrosType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="types" type="typesType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="classes" type="classesType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="variables" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="functions" type="functionsType" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="configsType">
@@ -59,7 +56,14 @@
       <xs:element name="macro" type="macroType" maxOccurs="unbounded" minOccurs="0"></xs:element>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="typedefsType"></xs:complexType>
+  <xs:complexType name="typesType">
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded" minOccurs="0">
+        <xs:element name="typedef" type="typedefType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+        <xs:element name="struct" type="structType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
   <xs:complexType name="classesType">
     <xs:sequence>
       <xs:element name="class" type="classType"
@@ -244,4 +248,44 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="typedefType">
+    <xs:complexContent>
+      <xs:extension base="DocumentedItem">
+        <xs:choice maxOccurs="1" minOccurs="1">
+          <xs:element name="basetype" type="basetypeType" maxOccurs="1" minOccurs="1"></xs:element>
+          <xs:element name="structtype" type="structtypeType" maxOccurs="1" minOccurs="1"></xs:element>
+          <xs:element name="enumtype" type="enumtypeType" maxOccurs="1" minOccurs="1"></xs:element>
+          <xs:element name="functype" type="functtypeType" maxOccurs="1" minOccurs="1"></xs:element>
+          
+        </xs:choice>
+
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="basetypeType">
+    <xs:attribute name="ctype" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+    <xs:complexType name="functtypeType"></xs:complexType>
+
+    <xs:complexType name="structtypeType">
+      <xs:sequence>
+        <xs:element name="fields" type="fieldsType" maxOccurs="1" minOccurs="1"></xs:element>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string"></xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="enumtypeType"></xs:complexType>
+
+    <xs:complexType name="structType">
+      <xs:complexContent>
+        <xs:extension base="DocumentedItem">
+          <xs:sequence>
+            <xs:element name="fields" type="fieldsType" maxOccurs="1" minOccurs="1"></xs:element>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
 </xs:schema>

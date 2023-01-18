@@ -296,11 +296,12 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
 [#macro GenerateTypedef indent="" node=[]]
   [#local typedef = node /]
   [#local typename = typedef.@name!"no-name"?trim /]
-  [#if typedef.reftype[0]??]
-    [#local reftypename = typedef.reftype[0].@ctype!"no-type"?trim /]
-typedef ${reftypename} ${typename};
-  [#elseif typedef.struct[0]??]
-  [#elseif typedef.enum[0]??]
+  [#if typedef.basetype[0]??]
+    [#local basetypename = typedef.basetype[0].@ctype!"no-type"?trim /]
+typedef ${basetypename} ${typename};
+  [#elseif typedef.structtype[0]??]
+  [#elseif typedef.enumtype[0]??]
+  [#elseif typedef.functype[0]??]
   [#else]
   [/#if]
 [/#macro]

@@ -59,7 +59,7 @@
  * @param[in,out] ip            Pointer to a @p test_interface_c structure.
  * @return                      The operation status.
  */
-msg_t testOpen(const void *ip) {
+int testOpen(const void *ip) {
   test_interface_c *self = (test_interface_c *)ip;
 
   /* some implementation */

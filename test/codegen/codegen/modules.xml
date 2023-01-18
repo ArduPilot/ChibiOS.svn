@@ -5,8 +5,7 @@
     <module name="generator_test">
       <brief>Code generator test module.</brief>
       <details>This is not real code, just the output of a test
-        for the modules generator tool.
-      </details>
+        for the modules generator tool.</details>
       <note>This is a generated file, do not edit directly.</note>
       <public>
         <inclusions>
@@ -49,15 +48,24 @@
           </config>
         </configs>
         <macros>
+          <macro name="test_macro1">
+            <brief>Test macro.</brief>
+            <details>This is a long comment.</details>
+            <param name="a">Parameter 1.</param>
+            <param name="b">Parameter 2.</param>
+            <return>A value of unspecified type.</return>
+            <implementation><![CDATA[((a) + (b))]]></implementation>
+          </macro>
         </macros>
-        <typedefs>
+        <types>
           <typedef name="test_state_t">
             <brief>Type of an unsigned int.</brief>
-            <reftype ctype="unsigned int" />
+            <basetype ctype="unsigned int" />
           </typedef>
-        </typedefs>
+        </types>
         <classes>
-          <class name="test_interface" ancestor="base_object" descr="test interface" type="interface">
+          <class name="test_interface" ancestor="base_object" descr="test interface"
+            type="interface">
             <fields>
             </fields>
             <methods>
@@ -75,7 +83,7 @@
                 <brief>Low level driver start.</brief>
                 <return>The operation status.</return>
               </abstract>
-              <method name="testOpen" ctype="msg_t">
+              <method name="testOpen" ctype="int">
                 <brief>Open method.</brief>
                 <details>Long description.</details>
                 <return>The operation status.</return>
@@ -89,10 +97,22 @@
             </methods>
           </class>
         </classes>
+        <variables>
+        </variables>
         <functions>
         </functions>
       </public>
       <private>
+        <inclusions>
+        </inclusions>
+        <definitions>
+        </definitions>
+        <types>
+        </types>
+        <variables>
+        </variables>
+        <functions>
+        </functions>
       </private>
     </module>
   </modules>

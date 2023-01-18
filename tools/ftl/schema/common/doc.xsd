@@ -25,7 +25,7 @@
     <xs:complexContent>
       <xs:extension base="NamedItem">
         <xs:sequence>
-          <xs:element name="brief" maxOccurs="1" minOccurs="1">
+          <xs:element name="brief" maxOccurs="1" minOccurs="0">
             <xs:annotation>
               <xs:documentation>
                 Brief description of the object.

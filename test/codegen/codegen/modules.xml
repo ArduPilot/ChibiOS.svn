@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<instance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd">
+  <modules>
+    <module name="generator_test">
+      <brief>Code generator test module.</brief>
+      <details>This is not real code, just the output of a test
+        for the modules generator tool.
+      </details>
+      <note>This is a generated file, do not edit directly.</note>
+      <public>
+        <inclusions>
+          <include style="angular">stddef.h</include>
+          <include style="regular">hal.h</include>
+        </inclusions>
+        <definitions>
+          <group description="Grouped defines without comments">
+            <define name="TEST_DEF1" value="0U" />
+            <define name="TEST_DEF2" value="1U" />
+            <define name="TEST_DEF3" value="2U" />
+            <define name="TEST_DEF4" value="3U" />
+            <define name="TEST_DEF5" value="4U" />
+          </group>
+          <group description="Grouped defines with comments">
+            <define name="TEST_DEF1_DOC" value="0U">
+              <brief>This is a comment.</brief>
+              <details>This is a longer comment.</details>
+            </define>
+            <define name="TEST_DEF2_DOC" value="0U">
+              <brief>This is a comment.</brief>
+              <note>This is a note.</note>
+            </define>
+          </group>
+          <define name="TEST_DEF1_NOGROUP" value="0U">
+            <brief>This is a comment.</brief>
+          </define>
+          <define name="TEST_DEF2_NOGROUP" value="1U">
+            <brief>This is a comment.</brief>
+          </define>
+        </definitions>
+        <configs>
+          <config name="TEST_CFG_OPTION1" default="TRUE">
+            <brief>This is a comment.</brief>
+            <details>This is a longer comment.</details>
+          </config>
+          <config name="TEST_CFG_OPTION2" default="FALSE">
+            <brief>This is a comment.</brief>
+            <note>This is a note.</note>
+          </config>
+        </configs>
+        <macros>
+        </macros>
+        <typedefs>
+          <typedef name="test_state_t">
+            <brief>Type of an unsigned int.</brief>
+            <reftype ctype="unsigned int" />
+          </typedef>
+        </typedefs>
+        <classes>
+          <class name="test_interface" ancestor="base_object" descr="test interface" type="interface">
+            <fields>
+            </fields>
+            <methods>
+              <objinit>
+                <implementation><![CDATA[ ]]></implementation>
+              </objinit>
+              <dispose>
+                <implementation><![CDATA[ ]]></implementation>
+              </dispose>
+              <abstract name="testStart" shortname="start" ctype="int">
+                <brief>Low level driver start.</brief>
+                <return>The operation status.</return>
+              </abstract>
+              <abstract name="testStop" shortname="stop" ctype="int">
+                <brief>Low level driver start.</brief>
+                <return>The operation status.</return>
+              </abstract>
+              <method name="testOpen" ctype="msg_t">
+                <brief>Open method.</brief>
+                <details>Long description.</details>
+                <return>The operation status.</return>
+                <implementation><![CDATA[/* some implementation */]]></implementation>
+              </method>
+              <method name="testClose" ctype="void">
+                <brief>Close method.</brief>
+                <details>Long description.</details>
+                <implementation><![CDATA[/* some implementation */]]></implementation>
+              </method>
+            </methods>
+          </class>
+        </classes>
+        <functions>
+        </functions>
+      </public>
+      <private>
+      </private>
+    </module>
+  </modules>
+</instance>

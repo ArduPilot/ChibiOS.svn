@@ -203,6 +203,7 @@ ${s}
  */
 [@ccode.GenerateDefinesFromNode this /]
 /** @} */
+
     [#elseif this?node_name == "define"]
 [@doxygen.EmitFullCommentFromNode "" this /]
 [@ccode.GenerateDefine this /]

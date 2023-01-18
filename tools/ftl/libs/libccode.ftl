@@ -196,9 +196,9 @@ ${s}
   [#local definitions = node /]
   [#list definitions.* as this]
     [#if this?node_name == "group"]
-      [#local groupname = this.@name[0]!"no-name"?trim /]
+      [#local groupdescription = this.@description[0]!"no-description"?trim /]
 /**
- * @name    ${groupname}
+ * @name    ${groupdescription}
  * @{
  */
 [@ccode.GenerateDefinesFromNode this /]

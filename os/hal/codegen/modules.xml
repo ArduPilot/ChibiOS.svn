@@ -10,10 +10,10 @@
       <note>This is a generated file, do not edit directly.</note>
       <public>
         <inclusions>
-          <include scope="global" style="regular">hal.h</include>
+          <include style="regular">hal.h</include>
         </inclusions>
         <definitions>
-          <group name="Common driver states">
+          <group description="Common driver states">
             <define name="HAL_DRV_STATE_UNINIT" value="0U" />
             <define name="HAL_DRV_STATE_STOP" value="1U" />
             <define name="HAL_DRV_STATE_READY" value="2U" />

@@ -16,7 +16,7 @@
       <include style="regular">oop_base_object.h</include>
     </inclusions>
     <definitions>
-      <group name="Streams return codes">
+      <group description="Streams return codes">
         <define name="STM_OK" value="MSG_OK" />
         <define name="STM_TIMEOUT" value="MSG_TIMEOUT" />
         <define name="STM_RESET" value="MSG_RESET" />

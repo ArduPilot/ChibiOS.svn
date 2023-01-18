@@ -201,7 +201,7 @@
     <xs:sequence>
       <xs:element name="define" type="defineType" maxOccurs="unbounded" minOccurs="0"></xs:element>
     </xs:sequence>
-    <xs:attribute name="descr" type="xs:string"></xs:attribute>
+    <xs:attribute name="description" type="xs:string"></xs:attribute>
   </xs:complexType>
 
   <xs:complexType name="configType">

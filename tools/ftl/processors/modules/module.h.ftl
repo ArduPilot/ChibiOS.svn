@@ -84,7 +84,7 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
-[@ccode.GenerateTypedefsFromNode node=module.public.typedefs /]
+[@ccode.GenerateTypedefsFromNode node=module.public.types /]
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/

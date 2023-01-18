@@ -61,6 +61,7 @@
       <xs:choice maxOccurs="unbounded" minOccurs="0">
         <xs:element name="typedef" type="typedefType" maxOccurs="unbounded" minOccurs="0"></xs:element>
         <xs:element name="struct" type="structType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+        <xs:element name="union" type="unionType" maxOccurs="unbounded" minOccurs="0"></xs:element>
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
@@ -255,9 +256,10 @@
         <xs:choice maxOccurs="1" minOccurs="1">
           <xs:element name="basetype" type="basetypeType" maxOccurs="1" minOccurs="1"></xs:element>
           <xs:element name="structtype" type="structtypeType" maxOccurs="1" minOccurs="1"></xs:element>
+          <xs:element name="uniontype" type="uniontypeType" maxOccurs="1" minOccurs="1"></xs:element>
           <xs:element name="enumtype" type="enumtypeType" maxOccurs="1" minOccurs="1"></xs:element>
           <xs:element name="functype" type="functtypeType" maxOccurs="1" minOccurs="1"></xs:element>
-          
+
         </xs:choice>
 
       </xs:extension>
@@ -280,6 +282,23 @@
     <xs:complexType name="enumtypeType"></xs:complexType>
 
     <xs:complexType name="structType">
+      <xs:complexContent>
+        <xs:extension base="DocumentedItem">
+          <xs:sequence>
+            <xs:element name="fields" type="fieldsType" maxOccurs="1" minOccurs="1"></xs:element>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="uniontypeType">
+      <xs:sequence>
+        <xs:element name="fields" type="fieldsType" maxOccurs="1" minOccurs="1"></xs:element>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string"></xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="unionType">
       <xs:complexContent>
         <xs:extension base="DocumentedItem">
           <xs:sequence>

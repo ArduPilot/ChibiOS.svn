@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="../common/doc.xsd" />
+  <xs:include schemaLocation="module.xsd" />
+  <xs:complexType name="instanceType">
+    <xs:sequence>
+      <xs:element name="modules" type="modulesType" maxOccurs="1" minOccurs="1"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="instance" type="instanceType"></xs:element>
+
+  <xs:complexType name="modulesType">
+    <xs:sequence>
+      <xs:element name="module" type="moduleType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+

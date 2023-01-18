@@ -38,9 +38,22 @@
         maxOccurs="1" minOccurs="1"></xs:element>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="configsType"></xs:complexType>
-  <xs:complexType name="inclusionsType"></xs:complexType>
-  <xs:complexType name="definitionsType"></xs:complexType>
+  <xs:complexType name="configsType">
+    <xs:sequence>
+      <xs:element name="config" type="configType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="inclusionsType">
+    <xs:sequence>
+      <xs:element name="include" type="includeType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="definitionsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="define" type="defineType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      <xs:element name="group" type="groupType"></xs:element>
+    </xs:choice>
+  </xs:complexType>
   <xs:complexType name="macrosType"></xs:complexType>
   <xs:complexType name="typedefsType"></xs:complexType>
   <xs:complexType name="classesType">
@@ -127,6 +140,11 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:complexType name="paramType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="ctype" type="xs:string"></xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
     <xs:attribute name="name" type="xs:string"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="virtualMethodType">
@@ -157,5 +175,37 @@
     <xs:sequence>
       <xs:element name="implementation" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="includeType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="style">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="regular"></xs:enumeration>
+              <xs:enumeration value="angular"></xs:enumeration>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="defineType">
+    <xs:attribute name="name" type="xs:string"></xs:attribute>
+    <xs:attribute name="value" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="groupType">
+    <xs:sequence>
+      <xs:element name="define" type="defineType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="descr" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="configType">
+    <xs:attribute name="name" type="xs:string"></xs:attribute>
+    <xs:attribute name="default" type="xs:string"></xs:attribute>
   </xs:complexType>
 </xs:schema>

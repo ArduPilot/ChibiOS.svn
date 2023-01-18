@@ -8,8 +8,6 @@
 <instance
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd">
-  <configuration_settings>
-  </configuration_settings>
   <modules>
     &base_object;
     &base_referenced_object;

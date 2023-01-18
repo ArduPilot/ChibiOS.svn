@@ -195,10 +195,10 @@ ${s}
 [#macro GenerateDefinesFromNode node=[]]
   [#local definitions = node /]
   [#list definitions.* as this]
-    [#if this?node_name == "members"]
-      [#local group = this.@group[0]!"no-name"?trim /]
+    [#if this?node_name == "group"]
+      [#local groupname = this.@name[0]!"no-name"?trim /]
 /**
- * @name    ${group}
+ * @name    ${groupname}
  * @{
  */
 [@ccode.GenerateDefinesFromNode this /]
@@ -207,7 +207,7 @@ ${s}
 [@doxygen.EmitFullCommentFromNode "" this /]
 [@ccode.GenerateDefine this /]
     [/#if]
-    [#if this?is_last && (this?parent?node_name != "members")]
+    [#if this?is_last && (this?parent?node_name != "group")]
 
     [/#if]
   [/#list]
@@ -294,7 +294,7 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
   --]
 [#macro GenerateTypedef indent="" node=[]]
   [#local typedef = node /]
-  [#local typename = typedef.@ctype!"no-type"?trim /]
+  [#local typename = typedef.@name!"no-name"?trim /]
   [#if typedef.reftype[0]??]
     [#local reftypename = typedef.reftype[0].@ctype!"no-type"?trim /]
 typedef ${reftypename} ${typename};

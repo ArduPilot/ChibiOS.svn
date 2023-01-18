@@ -16,79 +16,84 @@
 
 /**
  * @file    oop_base_object.h
- * @brief   Base object.
- * @details This header defines a base class that is the root class of
- *          the ChibiOS Object Model.
+ * @brief   Generated header.
  *
  * @addtogroup OOP_BASE_OBJECT
- * @details ChibiOS uses concepts of Object Oriented Programming even if
- *          it is written in C. Things like simple inheritance, multiple
- *          inheritance and interfaces are used through the system.
- *          This module defines a "base object" class that is the ancestor
- *          of all classes in the system.<br>
- *          Class types are denoted by a "_c" suffix, classes contain a
- *          virtual methods table and data encapsulated into a normal C
- *          structure.<br>
- *          Interfaces are denoted by a "_i" suffix, interfaces just have
- *          a virtual methods table as single member of their C structure.<br>
- *          The first field of a VMT is the offset between the container
- *          object and the VMT pointer.<br>
- *          Multiple inheritance is implemented by composing a class
- *          structure with the structures of implemented classes or
- *          interfaces.<br>
- *          Example:
- *          <code>
- *          // Defining a counter interface.
- *          typedef struct {
- *            const struct __counter_interface_vmt  *vmt;
- *          } counter_interface_i;
- *
- *          // Defining a beans interface.
- *          typedef struct {
- *            const struct __beans_interface_vmt    *vmt;
- *          } beans_interface_i;
- *
- *          // Definition of a class myclass_c implementing interfaces
- *          // counter_interface_i and beans_interface_i.
- *          typedef struct {
- *            const struct __myclass_vmt            *vmt;
- *            // Fields of myclass.
- *            counter_interface_i                   counter;
- *            beans_interface_i                     beans;
- *          } myclass_c;
- *          </code>
+ * @brief   Common ancestor abstract class.
+ * @details This abstract class is the common ancestor of all classes used in
+ *          ChibiOS. This class just defines the position of the VMT pointer
+ *          inside the structure.
+ * @note    This is a generated file, do not edit directly.
  * @{
  */
+ 
+ #ifndef OOP_BASE_OBJECT_H
+ #define OOP_BASE_OBJECT_H
 
-#ifndef OOP_BASE_OBJECT_H
-#define OOP_BASE_OBJECT_H
-
-#include "ccportab.h"
 #include "osal.h"
+
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module pre-compile time settings.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module macros.                                                            */
+/*===========================================================================*/
+
+/**
+ * @brief   Returns the object instance pointer starting from an interface
+ *          pointer.
+ * @details Because multiple inheritance, an object can be composed by multiple
+ *          interfaces and/or classes (its ancestors). This function returns
+ *          the pointer to the base object starting from a pointer to any of
+ *          its composing classes or interfaces. This is done by leveraging the
+ *          offset field into each VMT table.
+ *
+ * @param         c             The class type of the object.
+ * @param         p             A pointer to one of the object composing
+ *                              classes or interfaces.
+ * @return                      A pointer to an object of type @p c
+ *                              implementing the interface/class @p p.
+ */
+#define oopGetInstance(c, p)                                                \
+  (c)(((size_t)(ip)) - (**(size_t **)(p)))                                  
+
+/*===========================================================================*/
+/* Module class base_object_c                                                */
+/*===========================================================================*/
 
 /**
  * @brief   Type of a base object class.
- * @details This class represents a generic object including a virtual
- *          methods table (VMT).
- * @note    This class is compatible with the legacy HAL @p BaseObject class.
  */
 typedef struct base_object base_object_c;
 
 /**
  * @brief   @p base_object_c specific methods.
- * @note    This object defines no methods.
  */
 #define __base_object_methods                                               \
   /* Instance offset, used for multiple inheritance, normally zero. It
      represents the offset between the current object and the container
      object*/                                                               \
-  size_t instance_offset;
+  size_t instance_offset;                                                   \
+  /* end methods */
 
 /**
  * @brief   @p base_object_c specific data.
- * @note    This object defines no data.
  */
-#define __base_object_data
+#define __base_object_data                                                  \
+  /* end data */
 
 /**
  * @brief   @p base_object_c virtual methods table.
@@ -109,63 +114,60 @@ struct base_object {
 };
 
 /**
- * @name    Methods implementations
+ * @name    Methods implementations (base_object_c)
  * @{
  */
 /**
- * @brief   Object creation implementation.
+ * @brief   Implementation of object creation.
+ * @note    This function is meant to be used by derived classes.
  *
- * @param[out] ip       Pointer to a @p base_object_c structure to be
- *                      initialized.
- * @param[in] vmt       VMT pointer for the new object.
- * @return              A new reference to the object.
+ * @param[out]    ip            Pointer to a @p base_object_c structure to be
+ *                              initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @return                      A new reference to the object.
  */
 CC_FORCE_INLINE
 static inline void *__base_object_objinit_impl(void *ip, const void *vmt) {
-  base_object_c *objp = (base_object_c *)ip;
+  base_object_c *self = (base_object_c *)ip;
 
-  objp->vmt = (struct base_object_vmt *)vmt;
+  /* This is a root class, initializing the VMT pointer here.*/
+  self->vmt = (struct base_object_vmt *)vmt;
 
-  return objp;
+  /* No initialization code.*/
+
+  return self;
 }
 
 /**
- * @brief   Object finalization implementation.
+ * @brief   Implementation of object finalization.
+ * @note    This function is meant to be used by derived classes.
  *
- * @param[in] ip        Pointer to a @p base_object_c structure to be
- *                      disposed.
+ * @param[in,out] ip            Pointer to a @p base_object_c structure to be
+ *                              disposed.
  */
 CC_FORCE_INLINE
 static inline void __base_object_dispose_impl(void *ip) {
+  base_object_c *self = (base_object_c *)ip;
 
-  (void) ip;
-
-  /* Nothing.*/
+  /* No finalization code.*/
+  (void)self;
 }
 /** @} */
 
-/**
- * @name    OOP Utility macros
- * @{
- */
-/**
- * @brief   Returns the object instance pointer starting from an interface
- *          pointer.
- * @details Because multiple inheritance, an object can be composed by
- *          multiple interfaces and/or classes (its ancestors).<br>
- *          This function returns the pointer to the base object starting
- *          from a pointer to any of its composing classes or interfaces.<br>
- *          This is done by leveraging the offset field into each VMT table.
- *
- * @param[in] c     The class type of the object.
- * @param[in] p     A pointer to one of the object composing classes or
- *                  interfaces.
- * @return          A pointer to an object of type @p c implementing
- *                  the interface/class @p p.
- */
-#define oopGetInstance(c, p)                                               \
-  (c)(((size_t)(ip)) - (**(size_t **)(p)))
-/** @} */
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
 
 #endif /* OOP_BASE_OBJECT_H */
 

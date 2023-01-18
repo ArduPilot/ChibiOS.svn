@@ -16,26 +16,50 @@
 
 /**
  * @file    oop_referenced_object.h
- * @brief   Base class for objects with a reference counter.
- * @details This header defines a base class for classes requiring a
- *          a reference counter and a disposing mechanism.
+ * @brief   Generated header.
  *
  * @addtogroup OOP_REFERENCED_OBJECT
- * @details Base class for objects that implement a reference counter and
- *          are disposed when the number of references reaches zero.
- *          This class extends @p base_object_c class.
+ * @brief   Common ancestor class of all reference-counted objects.
+ * @details Base class for objects that implement a reference counter and are
+ *          disposed when the number of references reaches zero. This class
+ *          extends @p base_object_c class.
+ * @note    This is a generated file, do not edit directly.
  * @{
  */
-
-#ifndef OOP_REFERENCED_OBJECT_H
-#define OOP_REFERENCED_OBJECT_H
+ 
+ #ifndef OOP_REFERENCED_OBJECT_H
+ #define OOP_REFERENCED_OBJECT_H
 
 #include "oop_base_object.h"
+
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module pre-compile time settings.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
 
 /**
  * @brief   Type of a references counter.
  */
-typedef unsigned int oop_object_references_t;
+typedef unsigned int object_references_t;
+
+/*===========================================================================*/
+/* Module macros.                                                            */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module class referenced_object_c                                          */
+/*===========================================================================*/
 
 /**
  * @brief   Type of a referenced object class.
@@ -47,16 +71,17 @@ typedef struct referenced_object referenced_object_c;
  */
 #define __referenced_object_methods                                         \
   __base_object_methods                                                     \
-  void *(*addref)(void *ip);                                                \
-  unsigned (*release)(void *ip);
+  void * (*addref)(void *ip);                                               \
+  object_references_t (*release)(void *ip);                                 \
+  /* end methods */
 
 /**
  * @brief   @p referenced_object_c specific data.
  */
 #define __referenced_object_data                                            \
   __base_object_data                                                        \
-  oop_object_references_t                   references;
-
+  object_references_t                       references;                     \
+  /* end data */
 
 /**
  * @brief   @p referenced_object_c virtual methods table.
@@ -77,117 +102,136 @@ struct referenced_object {
 };
 
 /**
- * @name    Methods implementations
+ * @name    Methods implementations (referenced_object_c)
  * @{
  */
 /**
- * @brief   Object creation implementation.
+ * @brief   Implementation of object creation.
+ * @note    This function is meant to be used by derived classes.
  *
- * @param[out] ip       Pointer to a @p referenced_object_c structure to be
- *                      initialized.
- * @param[in] vmt       VMT pointer for the new object.
- * @return              A new reference to the object.
+ * @param[out]    ip            Pointer to a @p referenced_object_c structure
+ *                              to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @return                      A new reference to the object.
  */
 CC_FORCE_INLINE
 static inline void *__referenced_object_objinit_impl(void *ip, const void *vmt) {
-  referenced_object_c *objp = (referenced_object_c *)ip;
+  referenced_object_c *self = (referenced_object_c *)ip;
 
-  __base_object_objinit_impl(objp, vmt);
-  objp->references = (oop_object_references_t)1;
+  /* Initialization of the ancestors-defined parts.*/
+  __base_object_objinit_impl(self, vmt);
 
-  return objp;
+  /* Initialization code.*/
+  self->references = (object_references_t)0;
+
+  return self;
 }
 
 /**
- * @brief   Object finalization implementation.
+ * @brief   Implementation of object finalization.
+ * @note    This function is meant to be used by derived classes.
  *
- * @param[in] ip        Pointer to a @p referenced_object_c structure to be
- *                      disposed.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c structure
+ *                              to be disposed.
  */
 CC_FORCE_INLINE
 static inline void __referenced_object_dispose_impl(void *ip) {
-  referenced_object_c *objp = (referenced_object_c *)ip;
+  referenced_object_c *self = (referenced_object_c *)ip;
 
-  osalDbgAssert(objp->references == (oop_object_references_t)0, "not zero");
+  __base_object_dispose_impl(self);
 
-  __base_object_dispose_impl(objp);
+  /* No finalization code.*/
+  (void)self;
 }
 
 /**
- * @brief   New reference creation implementation.
+ * @brief   Implementation of method @p roAddRef().
+ * @note    This function is meant to be used by derived classes.
  *
- * @param[in] ip        A reference to the object.
- * @return              A new reference to the object.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c structure.
+ * @return                      A new reference pointer.
  */
 CC_FORCE_INLINE
-static inline void *__referenced_object_addref_impl(void *ip) {
-  referenced_object_c *objp = (referenced_object_c *)ip;
+static inline void * __referenced_object_addref_impl(void *ip) {
+  referenced_object_c *self = (referenced_object_c *)ip;
 
-  objp->references++;
+  self->references++;
 
-  osalDbgAssert(objp->references != (oop_object_references_t)0, "overflow");
+  osalDbgAssert(self->references != (oop_object_references_t)0, "overflow");
 
-  return ip;
+  return self;
 }
 
 /**
- * @brief   References get implementation.
+ * @brief   Implementation of method @p roRelease().
+ * @note    This function is meant to be used by derived classes.
  *
- * @param[in] ip        A reference to the object.
- * @return              Remaining references.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c structure.
+ * @return                      The value of the reference counter.
  */
 CC_FORCE_INLINE
-static inline oop_object_references_t __referenced_object_getref_impl(void *ip) {
-  referenced_object_c *objp = (referenced_object_c *)ip;
+static inline object_references_t __referenced_object_release_impl(void *ip) {
+  referenced_object_c *self = (referenced_object_c *)ip;
 
-  return objp->references;
-}
+  osalDbgAssert(self->references > 0U, "zero references");
 
-/**
- * @brief   Reference release implementation.
- *
- * @param[in] ip        A reference to the object.
- * @return              The number of references left.
- */
-CC_FORCE_INLINE
-static inline oop_object_references_t __referenced_object_release_impl(void *ip) {
-  referenced_object_c *objp = (referenced_object_c *)ip;
-
-  osalDbgAssert(objp->references > 0U, "zero references");
-
-  if (--objp->references == 0U) {
-    __referenced_object_dispose_impl(ip);
+  if (--self->references == 0U) {
+    __referenced_object_dispose_impl(self);
   }
 
-  return objp->references;
+  return self->references;
 }
 /** @} */
 
 /**
- * @brief   New reference creation.
+ * @name    Abstract/Virtual methods of (referenced_object_c)
+ * @{
+ */
+/**
+ * @brief   New object reference creation.
+ * @details The references counter is increased and a new reference pointer is
+ *          returned.
  *
- * @param[in] ip        A reference to the object.
- * @return              A new reference to the object.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c structure.
+ * @return                      A new reference pointer.
  */
 CC_FORCE_INLINE
-static inline referenced_object_c *roAddRef(void *ip) {
-  referenced_object_c *objp = (referenced_object_c *)ip;
+static inline void * roAddRef(void *ip) {
+  referenced_object_c *self = (referenced_object_c *)ip;
 
-  return objp->vmt->addref(ip);
+  return self->vmt->addref(ip);
 }
 
 /**
- * @brief   Reference release.
+ * @brief   Release of an object reference.
+ * @details The reference counter is decreased, if the counter reaches zero
+ *          then the object is disposed.
  *
- * @param[in] ip        A reference to the object.
- * @return              The number of references left.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c structure.
+ * @return                      The value of the reference counter.
  */
 CC_FORCE_INLINE
-static inline oop_object_references_t roRelease(void *ip) {
-  referenced_object_c *objp = (referenced_object_c *)ip;
+static inline object_references_t roRelease(void *ip) {
+  referenced_object_c *self = (referenced_object_c *)ip;
 
-  return objp->vmt->release(ip);
+  return self->vmt->release(ip);
 }
+/** @} */
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
 
 #endif /* OOP_REFERENCED_OBJECT_H */
 

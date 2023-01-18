@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <instance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd">
-  <configuration_settings>
-  </configuration_settings>
   <modules>
     <module name="hal_base_driver_test">
       <brief>Common driver base abstract class.</brief>
@@ -14,6 +12,15 @@
         <inclusions>
           <include scope="global" style="regular">hal.h</include>
         </inclusions>
+        <definitions>
+          <group name="Common driver states">
+            <define name="HAL_DRV_STATE_UNINIT" value="0U" />
+            <define name="HAL_DRV_STATE_STOP" value="1U" />
+            <define name="HAL_DRV_STATE_READY" value="2U" />
+            <define name="HAL_DRV_STATE_ACTIVE" value="3U" />
+            <define name="HAL_DRV_STATE_ERROR" value="4U" />
+          </group>
+        </definitions>
         <configs>
           <config name="HAL_USE_MUTUAL_EXCLUSION" default="TRUE">
             <brief>Enables the mutual exclusion APIs on driver
@@ -27,19 +34,10 @@
             </note>
           </config>
         </configs>
-        <definitions>
-          <members group="Common driver states">
-            <define name="HAL_DRV_STATE_UNINIT" value="0U" />
-            <define name="HAL_DRV_STATE_STOP" value="1U" />
-            <define name="HAL_DRV_STATE_READY" value="2U" />
-            <define name="HAL_DRV_STATE_ACTIVE" value="3U" />
-            <define name="HAL_DRV_STATE_ERROR" value="4U" />
-          </members>
-        </definitions>
         <macros>
         </macros>
         <typedefs>
-          <typedef ctype="driver_state_t">
+          <typedef name="driver_state_t">
             <brief>Type of a driver state variable.</brief>
             <reftype ctype="unsigned int" />
           </typedef>
@@ -179,6 +177,8 @@ osalSysUnlock();]]></implementation>
             </methods>
           </class>
         </classes>
+        <functions>
+        </functions>
       </public>
       <private>
         <definitions>

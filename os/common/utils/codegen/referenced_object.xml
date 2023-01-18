@@ -20,7 +20,7 @@
     <macros>
     </macros>
     <typedefs>
-      <typedef ctype="object_references_t">
+      <typedef name="object_references_t">
         <brief>Type of a references counter.</brief>
         <reftype ctype="unsigned int" />
       </typedef>

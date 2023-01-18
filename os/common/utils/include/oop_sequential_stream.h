@@ -13,37 +13,61 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
 /**
  * @file    oop_sequential_stream.h
- * @brief   Sequential data streams class.
- * @details This header an abstract class useful to accessing generic
- *          data streams in a standardized way.
+ * @brief   Generated header.
  *
  * @addtogroup OOP_SEQUENTIAL_STREAM
- * @details This module define an abstract class for generic sequential
- *          data streams.<br>
- *          Streams allow to exchange data with unspecified objects through
- *          a standard interface.
+ * @brief   Sequential data streams interface.
+ * @details This module define an interface for generic sequential data
+ *          streams.\n This class is meant to be implemented in classes
+ *          requiring streaming capability.
  * @note    This class is compatible with legacy HAL @p BaseSequentialStream.
+ * @note    This is a generated file, do not edit directly.
  * @{
  */
-
-#ifndef OOP_SEQUENTIAL_STREAM_H
-#define OOP_SEQUENTIAL_STREAM_H
+ 
+ #ifndef OOP_SEQUENTIAL_STREAM_H
+ #define OOP_SEQUENTIAL_STREAM_H
 
 #include "oop_base_object.h"
+
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
 
 /**
  * @name    Streams return codes
  * @{
  */
-#define STM_OK               MSG_OK
-#define STM_TIMEOUT          MSG_TIMEOUT
-#define STM_RESET            MSG_RESET
+#define STM_OK                              MSG_OK
+#define STM_TIMEOUT                         MSG_TIMEOUT
+#define STM_RESET                           MSG_RESET
 /** @} */
 
+/*===========================================================================*/
+/* Module pre-compile time settings.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module macros.                                                            */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module class base_sequential_stream_c                                     */
+/*===========================================================================*/
+
 /**
- * @brief   Type of a base sequential stream class.
+ * @brief   Type of a base sequential stream interface class.
  */
 typedef struct base_sequential_stream base_sequential_stream_c;
 
@@ -52,19 +76,18 @@ typedef struct base_sequential_stream base_sequential_stream_c;
  */
 #define __base_sequential_stream_methods                                    \
   __base_object_methods                                                     \
-  /* Stream write buffer method.*/                                          \
-  size_t (*write)(void *instance, const uint8_t *bp, size_t n);             \
-  /* Stream read buffer method.*/                                           \
-  size_t (*read)(void *instance, uint8_t *bp, size_t n);                    \
-  /* Channel put method, blocking.*/                                        \
-  msg_t (*put)(void *instance, uint8_t b);                                  \
-  /* Channel get method, blocking.*/                                        \
-  msg_t (*get)(void *instance);
+  size_t (*write)(void *ip, const uint8_t *bp, size_t n);                   \
+  size_t (*read)(void *ip, uint8_t *bp, size_t n);                          \
+  msg_t (*put)(void *ip, uint8_t b);                                        \
+  msg_t (*get)(void *ip);                                                   \
+  /* end methods */
 
 /**
  * @brief   @p base_sequential_stream_c specific data.
  */
-#define __base_sequential_stream_data
+#define __base_sequential_stream_data                                       \
+  __base_object_data                                                        \
+  /* end data */
 
 /**
  * @brief   @p base_sequential_stream_c virtual methods table.
@@ -74,7 +97,7 @@ struct base_sequential_stream_vmt {
 };
 
 /**
- * @brief   Structure representing a base sequential stream class.
+ * @brief   Structure representing a base sequential stream interface class.
  */
 struct base_sequential_stream {
   /**
@@ -85,107 +108,138 @@ struct base_sequential_stream {
 };
 
 /**
- * @name    Methods implementations
+ * @name    Methods implementations (base_sequential_stream_c)
  * @{
  */
 /**
- * @brief   Object creation implementation.
+ * @brief   Implementation of object creation.
+ * @note    This function is meant to be used by derived classes.
  *
- * @param[out] ip       Pointer to a @p base_sequential_stream_c structure
- *                      to be initialized.
- * @param[in] vmt       VMT pointer for the new object.
- * @return              A new reference to the object.
+ * @param[out]    ip            Pointer to a @p base_sequential_stream_c
+ *                              structure to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @return                      A new reference to the object.
  */
 CC_FORCE_INLINE
-static inline void *__base_sequential_stream_objinit_impl(void *ip,
-                                                          const void *vmt) {
-  base_sequential_stream_c *objp = (base_sequential_stream_c *)ip;
+static inline void *__base_sequential_stream_objinit_impl(void *ip, const void *vmt) {
+  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
 
-  __base_object_objinit_impl(objp, vmt);
+  /* Initialization of the ancestors-defined parts.*/
+  __base_object_objinit_impl(self, vmt);
 
-  return objp;
+  /* No initialization code.*/
+
+  return self;
 }
 
 /**
- * @brief   Object finalization implementation.
+ * @brief   Implementation of object finalization.
+ * @note    This function is meant to be used by derived classes.
  *
- * @param[in] ip        Pointer to a @p base_sequential_stream_c structure
- *                      to be disposed.
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
+ *                              structure to be disposed.
  */
 CC_FORCE_INLINE
 static inline void __base_sequential_stream_dispose_impl(void *ip) {
-  base_sequential_stream_c *objp = (base_sequential_stream_c *)ip;
+  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
 
-  __base_object_dispose_impl(objp);
+  __base_object_dispose_impl(self);
+
+  /* No finalization code.*/
+  (void)self;
 }
 /** @} */
 
 /**
- * @name    Macro Functions (base_sequential_stream_c)
+ * @name    Abstract/Virtual methods of (base_sequential_stream_c)
  * @{
  */
 /**
  * @brief   Sequential Stream write.
- * @details The function writes data from a buffer to a stream.
+ * @details This function writes data from a buffer to a stream.
  *
- * @param[in] ip        Pointer to a @p base_sequential_stream_c or derived
- *                      class.
- * @param[in] bp        Pointer to the data buffer.
- * @param[in] n         The maximum amount of data to be transferred.
- * @return              The number of bytes transferred. The return value can
- *                      be less than the specified number of bytes if an
- *                      end-of-file condition has been met.
- *
- * @api
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
+ *                              structure.
+ * @param         bp            Pointer to the data buffer.
+ * @param         n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The return
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
  */
-#define streamWrite(ip, bp, n) ((ip)->vmt->write(ip, bp, n))
+CC_FORCE_INLINE
+static inline size_t streamWrite(void *ip, const uint8_t *bp, size_t n) {
+  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
+
+  return self->vmt->write(ip, bp, n);
+}
 
 /**
  * @brief   Sequential Stream read.
- * @details The function reads data from a stream into a buffer.
+ * @details This function reads data from a stream into a buffer.
  *
- * @param[in] ip        Pointer to a @p base_sequential_stream_c or derived
- *                      class.
- * @param[out] bp       Pointer to the data buffer.
- * @param[in] n         The maximum amount of data to be transferred.
- * @return              The number of bytes transferred. The return value can
- *                      be less than the specified number of bytes if an
- *                      end-of-file condition has been met.
- *
- * @api
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
+ *                              structure.
+ * @param         bp            Pointer to the data buffer.
+ * @param         n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The return
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
  */
-#define streamRead(ip, bp, n) ((ip)->vmt->read(ip, bp, n))
+CC_FORCE_INLINE
+static inline size_t streamRead(void *ip, uint8_t *bp, size_t n) {
+  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
+
+  return self->vmt->read(ip, bp, n);
+}
 
 /**
  * @brief   Sequential Stream blocking byte write.
- * @details This function writes a byte value to a channel. If the channel
- *          is not ready to accept data then the calling thread is suspended.
+ * @details This function writes a byte value to a channel. If the channel is
+ *          not ready to accept data then the calling thread is suspended.
  *
- * @param[in] ip        Pointer to a @p base_sequential_stream_c or derived
- *                      class.
- * @param[in] b         The byte value to be written to the channel.
- * @return              The operation status.
- * @retval STM_OK       if the operation succeeded.
- * @retval STM_RESET    if an end-of-file condition has been met.
- *
- * @api
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
+ *                              structure.
+ * @param         b             The byte value to be written to the channel.
+ * @return                      The operation status.
  */
-#define streamPut(ip, b) ((ip)->vmt->put(ip, b))
+CC_FORCE_INLINE
+static inline msg_t streamPut(void *ip, uint8_t b) {
+  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
+
+  return self->vmt->put(ip, b);
+}
 
 /**
  * @brief   Sequential Stream blocking byte read.
- * @details This function reads a byte value from a channel. If the data
- *          is not available then the calling thread is suspended.
+ * @details This function reads a byte value from a channel. If the data is not
+ *          available then the calling thread is suspended.
  *
- * @param[in] ip        Pointer to a @p base_sequential_stream_c or derived
- *                      class.
- * @return              A byte value from the queue.
- * @retval STM_RESET    if an end-of-file condition has been met.
- *
- * @api
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
+ *                              structure.
+ * @return                      A byte value from the queue.
  */
-#define streamGet(ip) ((ip)->vmt->get(ip))
+CC_FORCE_INLINE
+static inline msg_t streamGet(void *ip) {
+  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
+
+  return self->vmt->get(ip);
+}
 /** @} */
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
 
 #endif /* OOP_SEQUENTIAL_STREAM_H */
 

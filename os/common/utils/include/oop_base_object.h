@@ -56,10 +56,10 @@
  * @brief   Returns the object instance pointer starting from an interface
  *          pointer.
  * @details Because multiple inheritance, an object can be composed by multiple
- *          interfaces and/or classes (its ancestors). This function returns
- *          the pointer to the base object starting from a pointer to any of
- *          its composing classes or interfaces. This is done by leveraging the
- *          offset field into each VMT table.
+ *          interfaces and/or classes (its ancestors).<br> This function
+ *          returns the pointer to the base object starting from a pointer to
+ *          any of its composing classes or interfaces. This is done by
+ *          leveraging the offset field into each VMT table.
  *
  * @param         c             The class type of the object.
  * @param         p             A pointer to one of the object composing
@@ -83,17 +83,16 @@ typedef struct base_object base_object_c;
  * @brief   @p base_object_c specific methods.
  */
 #define __base_object_methods                                               \
-  /* Instance offset, used for multiple inheritance, normally zero. It
-     represents the offset between the current object and the container
-     object*/                                                               \
-  size_t instance_offset;                                                   \
-  /* end methods */
+  /* This field represents the offset between the current object
+     and the container object.*/                                            \
+  size_t                                    instance_offset;                \
+  /* no methods */
 
 /**
  * @brief   @p base_object_c specific data.
  */
 #define __base_object_data                                                  \
-  /* end data */
+  /* no data */
 
 /**
  * @brief   @p base_object_c virtual methods table.

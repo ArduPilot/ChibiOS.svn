@@ -33,12 +33,12 @@
         <brief>Returns the object instance pointer starting from an
           interface pointer.
         </brief>
-        <details>
+        <details><![CDATA[
           Because multiple inheritance, an object can be composed by
-          multiple interfaces and/or classes (its ancestors).
+          multiple interfaces and/or classes (its ancestors).<br>
           This function returns the pointer to the base object starting
           from a pointer to any of its composing classes or interfaces.
-          This is done by leveraging the offset field into each VMT table.
+          This is done by leveraging the offset field into each VMT table.]]>
         </details>
         <param name="c">The class type of the object.</param>
         <param name="p">A pointer to one of the object composing
@@ -56,7 +56,7 @@
     <types>
     </types>
     <classes>
-      <class name="base_object" ancestor="" descr="base object" type="abstract">
+      <class name="base_object" namespace="bo" ancestor="" descr="base object" type="abstract">
         <brief>
         </brief>
         <fields>

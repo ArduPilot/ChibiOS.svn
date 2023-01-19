@@ -54,7 +54,7 @@ ${indent + s}
   -- This function generates a variable or field declaration in a string.
   -- @note Processes the $I and $N tokens in the ctype.
   --]
-[#function MakeVariableDeclaration indent="" ctype="" name=""]
+[#function MakeVariableDeclaration indent="" name="no-name" ctype="no-ctype"]
   [#if ctype?contains("$I")]
     [#local s1 = ctype?keep_before("$I")?trim
             s2 = ctype?keep_after("$I")?trim /]
@@ -80,8 +80,8 @@ ${indent + s}
   -- @note Does not generate the final EOL.
   -- @note Processes the $I and $N tokens in the ctype.
   --]
-[#macro GenerateVariableDeclaration indent="" ctype="" name=""]
-  [#local fstring = MakeVariableDeclaration(indent ctype name) /]
+[#macro GenerateVariableDeclaration indent="" name="no-name" ctype="no-ctype"]
+  [#local fstring = MakeVariableDeclaration(indent name ctype) /]
 ${fstring}[#rt]
 [/#macro]
 
@@ -178,9 +178,9 @@ ${line + ");"}
 [/#macro]
 
 [#--
-  -- Generates a single line definition macro.
+  -- Generates a single line definition macro from an XML node.
   --]
-[#macro GenerateDefine node=[]]
+[#macro GenerateDefineFromNode node=[]]
   [#local define    = node /]
   [#local name      = define.@name[0]!"no-name"?trim /]
   [#local value     = define.@value[0]!"no-value"?trim /]
@@ -206,7 +206,7 @@ ${s}
 
     [#elseif this?node_name == "define"]
 [@doxygen.EmitFullCommentFromNode "" this /]
-[@ccode.GenerateDefine this /]
+[@ccode.GenerateDefineFromNode this /]
       [#if this?is_last && (this?parent?node_name != "group")]
 
       [/#if]
@@ -215,9 +215,9 @@ ${s}
 [/#macro]
 
 [#--
-  -- Generates a conmfiguration definition.
+  -- Generates a conmfiguration definition from an XML node.
   --]
-[#macro GenerateConfig node=[]]
+[#macro GenerateConfigFromNode node=[]]
   [#local config  = node /]
   [#local name    = config.@name[0]!"no-name"?trim /]
   [#local default = config.@default[0]!"no-default"?trim /]
@@ -241,7 +241,7 @@ ${s}
     [#list configs.* as this]
       [#if this?node_name == "config"]
 [@doxygen.EmitFullCommentFromNode "" this /]
-[@ccode.GenerateConfig this /]
+[@ccode.GenerateConfigFromNode this /]
       [/#if]
       [#if !this?is_last]
 
@@ -253,9 +253,9 @@ ${s}
 [/#macro]
 
 [#--
-  -- Generates a multi-line C macro.
+  -- Generates a multi-line C macro from an XML node.
   --]
-[#macro GenerateMacro indent="  " params=[] node=[]]
+[#macro GenerateMacroFromNode indent="  " params=[] node=[]]
   [#local macro  = node /]
   [#local name   = macro.@name[0]!"no-name"?trim /]
   [#local params = MakeCallParamsSequence(params, macro) /]
@@ -282,7 +282,7 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
   [#list macros.* as macro]
     [#if macro?node_name == "macro"]
 [@doxygen.EmitFullCommentFromNode "" macro /]
-[@ccode.GenerateMacro node=macro /]
+[@ccode.GenerateMacroFromNode node=macro /]
       [#if macro?is_last]
 
       [/#if]
@@ -291,9 +291,9 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
 [/#macro]
 
 [#--
-  -- This macro generates a simple type definition.
+  -- This macro generates a simple type definition from an XML node.
   --]
-[#macro GenerateTypedef indent="" node=[]]
+[#macro GenerateTypedefFromNode indent="" node=[]]
   [#local typedef = node /]
   [#local typename = typedef.@name!"no-name"?trim /]
   [#if typedef.basetype[0]??]
@@ -314,7 +314,7 @@ typedef ${basetypename} ${typename};
   [#list types.* as type]
     [#if type?node_name == "typedef"]
 [@doxygen.EmitFullCommentFromNode indent type /]
-[@ccode.GenerateTypedef node=type /]
+[@ccode.GenerateTypedefFromNode node=type /]
     [/#if]
     [#if type?is_last]
 

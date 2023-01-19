@@ -72,22 +72,29 @@
 typedef struct base_sequential_stream base_sequential_stream_c;
 
 /**
+ * @brief   @p base_sequential_stream_c methods as a structure.
+ */
+struct base_sequential_stream_methods {
+  size_t (*write)(void *ip, const uint8_t *bp, size_t n);
+  size_t (*read)(void *ip, uint8_t *bp, size_t n);
+  msg_t (*put)(void *ip, uint8_t b);
+  msg_t (*get)(void *ip);
+  /* end methods */
+};
+
+/**
  * @brief   @p base_sequential_stream_c specific methods.
  */
 #define __base_sequential_stream_methods                                    \
   __base_object_methods                                                     \
-  size_t (*write)(void *ip, const uint8_t *bp, size_t n);                   \
-  size_t (*read)(void *ip, uint8_t *bp, size_t n);                          \
-  msg_t (*put)(void *ip, uint8_t b);                                        \
-  msg_t (*get)(void *ip);                                                   \
-  /* end methods */
+  struct base_sequential_stream_methods     bss;
 
 /**
  * @brief   @p base_sequential_stream_c specific data.
  */
 #define __base_sequential_stream_data                                       \
   __base_object_data                                                        \
-  /* end data */
+  /* no data */
 
 /**
  * @brief   @p base_sequential_stream_c virtual methods table.
@@ -170,7 +177,7 @@ CC_FORCE_INLINE
 static inline size_t streamWrite(void *ip, const uint8_t *bp, size_t n) {
   base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
 
-  return self->vmt->write(ip, bp, n);
+  return self->vmt->bss.write(ip, bp, n);
 }
 
 /**
@@ -189,7 +196,7 @@ CC_FORCE_INLINE
 static inline size_t streamRead(void *ip, uint8_t *bp, size_t n) {
   base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
 
-  return self->vmt->read(ip, bp, n);
+  return self->vmt->bss.read(ip, bp, n);
 }
 
 /**
@@ -206,7 +213,7 @@ CC_FORCE_INLINE
 static inline msg_t streamPut(void *ip, uint8_t b) {
   base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
 
-  return self->vmt->put(ip, b);
+  return self->vmt->bss.put(ip, b);
 }
 
 /**
@@ -222,7 +229,7 @@ CC_FORCE_INLINE
 static inline msg_t streamGet(void *ip) {
   base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
 
-  return self->vmt->get(ip);
+  return self->vmt->bss.get(ip);
 }
 /** @} */
 

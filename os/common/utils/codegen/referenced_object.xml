@@ -26,12 +26,14 @@
       </typedef>
     </types>
     <classes>
-      <class name="referenced_object" ancestor="base_object" descr="referenced object"
+      <class name="referenced_object" namespace="ro" ancestor="base_object" descr="referenced object"
         type="regular">
         <brief>
         </brief>
         <fields>
-          <field name="references" ctype="object_references_t" />
+          <field name="references" ctype="object_references_t">
+            <brief>Number of references to the object.</brief>
+          </field>
         </fields>
         <methods>
           <objinit>

@@ -30,6 +30,15 @@
 [/#function]
 
 [#--
+  -- Returns the class namespace from an XML node.
+  --]
+[#function GetClassNamespace node=[]]
+  [#local class = node /]
+  [#local classnamespace = class.@namespace[0]!"no-namespace"?trim /]
+  [#return classnamespace /]
+[/#function]
+
+[#--
   -- Returns the C type of the class from an XML node.
   --]
 [#function GetClassCType node=[]]
@@ -103,6 +112,7 @@
 [#macro GenerateClassWrapper node=[]]
   [#local class = node /]
   [#local classname        = GetClassName(class)
+          classnamespace   = GetClassNamespace(class)
           classctype       = GetClassCType(class)
           classdescr       = GetClassDescription(class)
           ancestorname     = GetClassAncestorName(class)
@@ -112,50 +122,87 @@
  */
 typedef struct ${classname} ${classctype};
 
+  [#local methodsstruct = classname?lower_case + "_methods" /]
+  [#if ancestorname?length > 0]
+/**
+[@doxygen.EmitBrief "" "@p " + classctype + " methods as a structure." /]
+ */
+struct ${methodsstruct} {
+    [#list class.methods.* as method]
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method) /]
+      [#if (method?node_name == "abstract") || (method?node_name == "virtual")]
+        [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
+                          ccode.MakeProtoParamsSequence(["void *ip"] method)?join(", ") +
+                          ");" /]
+${funcptr}
+      [/#if]
+    [/#list]
+  /* end methods */
+};
+
+  [/#if]
+  [#local datastruct = classname?lower_case + "_data" /]
+  [#if class.fields.*?size > 0]
+/**
+[@doxygen.EmitBrief "" "@p " + classctype + " data as a structure." /]
+ */
+struct ${datastruct} {
+    [#list class.fields.field as field]
+      [#local fieldname  = field.@name[0]?trim
+              fieldctype = field.@ctype[0]?trim
+              fieldstring = ccode.MakeVariableDeclaration("  " fieldctype fieldname) /]
+[@doxygen.EmitFullCommentFromNode indent="  " node=field /]
+${fieldstring}
+    [/#list]
+};
+
+  [/#if]
 /**
 [@doxygen.EmitBrief "" "@p " + classctype + " specific methods." /]
  */
   [#local methodsdefine = "__" + classname?lower_case + "_methods" /]
 #define ${methodsdefine?right_pad(68) + "\\"}
-  [#if ancestorname?length == 0]
-      [#-- Special case where the class has no ancestor.--]
-  /* Instance offset, used for multiple inheritance, normally zero. It
-     represents the offset between the current object and the container
-     object*/                                                               \
-  size_t instance_offset;                                                   \
-  [#else]
+  [#if ancestorname?length > 0]
 ${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
+  [#else]
+    [#local instance_string = ccode.MakeVariableDeclaration("  "
+                                                            "instance_offset"
+                                                            "size_t")?right_pad(76) + "\\" /]
+  /* This field represents the offset between the current object
+     and the container object.*/                                            \
+${instance_string}
   [/#if]
-  [#-- Generating list of virtual methods in the VMT.--]
-  [#list class.methods.* as method]
-    [#local methodname     = GetMethodName(method)
-            methodsname    = GetMethodShortName(method)
-            methodretctype = GetMethodCType(method) /]
-    [#if (method?node_name == "abstract") || (method?node_name == "virtual")]
-      [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
-                        ccode.MakeProtoParamsSequence(["void *ip"] method)?join(", ") +
-                        ");" /]
-${funcptr?right_pad(76)}\
-    [/#if]
-  [/#list]
-  /* end methods */
+  [#if (class.methods.abstract?size > 0) ||
+       (class.methods.virtual?size > 0)]
+[@ccode.GenerateVariableDeclaration indent="  "
+                                    name=classnamespace
+                                    ctype="struct " + methodsstruct /]
 
+
+  [#else]
+  /* no methods */
+
+  [/#if]
 /**
 [@doxygen.EmitBrief "" "@p " + classctype + " specific data." /]
  */
   [#local datadefine = "__" + classname?lower_case + "_data" /]
 #define ${datadefine?right_pad(68) + "\\"}
   [#if ancestorname?length > 0]
-  __${(ancestorname + "_data")?right_pad(72) + "\\"}
+${("  __" + ancestorname?lower_case?lower_case + "_data")?right_pad(76)}\
   [/#if]
-  [#list class.fields.field as field]
-    [#local fieldname  = field.@name[0]?trim
-            fieldctype = field.@ctype[0]?trim
-            fieldstring = ccode.MakeVariableDeclaration("  " fieldctype fieldname)?right_pad(76) /]
-${fieldstring}\
-  [/#list]
-  /* end data */
+  [#if class.fields.*?size > 0]
+[@ccode.GenerateVariableDeclaration indent="  "
+                                    name=classnamespace
+                                    ctype="struct " + datastruct /]
 
+
+  [#else]
+  /* no data */
+
+  [/#if]
 /**
 [@doxygen.EmitBrief "" "@p " + classctype + " virtual methods table." /]
  */
@@ -171,7 +218,7 @@ struct ${classname?lower_case} {
 [@doxygen.EmitBrief "  " "Virtual Methods Table." /]
    */
   [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N" /]
-${ccode.MakeVariableDeclaration("  " vmtctype "vmt")}
+${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
   ${datadefine}
 };
 
@@ -289,6 +336,7 @@ CC_FORCE_INLINE
   [#local class = node /]
   [#if (class.methods.virtual?size > 0) || (class.methods.abstract?size > 0)]
     [#local classname        = GetClassName(class)
+            classnamespace   = GetClassNamespace(class)
             classctype       = GetClassCType(class)
             classdescr       = GetClassDescription(class)
             ancestorname     = GetClassAncestorName(class)
@@ -327,7 +375,7 @@ CC_FORCE_INLINE
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
 
-        [#local callname   = "self->vmt->" + methodsname /]
+        [#local callname   = "self->vmt->" + classnamespace + "." + methodsname /]
         [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
         [#if methodretctype == "void"]
 [@ccode.GenerateFunctionCall "  " "" callname callparams /]

@@ -238,10 +238,10 @@ static msg_t __ctl(void *ip, unsigned int operation, void *arg) {
 
 static const struct base_asynchronous_channel_vmt channel_vmt = {
   .instance_offset = (size_t)offsetof(SIODriver, channel.vmt),
-  .write           = __sio_write,
-  .read            = __sio_read,
-  .put             = __sio_put,
-  .get             = __sio_get,
+  .bss.write       = __sio_write,
+  .bss.read        = __sio_read,
+  .bss.put         = __sio_put,
+  .bss.get         = __sio_get,
   .writet          = __writet,
   .readt           = __readt,
   .putt            = __putt,

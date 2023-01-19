@@ -101,14 +101,23 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="fields" type="fieldsType"
-            maxOccurs="1" minOccurs="1">
+          <xs:element name="fields" type="fieldsType" maxOccurs="1"
+            minOccurs="1">
           </xs:element>
-          <xs:element name="methods" type="methodsType"
-            maxOccurs="1" minOccurs="1">
+          <xs:element name="methods" type="methodsType" maxOccurs="1"
+            minOccurs="1">
           </xs:element>
         </xs:sequence>
         <xs:attribute name="type" type="classTypeType"></xs:attribute>
+        <xs:attribute name="namespace">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="1"></xs:minLength>
+              <xs:whiteSpace value="collapse"></xs:whiteSpace>
+              <xs:pattern value="\w+"></xs:pattern>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
         <xs:attribute name="ancestor" type="xs:string"></xs:attribute>
         <xs:attribute name="descr" type="xs:string"></xs:attribute>
       </xs:extension>

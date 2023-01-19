@@ -29,7 +29,7 @@
     <types>
     </types>
     <classes>
-      <class name="base_sequential_stream" ancestor="base_object"
+      <class name="base_sequential_stream" namespace="bss" ancestor="base_object"
         descr="base sequential stream interface" type="interface">
         <brief>
         </brief>

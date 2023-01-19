@@ -67,21 +67,37 @@ typedef unsigned int object_references_t;
 typedef struct referenced_object referenced_object_c;
 
 /**
+ * @brief   @p referenced_object_c methods as a structure.
+ */
+struct referenced_object_methods {
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* end methods */
+};
+
+/**
+ * @brief   @p referenced_object_c data as a structure.
+ */
+struct referenced_object_data {
+  /**
+   * @brief   Number of references to the object.
+   */
+  references                                object_references_t;
+};
+
+/**
  * @brief   @p referenced_object_c specific methods.
  */
 #define __referenced_object_methods                                         \
   __base_object_methods                                                     \
-  void * (*addref)(void *ip);                                               \
-  object_references_t (*release)(void *ip);                                 \
-  /* end methods */
+  struct referenced_object_methods          ro;
 
 /**
  * @brief   @p referenced_object_c specific data.
  */
 #define __referenced_object_data                                            \
   __base_object_data                                                        \
-  object_references_t                       references;                     \
-  /* end data */
+  struct referenced_object_data             ro;
 
 /**
  * @brief   @p referenced_object_c virtual methods table.
@@ -199,7 +215,7 @@ CC_FORCE_INLINE
 static inline void * roAddRef(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  return self->vmt->addref(ip);
+  return self->vmt->ro.addref(ip);
 }
 
 /**
@@ -214,7 +230,7 @@ CC_FORCE_INLINE
 static inline object_references_t roRelease(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  return self->vmt->release(ip);
+  return self->vmt->ro.release(ip);
 }
 /** @} */
 

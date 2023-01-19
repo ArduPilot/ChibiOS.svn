@@ -135,20 +135,27 @@ typedef unsigned int test_state_t;
 typedef struct test_interface test_interface_c;
 
 /**
+ * @brief   @p test_interface_c methods as a structure.
+ */
+struct test_interface_methods {
+  int (*start)(void *ip);
+  int (*stop)(void *ip);
+  /* end methods */
+};
+
+/**
  * @brief   @p test_interface_c specific methods.
  */
 #define __test_interface_methods                                            \
   __base_object_methods                                                     \
-  int (*start)(void *ip);                                                   \
-  int (*stop)(void *ip);                                                    \
-  /* end methods */
+  struct test_interface_methods             test;
 
 /**
  * @brief   @p test_interface_c specific data.
  */
 #define __test_interface_data                                               \
   __base_object_data                                                        \
-  /* end data */
+  /* no data */
 
 /**
  * @brief   @p test_interface_c virtual methods table.
@@ -225,7 +232,7 @@ CC_FORCE_INLINE
 static inline int testStart(void *ip) {
   test_interface_c *self = (test_interface_c *)ip;
 
-  return self->vmt->start(ip);
+  return self->vmt->test.start(ip);
 }
 
 /**
@@ -238,7 +245,7 @@ CC_FORCE_INLINE
 static inline int testStop(void *ip) {
   test_interface_c *self = (test_interface_c *)ip;
 
-  return self->vmt->stop(ip);
+  return self->vmt->test.stop(ip);
 }
 /** @} */
 

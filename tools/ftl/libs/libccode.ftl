@@ -207,9 +207,9 @@ ${s}
     [#elseif this?node_name == "define"]
 [@doxygen.EmitFullCommentFromNode "" this /]
 [@ccode.GenerateDefine this /]
-    [/#if]
-    [#if this?is_last && (this?parent?node_name != "group")]
+      [#if this?is_last && (this?parent?node_name != "group")]
 
+      [/#if]
     [/#if]
   [/#list]
 [/#macro]

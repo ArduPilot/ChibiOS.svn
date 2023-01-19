@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/module.xsd"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="oop_referenced_object">
   <brief>Common ancestor class of all reference-counted objects.
   </brief>
@@ -19,12 +19,12 @@
     </configs>
     <macros>
     </macros>
-    <typedefs>
+    <types>
       <typedef name="object_references_t">
         <brief>Type of a references counter.</brief>
-        <reftype ctype="unsigned int" />
+        <basetype ctype="unsigned int" />
       </typedef>
-    </typedefs>
+    </types>
     <classes>
       <class name="referenced_object" ancestor="base_object" descr="referenced object"
         type="regular">
@@ -72,9 +72,21 @@ return self->references;]]></implementation>
         </methods>
       </class>
     </classes>
+    <variables>
+    </variables>
     <functions>
     </functions>
   </public>
   <private>
+    <inclusions>
+    </inclusions>
+    <definitions>
+    </definitions>
+    <types>
+    </types>
+    <variables>
+    </variables>
+    <functions>
+    </functions>
   </private>
 </module>

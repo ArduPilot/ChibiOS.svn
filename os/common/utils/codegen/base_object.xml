@@ -12,7 +12,7 @@
       - static    (direct,    impl, no-implfunc, no-instance pointer)
   -->
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/module.xsd"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="oop_base_object">
   <brief>Common ancestor abstract class.</brief>
   <details>This abstract class is the common ancestor of all classes
@@ -53,8 +53,8 @@
         </implementation>
       </macro>
     </macros>
-    <typedefs>
-    </typedefs>
+    <types>
+    </types>
     <classes>
       <class name="base_object" ancestor="" descr="base object" type="abstract">
         <brief>
@@ -71,9 +71,21 @@
         </methods>
       </class>
     </classes>
+    <variables>
+    </variables>
     <functions>
     </functions>
   </public>
   <private>
+    <inclusions>
+    </inclusions>
+    <definitions>
+    </definitions>
+    <types>
+    </types>
+    <variables>
+    </variables>
+    <functions>
+    </functions>
   </private>
 </module>

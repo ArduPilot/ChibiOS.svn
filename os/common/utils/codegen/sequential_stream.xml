@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/module.xsd"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="oop_sequential_stream">
   <brief>Sequential data streams interface.</brief>
   <details>
@@ -26,8 +26,8 @@
     </configs>
     <macros>
     </macros>
-    <typedefs>
-    </typedefs>
+    <types>
+    </types>
     <classes>
       <class name="base_sequential_stream" ancestor="base_object"
         descr="base sequential stream interface" type="interface">
@@ -85,6 +85,8 @@
         </methods>
       </class>
     </classes>
+    <variables>
+    </variables>
     <functions>
     </functions>
   </public>
@@ -92,5 +94,13 @@
     <inclusions>
       <include style="regular">oop_sequential_stream.h</include>
     </inclusions>
+    <definitions>
+    </definitions>
+    <types>
+    </types>
+    <variables>
+    </variables>
+    <functions>
+    </functions>
   </private>
 </module>

@@ -64,7 +64,7 @@
           </typedef>
         </types>
         <classes>
-          <class name="test_interface" ancestor="base_object" descr="test interface"
+          <class name="test_interface" namespace="test" ancestor="base_object" descr="test interface"
             type="interface">
             <fields>
             </fields>

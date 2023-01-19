@@ -124,10 +124,10 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:complexType name="fieldsType">
-    <xs:sequence>
-      <xs:element name="field" type="fieldType"
-        maxOccurs="unbounded" minOccurs="0"></xs:element>
-    </xs:sequence>
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="field" type="fieldType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      <xs:element name="condition" type="conditionalFieldType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    </xs:choice>
   </xs:complexType>
   <xs:simpleType name="classTypeType">
     <xs:restriction base="xs:string">
@@ -156,16 +156,16 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="conditionalMethodsType">
-    <xs:choice maxOccurs="unbounded" minOccurs="0">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
       <xs:element name="abstract" type="abstractMethodType"
-        maxOccurs="unbounded" minOccurs="0"></xs:element>
+        maxOccurs="unbounded" minOccurs="1"></xs:element>
       <xs:element name="virtual" type="virtualMethodType"
-        maxOccurs="unbounded" minOccurs="0"></xs:element>
+        maxOccurs="unbounded" minOccurs="1"></xs:element>
       <xs:element name="method" type="regularMethodType"
-        maxOccurs="unbounded" minOccurs="0"></xs:element>
+        maxOccurs="unbounded" minOccurs="1"></xs:element>
       <xs:element name="condition"
         type="conditionalMethodsType" maxOccurs="unbounded"
-        minOccurs="0"></xs:element>
+        minOccurs="1"></xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
@@ -355,5 +355,14 @@
       <xs:element name="module" type="moduleType"
         maxOccurs="unbounded" minOccurs="0"></xs:element>
     </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="conditionalFieldType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="field" type="fieldType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalFieldType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+    </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
 </xs:schema>

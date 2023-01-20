@@ -295,12 +295,14 @@ static inline void __${classname}_dispose_impl(void *ip) {
   (void)self;
   [/#if]
 }
-  [#list class.methods.virtual.* as method]
-    [#local methodname     = GetMethodName(method)
-            methodsname    = GetMethodShortName(method)
-            methodretctype = GetMethodCType(method)
-            methodimpl     = method.implementation[0]!""?trim /]
-    [#if method?node_name == "virtual"]
+  [#list class.methods.virtual.* as node]
+    [#if node?node_name == "method"]
+      [#local method=node /]
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = method.implementation[0]!""?trim /]
+      [#if methodimpl?length > 0]
 
 /**
 [@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
@@ -321,6 +323,7 @@ CC_FORCE_INLINE
 
 [@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
+      [/#if]
     [/#if]
   [/#list]
 /** @} */

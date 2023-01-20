@@ -76,6 +76,19 @@ void testClose(const void *ip) {
 
   /* some implementation */
 }
+
+#if (TEST_CFG_OPTION1 == TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief   Conditional method.
+ *
+ * @param[in,out] ip            Pointer to a @p test_interface_c structure.
+ */
+void no-name(const void *ip) {
+  test_interface_c *self = (test_interface_c *)ip;
+
+  /* some implementation */
+}
+#endif /* TEST_CFG_OPTION1 == TRUE */
 /** @} */
 
 /*===========================================================================*/

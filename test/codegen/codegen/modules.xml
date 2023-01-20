@@ -97,6 +97,12 @@
                   <details>Long description.</details>
                   <implementation><![CDATA[/* some implementation */]]></implementation>
                 </method>
+                <condition check="TEST_CFG_OPTION1 == TRUE">
+                  <method>
+                    <brief>Conditional method.</brief>
+                    <implementation>/* some implementation */</implementation>
+                  </method>
+                </condition>
               </regular>
             </methods>
           </class>

@@ -384,7 +384,7 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
-  -- This macro generates regular methods as inline functions from an XML node.
+  -- This macro generates regular methods from an XML node.
   --]
 [#macro GenerateClassRegularMethodsPrototypes node=[]]
   [#local class = node /]
@@ -409,21 +409,12 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
-  -- This macro generates regular methods as inline functions from an XML node.
+  -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateClassRegularMethods node=[]]
-  [#local class = node /]
-  [#local classname        = GetClassName(class)
-          classctype       = GetClassCType(class)
-          classdescr       = GetClassDescription(class)
-          ancestorname     = GetClassAncestorName(class)
-          ancestorfullname = GetClassAncestorCType(class) /]
-  [#if class.methods.regular.*?size > 0]
-/**
- * @name    Regular methods of (${classctype})
- * @{
- */
-    [#list class.methods.regular.method as method]
+[#macro GenerateRegularMethods classctype="no-ctype" methods=[]]
+  [#list methods.* as node]
+    [#if node?node_name == "method"]
+      [#local method = node /]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
@@ -438,10 +429,34 @@ CC_FORCE_INLINE
 
 [@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
-      [#if method?has_next]
+    [#elseif node?node_name == "condition"]
+      [#local condition = node /]
+      [#local condcheck = condition.@check[0]!"1"?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateRegularMethods classctype condition /]
+#endif /* ${condcheck} */
+    [/#if]
+    [#if node?has_next]
 
-      [/#if]
-    [/#list]
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates regular methods from a class XML node.
+  --]
+[#macro GenerateClassRegularMethods class=[]]
+  [#local classname        = GetClassName(class)
+          classctype       = GetClassCType(class)
+          classdescr       = GetClassDescription(class)
+          ancestorname     = GetClassAncestorName(class)
+          ancestorfullname = GetClassAncestorCType(class) /]
+  [#if class.methods.regular.*?size > 0]
+/**
+ * @name    Regular methods of (${classctype})
+ * @{
+ */
+[@GenerateRegularMethods classctype class.methods.regular /]
 /** @} */
 
   [/#if]

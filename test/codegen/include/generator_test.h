@@ -126,71 +126,71 @@ typedef unsigned int test_state_t;
   ((a) + (b))                                                               
 
 /*===========================================================================*/
-/* Module class test_interface_c                                             */
+/* Module class test_class_c                                                 */
 /*===========================================================================*/
 
 /**
- * @brief   Type of a test interface class.
+ * @brief   Type of a test class class.
  */
-typedef struct test_interface test_interface_c;
+typedef struct test_class test_class_c;
 
 /**
- * @brief   @p test_interface_c methods as a structure.
+ * @brief   @p test_class_c methods as a structure.
  */
-struct test_interface_methods {
+struct test_class_methods {
   int (*start)(void *ip);
   int (*stop)(void *ip);
   /* end methods */
 };
 
 /**
- * @brief   @p test_interface_c specific methods.
+ * @brief   @p test_class_c specific methods.
  */
-#define __test_interface_methods                                            \
+#define __test_class_methods                                                \
   __base_object_methods                                                     \
-  struct test_interface_methods             test;
+  struct test_class_methods                 test;
 
 /**
- * @brief   @p test_interface_c specific data.
+ * @brief   @p test_class_c specific data.
  */
-#define __test_interface_data                                               \
+#define __test_class_data                                                   \
   __base_object_data                                                        \
   /* no data */
 
 /**
- * @brief   @p test_interface_c virtual methods table.
+ * @brief   @p test_class_c virtual methods table.
  */
-struct test_interface_vmt {
-  __test_interface_methods
+struct test_class_vmt {
+  __test_class_methods
 };
 
 /**
- * @brief   Structure representing a test interface class.
+ * @brief   Structure representing a test class class.
  */
-struct test_interface {
+struct test_class {
   /**
    * @brief   Virtual Methods Table.
    */
-  const struct test_interface_vmt           *vmt;
-  __test_interface_data
+  const struct test_class_vmt               *vmt;
+  __test_class_data
 };
 
 /**
- * @name    Methods implementations (test_interface_c)
+ * @name    Methods implementations (test_class_c)
  * @{
  */
 /**
  * @brief   Implementation of object creation.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[out]    ip            Pointer to a @p test_interface_c structure to
- *                              be initialized.
+ * @param[out]    ip            Pointer to a @p test_class_c structure to be
+ *                              initialized.
  * @param[in]     vmt           VMT pointer for the new object.
  * @return                      A new reference to the object.
  */
 CC_FORCE_INLINE
-static inline void *__test_interface_objinit_impl(void *ip, const void *vmt) {
-  test_interface_c *self = (test_interface_c *)ip;
+static inline void *__test_class_objinit_impl(void *ip, const void *vmt) {
+  test_class_c *self = (test_class_c *)ip;
 
   /* Initialization of the ancestors-defined parts.*/
   __base_object_objinit_impl(self, vmt);
@@ -204,12 +204,12 @@ static inline void *__test_interface_objinit_impl(void *ip, const void *vmt) {
  * @brief   Implementation of object finalization.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[in,out] ip            Pointer to a @p test_interface_c structure to
- *                              be disposed.
+ * @param[in,out] ip            Pointer to a @p test_class_c structure to be
+ *                              disposed.
  */
 CC_FORCE_INLINE
-static inline void __test_interface_dispose_impl(void *ip) {
-  test_interface_c *self = (test_interface_c *)ip;
+static inline void __test_class_dispose_impl(void *ip) {
+  test_class_c *self = (test_class_c *)ip;
 
   __base_object_dispose_impl(self);
 
@@ -219,18 +219,18 @@ static inline void __test_interface_dispose_impl(void *ip) {
 /** @} */
 
 /**
- * @name    Virtual methods of (test_interface_c)
+ * @name    Virtual methods of (test_class_c)
  * @{
  */
 /**
  * @brief   Low level driver start.
  *
- * @param[in,out] ip            Pointer to a @p test_interface_c structure.
+ * @param[in,out] ip            Pointer to a @p test_class_c structure.
  * @return                      The operation status.
  */
 CC_FORCE_INLINE
 static inline int testStart(void *ip) {
-  test_interface_c *self = (test_interface_c *)ip;
+  test_class_c *self = (test_class_c *)ip;
 
   return self->vmt->test.start(ip);
 }
@@ -238,12 +238,12 @@ static inline int testStart(void *ip) {
 /**
  * @brief   Low level driver start.
  *
- * @param[in,out] ip            Pointer to a @p test_interface_c structure.
+ * @param[in,out] ip            Pointer to a @p test_class_c structure.
  * @return                      The operation status.
  */
 CC_FORCE_INLINE
 static inline int testStop(void *ip) {
-  test_interface_c *self = (test_interface_c *)ip;
+  test_class_c *self = (test_class_c *)ip;
 
   return self->vmt->test.stop(ip);
 }
@@ -256,9 +256,12 @@ static inline int testStop(void *ip) {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  /* Methods of test_interface_c.*/
+  /* Methods of test_class_c.*/
   int testOpen(const void *ip);
   void testClose(const void *ip);
+#if (TEST_CFG_OPTION1 == TRUE) || defined (__DOXYGEN__)
+  void testConfigure(const void *ip);
+#endif /* TEST_CFG_OPTION1 == TRUE */
 #ifdef __cplusplus
 }
 #endif

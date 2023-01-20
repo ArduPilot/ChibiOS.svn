@@ -2,12 +2,7 @@
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="oop_referenced_object">
-  <brief>Common ancestor class of all reference-counted objects.
-  </brief>
-  <details>Base class for objects that implement a reference counter
-    and are disposed when the number of references reaches zero. This
-    class extends @p base_object_c class.
-  </details>
+  <brief>Common ancestor class of all reference-counted objects.</brief>
   <note>This is a generated file, do not edit directly.</note>
   <public>
     <inclusions>
@@ -26,10 +21,12 @@
       </typedef>
     </types>
     <classes>
-      <class name="referenced_object" namespace="ro" ancestor="base_object" descr="referenced object"
-        type="regular">
-        <brief>
-        </brief>
+      <class name="referenced_object" namespace="ro" ancestor="base_object"
+        descr="referenced object" type="regular">
+        <brief>Common ancestor class of all reference-counted objects.</brief>
+        <details><![CDATA[Base class for objects that implement a reference
+                 counter and are disposed when the number of references
+                 reaches zero. This class extends @p base_object_c class.]]></details>
         <fields>
           <field name="references" ctype="object_references_t">
             <brief>Number of references to the object.</brief>
@@ -42,27 +39,25 @@
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
-          <virtual name="roAddRef" shortname="addref" ctype="void *">
-            <brief>New object reference creation.</brief>
-            <details>The references counter is increased and a new
-              reference pointer is returned.
-            </details>
-            <return>A new reference pointer.</return>
-            <implementation><![CDATA[
+          <virtual>
+            <method name="roAddRef" shortname="addref" ctype="void *">
+              <brief>New object reference creation.</brief>
+              <details><![CDATA[The references counter is increased and a new
+                       reference pointer is returned.]]></details>
+              <return>A new reference pointer.</return>
+              <implementation><![CDATA[
 self->references++;
 
 osalDbgAssert(self->references != (oop_object_references_t)0, "overflow");
 
 return self;]]></implementation>
-          </virtual>
-          <virtual name="roRelease" shortname="release" ctype="object_references_t">
-            <brief>Release of an object reference.</brief>
-            <details>The reference counter is decreased, if the counter
-              reaches zero then the object
-              is disposed.
-            </details>
-            <return>The value of the reference counter.</return>
-            <implementation><![CDATA[
+            </method>
+            <method name="roRelease" shortname="release" ctype="object_references_t">
+              <brief>Release of an object reference.</brief>
+              <details><![CDATA[The reference counter is decreased, if the counter
+                       reaches zero then the object is disposed.]]></details>
+              <return>The value of the reference counter.</return>
+              <implementation><![CDATA[
 osalDbgAssert(self->references > 0U, "zero references");
 
 if (--self->references == 0U) {
@@ -70,6 +65,7 @@ if (--self->references == 0U) {
 }
 
 return self->references;]]></implementation>
+            </method>
           </virtual>
         </methods>
       </class>

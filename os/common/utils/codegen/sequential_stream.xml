@@ -3,12 +3,6 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="oop_sequential_stream">
   <brief>Sequential data streams interface.</brief>
-  <details>
-    This module define an interface for generic sequential
-    data streams.\n
-    This class is meant to be implemented in classes requiring
-    streaming capability.
-  </details>
   <note>This class is compatible with legacy HAL @p BaseSequentialStream.</note>
   <note>This is a generated file, do not edit directly.</note>
   <public>
@@ -31,8 +25,11 @@
     <classes>
       <class name="base_sequential_stream" namespace="bss" ancestor="base_object"
         descr="base sequential stream interface" type="interface">
-        <brief>
-        </brief>
+        <brief>Sequential data streams interface.</brief>
+        <details><![CDATA[This module define an interface for generic
+           sequential data streams.\n
+           This interface is meant to be implemented in classes requiring
+           streaming capability.]]></details>
         <fields>
         </fields>
         <methods>
@@ -42,46 +39,40 @@
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
-          <abstract name="streamWrite" shortname="write" ctype="size_t">
-            <brief>Sequential Stream write.</brief>
-            <details>This function writes data from a buffer to a stream.
-            </details>
-            <param name="bp" ctype="const uint8_t *">Pointer to the data buffer.</param>
-            <param name="n" ctype="size_t">The maximum amount of data to be transferred.</param>
-            <return>The number of bytes transferred. The return value can
-              be less than the specified
-              number of bytes if an
-              end-of-file condition has been met.
-            </return>
-          </abstract>
-          <abstract name="streamRead" shortname="read" ctype="size_t">
-            <brief>Sequential Stream read.</brief>
-            <details>This function reads data from a stream into a buffer.
-            </details>
-            <param name="bp" ctype="uint8_t *">Pointer to the data buffer.</param>
-            <param name="n" ctype="size_t">The maximum amount of data to be transferred.</param>
-            <return>The number of bytes transferred. The return value can
-              be less than the specified
-              number of bytes if an
-              end-of-file condition has been met.
-            </return>
-          </abstract>
-          <abstract name="streamPut" shortname="put" ctype="msg_t">
-            <brief>Sequential Stream blocking byte write.</brief>
-            <details>This function writes a byte value to a channel.
-              If the channel is not ready to
-              accept data then the calling thread is suspended.
-            </details>
-            <param name="b" ctype="uint8_t">The byte value to be written to the channel.</param>
-            <return>The operation status.</return>
-          </abstract>
-          <abstract name="streamGet" shortname="get" ctype="msg_t">
-            <brief>Sequential Stream blocking byte read.</brief>
-            <details>This function reads a byte value from a channel. If the data
-              is not available then the calling thread is suspended.
-            </details>
-            <return>A byte value from the queue.</return>
-          </abstract>
+          <virtual>
+            <method name="streamWrite" shortname="write" ctype="size_t">
+              <brief>Sequential Stream write.</brief>
+              <details>This function writes data from a buffer to a stream.</details>
+              <param name="bp" ctype="const uint8_t *">Pointer to the data buffer.</param>
+              <param name="n" ctype="size_t">The maximum amount of data to be transferred.</param>
+              <return><![CDATA[The number of bytes transferred. The returned
+                      value can be less than the specified number of bytes
+                      if an end-of-file condition has been met.]]></return>
+            </method>
+            <method name="streamRead" shortname="read" ctype="size_t">
+              <brief>Sequential Stream read.</brief>
+              <details>This function reads data from a stream into a buffer.</details>
+              <param name="bp" ctype="uint8_t *">Pointer to the data buffer.</param>
+              <param name="n" ctype="size_t">The maximum amount of data to be transferred.</param>
+              <return><![CDATA[The number of bytes transferred. The returned
+                      value can be less than the specified number of bytes
+                      if an end-of-file condition has been met.]]></return>
+            </method>
+            <method name="streamPut" shortname="put" ctype="msg_t">
+              <brief>Sequential Stream blocking byte write.</brief>
+              <details><![CDATA[This function writes a byte value to a channel.
+                If the channel is not ready to
+                accept data then the calling thread is suspended.]]></details>
+              <param name="b" ctype="uint8_t">The byte value to be written to the channel.</param>
+              <return>The operation status.</return>
+            </method>
+            <method name="streamGet" shortname="get" ctype="msg_t">
+              <brief>Sequential Stream blocking byte read.</brief>
+              <details><![CDATA[This function reads a byte value from a channel. If the data
+                       is not available then the calling thread is suspended.]]></details>
+              <return>A byte value from the queue.</return>
+            </method>
+          </virtual>
         </methods>
       </class>
     </classes>

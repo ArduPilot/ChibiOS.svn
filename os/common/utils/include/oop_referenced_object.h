@@ -20,9 +20,6 @@
  *
  * @addtogroup OOP_REFERENCED_OBJECT
  * @brief   Common ancestor class of all reference-counted objects.
- * @details Base class for objects that implement a reference counter and are
- *          disposed when the number of references reaches zero. This class
- *          extends @p base_object_c class.
  * @note    This is a generated file, do not edit directly.
  * @{
  */
@@ -200,7 +197,7 @@ static inline object_references_t __referenced_object_release_impl(void *ip) {
 /** @} */
 
 /**
- * @name    Abstract/Virtual methods of (referenced_object_c)
+ * @name    Virtual methods of (referenced_object_c)
  * @{
  */
 /**

@@ -45,22 +45,22 @@
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Module class test_interface_c                                             */
+/* Module class test_class_c                                                 */
 /*===========================================================================*/
 
 /**
- * @name    Regular methods of (test_interface_c)
+ * @name    Regular methods of (test_class_c)
  * @{
  */
 /**
  * @brief   Open method.
  * @details Long description.
  *
- * @param[in,out] ip            Pointer to a @p test_interface_c structure.
+ * @param[in,out] ip            Pointer to a @p test_class_c structure.
  * @return                      The operation status.
  */
 int testOpen(const void *ip) {
-  test_interface_c *self = (test_interface_c *)ip;
+  test_class_c *self = (test_class_c *)ip;
 
   /* some implementation */
 }
@@ -69,10 +69,10 @@ int testOpen(const void *ip) {
  * @brief   Close method.
  * @details Long description.
  *
- * @param[in,out] ip            Pointer to a @p test_interface_c structure.
+ * @param[in,out] ip            Pointer to a @p test_class_c structure.
  */
 void testClose(const void *ip) {
-  test_interface_c *self = (test_interface_c *)ip;
+  test_class_c *self = (test_class_c *)ip;
 
   /* some implementation */
 }
@@ -81,10 +81,10 @@ void testClose(const void *ip) {
 /**
  * @brief   Conditional method.
  *
- * @param[in,out] ip            Pointer to a @p test_interface_c structure.
+ * @param[in,out] ip            Pointer to a @p test_class_c structure.
  */
-void no-name(const void *ip) {
-  test_interface_c *self = (test_interface_c *)ip;
+void testConfigure(const void *ip) {
+  test_class_c *self = (test_class_c *)ip;
 
   /* some implementation */
 }

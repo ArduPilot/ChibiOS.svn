@@ -64,8 +64,8 @@
           </typedef>
         </types>
         <classes>
-          <class name="test_interface" namespace="test" ancestor="base_object" descr="test interface"
-            type="interface">
+          <class name="test_class" namespace="test" ancestor="base_object" descr="test class"
+            type="regular">
             <fields>
             </fields>
             <methods>
@@ -84,6 +84,12 @@
                   <brief>Low level driver start.</brief>
                   <return>The operation status.</return>
                 </method>
+                <condition check="TEST_CFG_OPTION2 == TRUE">
+                  <method name="testReinit" shortname="reinit" ctype="void">
+                    <brief>Conditional method.</brief>
+                    <implementation>/* some implementation */</implementation>
+                  </method>
+                </condition>
               </virtual>
               <regular>
                 <method name="testOpen" ctype="int">
@@ -98,7 +104,7 @@
                   <implementation><![CDATA[/* some implementation */]]></implementation>
                 </method>
                 <condition check="TEST_CFG_OPTION1 == TRUE">
-                  <method>
+                  <method name="testConfigure" >
                     <brief>Conditional method.</brief>
                     <implementation>/* some implementation */</implementation>
                   </method>

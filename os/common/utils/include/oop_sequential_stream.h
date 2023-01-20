@@ -20,9 +20,6 @@
  *
  * @addtogroup OOP_SEQUENTIAL_STREAM
  * @brief   Sequential data streams interface.
- * @details This module define an interface for generic sequential data
- *          streams.\n This class is meant to be implemented in classes
- *          requiring streaming capability.
  * @note    This class is compatible with legacy HAL @p BaseSequentialStream.
  * @note    This is a generated file, do not edit directly.
  * @{
@@ -158,7 +155,7 @@ static inline void __base_sequential_stream_dispose_impl(void *ip) {
 /** @} */
 
 /**
- * @name    Abstract/Virtual methods of (base_sequential_stream_c)
+ * @name    Virtual methods of (base_sequential_stream_c)
  * @{
  */
 /**
@@ -169,7 +166,7 @@ static inline void __base_sequential_stream_dispose_impl(void *ip) {
  *                              structure.
  * @param         bp            Pointer to the data buffer.
  * @param         n             The maximum amount of data to be transferred.
- * @return                      The number of bytes transferred. The return
+ * @return                      The number of bytes transferred. The returned
  *                              value can be less than the specified number of
  *                              bytes if an end-of-file condition has been met.
  */
@@ -188,7 +185,7 @@ static inline size_t streamWrite(void *ip, const uint8_t *bp, size_t n) {
  *                              structure.
  * @param         bp            Pointer to the data buffer.
  * @param         n             The maximum amount of data to be transferred.
- * @return                      The number of bytes transferred. The return
+ * @return                      The number of bytes transferred. The returned
  *                              value can be less than the specified number of
  *                              bytes if an end-of-file condition has been met.
  */

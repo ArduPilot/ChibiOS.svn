@@ -138,36 +138,12 @@
   </xs:simpleType>
   <xs:complexType name="methodsType">
     <xs:sequence>
-      <xs:element name="objinit" type="objinitMethodType"
-        maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="dispose" type="disposeMethodType"
-        maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:choice maxOccurs="unbounded" minOccurs="0">
-        <xs:element name="abstract" type="abstractMethodType"
-          maxOccurs="unbounded" minOccurs="0"></xs:element>
-        <xs:element name="virtual" type="virtualMethodType"
-          maxOccurs="unbounded" minOccurs="0"></xs:element>
-        <xs:element name="method" type="regularMethodType"
-          maxOccurs="unbounded" minOccurs="0"></xs:element>
-        <xs:element name="condition"
-          type="conditionalMethodsType" maxOccurs="unbounded"
-          minOccurs="0"></xs:element>
-      </xs:choice>
+      <xs:element name="objinit" type="objinitMethodType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="dispose" type="disposeMethodType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="abstract" type="abstractMethodsType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="virtual" type="virtualMethodsType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="regular" type="regularMethodsType" maxOccurs="1" minOccurs="0"></xs:element>
     </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="conditionalMethodsType">
-    <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="abstract" type="abstractMethodType"
-        maxOccurs="unbounded" minOccurs="1"></xs:element>
-      <xs:element name="virtual" type="virtualMethodType"
-        maxOccurs="unbounded" minOccurs="1"></xs:element>
-      <xs:element name="method" type="regularMethodType"
-        maxOccurs="unbounded" minOccurs="1"></xs:element>
-      <xs:element name="condition"
-        type="conditionalMethodsType" maxOccurs="unbounded"
-        minOccurs="1"></xs:element>
-    </xs:choice>
-    <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="functionType"></xs:complexType>
   <xs:complexType name="ParameterizedItemType">
@@ -207,7 +183,7 @@
       <xs:extension base="ParameterizedItemType">
         <xs:sequence>
           <xs:element name="implementation" type="xs:string"
-            maxOccurs="1" minOccurs="1"></xs:element>
+            maxOccurs="1" minOccurs="0"></xs:element>
         </xs:sequence>
         <xs:attribute name="ctype" type="xs:string"></xs:attribute>
         <xs:attribute name="shortname" type="xs:string"></xs:attribute>
@@ -362,6 +338,59 @@
     <xs:choice maxOccurs="unbounded" minOccurs="1">
       <xs:element name="field" type="fieldType" maxOccurs="unbounded" minOccurs="1"></xs:element>
       <xs:element name="condition" type="conditionalFieldType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+    </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="abstractMethodsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="method" type="abstractMethodType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalAbstractMethodsType" maxOccurs="unbounded"
+        minOccurs="1">
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="conditionalAbstractMethodsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="method" type="abstractMethodType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalAbstractMethodsType" maxOccurs="unbounded"
+        minOccurs="1">
+      </xs:element>
+    </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="virtualMethodsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="method" type="virtualMethodType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalVirtualMethodsType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="conditionalVirtualMethodsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="method" type="virtualMethodType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalVirtualMethodsType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+    </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="regularMethodsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="method" type="regularMethodType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalRegularMethodsType" maxOccurs="unbounded"
+        minOccurs="1">
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="conditionalRegularMethodsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="method" type="regularMethodType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalRegularMethodsType" maxOccurs="unbounded"
+        minOccurs="1">
+      </xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>

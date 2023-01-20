@@ -77,7 +77,7 @@
 [#--
   -- This macro generates a param tag description.
   --]
-[#macro EmitParam indent="" name="no-name" dir="boh" text=""]
+[#macro EmitParam indent="" name="no-name" dir="boh" text="no-text"]
   [#if text?trim?length == 0]
     [#local text="missing description" /]
   [/#if]
@@ -183,7 +183,8 @@
 [#--
   -- This macro generates a complete Doxygen documentation comment.
   --]
-[#macro EmitFullCommentFromNode indent="" node=[]]
+[#macro EmitFullCommentFromNode indent="" node=[]
+                                extraname="" extradir="" extratext=""]
   [#if node.brief[0]??]
 ${indent}/**
 [@doxygen.EmitBriefFromNode indent node /]
@@ -191,8 +192,11 @@ ${indent}/**
 [@doxygen.EmitPreFromNode indent node /]
 [@doxygen.EmitPostFromNode indent node /]
 [@doxygen.EmitNoteFromNode indent node /]
-    [#if node.param[0]?? || node.return[0]??]
+    [#if node.param[0]?? || node.return[0]?? || (extraname?length > 0)]
 ${indent} *
+  [#if extraname?length > 0]
+[@doxygen.EmitParam indent extraname extradir extratext /]
+  [/#if]
 [@doxygen.EmitParamFromNode indent node /]
 [@doxygen.EmitReturnFromNode indent node /]
     [/#if]

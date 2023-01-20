@@ -219,7 +219,7 @@ static inline void __test_interface_dispose_impl(void *ip) {
 /** @} */
 
 /**
- * @name    Abstract/Virtual methods of (test_interface_c)
+ * @name    Virtual methods of (test_interface_c)
  * @{
  */
 /**

@@ -75,25 +75,29 @@
               <dispose>
                 <implementation><![CDATA[ ]]></implementation>
               </dispose>
-              <abstract name="testStart" shortname="start" ctype="int">
-                <brief>Low level driver start.</brief>
-                <return>The operation status.</return>
-              </abstract>
-              <abstract name="testStop" shortname="stop" ctype="int">
-                <brief>Low level driver start.</brief>
-                <return>The operation status.</return>
-              </abstract>
-              <method name="testOpen" ctype="int">
-                <brief>Open method.</brief>
-                <details>Long description.</details>
-                <return>The operation status.</return>
-                <implementation><![CDATA[/* some implementation */]]></implementation>
-              </method>
-              <method name="testClose" ctype="void">
-                <brief>Close method.</brief>
-                <details>Long description.</details>
-                <implementation><![CDATA[/* some implementation */]]></implementation>
-              </method>
+              <virtual>
+                <method name="testStart" shortname="start" ctype="int">
+                  <brief>Low level driver start.</brief>
+                  <return>The operation status.</return>
+                </method>
+                <method name="testStop" shortname="stop" ctype="int">
+                  <brief>Low level driver start.</brief>
+                  <return>The operation status.</return>
+                </method>
+              </virtual>
+              <regular>
+                <method name="testOpen" ctype="int">
+                  <brief>Open method.</brief>
+                  <details>Long description.</details>
+                  <return>The operation status.</return>
+                  <implementation><![CDATA[/* some implementation */]]></implementation>
+                </method>
+                <method name="testClose" ctype="void">
+                  <brief>Close method.</brief>
+                  <details>Long description.</details>
+                  <implementation><![CDATA[/* some implementation */]]></implementation>
+                </method>
+              </regular>
             </methods>
           </class>
         </classes>

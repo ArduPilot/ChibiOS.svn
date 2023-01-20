@@ -128,11 +128,11 @@ typedef struct ${classname} ${classctype};
 [@doxygen.EmitBrief "" "@p " + classctype + " methods as a structure." /]
  */
 struct ${methodsstruct} {
-    [#list class.methods.* as method]
+    [#list class.methods.virtual.* as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method) /]
-      [#if (method?node_name == "abstract") || (method?node_name == "virtual")]
+      [#if method?node_name == "method"]
         [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
                           ccode.MakeProtoParamsSequence(["void *ip"] method)?join(", ") +
                           ");" /]
@@ -174,8 +174,7 @@ ${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
      and the container object.*/                                            \
 ${instance_string}
   [/#if]
-  [#if (class.methods.abstract?size > 0) ||
-       (class.methods.virtual?size > 0)]
+  [#if class.methods.virtual?size > 0]
 [@ccode.GenerateVariableDeclaration indent="  "
                                     name=classnamespace
                                     ctype="struct " + methodsstruct /]
@@ -296,7 +295,7 @@ static inline void __${classname}_dispose_impl(void *ip) {
   (void)self;
   [/#if]
 }
-  [#list class.methods.* as method]
+  [#list class.methods.virtual.* as method]
     [#local methodname     = GetMethodName(method)
             methodsname    = GetMethodShortName(method)
             methodretctype = GetMethodCType(method)
@@ -329,12 +328,12 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
-  -- This macro generates abstract/virtual methods as inline functions
+  -- This macro generates virtual methods as inline functions
   -- from an XML node.
   --]
-[#macro GenerateClassIndirectMethods node=[]]
+[#macro GenerateClassVirtualMethods node=[]]
   [#local class = node /]
-  [#if (class.methods.virtual?size > 0) || (class.methods.abstract?size > 0)]
+  [#if class.methods.virtual.*?size > 0]
     [#local classname        = GetClassName(class)
             classnamespace   = GetClassNamespace(class)
             classctype       = GetClassCType(class)
@@ -342,33 +341,24 @@ CC_FORCE_INLINE
             ancestorname     = GetClassAncestorName(class)
             ancestorfullname = GetClassAncestorCType(class) /]
 /**
- * @name    Abstract/Virtual methods of (${classctype})
+ * @name    Virtual methods of (${classctype})
  * @{
  */
     [#local first = true /]
-    [#list class.methods.* as method]
-      [#local methodname     = GetMethodName(method)
-              methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method)
-              methodimpl     = method.implementation[0]!""?trim /]
-      [#if (method?node_name == "abstract") ||
-           (method?node_name == "virtual")]
+    [#list class.methods.virtual.* as node]
+      [#if node?node_name == "method"]
+        [#local method = node /]
+        [#local methodname     = GetMethodName(method)
+                methodsname    = GetMethodShortName(method)
+                methodretctype = GetMethodCType(method)
+                methodimpl     = method.implementation[0]!""?trim /]
         [#if !first]
 
         [/#if]
         [#local first = false /]
-/**
-[@doxygen.EmitBriefFromNode node=method /]
-[@doxygen.EmitDetailsFromNode node=method /]
-[@doxygen.EmitPreFromNode node=method /]
-[@doxygen.EmitPostFromNode node=method /]
-[@doxygen.EmitNoteFromNode node=method /]
- *
-[@doxygen.EmitParam name="ip" dir="both"
-                    text="Pointer to a @p " + classctype + " structure." /]
-[@doxygen.EmitParamFromNode node=method /]
-[@doxygen.EmitReturnFromNode node=method /]
- */
+[@doxygen.EmitFullCommentFromNode indent="" node=method
+                                  extraname="ip" extradir="both"
+                                  extratext="Pointer to a @p " + classctype + " structure." /]
 CC_FORCE_INLINE
 [@ccode.GeneratePrototype modifiers = ["static", "inline"]
                           params    = ["void *ip"]
@@ -400,9 +390,9 @@ CC_FORCE_INLINE
           classdescr       = GetClassDescription(class)
           ancestorname     = GetClassAncestorName(class)
           ancestorfullname = GetClassAncestorCType(class) /]
-  [#if class.methods.method?size > 0]
+  [#if class.methods.regular.*?size > 0]
   /* Methods of ${classctype}.*/
-    [#list class.methods.method as method]
+    [#list class.methods.regular.method as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
@@ -425,28 +415,19 @@ CC_FORCE_INLINE
           classdescr       = GetClassDescription(class)
           ancestorname     = GetClassAncestorName(class)
           ancestorfullname = GetClassAncestorCType(class) /]
-  [#if class.methods.method?size > 0]
+  [#if class.methods.regular.*?size > 0]
 /**
  * @name    Regular methods of (${classctype})
  * @{
  */
-    [#list class.methods.method as method]
+    [#list class.methods.regular.method as method]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!""?trim /]
-/**
-[@doxygen.EmitBriefFromNode node=method /]
-[@doxygen.EmitDetailsFromNode node=method /]
-[@doxygen.EmitPreFromNode node=method /]
-[@doxygen.EmitPostFromNode node=method /]
-[@doxygen.EmitNoteFromNode node=method /]
- *
-[@doxygen.EmitParam name="ip" dir="both"
-                    text="Pointer to a @p " + classctype + " structure." /]
-[@doxygen.EmitParamFromNode node=method /]
-[@doxygen.EmitReturnFromNode node=method /]
- */
+[@doxygen.EmitFullCommentFromNode indent="" node=method
+                                  extraname="ip" extradir="both"
+                                  extratext="Pointer to a @p " + classctype + " structure." /]
 [@ccode.GeneratePrototype modifiers = []
                           params    = ["const void *ip"]
                           node=method /] {

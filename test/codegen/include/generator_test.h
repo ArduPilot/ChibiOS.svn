@@ -41,13 +41,9 @@
  * @{
  */
 #define TEST_DEF1                           0U
-
 #define TEST_DEF2                           1U
-
 #define TEST_DEF3                           2U
-
 #define TEST_DEF4                           3U
-
 #if (TEST_CFG_OPTION1) || defined (__DOXYGEN__)
 #define TEST_DEF5                           4U
 #endif /* TEST_CFG_OPTION1 */

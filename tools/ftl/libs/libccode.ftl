@@ -195,11 +195,18 @@ ${s}
 [#macro GenerateDefinesFromNode node=[]]
   [#list node.* as this]
     [#if this?node_name == "define"]
+      [#if this.brief[0]??]
 [@doxygen.EmitFullCommentFromNode "" this /]
 [@ccode.GenerateDefineFromNode this /]
-    [#if this?has_next || (node?node_name == "definitions")]
+        [#if this?has_next || (node?node_name == "definitions")]
 
-    [/#if]
+        [/#if]
+      [#else]
+[@ccode.GenerateDefineFromNode this /]
+        [#if node?node_name == "definitions"]
+
+        [/#if]
+      [/#if]
     [#elseif this?node_name == "group"]
       [#local groupdescription = this.@description[0]!"no-description"?trim /]
 /**

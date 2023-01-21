@@ -193,9 +193,14 @@ ${s}
   -- Generates all single line definitions from an XML node.
   --]
 [#macro GenerateDefinesFromNode node=[]]
-  [#local definitions = node /]
-  [#list definitions.* as this]
-    [#if this?node_name == "group"]
+  [#list node.* as this]
+    [#if this?node_name == "define"]
+[@doxygen.EmitFullCommentFromNode "" this /]
+[@ccode.GenerateDefineFromNode this /]
+    [#if this?has_next || (node?node_name == "definitions")]
+
+    [/#if]
+    [#elseif this?node_name == "group"]
       [#local groupdescription = this.@description[0]!"no-description"?trim /]
 /**
  * @name    ${groupdescription}
@@ -204,12 +209,11 @@ ${s}
 [@ccode.GenerateDefinesFromNode this /]
 /** @} */
 
-    [#elseif this?node_name == "define"]
-[@doxygen.EmitFullCommentFromNode "" this /]
-[@ccode.GenerateDefineFromNode this /]
-      [#if this?is_last && (this?parent?node_name != "group")]
-
-      [/#if]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = this.@check[0]!"1"?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateDefinesFromNode this /]
+#endif /* ${condcheck} */
     [/#if]
   [/#list]
 [/#macro]

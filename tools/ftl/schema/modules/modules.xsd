@@ -48,6 +48,7 @@
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="define" type="defineType" maxOccurs="unbounded" minOccurs="0"></xs:element>
       <xs:element name="group" type="groupType"></xs:element>
+      <xs:element name="condition" type="conditionalDefinitionsType"></xs:element>
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="macrosType">
@@ -195,10 +196,11 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:complexType name="groupType">
-    <xs:sequence>
-      <xs:element name="define" type="defineType"
-        maxOccurs="unbounded" minOccurs="0"></xs:element>
-    </xs:sequence>
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="define" type="defineType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="group" type="groupType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalDefinitionsType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+    </xs:choice>
     <xs:attribute name="description" type="xs:string"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="configType">
@@ -327,6 +329,17 @@
     <xs:choice maxOccurs="unbounded" minOccurs="1">
       <xs:element name="method" type="regularMethodType" maxOccurs="unbounded" minOccurs="1"></xs:element>
       <xs:element name="condition" type="conditionalRegularMethodsType" maxOccurs="unbounded"
+        minOccurs="1">
+      </xs:element>
+    </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="conditionalDefinitionsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="define" type="defineType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="group" type="groupType" maxOccurs="unbounded" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalDefinitionsType" maxOccurs="unbounded"
         minOccurs="1">
       </xs:element>
     </xs:choice>

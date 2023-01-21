@@ -18,7 +18,9 @@
             <define name="TEST_DEF2" value="1U" />
             <define name="TEST_DEF3" value="2U" />
             <define name="TEST_DEF4" value="3U" />
-            <define name="TEST_DEF5" value="4U" />
+            <condition check="TEST_CFG_OPTION1">
+              <define name="TEST_DEF5" value="4U" />
+            </condition>
           </group>
           <group description="Grouped defines with comments">
             <define name="TEST_DEF1_DOC" value="0U">

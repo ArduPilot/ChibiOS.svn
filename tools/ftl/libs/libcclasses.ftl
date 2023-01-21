@@ -331,34 +331,16 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
-  -- This macro generates virtual methods as inline functions
-  -- from an XML node.
+  -- This macro generates virtual methods from an XML node.
   --]
-[#macro GenerateClassVirtualMethods node=[]]
-  [#local class = node /]
-  [#if class.methods.virtual.*?size > 0]
-    [#local classname        = GetClassName(class)
-            classnamespace   = GetClassNamespace(class)
-            classctype       = GetClassCType(class)
-            classdescr       = GetClassDescription(class)
-            ancestorname     = GetClassAncestorName(class)
-            ancestorfullname = GetClassAncestorCType(class) /]
-/**
- * @name    Virtual methods of (${classctype})
- * @{
- */
-    [#local first = true /]
-    [#list class.methods.virtual.* as node]
-      [#if node?node_name == "method"]
-        [#local method = node /]
-        [#local methodname     = GetMethodName(method)
-                methodsname    = GetMethodShortName(method)
-                methodretctype = GetMethodCType(method)
-                methodimpl     = method.implementation[0]!""?trim /]
-        [#if !first]
-
-        [/#if]
-        [#local first = false /]
+[#macro GeneratVirtualMethods methods=[] classctype="void" classnamespace=""]
+  [#list methods.* as node]
+    [#if node?node_name == "method"]
+      [#local method = node /]
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = method.implementation[0]!""?trim /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
                                   extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + classctype + " structure." /]
@@ -376,42 +358,76 @@ CC_FORCE_INLINE
 [@ccode.GenerateFunctionCall "  " "return" callname callparams /]
         [/#if]
 }
-      [/#if]
-    [/#list]
+    [#elseif node?node_name == "condition"]
+      [#local condition = node /]
+      [#local condcheck = condition.@check[0]!"1"?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GeneratVirtualMethods condition classctype classnamespace /]
+#endif /* ${condcheck} */
+    [/#if]
+    [#if node?has_next]
+
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates virtual methods as inline functions
+  -- from an XML node.
+  --]
+[#macro GenerateClassVirtualMethods node=[]]
+  [#local class = node /]
+  [#if class.methods.virtual.*?size > 0]
+    [#local classnamespace = GetClassNamespace(class)
+            classctype     = GetClassCType(class) /]
+/**
+ * @name    Virtual methods of (${classctype})
+ * @{
+ */
+[@GeneratVirtualMethods class.methods.virtual classctype classnamespace /]
 /** @} */
 
   [/#if]
 [/#macro]
 
 [#--
-  -- This macro generates regular methods from an XML node.
+  -- This macro generates regular method prototypes from an XML node.
   --]
-[#macro GenerateClassRegularMethodsPrototypes node=[]]
-  [#local class = node /]
-  [#local classname        = GetClassName(class)
-          classctype       = GetClassCType(class)
-          classdescr       = GetClassDescription(class)
-          ancestorname     = GetClassAncestorName(class)
-          ancestorfullname = GetClassAncestorCType(class) /]
-  [#if class.methods.regular.*?size > 0]
-  /* Methods of ${classctype}.*/
-    [#list class.methods.regular.method as method]
+[#macro GenerateRegularMethodsPrototypes methods=[]]
+  [#list methods.* as node]
+    [#if node?node_name == "method"]
+      [#local method = node /]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method)
-              methodimpl     = method.implementation[0]!""?trim /]
+              methodretctype = GetMethodCType(method) /]
 [@ccode.GeneratePrototype indent    = "  "
                           modifiers = []
                           params    = ["const void *ip"]
                           node=method /];
-    [/#list]
+    [#elseif node?node_name == "condition"]
+      [#local condition = node /]
+      [#local condcheck = condition.@check[0]!"1"?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateRegularMethodsPrototypes condition /]
+#endif /* ${condcheck} */
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates regular method prototypes from a class XML node.
+  --]
+[#macro GenerateClassRegularMethodsPrototypes class=[]]
+  [#if class.methods.regular.*?size > 0]
+  /* Methods of ${GetClassCType(class)}.*/
+[@GenerateRegularMethodsPrototypes class.methods.regular /]
   [/#if]
 [/#macro]
 
 [#--
   -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateRegularMethods classctype="no-ctype" methods=[]]
+[#macro GenerateRegularMethods methods=[] classctype="void"]
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
@@ -433,7 +449,7 @@ CC_FORCE_INLINE
       [#local condition = node /]
       [#local condcheck = condition.@check[0]!"1"?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateRegularMethods classctype condition /]
+[@GenerateRegularMethods condition classctype /]
 #endif /* ${condcheck} */
     [/#if]
     [#if node?has_next]
@@ -446,17 +462,13 @@ CC_FORCE_INLINE
   -- This macro generates regular methods from a class XML node.
   --]
 [#macro GenerateClassRegularMethods class=[]]
-  [#local classname        = GetClassName(class)
-          classctype       = GetClassCType(class)
-          classdescr       = GetClassDescription(class)
-          ancestorname     = GetClassAncestorName(class)
-          ancestorfullname = GetClassAncestorCType(class) /]
   [#if class.methods.regular.*?size > 0]
+    [#local classctype = GetClassCType(class) /]
 /**
  * @name    Regular methods of (${classctype})
  * @{
  */
-[@GenerateRegularMethods classctype class.methods.regular /]
+[@GenerateRegularMethods class.methods.regular classctype /]
 /** @} */
 
   [/#if]

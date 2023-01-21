@@ -247,6 +247,20 @@ static inline int testStop(void *ip) {
 
   return self->vmt->test.stop(ip);
 }
+
+#if (TEST_CFG_OPTION2 == TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief   Conditional method.
+ *
+ * @param[in,out] ip            Pointer to a @p test_class_c structure.
+ */
+CC_FORCE_INLINE
+static inline void testReinit(void *ip) {
+  test_class_c *self = (test_class_c *)ip;
+
+   self->vmt->test.reinit(ip);
+}
+#endif /* TEST_CFG_OPTION2 == TRUE */
 /** @} */
 
 /*===========================================================================*/

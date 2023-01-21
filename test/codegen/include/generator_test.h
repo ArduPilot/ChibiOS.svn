@@ -140,7 +140,25 @@ typedef struct test_class test_class_c;
 struct test_class_methods {
   int (*start)(void *ip);
   int (*stop)(void *ip);
-  /* end methods */
+#if (TEST_CFG_OPTION2 == TRUE) || defined (__DOXYGEN__)
+  void (*reinit)(void *ip);
+#endif /* TEST_CFG_OPTION2 == TRUE */
+};
+
+/**
+ * @brief   @p test_class_c data as a structure.
+ */
+struct test_class_data {
+  /**
+   * @brief   A counter variable.
+   */
+  int                                       counter;
+#if (TEST_CFG_OPTION2 == TRUE) || defined (__DOXYGEN__)
+  /**
+   * @brief   An optional chickens variable.
+   */
+  unsigned int                              chickens;
+#endif /* TEST_CFG_OPTION2 == TRUE */
 };
 
 /**
@@ -155,7 +173,7 @@ struct test_class_methods {
  */
 #define __test_class_data                                                   \
   __base_object_data                                                        \
-  /* no data */
+  struct test_class_data                    test;
 
 /**
  * @brief   @p test_class_c virtual methods table.

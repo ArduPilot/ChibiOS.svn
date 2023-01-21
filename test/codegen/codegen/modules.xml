@@ -67,6 +67,14 @@
           <class name="test_class" namespace="test" ancestor="base_object" descr="test class"
             type="regular">
             <fields>
+              <field name="counter" ctype="int">
+                <brief>A counter variable.</brief>
+              </field>
+              <condition check="TEST_CFG_OPTION2 == TRUE">
+                <field name="chickens" ctype="unsigned int">
+                  <brief>An optional chickens variable.</brief>
+                </field>
+              </condition>
             </fields>
             <methods>
               <objinit>

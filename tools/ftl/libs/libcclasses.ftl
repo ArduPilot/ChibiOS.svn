@@ -107,6 +107,29 @@
 [/#function]
 
 [#--
+  -- This macro generates virtual methods pointers from an XML node.
+  --]
+[#macro GeneratVirtualMethodsPointers methods=[]]
+  [#list methods.* as node]
+    [#if node?node_name == "method"]
+      [#local method = node /]
+      [#local methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method) /]
+      [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
+                        ccode.MakeProtoParamsSequence(["void *ip"] method)?join(", ") +
+                        ");" /]
+${funcptr}
+    [#elseif node?node_name == "condition"]
+      [#local condition = node /]
+      [#local condcheck = condition.@check[0]!"1"?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GeneratVirtualMethodsPointers condition /]
+#endif /* ${condcheck} */
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassWrapper node=[]]
@@ -128,18 +151,7 @@ typedef struct ${classname} ${classctype};
 [@doxygen.EmitBrief "" "@p " + classctype + " methods as a structure." /]
  */
 struct ${methodsstruct} {
-    [#list class.methods.virtual.* as method]
-      [#local methodname     = GetMethodName(method)
-              methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method) /]
-      [#if method?node_name == "method"]
-        [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
-                          ccode.MakeProtoParamsSequence(["void *ip"] method)?join(", ") +
-                          ");" /]
-${funcptr}
-      [/#if]
-    [/#list]
-  /* end methods */
+[@GeneratVirtualMethodsPointers class.methods.virtual /]
 };
 
   [/#if]
@@ -149,13 +161,7 @@ ${funcptr}
 [@doxygen.EmitBrief "" "@p " + classctype + " data as a structure." /]
  */
 struct ${datastruct} {
-    [#list class.fields.field as field]
-      [#local fieldname  = field.@name[0]?trim
-              fieldctype = field.@ctype[0]?trim
-              fieldstring = ccode.MakeVariableDeclaration("  " fieldctype fieldname) /]
-[@doxygen.EmitFullCommentFromNode indent="  " node=field /]
-${fieldstring}
-    [/#list]
+[@ccode.GenerateStructureFields "  " class.fields /]
 };
 
   [/#if]
@@ -337,10 +343,8 @@ CC_FORCE_INLINE
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
-      [#local methodname     = GetMethodName(method)
-              methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method)
-              methodimpl     = method.implementation[0]!""?trim /]
+      [#local methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method) /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
                                   extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + classctype + " structure." /]

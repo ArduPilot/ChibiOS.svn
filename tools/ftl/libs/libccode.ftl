@@ -321,3 +321,25 @@ typedef ${basetypename} ${typename};
     [/#if]
   [/#list]
 [/#macro]
+
+[#--
+  -- This macro generates structure fields from an XML node.
+  --]
+[#macro GenerateStructureFields indent="" fields=[]]
+  [#list fields.* as node]
+    [#if node?node_name == "field"]
+      [#local field = node /]
+      [#local fieldname  = field.@name[0]!"no-name"?trim
+              fieldctype = field.@ctype[0]!"no-ctype"?trim
+              fieldstring = MakeVariableDeclaration("  " fieldname fieldctype) /]
+[@doxygen.EmitFullCommentFromNode indent="  " node=field /]
+${fieldstring}
+    [#elseif node?node_name == "condition"]
+      [#local condition = node /]
+      [#local condcheck = condition.@check[0]!"1"?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateStructureFields indent condition /]
+#endif /* ${condcheck} */
+    [/#if]
+  [/#list]
+[/#macro]

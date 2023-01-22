@@ -40,12 +40,13 @@
  * @name    Grouped defines without comments
  * @{
  */
-#define TEST_DEF1                           0U
-#define TEST_DEF2                           1U
-#define TEST_DEF3                           2U
-#define TEST_DEF4                           3U
+#define TEST_DEF(n)                         ((n) << 5)
+#define TEST_DEF1                           TEST_DEF(0U)
+#define TEST_DEF2                           TEST_DEF(1U)
+#define TEST_DEF3                           TEST_DEF(2U)
+#define TEST_DEF4                           TEST_DEF(3U)
 #if (TEST_CFG_OPTION1) || defined (__DOXYGEN__)
-#define TEST_DEF5                           4U
+#define TEST_DEF5                           TEST_DEF(4U)
 #endif /* TEST_CFG_OPTION1 */
 /** @} */
 

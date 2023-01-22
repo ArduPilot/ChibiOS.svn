@@ -47,8 +47,8 @@
   <xs:complexType name="definitionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="define" type="defineType" maxOccurs="unbounded" minOccurs="0"></xs:element>
-      <xs:element name="group" type="groupType"></xs:element>
-      <xs:element name="condition" type="conditionalDefinitionsType"></xs:element>
+      <xs:element name="group" type="groupType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      <xs:element name="condition" type="conditionalDefinitionsType" maxOccurs="unbounded" minOccurs="0"></xs:element>
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="macrosType">
@@ -190,7 +190,7 @@
   </xs:complexType>
   <xs:complexType name="defineType">
     <xs:complexContent>
-      <xs:extension base="DocumentedItem">
+      <xs:extension base="ParameterizedItemType">
         <xs:attribute name="value" type="xs:string"></xs:attribute>
       </xs:extension>
     </xs:complexContent>

@@ -14,12 +14,15 @@
         </inclusions>
         <definitions>
           <group description="Grouped defines without comments">
-            <define name="TEST_DEF1" value="0U" />
-            <define name="TEST_DEF2" value="1U" />
-            <define name="TEST_DEF3" value="2U" />
-            <define name="TEST_DEF4" value="3U" />
+            <define name="TEST_DEF" value="((n) &lt;&lt; 5)">
+              <param name="n" />
+            </define>
+            <define name="TEST_DEF1" value="TEST_DEF(0U)" />
+            <define name="TEST_DEF2" value="TEST_DEF(1U)" />
+            <define name="TEST_DEF3" value="TEST_DEF(2U)" />
+            <define name="TEST_DEF4" value="TEST_DEF(3U)" />
             <condition check="TEST_CFG_OPTION1">
-              <define name="TEST_DEF5" value="4U" />
+              <define name="TEST_DEF5" value="TEST_DEF(4U)" />
             </condition>
           </group>
           <group description="Grouped defines with comments">

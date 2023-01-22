@@ -50,8 +50,8 @@
  * @{
  */
  
- #ifndef ${basename?upper_case}_H
- #define ${basename?upper_case}_H
+#ifndef ${basename?upper_case}_H
+#define ${basename?upper_case}_H
 
   [#-- Generating inclusions.--]
   [#list module.public.inclusions.include as include]
@@ -80,6 +80,7 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
+[@ccode.GenerateConfigAssertsFromNode node=module.public.configs /]
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/

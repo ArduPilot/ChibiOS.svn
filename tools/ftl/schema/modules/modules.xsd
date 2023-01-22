@@ -206,6 +206,9 @@
   <xs:complexType name="configType">
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
+        <xs:sequence>
+          <xs:element name="assert" type="assertType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+        </xs:sequence>
         <xs:attribute name="default" type="xs:string"></xs:attribute>
       </xs:extension>
     </xs:complexContent>
@@ -344,5 +347,13 @@
       </xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="assertType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="invalid" type="xs:string"></xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 </xs:schema>

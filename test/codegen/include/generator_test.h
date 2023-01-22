@@ -26,8 +26,8 @@
  * @{
  */
  
- #ifndef GENERATOR_TEST_H
- #define GENERATOR_TEST_H
+#ifndef GENERATOR_TEST_H
+#define GENERATOR_TEST_H
 
 #include <stddef.h>
 #include "hal.h"
@@ -104,6 +104,16 @@
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
+
+/* Checks on TEST_CFG_OPTION1 configuration.*/
+#if (TEST_CFG_OPTION1 != FALSE) && (TEST_CFG_OPTION1 != TRUE)
+#error "invalid TEST_CFG_OPTION1 value"
+#endif
+
+/* Checks on TEST_CFG_OPTION2 configuration.*/
+#if (TEST_CFG_OPTION2 != FALSE) && (TEST_CFG_OPTION2 != TRUE)
+#error "custom message for TEST_CFG_OPTION2"
+#endif
 
 /*===========================================================================*/
 /* Module data structures and types.                                         */

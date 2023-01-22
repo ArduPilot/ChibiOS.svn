@@ -240,11 +240,11 @@ ${s}
 [/#macro]
 
 [#--
-  -- Generates all single line definitions from an XML node.
+  -- Generates all configurations from an XML node.
   --]
 [#macro GenerateConfigsFromNode node=[]]
   [#local configs = node /]
-    [#if configs.config[0]??]
+  [#if configs.config[0]??]
 /**
  * @name    Configuration options
  * @{
@@ -261,6 +261,32 @@ ${s}
 /** @} */
 
   [/#if]
+[/#macro]
+
+[#--
+  -- Generates all configuration checks from an XML node.
+  -- @note Processes the $N token in the check expression and message.
+  --]
+[#macro GenerateConfigAssertsFromNode node=[]]
+  [#local configs = node /]
+  [#list configs.config as config]
+    [#local name    = config.@name[0]!"no-name"?trim /]
+    [#if config.assert[0]??]
+/* Checks on ${name} configuration.*/
+      [#list config.assert as assert]
+        [#local invalid = (assert.@invalid[0]!"TRUE")?replace("$N", name)
+                message = assert[0]?trim?replace("$N", name) /]
+#if ${invalid}
+        [#if message?length > 0]
+#error "${message}"
+        [#else]
+#error "invalid ${name} value"
+        [/#if]
+#endif
+
+      [/#list]
+    [/#if]
+  [/#list]
 [/#macro]
 
 [#--

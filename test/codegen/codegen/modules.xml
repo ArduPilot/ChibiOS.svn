@@ -43,10 +43,12 @@
           <config name="TEST_CFG_OPTION1" default="TRUE">
             <brief>This is a comment.</brief>
             <details>This is a longer comment.</details>
+            <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
           </config>
           <config name="TEST_CFG_OPTION2" default="FALSE">
             <brief>This is a comment.</brief>
             <note>This is a note.</note>
+            <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)">custom message for $N</assert>
           </config>
         </configs>
         <macros>

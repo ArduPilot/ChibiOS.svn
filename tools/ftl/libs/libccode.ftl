@@ -19,6 +19,11 @@
   --]
 
 <#--
+  -- Global flag for generated code.
+  -->
+[#assign generated = false /]
+
+<#--
   -- Coding style global settings.
   -->
 [#assign indentation = "  " /]

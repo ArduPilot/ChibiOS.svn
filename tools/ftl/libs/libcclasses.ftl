@@ -18,6 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   --]
 
+<#--
+  -- Global flag for generated code.
+  -->
+[#assign generated = false /]
+
 [#assign class_suffix = "_c" /]
 
 [#--
@@ -468,6 +473,7 @@ CC_FORCE_INLINE
 [#macro GenerateClassRegularMethods class=[]]
   [#if class.methods.regular.*?size > 0]
     [#local classctype = GetClassCType(class) /]
+    [#assign generated = true /]
 /**
  * @name    Regular methods of (${classctype})
  * @{

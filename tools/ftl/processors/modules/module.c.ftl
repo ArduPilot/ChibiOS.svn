@@ -29,7 +29,7 @@
 [#assign instance = xml.instance /]
 [#-- Scanning all files to be generated.--]
 [#list instance.modules.module as module]
-  [#-- Generating the header file.--]
+  [#-- Generating the source file.--]
   [#assign basename   = module.@name[0]?trim /]
   [#assign headername = basename + ".h" /]
   [#assign sourcename = basename + ".c" /]
@@ -85,4 +85,7 @@
 /*===========================================================================*/
 
 /** @} */
+  [#if (ccode.generated == false) && (cclasses.generated == false)]
+    [@pp.dropOutputFile /]
+  [/#if]
 [/#list]

@@ -11,7 +11,7 @@
     <xs:attribute name="name">
       <xs:simpleType>
         <xs:restriction base="xs:string">
-          <xs:pattern value="\w[\w\d_]*"></xs:pattern>
+          <xs:pattern value="[_\w][\w\d_]*"></xs:pattern>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

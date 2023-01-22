@@ -5,8 +5,7 @@
     <module name="hal_base_driver_test">
       <brief>Common driver base abstract class.</brief>
       <details>This abstract class is the common ancestor of all HAL
-        stateful HAL drivers.
-      </details>
+        stateful HAL drivers.</details>
       <note>This is a generated file, do not edit directly.</note>
       <public>
         <inclusions>
@@ -24,95 +23,103 @@
         <configs>
           <config name="HAL_USE_MUTUAL_EXCLUSION" default="TRUE">
             <brief>Enables the mutual exclusion APIs on driver
-              instances.</brief>
-            <note>Disabling this option saves both code and data space.
-            </note>
+              instances.
+            </brief>
+            <note>Disabling this option saves both code and data space.</note>
           </config>
           <config name="HAL_USE_REGISTRY" default="FALSE">
             <brief>Enables the HAL registry for drivers.</brief>
-            <note>Disabling this option saves both code and data space.
-            </note>
+            <note>Disabling this option saves both code and data space.</note>
           </config>
         </configs>
         <macros>
         </macros>
-        <typedefs>
+        <types>
           <typedef name="driver_state_t">
             <brief>Type of a driver state variable.</brief>
-            <reftype ctype="unsigned int" />
+            <basetype ctype="unsigned int" />
           </typedef>
-        </typedefs>
+        </types>
         <classes>
-          <class name="base_driver" ancestor="base_object"
-            descr="base driver" type="abstract">
+          <class name="base_driver" namespace="drv" ancestor="base_object" descr="base driver"
+            type="abstract">
             <brief>
             </brief>
             <fields>
               <field name="state" ctype="driver_state_t" />
               <field name="opencnt" ctype="unsigned int" />
               <field name="owner" ctype="void$I*" />
-              <field name="mutex" ctype="mutex_t" />
+              <condition check="HAL_USE_MUTUAL_EXCLUSION == TRUE">
+                <field name="mutex" ctype="mutex_t" />
+              </condition>
             </fields>
             <methods>
               <objinit>
-                <implementation><![CDATA[ ]]></implementation>
+                <implementation><![CDATA[
+self->drv.state   = HAL_DRV_STATE_STOP;
+self->drv.opencnt = 0U;
+self->drv.owner   = NULL;
+osalMutexObjectInit(&self->drv.mutex);
+#if HAL_USE_REGISTRY == TRUE
+self->drv.id      = 0U;
+#endif]]></implementation>
               </objinit>
               <dispose>
                 <implementation><![CDATA[ ]]></implementation>
               </dispose>
-              <abstract name="__drv_start_protected"
-                shortname="start" ctype="msg_t">
-                <brief>Low level driver start.</brief>
-                <return>The operation status.</return>
-              </abstract>
-              <abstract name="__drv_stop_protected"
-                shortname="stop" ctype="void">
-                <brief>Low level driver stop.</brief>
-              </abstract>
-              <abstract name="drvConfigureX" shortname="configure"
-                ctype="msg_t">
-                <brief>Driver configure.</brief>
-                <details>
-                  Applies a new configuration to the driver. The configuration
-                  structure is architecture-dependent.
-                </details>
-                <note>
-                  Applying a configuration should be done while the peripheral
-                  is not actively operating, this function can fail depending
-                  on the driver implementation and current state.
-                </note>
-              </abstract>
-              <abstract name="drvGetInterfaceX" shortname="getif"
-                ctype="const void *">
-                <brief>Driver interface get.</brief>
-                <return>The driver interface or @p NULL if none.
-                </return>
-              </abstract>
-              <method name="drvOpen" shortname="open"
-                ctype="msg_t">
-                <brief>Driver open.</brief>
-                <details>
-                  Returns a reference to the driver, on the 1st open the peripheral
-                  is physically initialized. An implementation-dependent default
-                  configuration is used for initialization.
-                </details>
-                <return>The operation status.</return>
-                <implementation><![CDATA[
+              <virtual>
+                <method name="__drv_start_protected" shortname="start" ctype="msg_t">
+                  <brief>Low level driver start.</brief>
+                  <return>The operation status.</return>
+                </method>
+                <method name="__drv_stop_protected" shortname="stop" ctype="void">
+                  <brief>Low level driver stop.</brief>
+                </method>
+                <method name="drvConfigureX" shortname="configure" ctype="msg_t">
+                  <brief>Driver configure.</brief>
+                  <details>Applies a new configuration to the driver. The configuration
+                    structure is
+                    architecture-dependent.
+                  </details>
+                  <note>Applying a configuration should be done while the peripheral
+                    is not actively
+                    operating, this function can fail depending
+                    on the driver implementation and
+                    current state.
+                  </note>
+                </method>
+                <method name="drvGetInterfaceX" shortname="getif" ctype="const void *">
+                  <brief>Driver interface get.</brief>
+                  <return>The driver interface or @p NULL if none.
+                  </return>
+                </method>
+              </virtual>
+              <regular>
+                <method name="drvOpen" ctype="msg_t">
+                  <brief>Driver open.</brief>
+                  <details>Returns a reference to the driver, on the 1st open the peripheral
+                    is
+                    physically initialized. An implementation-dependent default
+                    configuration is used
+                    for initialization.
+                  </details>
+                  <return>The operation status.</return>
+                  <implementation><![CDATA[
 msg_t msg;
 
 osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-if (self->opencnt == 0U) {
+if (self->drv.opencnt == 0U) {
   /* Physically starting the peripheral.*/
-  msg = __drv_protected_start(self);
+  msg = __drv_start_protected(self);
   if (msg == HAL_RET_SUCCESS) {
-    self->opencnt++;
-    self->state = HAL_DRV_STATE_READY;
+    self->drv.opencnt++;
+    self->drv.state = HAL_DRV_STATE_READY;
   }
   else {
-    self->state = HAL_DRV_STATE_STOP;
+    self->drv.state = HAL_DRV_STATE_STOP;
   }
 }
 else {
@@ -122,70 +129,79 @@ else {
 osalSysUnlock();
 
 return msg;]]></implementation>
-              </method>
-              <method name="drvClose" shortname="close"
-                ctype="void">
-                <brief>Driver close.</brief>
-                <details>
-                  Releases a reference to the driver, when the count reaches zero
-                  then the peripheral is physically uninitialized.
-                </details>
-                <implementation><![CDATA[
+                </method>
+                <method name="drvClose" ctype="void">
+                  <brief>Driver close.</brief>
+                  <details>Releases a reference to the driver, when the count reaches zero
+                    then the
+                    peripheral is physically uninitialized.
+                  </details>
+                  <implementation><![CDATA[
 osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-osalDbgAssert(self->opencnt > 0U, "not opened");
+osalDbgAssert(self->drv.opencnt > 0U, "not opened");
 
-if (--self->opencnt == 0U) {
-  self->state = HAL_DRV_STATE_STOP;
-  self->vmt->stop(self);
+if (--self->drv.opencnt == 0U) {
+  self->drv.state = HAL_DRV_STATE_STOP;
+  __drv_stop_protected(self);
 }
 
 osalSysUnlock();]]></implementation>
-              </method>
-              <method name="drvGetStateX" ctype="driver_state_t">
-                <brief>Driver state get.</brief>
-                <return>The driver state.</return>
-                <implementation><![CDATA[return self->state;]]></implementation>
-              </method>
-              <method name="drvSetStateX" ctype="void">
-                <brief>Driver state set.</brief>
-                <param ctype="driver_state_t" name="state">New driver
+                </method>
+                <method name="drvGetStateX" ctype="driver_state_t">
+                  <brief>Driver state get.</brief>
+                  <return>The driver state.</return>
+                  <implementation><![CDATA[return self->drv.state;]]></implementation>
+                </method>
+                <method name="drvSetStateX" ctype="void">
+                  <brief>Driver state set.</brief>
+                  <param ctype="driver_state_t" name="state">New driver
                   state.</param>
-                <implementation><![CDATA[self->state = state;]]></implementation>
-              </method>
-              <method name="drvGetOwnerX" ctype="void *">
-                <brief>Driver owner get.</brief>
-                <return>The driver owner.</return>
-                <implementation><![CDATA[return self->owner;]]></implementation>
-              </method>
-              <method name="drvSetStateX" ctype="void">
-                <brief>Driver owner set.</brief>
-                <param ctype="void *" name="state">New driver owner.
+                  <implementation><![CDATA[self->drv.state = state;]]></implementation>
+                </method>
+                <method name="drvGetOwnerX" ctype="void *">
+                  <brief>Driver owner get.</brief>
+                  <return>The driver owner.</return>
+                  <implementation><![CDATA[return self->drv.owner;]]></implementation>
+                </method>
+                <method name="drvSetStateX" ctype="void">
+                  <brief>Driver owner set.</brief>
+                  <param ctype="void *" name="state">New driver owner.
                 </param>
-                <implementation><![CDATA[self->owner = owner;]]></implementation>
-              </method>
-              <method name="drvLock" ctype="void">
-                <brief>Driver lock.</brief>
-                <implementation><![CDATA[osalMutexLock(&self->mutex);]]></implementation>
-              </method>
-              <method name="drvUnlock" ctype="void">
-                <brief>Driver unlock.</brief>
-                <implementation><![CDATA[osalMutexUnlock(&self->mutex);]]></implementation>
-              </method>
+                  <implementation><![CDATA[self->drv.owner = owner;]]></implementation>
+                </method>
+                <condition check="HAL_USE_MUTUAL_EXCLUSION == TRUE">
+                  <method name="drvLock" ctype="void">
+                    <brief>Driver lock.</brief>
+                    <implementation><![CDATA[osalMutexLock(&self->drv.mutex);]]></implementation>
+                  </method>
+                  <method name="drvUnlock" ctype="void">
+                    <brief>Driver unlock.</brief>
+                    <implementation><![CDATA[osalMutexUnlock(&self->drv.mutex);]]></implementation>
+                  </method>
+                </condition>
+              </regular>
             </methods>
           </class>
         </classes>
+        <variables>
+        </variables>
         <functions>
         </functions>
       </public>
       <private>
+        <inclusions>
+        </inclusions>
         <definitions>
-          <members group="Common driver states">
-            <define name="HAL_DRV_STATE_UNINIT" value="0U" />
-          </members>
         </definitions>
+        <types>
+        </types>
+        <variables>
+        </variables>
+        <functions>
+        </functions>
       </private>
     </module>
   </modules>

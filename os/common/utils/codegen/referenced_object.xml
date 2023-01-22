@@ -8,12 +8,6 @@
     <inclusions>
       <include style="regular">oop_base_object.h</include>
     </inclusions>
-    <definitions>
-    </definitions>
-    <configs>
-    </configs>
-    <macros>
-    </macros>
     <types>
       <typedef name="object_references_t">
         <brief>Type of a references counter.</brief>
@@ -70,21 +64,7 @@ return self->references;]]></implementation>
         </methods>
       </class>
     </classes>
-    <variables>
-    </variables>
-    <functions>
-    </functions>
   </public>
   <private>
-    <inclusions>
-    </inclusions>
-    <definitions>
-    </definitions>
-    <types>
-    </types>
-    <variables>
-    </variables>
-    <functions>
-    </functions>
   </private>
 </module>

@@ -27,8 +27,8 @@
  * @{
  */
  
- #ifndef OOP_BASE_OBJECT_H
- #define OOP_BASE_OBJECT_H
+#ifndef OOP_BASE_OBJECT_H
+#define OOP_BASE_OBJECT_H
 
 #include "osal.h"
 

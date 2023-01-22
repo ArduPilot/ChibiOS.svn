@@ -24,10 +24,6 @@
     <inclusions>
       <include style="regular">osal.h</include>
     </inclusions>
-    <definitions>
-    </definitions>
-    <configs>
-    </configs>
     <macros>
       <macro name="oopGetInstance">
         <brief>Returns the object instance pointer starting from an
@@ -53,8 +49,6 @@
         </implementation>
       </macro>
     </macros>
-    <types>
-    </types>
     <classes>
       <class name="base_object" namespace="bo" ancestor="" descr="base object" type="abstract">
         <brief>
@@ -71,21 +65,7 @@
         </methods>
       </class>
     </classes>
-    <variables>
-    </variables>
-    <functions>
-    </functions>
   </public>
   <private>
-    <inclusions>
-    </inclusions>
-    <definitions>
-    </definitions>
-    <types>
-    </types>
-    <variables>
-    </variables>
-    <functions>
-    </functions>
   </private>
 </module>

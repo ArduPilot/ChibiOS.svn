@@ -24,8 +24,8 @@
  * @{
  */
  
- #ifndef OOP_REFERENCED_OBJECT_H
- #define OOP_REFERENCED_OBJECT_H
+#ifndef OOP_REFERENCED_OBJECT_H
+#define OOP_REFERENCED_OBJECT_H
 
 #include "oop_base_object.h"
 
@@ -69,7 +69,6 @@ typedef struct referenced_object referenced_object_c;
 struct referenced_object_methods {
   void * (*addref)(void *ip);
   object_references_t (*release)(void *ip);
-  /* end methods */
 };
 
 /**
@@ -79,7 +78,7 @@ struct referenced_object_data {
   /**
    * @brief   Number of references to the object.
    */
-  references                                object_references_t;
+  object_references_t                       references;
 };
 
 /**

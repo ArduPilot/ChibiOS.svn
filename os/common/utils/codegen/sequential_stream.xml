@@ -9,19 +9,13 @@
     <inclusions>
       <include style="regular">oop_base_object.h</include>
     </inclusions>
-    <definitions>
+    <definitions_early>
       <group description="Streams return codes">
         <define name="STM_OK" value="MSG_OK" />
         <define name="STM_TIMEOUT" value="MSG_TIMEOUT" />
         <define name="STM_RESET" value="MSG_RESET" />
       </group>
-    </definitions>
-    <configs>
-    </configs>
-    <macros>
-    </macros>
-    <types>
-    </types>
+    </definitions_early>
     <classes>
       <class name="base_sequential_stream" namespace="bss" ancestor="base_object"
         descr="base sequential stream interface" type="interface">
@@ -76,22 +70,7 @@
         </methods>
       </class>
     </classes>
-    <variables>
-    </variables>
-    <functions>
-    </functions>
   </public>
   <private>
-    <inclusions>
-      <include style="regular">oop_sequential_stream.h</include>
-    </inclusions>
-    <definitions>
-    </definitions>
-    <types>
-    </types>
-    <variables>
-    </variables>
-    <functions>
-    </functions>
   </private>
 </module>

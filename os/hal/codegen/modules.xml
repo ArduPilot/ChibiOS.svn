@@ -2,7 +2,7 @@
 <instance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd">
   <modules>
-    <module name="hal_base_driver_test">
+    <module name="hal_base_driver">
       <brief>Common driver base abstract class.</brief>
       <details>This abstract class is the common ancestor of all HAL
         stateful HAL drivers.</details>
@@ -11,7 +11,7 @@
         <inclusions>
           <include style="regular">hal.h</include>
         </inclusions>
-        <definitions>
+        <definitions_early>
           <group description="Common driver states">
             <define name="HAL_DRV_STATE_UNINIT" value="0U" />
             <define name="HAL_DRV_STATE_STOP" value="1U" />
@@ -19,17 +19,19 @@
             <define name="HAL_DRV_STATE_ACTIVE" value="3U" />
             <define name="HAL_DRV_STATE_ERROR" value="4U" />
           </group>
-        </definitions>
+        </definitions_early>
         <configs>
           <config name="HAL_USE_MUTUAL_EXCLUSION" default="TRUE">
             <brief>Enables the mutual exclusion APIs on driver
               instances.
             </brief>
             <note>Disabling this option saves both code and data space.</note>
+            <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
           </config>
           <config name="HAL_USE_REGISTRY" default="FALSE">
             <brief>Enables the HAL registry for drivers.</brief>
             <note>Disabling this option saves both code and data space.</note>
+            <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
           </config>
         </configs>
         <macros>
@@ -166,7 +168,7 @@ osalSysUnlock();]]></implementation>
                   <return>The driver owner.</return>
                   <implementation><![CDATA[return self->drv.owner;]]></implementation>
                 </method>
-                <method name="drvSetStateX" ctype="void">
+                <method name="drvSetOwnerX" ctype="void">
                   <brief>Driver owner set.</brief>
                   <param ctype="void *" name="state">New driver owner.
                 </param>
@@ -186,22 +188,8 @@ osalSysUnlock();]]></implementation>
             </methods>
           </class>
         </classes>
-        <variables>
-        </variables>
-        <functions>
-        </functions>
       </public>
       <private>
-        <inclusions>
-        </inclusions>
-        <definitions>
-        </definitions>
-        <types>
-        </types>
-        <variables>
-        </variables>
-        <functions>
-        </functions>
       </private>
     </module>
   </modules>

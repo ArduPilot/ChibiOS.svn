@@ -25,8 +25,8 @@
  * @{
  */
  
- #ifndef OOP_SEQUENTIAL_STREAM_H
- #define OOP_SEQUENTIAL_STREAM_H
+#ifndef OOP_SEQUENTIAL_STREAM_H
+#define OOP_SEQUENTIAL_STREAM_H
 
 #include "oop_base_object.h"
 
@@ -76,7 +76,6 @@ struct base_sequential_stream_methods {
   size_t (*read)(void *ip, uint8_t *bp, size_t n);
   msg_t (*put)(void *ip, uint8_t b);
   msg_t (*get)(void *ip);
-  /* end methods */
 };
 
 /**

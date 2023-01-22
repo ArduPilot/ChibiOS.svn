@@ -45,9 +45,10 @@
 #define TEST_DEF2                           TEST_DEF(1U)
 #define TEST_DEF3                           TEST_DEF(2U)
 #define TEST_DEF4                           TEST_DEF(3U)
-#if (TEST_CFG_OPTION1) || defined (__DOXYGEN__)
+#if (defined(EXTRA_DEFINITIONS)) || defined (__DOXYGEN__)
 #define TEST_DEF5                           TEST_DEF(4U)
-#endif /* TEST_CFG_OPTION1 */
+#define TEST_DEF6                           TEST_DEF(5U)
+#endif /* defined(EXTRA_DEFINITIONS) */
 /** @} */
 
 /**
@@ -115,6 +116,20 @@
 #if (TEST_CFG_OPTION2 != FALSE) && (TEST_CFG_OPTION2 != TRUE)
 #error "custom message for TEST_CFG_OPTION2"
 #endif
+
+#if (TEST_CFG_OPTION1 = TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief   Option 1 is enabled.
+ */
+#define TEST_COND_DEF                       1U
+#endif /* TEST_CFG_OPTION1 = TRUE */
+
+#if (TEST_CFG_OPTION1 = FALSE) || defined (__DOXYGEN__)
+/**
+ * @brief   Option 1 is disabled.
+ */
+#define TEST_COND_DEF                       2U
+#endif /* TEST_CFG_OPTION1 = FALSE */
 
 /*===========================================================================*/
 /* Module data structures and types.                                         */

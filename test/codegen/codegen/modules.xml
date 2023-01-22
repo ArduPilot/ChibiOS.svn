@@ -12,7 +12,7 @@
           <include style="angular">stddef.h</include>
           <include style="regular">hal.h</include>
         </inclusions>
-        <definitions>
+        <definitions_early>
           <group description="Grouped defines without comments">
             <define name="TEST_DEF" value="((n) &lt;&lt; 5)">
               <param name="n" />
@@ -21,8 +21,9 @@
             <define name="TEST_DEF2" value="TEST_DEF(1U)" />
             <define name="TEST_DEF3" value="TEST_DEF(2U)" />
             <define name="TEST_DEF4" value="TEST_DEF(3U)" />
-            <condition check="TEST_CFG_OPTION1">
+            <condition check="defined(EXTRA_DEFINITIONS)">
               <define name="TEST_DEF5" value="TEST_DEF(4U)" />
+              <define name="TEST_DEF6" value="TEST_DEF(5U)" />
             </condition>
           </group>
           <group description="Grouped defines with comments">
@@ -41,7 +42,7 @@
           <define name="TEST_DEF2_NOGROUP" value="1U">
             <brief>This is a comment.</brief>
           </define>
-        </definitions>
+        </definitions_early>
         <configs>
           <config name="TEST_CFG_OPTION1" default="TRUE">
             <brief>This is a comment.</brief>
@@ -54,6 +55,18 @@
             <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)">custom message for $N</assert>
           </config>
         </configs>
+        <definitions_late>
+          <condition check="TEST_CFG_OPTION1 = TRUE">
+            <define name="TEST_COND_DEF" value="1U">
+              <brief>Option 1 is enabled.</brief>
+            </define>
+          </condition>
+          <condition check="TEST_CFG_OPTION1 = FALSE">
+            <define name="TEST_COND_DEF" value="2U">
+              <brief>Option 1 is disabled.</brief>
+            </define>
+          </condition>
+        </definitions_late>
         <macros>
           <macro name="test_macro1">
             <brief>Test macro.</brief>
@@ -128,22 +141,10 @@
             </methods>
           </class>
         </classes>
-        <variables>
-        </variables>
-        <functions>
-        </functions>
       </public>
       <private>
         <inclusions>
         </inclusions>
-        <definitions>
-        </definitions>
-        <types>
-        </types>
-        <variables>
-        </variables>
-        <functions>
-        </functions>
       </private>
     </module>
   </modules>

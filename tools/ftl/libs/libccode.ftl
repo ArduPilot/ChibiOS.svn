@@ -202,12 +202,12 @@ ${s}
       [#if this.brief[0]??]
 [@doxygen.EmitFullCommentFromNode "" this /]
 [@ccode.GenerateDefineFromNode this /]
-        [#if this?has_next || (node?node_name == "definitions")]
+        [#if this?has_next || node?node_name?starts_with("definitions")]
 
         [/#if]
       [#else]
 [@ccode.GenerateDefineFromNode this /]
-        [#if node?node_name == "definitions"]
+        [#if node?node_name?starts_with("definitions")]
 
         [/#if]
       [/#if]
@@ -219,12 +219,17 @@ ${s}
  */
 [@ccode.GenerateDefinesFromNode this /]
 /** @} */
+      [#if (node?node_name != "group") && (node?node_name != "condition")]
 
+      [/#if]
     [#elseif this?node_name == "condition"]
       [#local condcheck = this.@check[0]!"1"?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateDefinesFromNode this /]
 #endif /* ${condcheck} */
+      [#if (node?node_name != "group") && (node?node_name != "condition")]
+
+      [/#if]
     [/#if]
   [/#list]
 [/#macro]

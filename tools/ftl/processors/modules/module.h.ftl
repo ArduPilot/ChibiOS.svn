@@ -70,7 +70,7 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-[@ccode.GenerateDefinesFromNode node=module.public.definitions /]
+[@ccode.GenerateDefinesFromNode node=module.public.definitions_early /]
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -81,6 +81,7 @@
 /*===========================================================================*/
 
 [@ccode.GenerateConfigAssertsFromNode node=module.public.configs /]
+[@ccode.GenerateDefinesFromNode node=module.public.definitions_late /]
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/

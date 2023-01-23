@@ -379,13 +379,14 @@ typedef ${basetypename} ${typename};
   -- Generates all type definitions from an XML node.
   --]
 [#macro GenerateTypedefsFromNode indent="" node=[]]
-  [#local types = node /]
-  [#list types.* as type]
-    [#if type?node_name == "typedef"]
-[@doxygen.EmitFullCommentFromNode indent type /]
-[@ccode.GenerateTypedefFromNode node=type /]
-    [/#if]
-    [#if type?is_last]
+  [#list node.* as this]
+    [#if this?node_name == "typedef"]
+[@doxygen.EmitFullCommentFromNode indent this /]
+[@ccode.GenerateTypedefFromNode node=this /]
+
+    [#elseif this?node_name == "verbatim"]
+      [#local ccode = this[0]!""?trim /]
+[@EmitIndentedCCode indent ccode /]
 
     [/#if]
   [/#list]
@@ -409,6 +410,9 @@ ${fieldstring}
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateStructureFields indent condition /]
 #endif /* ${condcheck} */
+    [#elseif node?node_name == "verbatim"]
+      [#local ccode = node[0]!""?trim /]
+[@EmitIndentedCCode indent ccode /]
     [/#if]
   [/#list]
 [/#macro]

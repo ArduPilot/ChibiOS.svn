@@ -140,6 +140,9 @@
  */
 typedef unsigned int test_state_t;
 
+/* Low level driver inclusion.*/
+#include "test_lld.h"
+
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
@@ -189,6 +192,8 @@ struct test_class_data {
    */
   unsigned int                              chickens;
 #endif /* TEST_CFG_OPTION2 == TRUE */
+  /* Fields from the LLD.*/
+  __test_lld_struct;
 };
 
 /**

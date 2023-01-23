@@ -66,6 +66,7 @@
         <xs:element name="typedef" type="typedefType" maxOccurs="unbounded" minOccurs="0"></xs:element>
         <xs:element name="struct" type="structType" maxOccurs="unbounded" minOccurs="0"></xs:element>
         <xs:element name="union" type="unionType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+        <xs:element name="verbatim" type="xs:string" maxOccurs="unbounded" minOccurs="0"></xs:element>
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
@@ -109,8 +110,8 @@
   <xs:complexType name="fieldsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="field" type="fieldType" maxOccurs="unbounded" minOccurs="0"></xs:element>
-            <xs:element name="verbatim" type="xs:string" maxOccurs="unbounded" minOccurs="0"></xs:element>
-            <xs:element name="condition" type="conditionalFieldType" maxOccurs="unbounded"
+      <xs:element name="verbatim" type="xs:string" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      <xs:element name="condition" type="conditionalFieldType" maxOccurs="unbounded"
         minOccurs="0">
       </xs:element>
     </xs:choice>
@@ -308,8 +309,8 @@
   <xs:complexType name="conditionalFieldType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
       <xs:element name="field" type="fieldType" maxOccurs="unbounded" minOccurs="1"></xs:element>
-            <xs:element name="verbatim" type="xs:string"></xs:element>
-            <xs:element name="condition" type="conditionalFieldType" maxOccurs="unbounded"
+      <xs:element name="verbatim" type="xs:string"></xs:element>
+      <xs:element name="condition" type="conditionalFieldType" maxOccurs="unbounded"
         minOccurs="1">
       </xs:element>
     </xs:choice>

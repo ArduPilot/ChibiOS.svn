@@ -47,9 +47,9 @@
  * @addtogroup ${docgroup}
  * @{
  */
- 
-[#-- Generating inclusions.--]
-  [#if module.private.inclusions[0]??]
+
+  [#-- Generating inclusions.--]
+  [#if (module.private.inclusions[0].inclusion[0])??]
 [@ccode.GenerateInclusionsFromNode module.private.inclusions /]
   [#else]
 #include "${headername}"
@@ -59,6 +59,7 @@
 /* Module local definitions.                                                 */
 /*===========================================================================*/
 
+[#-- Generating local definitions.--]
 [@ccode.GenerateDefinesFromNode node=module.private.definitions /]
 /*===========================================================================*/
 /* Module exported variables.                                                */
@@ -68,6 +69,7 @@
 /* Module local types.                                                       */
 /*===========================================================================*/
 
+[#-- Generating local types.--]
 [@ccode.GenerateTypedefsFromNode node=module.private.types /]
 /*===========================================================================*/
 /* Module local variables.                                                   */
@@ -90,6 +92,7 @@
 /*===========================================================================*/
 
 /** @} */
+  [#-- Dropping the file if nothing has been generated inside.--]
   [#if (ccode.generated == false) && (cclasses.generated == false)]
     [@pp.dropOutputFile /]
   [/#if]

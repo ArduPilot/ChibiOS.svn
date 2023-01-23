@@ -82,6 +82,9 @@
             <brief>Type of an unsigned int.</brief>
             <basetype ctype="unsigned int" />
           </typedef>
+          <verbatim><![CDATA[
+/* Low level driver inclusion.*/
+#include "test_lld.h"]]></verbatim>
         </types>
         <classes>
           <class name="test_class" namespace="test" ancestor="base_object" descr="test class"
@@ -95,6 +98,9 @@
                   <brief>An optional chickens variable.</brief>
                 </field>
               </condition>
+              <verbatim><![CDATA[
+/* Fields from the LLD.*/
+__test_lld_struct;]]></verbatim>
             </fields>
             <methods>
               <objinit>
@@ -143,8 +149,6 @@
         </classes>
       </public>
       <private>
-        <inclusions>
-        </inclusions>
       </private>
     </module>
   </modules>

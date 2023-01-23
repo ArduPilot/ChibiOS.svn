@@ -47,9 +47,14 @@
  * @addtogroup ${docgroup}
  * @{
  */
-
+ 
+[#-- Generating inclusions.--]
+  [#if module.private.inclusions[0]??]
+[@ccode.GenerateInclusionsFromNode module.private.inclusions /]
+  [#else]
 #include "${headername}"
 
+  [/#if]
 /*===========================================================================*/
 /* Module local definitions.                                                 */
 /*===========================================================================*/

@@ -16,28 +16,23 @@
 
 /**
  * @file    hal_base_driver.h
- * @brief   Ancestor class for all stateful HAL drivers.
- * @details HAL drivers all share a common set of functionalities:
- *          - A common set of methods.
- *          - A state variable and a common set of driver states.
- *          - An "owner" attribute able to link the driver to an upper layer
- *            object.
- *          - Ability to handle mutual exclusion on the driver instance.
- *          - Ability to count how many entities hold a reference to the
- *            driver.
- *          .
+ * @brief   Generated header.
  *
  * @addtogroup HAL_BASE_DRIVER
+ * @brief   Common driver base abstract class.
+ * @details This abstract class is the common ancestor of all HAL stateful HAL
+ *          drivers.
+ * @note    This is a generated file, do not edit directly.
  * @{
  */
-
+ 
 #ifndef HAL_BASE_DRIVER_H
 #define HAL_BASE_DRIVER_H
 
 #include "oop_base_object.h"
 
 /*===========================================================================*/
-/* Driver constants.                                                         */
+/* Module constants.                                                         */
 /*===========================================================================*/
 
 /**
@@ -52,11 +47,11 @@
 /** @} */
 
 /*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
+/* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
 /**
- * @name    Common driver configuration options
+ * @name    Configuration options
  * @{
  */
 /**
@@ -80,16 +75,18 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-#if (HAL_USE_MUTUAL_EXCLUSION != TRUE) && (HAL_USE_MUTUAL_EXCLUSION != FALSE)
+/* Checks on HAL_USE_MUTUAL_EXCLUSION configuration.*/
+#if (HAL_USE_MUTUAL_EXCLUSION != FALSE) && (HAL_USE_MUTUAL_EXCLUSION != TRUE)
 #error "invalid HAL_USE_MUTUAL_EXCLUSION value"
 #endif
 
-#if (HAL_USE_REGISTRY != TRUE) && (HAL_USE_REGISTRY != FALSE)
+/* Checks on HAL_USE_REGISTRY configuration.*/
+#if (HAL_USE_REGISTRY != FALSE) && (HAL_USE_REGISTRY != TRUE)
 #error "invalid HAL_USE_REGISTRY value"
 #endif
 
 /*===========================================================================*/
-/* Driver data structures and types.                                         */
+/* Module data structures and types.                                         */
 /*===========================================================================*/
 
 /**
@@ -97,59 +94,59 @@
  */
 typedef unsigned int driver_state_t;
 
+/*===========================================================================*/
+/* Module macros.                                                            */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module class base_driver_c                                                */
+/*===========================================================================*/
+
 /**
  * @brief   Type of a base driver class.
  */
 typedef struct base_driver base_driver_c;
 
 /**
+ * @brief   @p base_driver_c methods as a structure.
+ */
+struct base_driver_methods {
+  msg_t (*start)(void *ip);
+  void (*stop)(void *ip);
+  msg_t (*configure)(void *ip, const void *config);
+  void * (*getif)(void *ip);
+};
+
+/**
+ * @brief   @p base_driver_c data as a structure.
+ */
+struct base_driver_data {
+  driver_state_t                            state;
+  unsigned int                              opencnt;
+  void                                      *owner;
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+  mutex_t                                   mutex;
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
+};
+
+/**
  * @brief   @p base_driver_c specific methods.
  */
 #define __base_driver_methods                                               \
   __base_object_methods                                                     \
-  msg_t (*start)(void *ip);                                                 \
-  void (*stop)(void *ip);                                                   \
-  msg_t (*configure)(void *ip, const void *config);                         \
-  void * (*getif)(void *ip);
+  struct base_driver_methods                drv;
 
-#if (HAL_USE_REGISTRY == TRUE) || defined(__DOXYGEN__)
-#define __base_driver_data_registry                                         \
-  /* HAL driver type identifier.*/                                          \
-  /*hal_driver_id_t*/unsigned                           id;
-
-#else
-#define __base_driver_data_registry
-#endif
-
-#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   @p base_driver_c specific data.
  */
 #define __base_driver_data                                                  \
   __base_object_data                                                        \
-  /* Driver state.*/                                                        \
-  driver_state_t                            state;                          \
-  /* Driver references.*/                                                   \
-  unsigned int                              opencnt;                        \
-  /* Driver owner or NULL.*/                                                \
-  void                                      *owner;                         \
-  /* Mutual exclusion object.*/                                             \
-  mutex_t                                   mutex;                          \
-  __base_driver_data_registry
-
-#else /* HAL_USE_MUTUAL_EXCLUSION != TRUE */
-#define __base_driver_data                                                  \
-  __referenced_object_data                                                  \
-  driver_state_t                            state;                          \
-  unsigned int                              opencnt;                        \
-  void                                      *owner;                         \
-  __base_driver_data_registry
-#endif /* HAL_USE_MUTUAL_EXCLUSION != TRUE */
+  struct base_driver_data                   drv;
 
 /**
  * @brief   @p base_driver_c virtual methods table.
  */
-struct __base_driver_vmt {
+struct base_driver_vmt {
   __base_driver_methods
 };
 
@@ -160,13 +157,120 @@ struct base_driver {
   /**
    * @brief   Virtual Methods Table.
    */
-  const struct __base_driver_vmt            *vmt;
+  const struct base_driver_vmt              *vmt;
   __base_driver_data
 };
 
-/*===========================================================================*/
-/* Driver macros.                                                            */
-/*===========================================================================*/
+/**
+ * @name    Methods implementations (base_driver_c)
+ * @{
+ */
+/**
+ * @brief   Implementation of object creation.
+ * @note    This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p base_driver_c structure to be
+ *                              initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @return                      A new reference to the object.
+ */
+CC_FORCE_INLINE
+static inline void *__base_driver_objinit_impl(void *ip, const void *vmt) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  /* Initialization of the ancestors-defined parts.*/
+  __base_object_objinit_impl(self, vmt);
+
+  /* Initialization code.*/
+  self->drv.state   = HAL_DRV_STATE_STOP;
+  self->drv.opencnt = 0U;
+  self->drv.owner   = NULL;
+  osalMutexObjectInit(&self->drv.mutex);
+#if HAL_USE_REGISTRY == TRUE
+  self->drv.id      = 0U;
+#endif
+
+  return self;
+}
+
+/**
+ * @brief   Implementation of object finalization.
+ * @note    This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure to be
+ *                              disposed.
+ */
+CC_FORCE_INLINE
+static inline void __base_driver_dispose_impl(void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  __base_object_dispose_impl(self);
+
+  /* No finalization code.*/
+  (void)self;
+}
+/** @} */
+
+/**
+ * @name    Virtual methods of (base_driver_c)
+ * @{
+ */
+/**
+ * @brief   Low level driver start.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @return                      The operation status.
+ */
+CC_FORCE_INLINE
+static inline msg_t __drv_start_protected(void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  return self->vmt->drv.start(ip);
+}
+
+/**
+ * @brief   Low level driver stop.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ */
+CC_FORCE_INLINE
+static inline void __drv_stop_protected(void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+   self->vmt->drv.stop(ip);
+}
+
+/**
+ * @brief   Driver configure.
+ * @details Applies a new configuration to the driver. The configuration
+ *          structure is architecture-dependent.
+ * @note    Applying a configuration should be done while the peripheral is not
+ *          actively operating, this function can fail depending on the driver
+ *          implementation and current state.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @param         config        New driver configuration.
+ */
+CC_FORCE_INLINE
+static inline msg_t drvConfigureX(void *ip, const void *config) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  return self->vmt->drv.configure(ip, config);
+}
+
+/**
+ * @brief   Driver interface get.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @return                      The driver interface or @p NULL if none.
+ */
+CC_FORCE_INLINE
+static inline void * drvGetInterfaceX(void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  return self->vmt->drv.getif(ip);
+}
+/** @} */
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -175,193 +279,25 @@ struct base_driver {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  msg_t drvOpen(void *ip);
-  void drvClose(void *ip);
+  /* Methods of base_driver_c.*/
+  msg_t drvOpen(const void *ip);
+  void drvClose(const void *ip);
+  driver_state_t drvGetStateX(const void *ip);
+  void drvSetStateX(const void *ip, driver_state_t state);
+  void * drvGetOwnerX(const void *ip);
+  void drvSetOwnerX(const void *ip, void *owner);
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+  void drvLock(const void *ip);
+  void drvUnlock(const void *ip);
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 #ifdef __cplusplus
 }
 #endif
 
 /*===========================================================================*/
-/* Driver inline functions.                                                  */
+/* Module inline functions.                                                  */
 /*===========================================================================*/
 
-/**
- * @name    Methods implementations
- * @{
- */
-/**
- * @brief   Object creation implementation.
- *
- * @param[out] ip       Pointer to a @p base_driver_c structure to be
- *                      initialized.
- * @param[in] vmt       VMT pointer for the new object.
- * @return              A new reference to the object.
- */
-CC_FORCE_INLINE
-static inline void *__base_driver_objinit_impl(void *ip, const void *vmt) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  __base_object_objinit_impl(objp, vmt);
-  objp->state   = HAL_DRV_STATE_STOP;
-  objp->opencnt = 0U;
-  objp->owner   = NULL;
-  osalMutexObjectInit(&objp->mutex);
-#if HAL_USE_REGISTRY == TRUE
-  objp->id      = 0U;
-#endif
-  return ip;
-}
-
-/**
- * @brief   Object finalization implementation.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure to be
- *                      disposed.
- */
-CC_FORCE_INLINE
-static inline void __base_driver_dispose_impl(void *ip) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  osalDbgAssert(objp->opencnt == 0U, "still opened");
-
-  objp->state = HAL_DRV_STATE_UNINIT;
-
-  /* TODO mutex dispose (missing in OSAL) */
-  __base_object_dispose_impl(objp);
-}
-
-/**
- * @brief   Driver interface get implementation.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- * @return              The driver interface or @p NULL if none.
- */
-CC_FORCE_INLINE
-static inline void *__base_driver_get_interface_impl(void *ip) {
-
-  (void)ip;
-
-  return NULL;
-}
-/** @} */
-
-/**
- * @brief   Driver configure.
- * @details Applies a new configuration to the driver. The configuration
- *          structure is architecture-dependent.
- * @note    Applying a configuration should be done while the peripheral
- *          is not actively operating, this function can fail depending
- *          on the driver implementation and current state.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- * @param[in] config    Pointer to a constant configuration structure.
- * @return              The operation status.
- *
- * @api
- */
-CC_FORCE_INLINE
-static inline msg_t drvConfigureX(void *ip, const void *config) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  osalDbgAssert(objp->opencnt > 0U, "not opened");
-
-  return objp->vmt->configure(ip, config);
-}
-
-/**
- * @brief   Driver interface get.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- * @return              The driver interface or @p NULL if none.
- *
- * @api
- */
-CC_FORCE_INLINE
-static inline void *drvGetInterfaceX(void *ip) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  return objp->vmt->getif(objp);
-}
-
-/**
- * @brief   Driver state get.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- * @return              The driver state.
- */
-CC_FORCE_INLINE
-static inline driver_state_t drvGetStateX(void *ip) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  return objp->state;
-}
-
-/**
- * @brief   Driver state set.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- * @param[in] state     New driver state.
- */
-CC_FORCE_INLINE
-static inline void drvSetStateX(void *ip, driver_state_t state) {
-
-  ((base_driver_c *)ip)->state = state;
-}
-
-/**
- * @brief   Driver owner get.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- * @return              The driver owner.
- */
-CC_FORCE_INLINE
-static inline void *drvGetOwnerX(void *ip) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  return objp->owner;
-}
-
-/**
- * @brief   Driver owner set.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- * @param[in] owner     New driver owner.
- */
-CC_FORCE_INLINE
-static inline void drvSetOwnerX(void *ip, void *owner) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  objp->owner = owner;
-}
-
-#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined(__DOXYGEN__)
-/**
- * @brief   Driver lock.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure to be
- *                      locked.
- */
-CC_FORCE_INLINE
-static inline void drvLock(void *ip) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  osalMutexLock(&objp->mutex);
-}
-
-/**
- * @brief   Driver unlock.
- *
- * @param[in] ip        Pointer to a @p base_driver_c structure to be
- *                      unlocked.
- */
-CC_FORCE_INLINE
-static inline void drvUnlock(void *ip) {
-  base_driver_c *objp = (base_driver_c *)ip;
-
-  osalMutexUnlock(&objp->mutex);
-}
-#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
-
-#endif /* HAL_BASE_DRIVER */
+#endif /* HAL_BASE_DRIVER_H */
 
 /** @} */

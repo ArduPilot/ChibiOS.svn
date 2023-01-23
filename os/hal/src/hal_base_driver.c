@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -15,61 +15,70 @@
 */
 
 /**
- * @file    hal_base_driver.h
- * @brief   Ancestor class for all stateful HAL drivers.
+ * @file    hal_base_driver.c
+ * @brief   Generated source.
  *
  * @addtogroup HAL_BASE_DRIVER
  * @{
  */
-
+ 
 #include "hal.h"
 
 /*===========================================================================*/
-/* Driver local definitions.                                                 */
+/* Module local definitions.                                                 */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver exported variables.                                                */
+/* Module exported variables.                                                */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver local variables and types.                                         */
+/* Module local types.                                                       */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver local functions.                                                   */
+/* Module local variables.                                                   */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver exported functions.                                                */
+/* Module local functions.                                                   */
 /*===========================================================================*/
 
+/*===========================================================================*/
+/* Module class "base_driver_c" methods.                                      */
+/*===========================================================================*/
+
+/**
+ * @name    Regular methods of (base_driver_c)
+ * @{
+ */
 /**
  * @brief   Driver open.
  * @details Returns a reference to the driver, on the 1st open the peripheral
  *          is physically initialized. An implementation-dependent default
  *          configuration is used for initialization.
  *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- * @return              The operation status.
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @return                      The operation status.
  */
-msg_t drvOpen(void *ip) {
-  base_driver_c *objp = (base_driver_c *)ip;
+msg_t drvOpen(const void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
   msg_t msg;
 
-  osalDbgCheck(objp != NULL);
+  osalDbgCheck(self != NULL);
 
   osalSysLock();
 
-  if (objp->opencnt == 0U) {
+  if (self->drv.opencnt == 0U) {
     /* Physically starting the peripheral.*/
-    msg = objp->vmt->start(objp);
+    msg = __drv_start_protected(self);
     if (msg == HAL_RET_SUCCESS) {
-      objp->opencnt++;
-      objp->state = HAL_DRV_STATE_READY;
+      self->drv.opencnt++;
+      self->drv.state = HAL_DRV_STATE_READY;
     }
     else {
-      objp->state = HAL_DRV_STATE_STOP;
+      self->drv.state = HAL_DRV_STATE_STOP;
     }
   }
   else {
@@ -86,25 +95,100 @@ msg_t drvOpen(void *ip) {
  * @details Releases a reference to the driver, when the count reaches zero
  *          then the peripheral is physically uninitialized.
  *
- * @param[in] ip        Pointer to a @p base_driver_c structure.
- *
- * @api
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
  */
-void drvClose(void *ip) {
-  base_driver_c *objp = (base_driver_c *)ip;
+void drvClose(const void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
 
-  osalDbgCheck(objp != NULL);
+  osalDbgCheck(self != NULL);
 
   osalSysLock();
 
-  osalDbgAssert(objp->opencnt > 0U, "not opened");
+  osalDbgAssert(self->drv.opencnt > 0U, "not opened");
 
-  if (--objp->opencnt == 0U) {
-    objp->state = HAL_DRV_STATE_STOP;
-    objp->vmt->stop(ip);
+  if (--self->drv.opencnt == 0U) {
+    self->drv.state = HAL_DRV_STATE_STOP;
+    __drv_stop_protected(self);
   }
 
   osalSysUnlock();
 }
+
+/**
+ * @brief   Driver state get.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @return                      The driver state.
+ */
+driver_state_t drvGetStateX(const void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  return self->drv.state;
+}
+
+/**
+ * @brief   Driver state set.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @param         state         New driver state.
+ */
+void drvSetStateX(const void *ip, driver_state_t state) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  self->drv.state = state;
+}
+
+/**
+ * @brief   Driver owner get.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @return                      The driver owner.
+ */
+void * drvGetOwnerX(const void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  return self->drv.owner;
+}
+
+/**
+ * @brief   Driver owner set.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @param         owner         New driver owner.
+ */
+void drvSetOwnerX(const void *ip, void *owner) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  self->drv.owner = owner;
+}
+
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief   Driver lock.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ */
+void drvLock(const void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  osalMutexLock(&self->drv.mutex);
+}
+
+/**
+ * @brief   Driver unlock.
+ *
+ * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ */
+void drvUnlock(const void *ip) {
+  base_driver_c *self = (base_driver_c *)ip;
+
+  osalMutexUnlock(&self->drv.mutex);
+}
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
+/** @} */
+
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
 
 /** @} */

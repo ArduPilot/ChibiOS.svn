@@ -183,6 +183,24 @@ ${line + ");"}
 [/#macro]
 
 [#--
+  -- Generates inclusions from an XML node.
+  --]
+[#macro GenerateInclusionsFromNode node=[]]
+  [#list node.include as include]
+    [#assign style = include.@style[0]!"regular" /]
+    [#if style == "angular"]
+#include <${include[0]}>
+    [#else]
+#include "${include[0]}"
+    [/#if]
+    [#-- Empty line after last inclusion.--]
+    [#if include?is_last]
+
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
   -- Generates a single line definition macro from an XML node.
   --]
 [#macro GenerateDefineFromNode node=[]]

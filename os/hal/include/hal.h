@@ -288,6 +288,7 @@ static inline halfreq_t halClockGetPointX(halclkpt_t clkpt) {
 /*===========================================================================*/
 
 /* Abstract interfaces.*/
+#include "oop_base_object.h"
 #include "oop_sequential_stream.h"
 #include "hal_base_driver.h"
 #include "hal_objects.h"

@@ -53,44 +53,39 @@
 #ifndef ${basename?upper_case}_H
 #define ${basename?upper_case}_H
 
-  [#-- Generating inclusions.--]
-  [#list module.public.inclusions.include as include]
-    [#assign style = include.@style[0]!"regular" /]
-    [#if style == "angular"]
-#include <${include[0]}>
-    [#else]
-#include "${include[0]}"
-    [/#if]
-    [#-- Empty line after last inclusion.--]
-    [#if include?is_last]
-
-    [/#if]
-  [/#list]
+[#-- Generating inclusions.--]
+[@ccode.GenerateInclusionsFromNode module.public.inclusions /]
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
 
+[#-- Generating early definitions.--]
 [@ccode.GenerateDefinesFromNode node=module.public.definitions_early /]
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
+[#-- Generating configuration options.--]
 [@ccode.GenerateConfigsFromNode node=module.public.configs /]
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
+[#-- Generating checks on configuration options.--]
 [@ccode.GenerateConfigAssertsFromNode node=module.public.configs /]
+[#-- Generating late definitions.--]
 [@ccode.GenerateDefinesFromNode node=module.public.definitions_late /]
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+[#-- Generating types declarations.--]
 [@ccode.GenerateTypedefsFromNode node=module.public.types /]
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+[#-- Generating multi-line macros.--]
 [@ccode.GenerateMacrosFromNode node=module.public.macros /]
   [#-- Scanning all classes to be generated in this module.--]
   [#list module.public.classes.class as class]

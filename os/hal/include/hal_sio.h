@@ -182,7 +182,7 @@ struct sio_driver_vmt {
  *          architecture dependent, fields.
  */
 struct hal_sio_driver {
-  const struct __base_driver_vmt            *vmt;
+  const struct sio_driver_vmt               *vmt;
   __base_driver_data
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined(__DOXYGEN__)
   /**

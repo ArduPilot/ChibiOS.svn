@@ -146,9 +146,27 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="param" type="paramType" maxOccurs="unbounded" minOccurs="0">
+          <xs:element name="param" type="paramType"
+            maxOccurs="unbounded" minOccurs="0">
           </xs:element>
-          <xs:element name="return" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
+          <xs:element name="return" type="xs:string" maxOccurs="1"
+            minOccurs="0">
+          </xs:element>
+          <xs:element name="retval" type="retvalType"
+            maxOccurs="unbounded" minOccurs="0">
+          </xs:element>
+          <xs:element name="class" maxOccurs="1" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="regular"></xs:enumeration>
+                <xs:enumeration value="iclass"></xs:enumeration>
+                <xs:enumeration value="sclass"></xs:enumeration>
+                <xs:enumeration value="xclass"></xs:enumeration>
+                <xs:enumeration value="init"></xs:enumeration>
+                <xs:enumeration value="dispose"></xs:enumeration>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -401,5 +419,8 @@
         minOccurs="1"></xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="retvalType">
+    <xs:attribute name="value" type="xs:string"></xs:attribute>
   </xs:complexType>
 </xs:schema>

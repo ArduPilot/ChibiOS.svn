@@ -54,6 +54,43 @@
       </config>
     </configs>
     <macros>
+      <macro name="sioSetCallbackX">
+        <brief>Associates a callback to the SIO instance.</brief>
+        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <param name="f">callback function to be associated</param>
+        <implementation><![CDATA[(siop)->cb = (f)]]></implementation>
+      </macro>
+      <macro name="sioIsRXEmptyX">
+        <brief>Determines the state of the RX FIFO.</brief>
+        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <return>The RX FIFO state.</return>
+        <implementation><![CDATA[sio_lld_is_rx_empty(siop)]]></implementation>
+      </macro>
+      <macro name="sioIsRXIdleX">
+        <brief>Determines the activity state of the receiver.</brief>
+        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <return>The RX activity state.</return>
+        <implementation><![CDATA[sio_lld_is_rx_idle(siop)]]></implementation>
+      </macro>
+      <macro name="sioHasRXErrorsX">
+        <brief>Determines if RX has pending errors to be read and cleared.</brief>
+        <note>Only error flags are handled, data and idle flags are not considered.</note>
+        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <return>The RX error events.</return>
+        <implementation><![CDATA[sio_lld_has_rx_errors(siop)]]></implementation>
+      </macro>
+      <macro name="sioIsTXFullX">
+        <brief>Determines the state of the TX FIFO.</brief>
+        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <return>The TX FIFO state.</return>
+        <implementation><![CDATA[sio_lld_is_tx_full(siop)]]></implementation>
+      </macro>
+      <macro name="sioIsTXOngoingX">
+        <brief>Determines the transmission state.</brief>
+        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <return>The transmission state.</return>
+        <implementation><![CDATA[sio_lld_is_tx_ongoing(siop)]]></implementation>
+      </macro>
     </macros>
     <types>
       <typedef name="sioevents_t">
@@ -67,6 +104,10 @@
       <typedef name="SIOConfig">
         <brief>Type of structure representing a SIO configuration (legacy).</brief>
         <basetype ctype="sio_config_t" />
+      </typedef>
+      <typedef name="SIODriver">
+        <brief>Type of structure representing a SIO driver (legacy).</brief>
+        <basetype ctype="sio_driver_c" />
       </typedef>
       <verbatim><![CDATA[
 /* Inclusion of LLD header.*/
@@ -125,12 +166,6 @@ self->drv.id      = 0U;
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
-          <virtual>
-            <method name="__drv_start_protected" shortname="start" ctype="msg_t">
-              <brief>Low level driver start.</brief>
-              <return>The operation status.</return>
-            </method>
-          </virtual>
           <regular>
             <method name="drvOpen" ctype="msg_t">
               <brief>Driver open.</brief>

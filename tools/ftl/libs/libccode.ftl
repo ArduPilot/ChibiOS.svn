@@ -347,12 +347,11 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
   -- Generates all macros from an XML node.
   --]
 [#macro GenerateMacrosFromNode indent="  " node=[]]
-  [#local macros = node /]
-  [#list macros.* as macro]
-    [#if macro?node_name == "macro"]
-[@doxygen.EmitFullCommentFromNode "" macro /]
-[@ccode.GenerateMacroFromNode node=macro /]
-      [#if macro?is_last]
+  [#list node.* as this]
+    [#if this?node_name == "macro"]
+[@doxygen.EmitFullCommentFromNode "" this /]
+[@ccode.GenerateMacroFromNode node=this /]
+      [#if this?has_next || node?node_name?starts_with("macros")]
 
       [/#if]
     [/#if]

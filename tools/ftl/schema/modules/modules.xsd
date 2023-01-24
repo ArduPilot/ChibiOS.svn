@@ -186,6 +186,15 @@
       <xs:extension base="xs:string">
         <xs:attribute name="name" type="xs:string"></xs:attribute>
         <xs:attribute name="ctype" type="xs:string"></xs:attribute>
+        <xs:attribute name="dir">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="in"></xs:enumeration>
+              <xs:enumeration value="out"></xs:enumeration>
+              <xs:enumeration value="both"></xs:enumeration>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>

@@ -56,40 +56,107 @@
     <macros>
       <macro name="sioSetCallbackX">
         <brief>Associates a callback to the SIO instance.</brief>
-        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="out">pointer to the @p sio_driver_c object</param>
         <param name="f">callback function to be associated</param>
         <implementation><![CDATA[(siop)->cb = (f)]]></implementation>
       </macro>
       <macro name="sioIsRXEmptyX">
         <brief>Determines the state of the RX FIFO.</brief>
-        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The RX FIFO state.</return>
         <implementation><![CDATA[sio_lld_is_rx_empty(siop)]]></implementation>
       </macro>
       <macro name="sioIsRXIdleX">
         <brief>Determines the activity state of the receiver.</brief>
-        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The RX activity state.</return>
         <implementation><![CDATA[sio_lld_is_rx_idle(siop)]]></implementation>
       </macro>
       <macro name="sioHasRXErrorsX">
         <brief>Determines if RX has pending errors to be read and cleared.</brief>
         <note>Only error flags are handled, data and idle flags are not considered.</note>
-        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The RX error events.</return>
         <implementation><![CDATA[sio_lld_has_rx_errors(siop)]]></implementation>
       </macro>
       <macro name="sioIsTXFullX">
         <brief>Determines the state of the TX FIFO.</brief>
-        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The TX FIFO state.</return>
         <implementation><![CDATA[sio_lld_is_tx_full(siop)]]></implementation>
       </macro>
       <macro name="sioIsTXOngoingX">
         <brief>Determines the transmission state.</brief>
-        <param name="siop">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The transmission state.</return>
         <implementation><![CDATA[sio_lld_is_tx_ongoing(siop)]]></implementation>
+      </macro>
+      <macro name="sioWriteEnableFlagsX">
+        <brief>Writes the enabled events mask.</brief>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="mask" dir="in">enabled events mask to be written</param>
+        <implementation><![CDATA[
+do {
+  (siop)->enabled = (mask);
+  sio_lld_update_enable_flags(siop);
+} while (false)]]></implementation>
+      </macro>
+      <macro name="sioSetEnableFlagsX">
+        <brief>Sets flags into the enabled events flags mask.</brief>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="mask" dir="in">enabled events mask to be set</param>
+        <implementation><![CDATA[
+do {
+  (siop)->enabled |= (mask);
+  sio_lld_update_enable_flags(siop);
+} while (false)]]></implementation>
+      </macro>
+      <macro name="sioClearEnableFlagsX">
+        <brief>Clears flags from the enabled events flags mask.</brief>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="mask" dir="in">enabled events mask to be cleared</param>
+        <implementation><![CDATA[
+do {
+  (siop)->enabled &= ~(mask);
+  sio_lld_update_enable_flags(siop);
+} while (false)]]></implementation>
+      </macro>
+      <macro name="sioGetEnableFlagsX">
+        <brief>Gets the enabled condition flags mask.</brief>
+        <param name="siop" dir="in">pointer to the @p sio_driver_c object</param>
+        <return>The enabled event flags.</return>
+        <implementation><![CDATA[(siop)->enabled]]></implementation>
+      </macro>
+      <macro name="sioGetAndClearErrorsX">
+        <brief>Gets and clears SIO error flags.</brief>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <return>The pending error flags.</return>
+        <implementation><![CDATA[sio_lld_get_and_clear_errors(siop)]]></implementation>
+      </macro>
+      <macro name="sioGetAndClearEventsX">
+        <brief>Gets and clears SIO event flags.</brief>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <return>The pending event flags.</return>
+        <implementation><![CDATA[sio_lld_get_and_clear_events(siop)]]></implementation>
+      </macro>
+      <macro name="sioGetEventsX">
+        <brief>Returns all SIO event flags.</brief>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <return>The pending event flags.</return>
+        <implementation><![CDATA[sio_lld_get_events(siop)]]></implementation>
+      </macro>
+      <macro name="sioGetX">
+        <brief>Returns one frame from the RX FIFO.</brief>
+        <note>If the FIFO is empty then the returned value is unpredictable.</note>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <return>The frame from RX FIFO.</return>
+        <implementation><![CDATA[sio_lld_get(siop)]]></implementation>
+      </macro>
+      <macro name="sioPutX">
+        <brief>Pushes one frame into the TX FIFO.</brief>
+        <note>If the FIFO is full then the behavior is unpredictable.</note>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <implementation><![CDATA[sio_lld_put(siop, data)]]></implementation>
       </macro>
     </macros>
     <types>

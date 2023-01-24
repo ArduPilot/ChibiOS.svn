@@ -42,17 +42,23 @@
 
 /**
  * @file    ${sourcename}
-[@doxygen.EmitBrief "" "Generated source." /]
+[@doxygen.EmitBrief "" "Generated " + docgroup + " source." /]
  *
  * @addtogroup ${docgroup}
  * @{
  */
 
   [#-- Generating inclusions.--]
-  [#if (module.private.inclusions[0].inclusion[0])??]
+  [#if (module.private.inclusions[0])??]
 [@ccode.GenerateInclusionsFromNode module.private.inclusions /]
   [#else]
 #include "${headername}"
+
+  [/#if]
+  [#-- Handling of conditional modules.--]
+  [#assign module_condition =  module.@check[0]!""?trim/]
+  [#if module_condition?length > 0]
+#if (${module_condition}) || defined (__DOXYGEN__)
 
   [/#if]
 /*===========================================================================*/
@@ -91,6 +97,10 @@
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
+  [#if module_condition?length > 0]
+#endif /* ${module_condition} */
+
+  [/#if]
 /** @} */
   [#-- Dropping the file if nothing has been generated inside.--]
   [#if (ccode.generated == false) && (cclasses.generated == false)]

@@ -41,7 +41,7 @@
 
 /**
  * @file    ${headername}
-[@doxygen.EmitBrief "" "Generated header." /]
+[@doxygen.EmitBrief "" "Generated " + docgroup + " header." /]
  *
  * @addtogroup ${docgroup}
 [@doxygen.EmitBriefFromNode node=module /]
@@ -53,8 +53,16 @@
 #ifndef ${basename?upper_case}_H
 #define ${basename?upper_case}_H
 
-[#-- Generating inclusions.--]
+  [#-- Generating inclusions.--]
+  [#if (module.public.inclusions[0])??]
 [@ccode.GenerateInclusionsFromNode module.public.inclusions /]
+  [/#if]
+  [#-- Handling of conditional modules.--]
+  [#assign module_condition =  module.@check[0]!""?trim/]
+  [#if module_condition?length > 0]
+#if (${module_condition}) || defined (__DOXYGEN__)
+
+  [/#if]
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
@@ -117,5 +125,9 @@ extern "C" {
 
 #endif /* ${basename?upper_case}_H */
 
+  [#if module_condition?length > 0]
+#endif /* ${module_condition} */
+
+  [/#if]
 /** @} */
 [/#list]

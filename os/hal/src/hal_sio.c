@@ -275,7 +275,7 @@ void sioInit(void) {
  */
 void sioObjectInit(SIODriver *siop) {
 
-  __base_driver_objinit_impl(siop, &drv_vmt);
+  __hal_base_driver_objinit_impl(siop, &drv_vmt);
 
 #if SIO_USE_STREAMS_INTERFACE == TRUE
   __base_asynchronous_channel_objinit_impl(&siop->channel, &channel_vmt);

@@ -165,7 +165,7 @@ struct hal_sio_config {
  * @brief   @p SIODriver specific methods.
  */
 #define __sio_driver_methods                                                \
-  __base_driver_methods
+  __hal_base_driver_methods
 
 /**
  * @extends BaseChannelVMT
@@ -183,7 +183,7 @@ struct sio_driver_vmt {
  */
 struct hal_sio_driver {
   const struct sio_driver_vmt               *vmt;
-  __base_driver_data
+  __hal_base_driver_data
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined(__DOXYGEN__)
   /**
    * @brief   Virtual Methods Table.

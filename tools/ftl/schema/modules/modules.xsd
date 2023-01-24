@@ -8,6 +8,7 @@
           <xs:element name="public" type="publicType"></xs:element>
           <xs:element name="private" type="privateType"></xs:element>
         </xs:sequence>
+        <xs:attribute name="check" type="xs:string"></xs:attribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

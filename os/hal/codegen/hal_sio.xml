@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
+  name="hal_sio_test"
+  check="HAL_USE_SIO == TRUE">
+  <brief>SIO Driver macros and structures.</brief>
+  <note>This is a generated file, do not edit directly.</note>
+  <public>
+    <definitions_early>
+      <group description="SIO masks offset">
+        <define name="SIO_EV_RXNOTEMPY_POS"   value="CHN_INPUT_AVAILABLE_POS" />
+        <define name="SIO_EV_TXNOTFULL_POS"   value="CHN_OUTPUT_EMPTY_POS" />
+        <define name="SIO_EV_TXDONE_POS"      value="CHN_TRANSMISSION_END_POS" />
+        <define name="SIO_EV_ALL_ERRORS_POS"  value="CHN_PARITY_ERROR_POS" />
+        <define name="SIO_EV_PARITY_ERR_POS"  value="CHN_PARITY_ERROR_POS" />
+        <define name="SIO_EV_FRAMING_ERR_POS" value="CHN_FRAMING_ERROR_POS" />
+        <define name="SIO_EV_NOISE_ERR_POS"   value="CHN_NOISE_ERROR_POS" />
+        <define name="SIO_EV_OVERRUN_ERR_POS" value="CHN_OVERRUN_ERROR_POS" />
+        <define name="SIO_EV_RXIDLE_POS"      value="CHN_IDLE_DETECTED_POS" />
+        <define name="SIO_EV_RXBREAK_POS"     value="CHN_BREAK_DETECTED_POS" />
+      </group>
+      <group description="Event flags (compatible with channel and serial events)">
+        <define name="SIO_EV_NONE"            value="0U" />
+        <define name="SIO_EV_RXNOTEMPY"       value="(1U &lt;&lt; SIO_EV_RXNOTEMPY_POS" />
+        <define name="SIO_EV_TXNOTFULL"       value="(1U &lt;&lt; SIO_EV_TXNOTFULL_POS" />
+        <define name="SIO_EV_ALL_DATA"        value="(SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)" />
+        <define name="SIO_EV_TXDONE"          value="(1U &lt;&lt; SIO_EV_TXDONE_POS" />
+        <define name="SIO_EV_PARITY_ERR"      value="(1U &lt;&lt; SIO_EV_PARITY_ERR_POS" />
+        <define name="SIO_EV_FRAMING_ERR"     value="(1U &lt;&lt; SIO_EV_FRAMING_ERR_POS" />
+        <define name="SIO_EV_NOISE_ERR"       value="(1U &lt;&lt; SIO_EV_NOISE_ERR_POS" />
+        <define name="SIO_EV_OVERRUN_ERR"     value="(1U &lt;&lt; SIO_EV_OVERRUN_ERR_POS" />
+        <define name="SIO_EV_RXIDLE"          value="(1U &lt;&lt; SIO_EV_RXIDLE_POS" />
+        <define name="SIO_EV_RXBREAK"         value="(1U &lt;&lt; SIO_EV_RXBREAK_POS" />
+        <define name="SIO_EV_ALL_ERRORS"      value="(SIO_EV_PARITY_ERR | SIO_EV_FRAMING_ERR | SIO_EV_OVERRUN_ERR | SIO_EV_NOISE_ERR | SIO_EV_RXBREAK)" />
+        <define name="SIO_EV_ALL_EVENTS"      value="(SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)" />
+      </group>
+      <group description="Additional messages">
+        <define name="SIO_MSG_ERRORS"         value="1U" />
+      </group>
+    </definitions_early>
+    <configs>
+      <config name="SIO_DEFAULT_BITRATE" default="38400">
+        <brief>Default bit rate.</brief>
+        <note>Configuration parameter, this is the baud rate selected for the default configuration.</note>
+        <assert invalid="$N &lt;= 0" />
+      </config>
+      <config name="SIO_USE_SYNCHRONIZATION" default="TRUE">
+        <brief>Support for thread synchronization API.</brief>
+        <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
+      </config>
+      <config name="SIO_USE_STREAMS_INTERFACE" default="SIO_USE_SYNCHRONIZATION">
+        <brief>Support for streams interface.</brief>
+        <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
+      </config>
+    </configs>
+    <macros>
+    </macros>
+    <types>
+      <typedef name="sioevents_t">
+        <brief>Type of SIO event flags.</brief>
+        <basetype ctype="eventflags_t" />
+      </typedef>
+      <typedef name="sio_config_t">
+        <brief>Type of structure representing a SIO configuration.</brief>
+        <basetype ctype="struct hal_sio_config" />
+      </typedef>
+      <typedef name="SIOConfig">
+        <brief>Type of structure representing a SIO configuration (legacy).</brief>
+        <basetype ctype="sio_config_t" />
+      </typedef>
+      <verbatim><![CDATA[
+/* Inclusion of LLD header.*/
+#include "hal_sio_lld.h"]]></verbatim>
+    </types>
+    <classes>
+      <class name="hal_sio_driver" namespace="sio" ancestor="base_driver" descr="SIO driver"
+        type="regular">
+        <brief>
+        </brief>
+        <fields>
+          <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
+            <field name="channel" ctype="base_asynchronous_channel_c">
+              <brief>Channel interface.</brief>
+            </field>
+          </condition>
+          <field name="enabled" ctype="sioevents_t">
+            <brief>Enabled event flags.</brief>
+          </field>
+          <field name="cb" ctype="siocb_t">
+            <brief>Events callback.</brief>
+            <note>Can be @p NULL.</note>
+          </field>
+          <condition check="HAL_USE_MUTUAL_EXCLUSION == TRUE">
+            <field name="sync_rx" ctype="thread_reference_t">
+              <brief>Synchronization point for RX.</brief>
+            </field>
+            <field name="sync_rxidle" ctype="thread_reference_t">
+              <brief>Synchronization point for RX idle.</brief>
+            </field>
+            <field name="sync_tx" ctype="thread_reference_t">
+              <brief>Synchronization point for TX.</brief>
+            </field>
+            <field name="sync_txend" ctype="thread_reference_t">
+              <brief>Synchronization point for TX-end.</brief>
+            </field>
+          </condition>
+          <verbatim><![CDATA[
+#if defined(SIO_DRIVER_EXT_FIELS)
+SIO_DRIVER_EXT_FIELDS
+#endif
+/* End of the mandatory fields.*/
+sio_lld_driver_fields;]]></verbatim>
+        </fields>
+        <methods>
+          <objinit>
+            <implementation><![CDATA[
+self->drv.state   = HAL_DRV_STATE_STOP;
+self->drv.opencnt = 0U;
+self->drv.owner   = NULL;
+osalMutexObjectInit(&self->drv.mutex);
+#if HAL_USE_REGISTRY == TRUE
+self->drv.id      = 0U;
+#endif]]></implementation>
+          </objinit>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
+          <virtual>
+            <method name="__drv_start_protected" shortname="start" ctype="msg_t">
+              <brief>Low level driver start.</brief>
+              <return>The operation status.</return>
+            </method>
+          </virtual>
+          <regular>
+            <method name="drvOpen" ctype="msg_t">
+              <brief>Driver open.</brief>
+              <details>Returns a reference to the driver, on the 1st open the peripheral
+                is
+                physically initialized. An implementation-dependent default
+                configuration is used
+                for initialization.</details>
+              <return>The operation status.</return>
+              <implementation><![CDATA[ ]]></implementation>
+            </method>
+          </regular>
+        </methods>
+      </class>
+    </classes>
+  </public>
+  <private>
+    <inclusions>
+      <include style="regular">hal.h</include>
+    </inclusions>
+  </private>
+</module>

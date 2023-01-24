@@ -8,9 +8,6 @@
   </details>
   <note>This is a generated file, do not edit directly.</note>
   <public>
-    <inclusions>
-      <include style="regular">oop_base_object.h</include>
-    </inclusions>
     <definitions_early>
       <group description="Common driver states">
         <define name="HAL_DRV_STATE_UNINIT" value="0U" />
@@ -42,7 +39,7 @@
       </typedef>
     </types>
     <classes>
-      <class name="base_driver" namespace="drv" ancestor="base_object" descr="base driver"
+      <class name="hal_base_driver" namespace="drv" ancestor="base_object" descr="HAL base driver"
         type="abstract">
         <brief>
         </brief>

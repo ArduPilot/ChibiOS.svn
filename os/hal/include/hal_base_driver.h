@@ -16,7 +16,7 @@
 
 /**
  * @file    hal_base_driver.h
- * @brief   Generated header.
+ * @brief   Generated HAL_BASE_DRIVER header.
  *
  * @addtogroup HAL_BASE_DRIVER
  * @brief   Common driver base abstract class.
@@ -28,8 +28,6 @@
  
 #ifndef HAL_BASE_DRIVER_H
 #define HAL_BASE_DRIVER_H
-
-#include "oop_base_object.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -99,18 +97,18 @@ typedef unsigned int driver_state_t;
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Module class base_driver_c                                                */
+/* Module class hal_base_driver_c                                            */
 /*===========================================================================*/
 
 /**
- * @brief   Type of a base driver class.
+ * @brief   Type of a HAL base driver class.
  */
-typedef struct base_driver base_driver_c;
+typedef struct hal_base_driver hal_base_driver_c;
 
 /**
- * @brief   @p base_driver_c methods as a structure.
+ * @brief   @p hal_base_driver_c methods as a structure.
  */
-struct base_driver_methods {
+struct hal_base_driver_methods {
   msg_t (*start)(void *ip);
   void (*stop)(void *ip);
   msg_t (*configure)(void *ip, const void *config);
@@ -118,9 +116,9 @@ struct base_driver_methods {
 };
 
 /**
- * @brief   @p base_driver_c data as a structure.
+ * @brief   @p hal_base_driver_c data as a structure.
  */
-struct base_driver_data {
+struct hal_base_driver_data {
   driver_state_t                            state;
   unsigned int                              opencnt;
   void                                      *owner;
@@ -130,53 +128,53 @@ struct base_driver_data {
 };
 
 /**
- * @brief   @p base_driver_c specific methods.
+ * @brief   @p hal_base_driver_c specific methods.
  */
-#define __base_driver_methods                                               \
+#define __hal_base_driver_methods                                           \
   __base_object_methods                                                     \
-  struct base_driver_methods                drv;
+  struct hal_base_driver_methods            drv;
 
 /**
- * @brief   @p base_driver_c specific data.
+ * @brief   @p hal_base_driver_c specific data.
  */
-#define __base_driver_data                                                  \
+#define __hal_base_driver_data                                              \
   __base_object_data                                                        \
-  struct base_driver_data                   drv;
+  struct hal_base_driver_data               drv;
 
 /**
- * @brief   @p base_driver_c virtual methods table.
+ * @brief   @p hal_base_driver_c virtual methods table.
  */
-struct base_driver_vmt {
-  __base_driver_methods
+struct hal_base_driver_vmt {
+  __hal_base_driver_methods
 };
 
 /**
- * @brief   Structure representing a base driver class.
+ * @brief   Structure representing a HAL base driver class.
  */
-struct base_driver {
+struct hal_base_driver {
   /**
    * @brief   Virtual Methods Table.
    */
-  const struct base_driver_vmt              *vmt;
-  __base_driver_data
+  const struct hal_base_driver_vmt          *vmt;
+  __hal_base_driver_data
 };
 
 /**
- * @name    Methods implementations (base_driver_c)
+ * @name    Methods implementations (hal_base_driver_c)
  * @{
  */
 /**
  * @brief   Implementation of object creation.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[out]    ip            Pointer to a @p base_driver_c structure to be
- *                              initialized.
+ * @param[out]    ip            Pointer to a @p hal_base_driver_c structure to
+ *                              be initialized.
  * @param[in]     vmt           VMT pointer for the new object.
  * @return                      A new reference to the object.
  */
 CC_FORCE_INLINE
-static inline void *__base_driver_objinit_impl(void *ip, const void *vmt) {
-  base_driver_c *self = (base_driver_c *)ip;
+static inline void *__hal_base_driver_objinit_impl(void *ip, const void *vmt) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
   /* Initialization of the ancestors-defined parts.*/
   __base_object_objinit_impl(self, vmt);
@@ -197,12 +195,12 @@ static inline void *__base_driver_objinit_impl(void *ip, const void *vmt) {
  * @brief   Implementation of object finalization.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[in,out] ip            Pointer to a @p base_driver_c structure to be
- *                              disposed.
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure to
+ *                              be disposed.
  */
 CC_FORCE_INLINE
-static inline void __base_driver_dispose_impl(void *ip) {
-  base_driver_c *self = (base_driver_c *)ip;
+static inline void __hal_base_driver_dispose_impl(void *ip) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
   __base_object_dispose_impl(self);
 
@@ -212,18 +210,18 @@ static inline void __base_driver_dispose_impl(void *ip) {
 /** @} */
 
 /**
- * @name    Virtual methods of (base_driver_c)
+ * @name    Virtual methods of (hal_base_driver_c)
  * @{
  */
 /**
  * @brief   Low level driver start.
  *
- * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
  * @return                      The operation status.
  */
 CC_FORCE_INLINE
 static inline msg_t __drv_start_protected(void *ip) {
-  base_driver_c *self = (base_driver_c *)ip;
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
   return self->vmt->drv.start(ip);
 }
@@ -231,11 +229,11 @@ static inline msg_t __drv_start_protected(void *ip) {
 /**
  * @brief   Low level driver stop.
  *
- * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
  */
 CC_FORCE_INLINE
 static inline void __drv_stop_protected(void *ip) {
-  base_driver_c *self = (base_driver_c *)ip;
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
    self->vmt->drv.stop(ip);
 }
@@ -248,12 +246,12 @@ static inline void __drv_stop_protected(void *ip) {
  *          actively operating, this function can fail depending on the driver
  *          implementation and current state.
  *
- * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
  * @param         config        New driver configuration.
  */
 CC_FORCE_INLINE
 static inline msg_t drvConfigureX(void *ip, const void *config) {
-  base_driver_c *self = (base_driver_c *)ip;
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
   return self->vmt->drv.configure(ip, config);
 }
@@ -261,12 +259,12 @@ static inline msg_t drvConfigureX(void *ip, const void *config) {
 /**
  * @brief   Driver interface get.
  *
- * @param[in,out] ip            Pointer to a @p base_driver_c structure.
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
  * @return                      The driver interface or @p NULL if none.
  */
 CC_FORCE_INLINE
 static inline void * drvGetInterfaceX(void *ip) {
-  base_driver_c *self = (base_driver_c *)ip;
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
   return self->vmt->drv.getif(ip);
 }
@@ -279,7 +277,7 @@ static inline void * drvGetInterfaceX(void *ip) {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  /* Methods of base_driver_c.*/
+  /* Methods of hal_base_driver_c.*/
   msg_t drvOpen(const void *ip);
   void drvClose(const void *ip);
   driver_state_t drvGetStateX(const void *ip);

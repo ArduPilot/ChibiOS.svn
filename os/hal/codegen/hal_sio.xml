@@ -1,41 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_sio_test"
-  check="HAL_USE_SIO == TRUE">
+  name="hal_sio_test" check="HAL_USE_SIO == TRUE">
   <brief>SIO Driver macros and structures.</brief>
   <note>This is a generated file, do not edit directly.</note>
   <public>
     <definitions_early>
       <group description="SIO masks offset">
-        <define name="SIO_EV_RXNOTEMPY_POS"   value="CHN_INPUT_AVAILABLE_POS" />
-        <define name="SIO_EV_TXNOTFULL_POS"   value="CHN_OUTPUT_EMPTY_POS" />
-        <define name="SIO_EV_TXDONE_POS"      value="CHN_TRANSMISSION_END_POS" />
-        <define name="SIO_EV_ALL_ERRORS_POS"  value="CHN_PARITY_ERROR_POS" />
-        <define name="SIO_EV_PARITY_ERR_POS"  value="CHN_PARITY_ERROR_POS" />
+        <define name="SIO_EV_RXNOTEMPY_POS" value="CHN_INPUT_AVAILABLE_POS" />
+        <define name="SIO_EV_TXNOTFULL_POS" value="CHN_OUTPUT_EMPTY_POS" />
+        <define name="SIO_EV_TXDONE_POS" value="CHN_TRANSMISSION_END_POS" />
+        <define name="SIO_EV_ALL_ERRORS_POS" value="CHN_PARITY_ERROR_POS" />
+        <define name="SIO_EV_PARITY_ERR_POS" value="CHN_PARITY_ERROR_POS" />
         <define name="SIO_EV_FRAMING_ERR_POS" value="CHN_FRAMING_ERROR_POS" />
-        <define name="SIO_EV_NOISE_ERR_POS"   value="CHN_NOISE_ERROR_POS" />
+        <define name="SIO_EV_NOISE_ERR_POS" value="CHN_NOISE_ERROR_POS" />
         <define name="SIO_EV_OVERRUN_ERR_POS" value="CHN_OVERRUN_ERROR_POS" />
-        <define name="SIO_EV_RXIDLE_POS"      value="CHN_IDLE_DETECTED_POS" />
-        <define name="SIO_EV_RXBREAK_POS"     value="CHN_BREAK_DETECTED_POS" />
+        <define name="SIO_EV_RXIDLE_POS" value="CHN_IDLE_DETECTED_POS" />
+        <define name="SIO_EV_RXBREAK_POS" value="CHN_BREAK_DETECTED_POS" />
       </group>
       <group description="Event flags (compatible with channel and serial events)">
-        <define name="SIO_EV_NONE"            value="0U" />
-        <define name="SIO_EV_RXNOTEMPY"       value="(1U &lt;&lt; SIO_EV_RXNOTEMPY_POS" />
-        <define name="SIO_EV_TXNOTFULL"       value="(1U &lt;&lt; SIO_EV_TXNOTFULL_POS" />
-        <define name="SIO_EV_ALL_DATA"        value="(SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)" />
-        <define name="SIO_EV_TXDONE"          value="(1U &lt;&lt; SIO_EV_TXDONE_POS" />
-        <define name="SIO_EV_PARITY_ERR"      value="(1U &lt;&lt; SIO_EV_PARITY_ERR_POS" />
-        <define name="SIO_EV_FRAMING_ERR"     value="(1U &lt;&lt; SIO_EV_FRAMING_ERR_POS" />
-        <define name="SIO_EV_NOISE_ERR"       value="(1U &lt;&lt; SIO_EV_NOISE_ERR_POS" />
-        <define name="SIO_EV_OVERRUN_ERR"     value="(1U &lt;&lt; SIO_EV_OVERRUN_ERR_POS" />
-        <define name="SIO_EV_RXIDLE"          value="(1U &lt;&lt; SIO_EV_RXIDLE_POS" />
-        <define name="SIO_EV_RXBREAK"         value="(1U &lt;&lt; SIO_EV_RXBREAK_POS" />
-        <define name="SIO_EV_ALL_ERRORS"      value="(SIO_EV_PARITY_ERR | SIO_EV_FRAMING_ERR | SIO_EV_OVERRUN_ERR | SIO_EV_NOISE_ERR | SIO_EV_RXBREAK)" />
-        <define name="SIO_EV_ALL_EVENTS"      value="(SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)" />
+        <define name="SIO_EV_NONE" value="0U" />
+        <define name="SIO_EV_RXNOTEMPY" value="(1U &lt;&lt; SIO_EV_RXNOTEMPY_POS" />
+        <define name="SIO_EV_TXNOTFULL" value="(1U &lt;&lt; SIO_EV_TXNOTFULL_POS" />
+        <define name="SIO_EV_ALL_DATA" value="(SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)" />
+        <define name="SIO_EV_TXDONE" value="(1U &lt;&lt; SIO_EV_TXDONE_POS" />
+        <define name="SIO_EV_PARITY_ERR" value="(1U &lt;&lt; SIO_EV_PARITY_ERR_POS" />
+        <define name="SIO_EV_FRAMING_ERR" value="(1U &lt;&lt; SIO_EV_FRAMING_ERR_POS" />
+        <define name="SIO_EV_NOISE_ERR" value="(1U &lt;&lt; SIO_EV_NOISE_ERR_POS" />
+        <define name="SIO_EV_OVERRUN_ERR" value="(1U &lt;&lt; SIO_EV_OVERRUN_ERR_POS" />
+        <define name="SIO_EV_RXIDLE" value="(1U &lt;&lt; SIO_EV_RXIDLE_POS" />
+        <define name="SIO_EV_RXBREAK" value="(1U &lt;&lt; SIO_EV_RXBREAK_POS" />
+        <define name="SIO_EV_ALL_ERRORS"
+          value="(SIO_EV_PARITY_ERR | SIO_EV_FRAMING_ERR | SIO_EV_OVERRUN_ERR | SIO_EV_NOISE_ERR | SIO_EV_RXBREAK)" />
+        <define name="SIO_EV_ALL_EVENTS"
+          value="(SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)" />
       </group>
       <group description="Additional messages">
-        <define name="SIO_MSG_ERRORS"         value="1U" />
+        <define name="SIO_MSG_ERRORS" value="1U" />
       </group>
     </definitions_early>
     <configs>
@@ -156,8 +157,57 @@ do {
         <brief>Pushes one frame into the TX FIFO.</brief>
         <note>If the FIFO is full then the behavior is unpredictable.</note>
         <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="data" dir="in">frame to be written</param>
         <implementation><![CDATA[sio_lld_put(siop, data)]]></implementation>
       </macro>
+      <macro name="sioAsyncReadX">
+        <brief>Reads data from the RX FIFO.</brief>
+        <details>This function is non-blocking, data is read if present and the
+          effective amount is
+          returned.
+        </details>
+        <note>This function can be called from any context but it is meant to be called from the @p
+          cb callback handler.</note>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="size" dir="in">maximum number of frames to read</param>
+        <param name="buffer" dir="out">buffer for the received data</param>
+        <return>The number of received frames.</return>
+        <implementation><![CDATA[sio_lld_read(siop, size, buffer)]]></implementation>
+      </macro>
+      <macro name="sioAsyncWriteX">
+        <brief>Writes data into the TX FIFO.</brief>
+        <details>This function is non-blocking, data is written if there is space in the FIFO and
+          the effective amount is returned.
+        </details>
+        <note>This function can be called from any context but it is meant to be called from the @p
+          cb callback handler.</note>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="size" dir="in">maximum number of frames to read</param>
+        <param name="buffer" dir="in">buffer containing the data to be transmitted</param>
+        <return>The number of transmitted frames.</return>
+        <implementation><![CDATA[sio_lld_write(siop, size, buffer)]]></implementation>
+      </macro>
+      <macro name="sioControlX">
+        <brief>Control operation on a serial port.</brief>
+        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="operation" dir="in">control operation code</param>
+        <param name="arg" dir="both">operation argument</param>
+        <return>The control operation status.</return>
+        <implementation><![CDATA[sio_lld_control(siop, operation, arg)]]></implementation>
+      </macro>
+      <group description="Low level driver helper macros">
+        <macro name="__sio_callback">
+          <brief>SIO callback.</brief>
+          <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+          <return>The control operation status.</return>
+          <implementation><![CDATA[
+do {
+  if ((siop)->cb != NULL) {
+    (siop)->cb(siop);
+  }
+} while (false)]]></implementation>
+        </macro>
+      </group>
     </macros>
     <types>
       <typedef name="sioevents_t">
@@ -240,7 +290,8 @@ self->drv.id      = 0U;
                 is
                 physically initialized. An implementation-dependent default
                 configuration is used
-                for initialization.</details>
+                for
+                initialization.</details>
               <return>The operation status.</return>
               <implementation><![CDATA[ ]]></implementation>
             </method>

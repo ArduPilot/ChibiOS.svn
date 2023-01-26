@@ -324,10 +324,10 @@ ${s}
 [#--
   -- Generates a multi-line C macro from an XML node.
   --]
-[#macro GenerateMacroFromNode indent="  " params=[] node=[]]
+[#macro GenerateMacroFromNode indent="  " node=[]]
   [#local macro  = node /]
   [#local name   = macro.@name[0]!"no-name"?trim /]
-  [#local params = MakeCallParamsSequence(params, macro) /]
+  [#local params = MakeCallParamsSequence([], macro) /]
   [#local s      = ("#define " + name + "(" + params?join(", ") +
                    ") ")?right_pad(backslash_align) + "\\" /]
 ${s}
@@ -350,8 +350,27 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
   [#list node.* as this]
     [#if this?node_name == "macro"]
 [@doxygen.EmitFullCommentFromNode "" this /]
-[@ccode.GenerateMacroFromNode node=this /]
+[@GenerateMacroFromNode node=this /]
       [#if this?has_next || node?node_name?starts_with("macros")]
+
+      [/#if]
+    [#elseif this?node_name == "group"]
+      [#local groupdescription = this.@description[0]!"no-description"?trim /]
+/**
+ * @name    ${groupdescription}
+ * @{
+ */
+[@GenerateMacrosFromNode node=this /]
+/** @} */
+      [#if (node?node_name != "group") && (node?node_name != "condition")]
+
+      [/#if]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = this.@check[0]!"1"?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateMacrosFromNode node=this /]
+#endif /* ${condcheck} */
+      [#if (node?node_name != "group") && (node?node_name != "condition")]
 
       [/#if]
     [/#if]

@@ -354,37 +354,43 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
 [#macro GenerateMacrosFromNode indent="  " node=[]]
   [#list node.* as this]
     [#if this?node_name == "macro"]
-[@doxygen.EmitFullCommentFromNode "" this /]
-[@GenerateMacroFromNode node=this /]
-      [#if this?has_next || node?node_name?starts_with("macros")]
+      [#if this.brief[0]?? && !this?is_first]
 
       [/#if]
+[@doxygen.EmitFullCommentFromNode "" this /]
+[@GenerateMacroFromNode node=this /]
     [#elseif this?node_name == "group"]
       [#local groupdescription = (this.@description[0]!"no-description")?trim /]
+      [#if !this?is_first]
+
+      [/#if]
 /**
  * @name    ${groupdescription}
  * @{
  */
 [@GenerateMacrosFromNode node=this /]
 /** @} */
-      [#if (node?node_name != "group") && (node?node_name != "condition")]
-
-      [/#if]
     [#elseif this?node_name == "condition"]
       [#local condcheck = (this.@check[0]!"1")?trim /]
+      [#if !this?is_first]
+
+      [/#if]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateMacrosFromNode node=this /]
 #endif /* ${condcheck} */
-      [#if (node?node_name != "group") && (node?node_name != "condition")]
-
-      [/#if]
     [#elseif this?node_name == "elseif"]
       [#local condcheck = (this.@check[0]!"")?trim /]
+      [#if !this?is_first]
+
+      [/#if]
       [#if condcheck?length == 0]
 #else
       [#else]
 #elif ${condcheck}
       [/#if]
+    [/#if]
+    [#if this?is_last && (node?node_name?starts_with("macros"))]
+
     [/#if]
   [/#list]
 [/#macro]

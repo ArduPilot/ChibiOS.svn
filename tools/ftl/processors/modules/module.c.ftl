@@ -85,6 +85,7 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
+[@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
   [#-- Scanning all public methods to be generated in this file.--]
   [#list module.public.classes.class as class]
 /*===========================================================================*/
@@ -97,6 +98,7 @@
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
+[@ccode.GenerateFunctionsFromNode node=module.public.functions /]
   [#if module_condition?length > 0]
 #endif /* ${module_condition} */
 

@@ -57,14 +57,15 @@
           value="(SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)" />
       </group>
       <group description="Additional messages">
-        <define name="SIO_MSG_ERRORS" value="1U" />
+        <define name="SIO_MSG_ERRORS" value="1" />
       </group>
     </definitions_early>
     <configs>
       <config name="SIO_DEFAULT_BITRATE" default="38400">
         <brief>Default bit rate.</brief>
-        <note>Configuration parameter, this is the baud rate selected
-          for the default configuration.</note>
+        <details>Configuration parameter, this is the baud rate selected
+          for the default configuration.
+        </details>
         <assert invalid="$N &lt;= 0" />
       </config>
       <config name="SIO_USE_SYNCHRONIZATION" default="TRUE">
@@ -98,9 +99,11 @@
       </macro>
       <macro name="sioHasRXErrorsX">
         <brief>Determines if RX has pending errors to be read and
-          cleared.</brief>
+          cleared.
+        </brief>
         <note>Only error flags are handled, data and idle flags are not
-          considered.</note>
+          considered.
+        </note>
         <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The RX error events.</return>
         <implementation><![CDATA[sio_lld_has_rx_errors(siop)]]></implementation>
@@ -174,7 +177,8 @@ do {
       <macro name="sioGetX">
         <brief>Returns one frame from the RX FIFO.</brief>
         <note>If the FIFO is empty then the returned value is
-          unpredictable.</note>
+          unpredictable.
+        </note>
         <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The frame from RX FIFO.</return>
         <implementation><![CDATA[sio_lld_get(siop)]]></implementation>
@@ -253,7 +257,7 @@ do {
 do {
   osalSysLockFromISR();
   osalThreadResumeI(&(siop)->sync_rx, MSG_OK);
-  osalSysUnlockFromISR();\
+  osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
           <macro name="__sio_wakeup_rxidle">
@@ -286,7 +290,7 @@ do {
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
-          <elseif/>
+          <elseif />
           <macro name="__sio_wakeup_errors">
             <param name="siop" />
           </macro>
@@ -304,6 +308,14 @@ do {
           </macro>
         </condition>
       </group>
+      <macro name="__sio_reloc_field">
+        <brief>Relocates a bit field.</brief>
+        <param name="v" dir="in">value</param>
+        <param name="m" dir="in">mask of the bit field</param>
+        <param name="s" dir="in">source bit offset</param>
+        <param name="d" dir="in">destination bit offset</param>
+        <implementation><![CDATA[((((v) & m) >> (s)) << (d))]]></implementation>
+      </macro>
     </macros>
     <types>
       <typedef name="sioevents_t">
@@ -316,7 +328,8 @@ do {
       </typedef>
       <typedef name="SIOConfig">
         <brief>Type of structure representing a SIO configuration
-          (legacy).</brief>
+          (legacy).
+        </brief>
         <basetype ctype="sio_config_t" />
       </typedef>
       <typedef name="SIODriver">
@@ -396,6 +409,16 @@ self->drv.id      = 0U;
         </methods>
       </class>
     </classes>
+    <functions>
+      <function name="sioInit">
+        <brief>SIO Driver initialization.</brief>
+        <note>This function is implicitly invoked by @p halInit(), there
+          is no need to explicitly initialize the driver.</note>
+        <implementation><![CDATA[
+
+sio_lld_init();]]></implementation>
+      </function>
+    </functions>
   </public>
   <private>
     <inclusions>

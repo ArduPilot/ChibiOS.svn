@@ -115,6 +115,10 @@ extern "C" {
   [#list module.public.classes.class as class]
 [@cclasses.GenerateClassRegularMethodsPrototypes class /]
   [/#list]
+  [#if module.public.functions[0]??]
+  /* Regular functions.*/
+[@ccode.GenerateFunctionPrototypesFromNode node=module.public.functions /]
+  [/#if]
 #ifdef __cplusplus
 }
 #endif
@@ -123,11 +127,11 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-#endif /* ${basename?upper_case}_H */
-
   [#if module_condition?length > 0]
 #endif /* ${module_condition} */
 
   [/#if]
+#endif /* ${basename?upper_case}_H */
+
 /** @} */
 [/#list]

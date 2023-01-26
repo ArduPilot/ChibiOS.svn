@@ -34,6 +34,30 @@
 [#assign boundary = 80 /]
 
 [#--
+  -- Returns the function/macro name from an XML node.
+  --]
+[#function GetName node=[]]
+  [#local name = (node.@name[0]!"no-name")?trim /]
+  [#return name /]
+[/#function]
+
+[#--
+  -- Returns the function return C type from an XML node.
+  --]
+[#function GetCType node=[]]
+  [#local ctype = (node.@ctype[0]!"void")?trim /]
+  [#return ctype /]
+[/#function]
+
+[#--
+  -- Returns the function/macro implementation from an XML node.
+  --]
+[#function GetImplementation node=[]]
+  [#local impl = node.implementation[0]!"" /]
+  [#return impl /]
+[/#function]
+
+[#--
   -- Emits a C function body code reformatting the indentation using the
   -- specified line prefix.
   --]
@@ -121,9 +145,9 @@ ${fstring}[#rt]
   --]
 [#macro GeneratePrototype indent="" name="" modifiers=[] params=[] node=[]]
   [#if name?length == 0]
-    [#local name = (node.@name[0]!"no-name")?trim /]
+    [#local name = GetName(node) /]
   [/#if]
-  [#local retctype = (node.@ctype[0]!"void")?trim /]
+  [#local retctype = GetCType(node) /]
   [#local l1 = retctype + " " + name + "(" /]
   [#if modifiers?size > 0]
     [#local l1 = modifiers?join(" ") + " " + l1 /]
@@ -328,7 +352,7 @@ ${s}
   [#local macro  = node /]
   [#local name   = (macro.@name[0]!"no-name")?trim /]
   [#local params = MakeCallParamsSequence([], macro) /]
-  [#local macroimpl = ((macro.implementation[0])!"")?trim /]
+  [#local macroimpl = GetImplementation(macro) /]
   [#if macroimpl?length == 0]
     [#local s      = "#define " + name + "(" + params?join(", ") + ")" /]
 ${s}
@@ -449,6 +473,89 @@ ${fieldstring}
     [#elseif node?node_name == "verbatim"]
       [#local ccode = (node[0]!"")?trim /]
 [@EmitIndentedCCode indent ccode /]
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- Generates a function from an XML node.
+  --]
+[#macro GenerateFunctionFromNode modifiers=[] node=[]]
+  [#local funcimpl = GetImplementation(node) /]
+[@GeneratePrototype modifiers=modifiers node=node /] {
+[@EmitIndentedCCode indent="  " ccode=funcimpl /]
+}
+[/#macro]
+
+[#--
+  -- Generates all functions from an XML node.
+  --]
+[#macro GenerateFunctionsFromNode modifiers=[] node=[]]
+  [#list node.* as this]
+    [#if this?node_name == "function"]
+      [#if this.brief[0]?? && !this?is_first]
+
+      [/#if]
+[@doxygen.EmitFullCommentFromNode "" this /]
+[@GenerateFunctionFromNode modifiers=modifiers node=this /]
+    [#elseif this?node_name == "group"]
+      [#local groupdescription = (this.@description[0]!"no-description")?trim /]
+      [#if !this?is_first]
+
+      [/#if]
+/**
+ * @name    ${groupdescription}
+ * @{
+ */
+[@GenerateFunctionsFromNode modifiers=modifiers node=this /]
+/** @} */
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
+      [#if !this?is_first]
+
+      [/#if]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateFunctionsFromNode modifiers=modifiers node=this /]
+#endif /* ${condcheck} */
+    [#elseif this?node_name == "elseif"]
+      [#local condcheck = (this.@check[0]!"")?trim /]
+      [#if !this?is_first]
+
+      [/#if]
+      [#if condcheck?length == 0]
+#else
+      [#else]
+#elif ${condcheck}
+      [/#if]
+    [/#if]
+    [#if this?is_last && (node?node_name?starts_with("functions"))]
+
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- Generates all function prototypes from an XML node.
+  -- Prototypes are generated without spacing and without comments.
+  --]
+[#macro GenerateFunctionPrototypesFromNode indent="  " modifiers=[] node=[]]
+  [#list node.* as this]
+    [#if this?node_name == "function"]
+[@GeneratePrototype indent=indent modifiers=modifiers node=this /]
+    [#elseif this?node_name == "group"]
+[@GeneratePrototype indent=indent modifiers=modifiers node=this /]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
+#if ${condcheck}
+[@GeneratePrototype indent=indent modifiers=modifiers node=this /]
+#endif
+    [#elseif this?node_name == "elseif"]
+      [#local condcheck = (this.@check[0]!"")?trim /]
+      [#if condcheck?length == 0]
+#else
+      [#else]
+#elif ${condcheck}
+      [/#if]
     [/#if]
   [/#list]
 [/#macro]

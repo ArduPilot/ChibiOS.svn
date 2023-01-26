@@ -267,7 +267,7 @@
     <xs:complexContent>
       <xs:extension base="ParameterizedItemType">
         <xs:sequence>
-          <xs:element name="implementation" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+          <xs:element name="implementation" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -439,9 +439,9 @@
 
   <xs:complexType name="groupedMacrosType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="macro" type="macroType" maxOccurs="unbounded" minOccurs="1"></xs:element>
-      <xs:element name="group" type="groupedMacrosType" maxOccurs="unbounded" minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalMacrosType" maxOccurs="unbounded"
+      <xs:element name="macro" type="macroType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="group" type="groupedMacrosType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalMacrosType" maxOccurs="1"
         minOccurs="1">
       </xs:element>
     </xs:choice>
@@ -450,12 +450,23 @@
 
   <xs:complexType name="conditionalMacrosType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="macro" type="macroType" maxOccurs="unbounded" minOccurs="1"></xs:element>
-      <xs:element name="group" type="groupedMacrosType" maxOccurs="unbounded" minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalMacrosType" maxOccurs="unbounded"
+      <xs:element name="macro" type="macroType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="group" type="groupedMacrosType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="condition" type="conditionalMacrosType"
+        maxOccurs="1" minOccurs="1">
+      </xs:element>
+      <xs:element name="elseif" type="elseifType" maxOccurs="1"
         minOccurs="1">
       </xs:element>
     </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="elseifType">
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
 </xs:schema>

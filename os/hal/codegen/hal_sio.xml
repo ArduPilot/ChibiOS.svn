@@ -7,29 +7,50 @@
   <public>
     <definitions_early>
       <group description="SIO masks offset">
-        <define name="SIO_EV_RXNOTEMPY_POS" value="CHN_INPUT_AVAILABLE_POS" />
-        <define name="SIO_EV_TXNOTFULL_POS" value="CHN_OUTPUT_EMPTY_POS" />
-        <define name="SIO_EV_TXDONE_POS" value="CHN_TRANSMISSION_END_POS" />
-        <define name="SIO_EV_ALL_ERRORS_POS" value="CHN_PARITY_ERROR_POS" />
-        <define name="SIO_EV_PARITY_ERR_POS" value="CHN_PARITY_ERROR_POS" />
-        <define name="SIO_EV_FRAMING_ERR_POS" value="CHN_FRAMING_ERROR_POS" />
-        <define name="SIO_EV_NOISE_ERR_POS" value="CHN_NOISE_ERROR_POS" />
-        <define name="SIO_EV_OVERRUN_ERR_POS" value="CHN_OVERRUN_ERROR_POS" />
-        <define name="SIO_EV_RXIDLE_POS" value="CHN_IDLE_DETECTED_POS" />
-        <define name="SIO_EV_RXBREAK_POS" value="CHN_BREAK_DETECTED_POS" />
+        <define name="SIO_EV_RXNOTEMPY_POS"
+          value="CHN_INPUT_AVAILABLE_POS" />
+        <define name="SIO_EV_TXNOTFULL_POS"
+          value="CHN_OUTPUT_EMPTY_POS" />
+        <define name="SIO_EV_TXDONE_POS"
+          value="CHN_TRANSMISSION_END_POS" />
+        <define name="SIO_EV_ALL_ERRORS_POS"
+          value="CHN_PARITY_ERROR_POS" />
+        <define name="SIO_EV_PARITY_ERR_POS"
+          value="CHN_PARITY_ERROR_POS" />
+        <define name="SIO_EV_FRAMING_ERR_POS"
+          value="CHN_FRAMING_ERROR_POS" />
+        <define name="SIO_EV_NOISE_ERR_POS"
+          value="CHN_NOISE_ERROR_POS" />
+        <define name="SIO_EV_OVERRUN_ERR_POS"
+          value="CHN_OVERRUN_ERROR_POS" />
+        <define name="SIO_EV_RXIDLE_POS"
+          value="CHN_IDLE_DETECTED_POS" />
+        <define name="SIO_EV_RXBREAK_POS"
+          value="CHN_BREAK_DETECTED_POS" />
       </group>
-      <group description="Event flags (compatible with channel and serial events)">
+      <group
+        description="Event flags (compatible with channel and serial events)">
         <define name="SIO_EV_NONE" value="0U" />
-        <define name="SIO_EV_RXNOTEMPY" value="(1U &lt;&lt; SIO_EV_RXNOTEMPY_POS" />
-        <define name="SIO_EV_TXNOTFULL" value="(1U &lt;&lt; SIO_EV_TXNOTFULL_POS" />
-        <define name="SIO_EV_ALL_DATA" value="(SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)" />
-        <define name="SIO_EV_TXDONE" value="(1U &lt;&lt; SIO_EV_TXDONE_POS" />
-        <define name="SIO_EV_PARITY_ERR" value="(1U &lt;&lt; SIO_EV_PARITY_ERR_POS" />
-        <define name="SIO_EV_FRAMING_ERR" value="(1U &lt;&lt; SIO_EV_FRAMING_ERR_POS" />
-        <define name="SIO_EV_NOISE_ERR" value="(1U &lt;&lt; SIO_EV_NOISE_ERR_POS" />
-        <define name="SIO_EV_OVERRUN_ERR" value="(1U &lt;&lt; SIO_EV_OVERRUN_ERR_POS" />
-        <define name="SIO_EV_RXIDLE" value="(1U &lt;&lt; SIO_EV_RXIDLE_POS" />
-        <define name="SIO_EV_RXBREAK" value="(1U &lt;&lt; SIO_EV_RXBREAK_POS" />
+        <define name="SIO_EV_RXNOTEMPY"
+          value="(1U &lt;&lt; SIO_EV_RXNOTEMPY_POS" />
+        <define name="SIO_EV_TXNOTFULL"
+          value="(1U &lt;&lt; SIO_EV_TXNOTFULL_POS" />
+        <define name="SIO_EV_ALL_DATA"
+          value="(SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)" />
+        <define name="SIO_EV_TXDONE"
+          value="(1U &lt;&lt; SIO_EV_TXDONE_POS" />
+        <define name="SIO_EV_PARITY_ERR"
+          value="(1U &lt;&lt; SIO_EV_PARITY_ERR_POS" />
+        <define name="SIO_EV_FRAMING_ERR"
+          value="(1U &lt;&lt; SIO_EV_FRAMING_ERR_POS" />
+        <define name="SIO_EV_NOISE_ERR"
+          value="(1U &lt;&lt; SIO_EV_NOISE_ERR_POS" />
+        <define name="SIO_EV_OVERRUN_ERR"
+          value="(1U &lt;&lt; SIO_EV_OVERRUN_ERR_POS" />
+        <define name="SIO_EV_RXIDLE"
+          value="(1U &lt;&lt; SIO_EV_RXIDLE_POS" />
+        <define name="SIO_EV_RXBREAK"
+          value="(1U &lt;&lt; SIO_EV_RXBREAK_POS" />
         <define name="SIO_EV_ALL_ERRORS"
           value="(SIO_EV_PARITY_ERR | SIO_EV_FRAMING_ERR | SIO_EV_OVERRUN_ERR | SIO_EV_NOISE_ERR | SIO_EV_RXBREAK)" />
         <define name="SIO_EV_ALL_EVENTS"
@@ -42,14 +63,16 @@
     <configs>
       <config name="SIO_DEFAULT_BITRATE" default="38400">
         <brief>Default bit rate.</brief>
-        <note>Configuration parameter, this is the baud rate selected for the default configuration.</note>
+        <note>Configuration parameter, this is the baud rate selected
+          for the default configuration.</note>
         <assert invalid="$N &lt;= 0" />
       </config>
       <config name="SIO_USE_SYNCHRONIZATION" default="TRUE">
         <brief>Support for thread synchronization API.</brief>
         <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
       </config>
-      <config name="SIO_USE_STREAMS_INTERFACE" default="SIO_USE_SYNCHRONIZATION">
+      <config name="SIO_USE_STREAMS_INTERFACE"
+        default="SIO_USE_SYNCHRONIZATION">
         <brief>Support for streams interface.</brief>
         <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
       </config>
@@ -74,8 +97,10 @@
         <implementation><![CDATA[sio_lld_is_rx_idle(siop)]]></implementation>
       </macro>
       <macro name="sioHasRXErrorsX">
-        <brief>Determines if RX has pending errors to be read and cleared.</brief>
-        <note>Only error flags are handled, data and idle flags are not considered.</note>
+        <brief>Determines if RX has pending errors to be read and
+          cleared.</brief>
+        <note>Only error flags are handled, data and idle flags are not
+          considered.</note>
         <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The RX error events.</return>
         <implementation><![CDATA[sio_lld_has_rx_errors(siop)]]></implementation>
@@ -148,7 +173,8 @@ do {
       </macro>
       <macro name="sioGetX">
         <brief>Returns one frame from the RX FIFO.</brief>
-        <note>If the FIFO is empty then the returned value is unpredictable.</note>
+        <note>If the FIFO is empty then the returned value is
+          unpredictable.</note>
         <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <return>The frame from RX FIFO.</return>
         <implementation><![CDATA[sio_lld_get(siop)]]></implementation>
@@ -162,12 +188,12 @@ do {
       </macro>
       <macro name="sioAsyncReadX">
         <brief>Reads data from the RX FIFO.</brief>
-        <details>This function is non-blocking, data is read if present and the
-          effective amount is
-          returned.
+        <details>This function is non-blocking, data is read if present
+          and the effective amount is returned.
         </details>
-        <note>This function can be called from any context but it is meant to be called from the @p
-          cb callback handler.</note>
+        <note>This function can be called from any context but it is
+          meant to be called from the @p cb callback handler.
+        </note>
         <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <param name="size" dir="in">maximum number of frames to read</param>
         <param name="buffer" dir="out">buffer for the received data</param>
@@ -176,11 +202,12 @@ do {
       </macro>
       <macro name="sioAsyncWriteX">
         <brief>Writes data into the TX FIFO.</brief>
-        <details>This function is non-blocking, data is written if there is space in the FIFO and
-          the effective amount is returned.
+        <details>This function is non-blocking, data is written if there
+          is space in the FIFO and the effective amount is returned.
         </details>
-        <note>This function can be called from any context but it is meant to be called from the @p
-          cb callback handler.</note>
+        <note>This function can be called from any context but it is
+          meant to be called from the @p cb callback handler.
+        </note>
         <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
         <param name="size" dir="in">maximum number of frames to read</param>
         <param name="buffer" dir="in">buffer containing the data to be transmitted</param>
@@ -207,6 +234,75 @@ do {
   }
 } while (false)]]></implementation>
         </macro>
+        <condition check="SIO_USE_SYNCHRONIZATION == TRUE">
+          <macro name="__sio_wakeup_errors">
+            <brief>Wakes up because RX errors.</brief>
+            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <implementation><![CDATA[
+do {
+  osalSysLockFromISR();
+  osalThreadResumeI(&(siop)->sync_rx, SIO_MSG_ERRORS);
+  osalThreadResumeI(&(siop)->sync_rxidle, SIO_MSG_ERRORS);
+  osalSysUnlockFromISR();
+} while (false)]]></implementation>
+          </macro>
+          <macro name="__sio_wakeup_rx">
+            <brief>Wakes up the RX-waiting thread.</brief>
+            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <implementation><![CDATA[
+do {
+  osalSysLockFromISR();
+  osalThreadResumeI(&(siop)->sync_rx, MSG_OK);
+  osalSysUnlockFromISR();\
+} while (false)]]></implementation>
+          </macro>
+          <macro name="__sio_wakeup_rxidle">
+            <brief>Wakes up the RX-idle-waiting thread.</brief>
+            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <implementation><![CDATA[
+do {
+  osalSysLockFromISR();
+  osalThreadResumeI(&(siop)->sync_rxidle, MSG_OK);
+  osalSysUnlockFromISR();
+} while (false)]]></implementation>
+          </macro>
+          <macro name="__sio_wakeup_tx">
+            <brief>Wakes up the TX-waiting thread.</brief>
+            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <implementation><![CDATA[
+do {
+  osalSysLockFromISR();
+  osalThreadResumeI(&(siop)->sync_tx, MSG_OK);
+  osalSysUnlockFromISR();
+} while (false)]]></implementation>
+          </macro>
+          <macro name="__sio_wakeup_txend">
+            <brief>Wakes up the TXend-waiting thread.</brief>
+            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <implementation><![CDATA[
+do {
+  osalSysLockFromISR();
+  osalThreadResumeI(&(siop)->sync_txend, MSG_OK);
+  osalSysUnlockFromISR();
+} while (false)]]></implementation>
+          </macro>
+          <elseif/>
+          <macro name="__sio_wakeup_errors">
+            <param name="siop" />
+          </macro>
+          <macro name="__sio_wakeup_rx">
+            <param name="siop" />
+          </macro>
+          <macro name="__sio_wakeup_rxidle">
+            <param name="siop" />
+          </macro>
+          <macro name="__sio_wakeup_tx">
+            <param name="siop" />
+          </macro>
+          <macro name="__sio_wakeup_txend">
+            <param name="siop" />
+          </macro>
+        </condition>
       </group>
     </macros>
     <types>
@@ -219,7 +315,8 @@ do {
         <basetype ctype="struct hal_sio_config" />
       </typedef>
       <typedef name="SIOConfig">
-        <brief>Type of structure representing a SIO configuration (legacy).</brief>
+        <brief>Type of structure representing a SIO configuration
+          (legacy).</brief>
         <basetype ctype="sio_config_t" />
       </typedef>
       <typedef name="SIODriver">
@@ -231,13 +328,14 @@ do {
 #include "hal_sio_lld.h"]]></verbatim>
     </types>
     <classes>
-      <class name="hal_sio_driver" namespace="sio" ancestor="base_driver" descr="SIO driver"
-        type="regular">
+      <class name="hal_sio_driver" namespace="sio"
+        ancestor="base_driver" descr="SIO driver" type="regular">
         <brief>
         </brief>
         <fields>
           <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
-            <field name="channel" ctype="base_asynchronous_channel_c">
+            <field name="channel"
+              ctype="base_asynchronous_channel_c">
               <brief>Channel interface.</brief>
             </field>
           </condition>
@@ -286,12 +384,11 @@ self->drv.id      = 0U;
           <regular>
             <method name="drvOpen" ctype="msg_t">
               <brief>Driver open.</brief>
-              <details>Returns a reference to the driver, on the 1st open the peripheral
-                is
-                physically initialized. An implementation-dependent default
-                configuration is used
-                for
-                initialization.</details>
+              <details>Returns a reference to the driver, on the 1st
+                open the peripheral is physically initialized. An
+                implementation-dependent default configuration is used
+                for initialization.
+              </details>
               <return>The operation status.</return>
               <implementation><![CDATA[ ]]></implementation>
             </method>

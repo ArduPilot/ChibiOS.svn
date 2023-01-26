@@ -96,8 +96,8 @@ ${fstring}[#rt]
   --]
 [#function MakeProtoParamsSequence params=[] node=[]]
   [#list node.param as param]
-    [#local name  = param.@name[0]!"no-name"?trim
-            ctype = param.@ctype[0]!"no-type $N"?trim /]
+    [#local name  = (param.@name[0]!"no-name")?trim
+            ctype = (param.@ctype[0]!"no-type $N")?trim /]
     [#if ctype?contains("$N")]
       [#local pstring = ctype?replace("$N", name) /]
     [#else]
@@ -121,9 +121,9 @@ ${fstring}[#rt]
   --]
 [#macro GeneratePrototype indent="" name="" modifiers=[] params=[] node=[]]
   [#if name?length == 0]
-    [#local name = node.@name[0]!"no-name"?trim /]
+    [#local name = (node.@name[0]!"no-name")?trim /]
   [/#if]
-  [#local retctype = node.@ctype[0]!"void"?trim /]
+  [#local retctype = (node.@ctype[0]!"void")?trim /]
   [#local l1 = retctype + " " + name + "(" /]
   [#if modifiers?size > 0]
     [#local l1 = modifiers?join(" ") + " " + l1 /]
@@ -151,7 +151,7 @@ ${line + ")"}[#rt]
   --]
 [#function MakeCallParamsSequence params=[] node=[]]
   [#list node.param as param]
-    [#local name  = param.@name[0]!"no-name"?trim /]
+    [#local name  = (param.@name[0]!"no-name")?trim /]
     [#local params = params + [name] /]
   [/#list]
   [#return params /]
@@ -187,7 +187,7 @@ ${line + ");"}
   --]
 [#macro GenerateInclusionsFromNode node=[]]
   [#list node.include as include]
-    [#assign style = include.@style[0]!"regular" /]
+    [#assign style = (include.@style[0]!"regular")?trim /]
     [#if style == "angular"]
 #include <${include[0]}>
     [#else]
@@ -205,8 +205,8 @@ ${line + ");"}
   --]
 [#macro GenerateDefineFromNode node=[]]
   [#local define = node /]
-  [#local name   = define.@name[0]!"no-name"?trim
-          value  = define.@value[0]!"no-value"?trim /]
+  [#local name   = (define.@name[0]!"no-name")?trim
+          value  = (define.@value[0]!"no-value")?trim /]
   [#if define.param[0]??]
     [#local params = MakeCallParamsSequence([], define) /]
     [#local s = ("#define " + name +  "(" + params?join(", ") + ")")?right_pad(define_value_align) + value /]
@@ -235,7 +235,7 @@ ${s}
         [/#if]
       [/#if]
     [#elseif this?node_name == "group"]
-      [#local groupdescription = this.@description[0]!"no-description"?trim /]
+      [#local groupdescription = (this.@description[0]!"no-description")?trim /]
 /**
  * @name    ${groupdescription}
  * @{
@@ -246,7 +246,7 @@ ${s}
 
       [/#if]
     [#elseif this?node_name == "condition"]
-      [#local condcheck = this.@check[0]!"1"?trim /]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateDefinesFromNode this /]
 #endif /* ${condcheck} */
@@ -262,8 +262,8 @@ ${s}
   --]
 [#macro GenerateConfigFromNode node=[]]
   [#local config  = node /]
-  [#local name    = config.@name[0]!"no-name"?trim /]
-  [#local default = config.@default[0]!"no-default"?trim /]
+  [#local name    = (config.@name[0]!"no-name")?trim /]
+  [#local default = (config.@default[0]!"no-default")?trim /]
   [#local s         = ("#define " + name +  " ")?right_pad(define_value_align) +
                       default /]
 #if !defined(${name}) || defined(__DOXYGEN__)
@@ -302,7 +302,7 @@ ${s}
 [#macro GenerateConfigAssertsFromNode node=[]]
   [#local configs = node /]
   [#list configs.config as config]
-    [#local name    = config.@name[0]!"no-name"?trim /]
+    [#local name    = (config.@name[0]!"no-name")?trim /]
     [#if config.assert[0]??]
 /* Checks on ${name} configuration.*/
       [#list config.assert as assert]
@@ -326,21 +326,26 @@ ${s}
   --]
 [#macro GenerateMacroFromNode indent="  " node=[]]
   [#local macro  = node /]
-  [#local name   = macro.@name[0]!"no-name"?trim /]
+  [#local name   = (macro.@name[0]!"no-name")?trim /]
   [#local params = MakeCallParamsSequence([], macro) /]
-  [#local s      = ("#define " + name + "(" + params?join(", ") +
-                   ") ")?right_pad(backslash_align) + "\\" /]
+  [#local macroimpl = ((macro.implementation[0])!"")?trim /]
+  [#if macroimpl?length == 0]
+    [#local s      = "#define " + name + "(" + params?join(", ") + ")" /]
 ${s}
-  [#local macroimpl = (macro.implementation[0])!"no-implementation" /]
-  [#local lines     = macroimpl?string?split("^", "rm") /]
-  [#list lines?filter(line -> line?trim?length > 0) as line]
-    [#local s = line?chop_linebreak /]
-    [#if line?is_last]
+  [#else]
+    [#local s      = ("#define " + name + "(" + params?join(", ") +
+                     ") ")?right_pad(backslash_align) + "\\" /]
+${s}
+    [#local lines     = macroimpl?string?split("^", "rm") /]
+    [#list lines?filter(line -> line?trim?length > 0) as line]
+      [#local s = line?chop_linebreak /]
+      [#if line?is_last]
 ${(indent + s + "")?right_pad(backslash_align)}
-    [#else]
+      [#else]
 ${(indent + s + "")?right_pad(backslash_align) + "\\"}
-    [/#if]
-  [/#list]
+      [/#if]
+    [/#list]
+  [/#if]
 [/#macro]
 
 [#--
@@ -355,7 +360,7 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
 
       [/#if]
     [#elseif this?node_name == "group"]
-      [#local groupdescription = this.@description[0]!"no-description"?trim /]
+      [#local groupdescription = (this.@description[0]!"no-description")?trim /]
 /**
  * @name    ${groupdescription}
  * @{
@@ -366,12 +371,19 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
 
       [/#if]
     [#elseif this?node_name == "condition"]
-      [#local condcheck = this.@check[0]!"1"?trim /]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateMacrosFromNode node=this /]
 #endif /* ${condcheck} */
       [#if (node?node_name != "group") && (node?node_name != "condition")]
 
+      [/#if]
+    [#elseif this?node_name == "elseif"]
+      [#local condcheck = (this.@check[0]!"")?trim /]
+      [#if condcheck?length == 0]
+#else
+      [#else]
+#elif ${condcheck}
       [/#if]
     [/#if]
   [/#list]
@@ -382,9 +394,9 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
   --]
 [#macro GenerateTypedefFromNode indent="" node=[]]
   [#local typedef = node /]
-  [#local typename = typedef.@name!"no-name"?trim /]
+  [#local typename = (typedef.@name!"no-name")?trim /]
   [#if typedef.basetype[0]??]
-    [#local basetypename = typedef.basetype[0].@ctype!"no-type"?trim /]
+    [#local basetypename = (typedef.basetype[0].@ctype!"no-type")?trim /]
 typedef ${basetypename} ${typename};
   [#elseif typedef.structtype[0]??]
   [#elseif typedef.enumtype[0]??]
@@ -403,7 +415,7 @@ typedef ${basetypename} ${typename};
 [@ccode.GenerateTypedefFromNode node=this /]
 
     [#elseif this?node_name == "verbatim"]
-      [#local ccode = this[0]!""?trim /]
+      [#local ccode = (this[0]!"")?trim /]
 [@EmitIndentedCCode indent ccode /]
 
     [/#if]
@@ -417,19 +429,19 @@ typedef ${basetypename} ${typename};
   [#list fields.* as node]
     [#if node?node_name == "field"]
       [#local field = node /]
-      [#local fieldname  = field.@name[0]!"no-name"?trim
-              fieldctype = field.@ctype[0]!"no-ctype"?trim
+      [#local fieldname  = (field.@name[0]!"no-name")?trim
+              fieldctype = (field.@ctype[0]!"no-ctype")?trim
               fieldstring = MakeVariableDeclaration("  " fieldname fieldctype) /]
 [@doxygen.EmitFullCommentFromNode indent="  " node=field /]
 ${fieldstring}
     [#elseif node?node_name == "condition"]
       [#local condition = node /]
-      [#local condcheck = condition.@check[0]!"1"?trim /]
+      [#local condcheck = (condition.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateStructureFields indent condition /]
 #endif /* ${condcheck} */
     [#elseif node?node_name == "verbatim"]
-      [#local ccode = node[0]!""?trim /]
+      [#local ccode = (node[0]!"")?trim /]
 [@EmitIndentedCCode indent ccode /]
     [/#if]
   [/#list]

@@ -422,13 +422,19 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
 
 [#--
   -- This macro generates a simple type definition from an XML node.
+  -- @note Processes the $N token in the ctype.
   --]
 [#macro GenerateTypedefFromNode indent="" node=[]]
   [#local typedef = node /]
   [#local typename = (typedef.@name!"no-name")?trim /]
   [#if typedef.basetype[0]??]
     [#local basetypename = (typedef.basetype[0].@ctype!"no-type")?trim /]
+    [#if basetypename?contains("$N")]
+      [#local basetypename = basetypename?replace("$N", typename) /]
+typedef ${basetypename};
+    [#else]
 typedef ${basetypename} ${typename};
+    [/#if]
   [#elseif typedef.structtype[0]??]
   [#elseif typedef.enumtype[0]??]
   [#elseif typedef.functype[0]??]
@@ -542,13 +548,13 @@ ${fieldstring}
 [#macro GenerateFunctionPrototypesFromNode indent="  " modifiers=[] node=[]]
   [#list node.* as this]
     [#if this?node_name == "function"]
-[@GeneratePrototype indent=indent modifiers=modifiers node=this /]
+[@GeneratePrototype indent=indent modifiers=modifiers node=this /];
     [#elseif this?node_name == "group"]
-[@GeneratePrototype indent=indent modifiers=modifiers node=this /]
+[@GeneratePrototype indent=indent modifiers=modifiers node=this /];
     [#elseif this?node_name == "condition"]
       [#local condcheck = (this.@check[0]!"1")?trim /]
 #if ${condcheck}
-[@GeneratePrototype indent=indent modifiers=modifiers node=this /]
+[@GeneratePrototype indent=indent modifiers=modifiers node=this /];
 #endif
     [#elseif this?node_name == "elseif"]
       [#local condcheck = (this.@check[0]!"")?trim /]

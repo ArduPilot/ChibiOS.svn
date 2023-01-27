@@ -35,6 +35,15 @@
 [/#function]
 
 [#--
+  -- Returns the class type from an XML node.
+  --]
+[#function GetClassType node=[]]
+  [#local class = node /]
+  [#local classtype = class.@name[0]!"no-type"?trim /]
+  [#return classtype /]
+[/#function]
+
+[#--
   -- Returns the class namespace from an XML node.
   --]
 [#function GetClassNamespace node=[]]
@@ -135,9 +144,9 @@ ${funcptr}
 [/#macro]
 
 [#--
-  -- This macro generates virtual methods pointers from an XML node.
+  -- This macro generates a VMT initializer macro from an XML node.
   --]
-[#macro GeneratVMTInitializers methods=[] namespace="no-namespace"]
+[#macro GenerateClassVMTInitializers methods=[] namespace="no-namespace"]
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
@@ -150,6 +159,27 @@ ${funcptr}
 ${s}
     [/#if]
   [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates a VMT structure from an XML node.
+  --]
+[#macro GenerateClassVMTStructure node=[]]
+  [#local class = node /]
+  [#local classname        = GetClassName(class)
+          classtype        = GetClassType(class)
+          classnamespace   = GetClassNamespace(class)
+          classctype       = GetClassCType(class)
+          ancestorname     = GetClassAncestorName(class) /]
+  [#if classtype == "regular"]
+/**
+[@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
+ */
+static const struct ${classname}_vmt ${classnamespace}_vmt = {
+  __${ancestorname}_vmt_init((size_t)offsetof(${classctype}, vmt), ${classnamespace})
+};
+
+  [/#if]
 [/#macro]
 
 [#--
@@ -242,7 +272,7 @@ ${("  __" + ancestorname?lower_case + "_data")?right_pad(76)}\
       [#local s = (s + ", ")?right_pad(76) + "\\" /]
     [/#if]
 ${s}
-[@GeneratVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
+[@GenerateClassVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
   [#else]
   .instance_offset                          = (offset)
   [/#if]

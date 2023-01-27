@@ -92,6 +92,7 @@
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(61)}*/
 /*===========================================================================*/
 
+[@cclasses.GenerateClassVMTStructure class /]
 [@cclasses.GenerateClassRegularMethods class /]
   [/#list]
 /*===========================================================================*/

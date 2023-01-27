@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_sio_test" check="HAL_USE_SIO == TRUE">
+  name="hal_sio" check="HAL_USE_SIO == TRUE">
   <brief>SIO Driver macros and structures.</brief>
   <note>This is a generated file, do not edit directly.</note>
   <public>
@@ -81,19 +81,19 @@
     <macros>
       <macro name="sioSetCallbackX">
         <brief>Associates a callback to the SIO instance.</brief>
-        <param name="siop" dir="out">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="out">pointer to the @p hal_sio_driver_c object</param>
         <param name="f">callback function to be associated</param>
         <implementation><![CDATA[(siop)->cb = (f)]]></implementation>
       </macro>
       <macro name="sioIsRXEmptyX">
         <brief>Determines the state of the RX FIFO.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The RX FIFO state.</return>
         <implementation><![CDATA[sio_lld_is_rx_empty(siop)]]></implementation>
       </macro>
       <macro name="sioIsRXIdleX">
         <brief>Determines the activity state of the receiver.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The RX activity state.</return>
         <implementation><![CDATA[sio_lld_is_rx_idle(siop)]]></implementation>
       </macro>
@@ -104,25 +104,25 @@
         <note>Only error flags are handled, data and idle flags are not
           considered.
         </note>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The RX error events.</return>
         <implementation><![CDATA[sio_lld_has_rx_errors(siop)]]></implementation>
       </macro>
       <macro name="sioIsTXFullX">
         <brief>Determines the state of the TX FIFO.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The TX FIFO state.</return>
         <implementation><![CDATA[sio_lld_is_tx_full(siop)]]></implementation>
       </macro>
       <macro name="sioIsTXOngoingX">
         <brief>Determines the transmission state.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The transmission state.</return>
         <implementation><![CDATA[sio_lld_is_tx_ongoing(siop)]]></implementation>
       </macro>
       <macro name="sioWriteEnableFlagsX">
         <brief>Writes the enabled events mask.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <param name="mask" dir="in">enabled events mask to be written</param>
         <implementation><![CDATA[
 do {
@@ -132,7 +132,7 @@ do {
       </macro>
       <macro name="sioSetEnableFlagsX">
         <brief>Sets flags into the enabled events flags mask.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <param name="mask" dir="in">enabled events mask to be set</param>
         <implementation><![CDATA[
 do {
@@ -142,7 +142,7 @@ do {
       </macro>
       <macro name="sioClearEnableFlagsX">
         <brief>Clears flags from the enabled events flags mask.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <param name="mask" dir="in">enabled events mask to be cleared</param>
         <implementation><![CDATA[
 do {
@@ -152,25 +152,25 @@ do {
       </macro>
       <macro name="sioGetEnableFlagsX">
         <brief>Gets the enabled condition flags mask.</brief>
-        <param name="siop" dir="in">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="in">pointer to the @p hal_sio_driver_c object</param>
         <return>The enabled event flags.</return>
         <implementation><![CDATA[(siop)->enabled]]></implementation>
       </macro>
       <macro name="sioGetAndClearErrorsX">
         <brief>Gets and clears SIO error flags.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The pending error flags.</return>
         <implementation><![CDATA[sio_lld_get_and_clear_errors(siop)]]></implementation>
       </macro>
       <macro name="sioGetAndClearEventsX">
         <brief>Gets and clears SIO event flags.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The pending event flags.</return>
         <implementation><![CDATA[sio_lld_get_and_clear_events(siop)]]></implementation>
       </macro>
       <macro name="sioGetEventsX">
         <brief>Returns all SIO event flags.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The pending event flags.</return>
         <implementation><![CDATA[sio_lld_get_events(siop)]]></implementation>
       </macro>
@@ -179,14 +179,14 @@ do {
         <note>If the FIFO is empty then the returned value is
           unpredictable.
         </note>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <return>The frame from RX FIFO.</return>
         <implementation><![CDATA[sio_lld_get(siop)]]></implementation>
       </macro>
       <macro name="sioPutX">
         <brief>Pushes one frame into the TX FIFO.</brief>
         <note>If the FIFO is full then the behavior is unpredictable.</note>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <param name="data" dir="in">frame to be written</param>
         <implementation><![CDATA[sio_lld_put(siop, data)]]></implementation>
       </macro>
@@ -198,7 +198,7 @@ do {
         <note>This function can be called from any context but it is
           meant to be called from the @p cb callback handler.
         </note>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <param name="size" dir="in">maximum number of frames to read</param>
         <param name="buffer" dir="out">buffer for the received data</param>
         <return>The number of received frames.</return>
@@ -212,7 +212,7 @@ do {
         <note>This function can be called from any context but it is
           meant to be called from the @p cb callback handler.
         </note>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <param name="size" dir="in">maximum number of frames to read</param>
         <param name="buffer" dir="in">buffer containing the data to be transmitted</param>
         <return>The number of transmitted frames.</return>
@@ -220,7 +220,7 @@ do {
       </macro>
       <macro name="sioControlX">
         <brief>Control operation on a serial port.</brief>
-        <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+        <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
         <param name="operation" dir="in">control operation code</param>
         <param name="arg" dir="both">operation argument</param>
         <return>The control operation status.</return>
@@ -229,7 +229,7 @@ do {
       <group description="Low level driver helper macros">
         <macro name="__sio_callback">
           <brief>SIO callback.</brief>
-          <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+          <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
           <return>The control operation status.</return>
           <implementation><![CDATA[
 do {
@@ -241,7 +241,7 @@ do {
         <condition check="SIO_USE_SYNCHRONIZATION == TRUE">
           <macro name="__sio_wakeup_errors">
             <brief>Wakes up because RX errors.</brief>
-            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -252,7 +252,7 @@ do {
           </macro>
           <macro name="__sio_wakeup_rx">
             <brief>Wakes up the RX-waiting thread.</brief>
-            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -262,7 +262,7 @@ do {
           </macro>
           <macro name="__sio_wakeup_rxidle">
             <brief>Wakes up the RX-idle-waiting thread.</brief>
-            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -272,7 +272,7 @@ do {
           </macro>
           <macro name="__sio_wakeup_tx">
             <brief>Wakes up the TX-waiting thread.</brief>
-            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -282,7 +282,7 @@ do {
           </macro>
           <macro name="__sio_wakeup_txend">
             <brief>Wakes up the TXend-waiting thread.</brief>
-            <param name="siop" dir="both">pointer to the @p sio_driver_c object</param>
+            <param name="siop" dir="both">pointer to the @p hal_sio_driver_c object</param>
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -322,7 +322,7 @@ do {
         <brief>Type of SIO event flags.</brief>
         <basetype ctype="eventflags_t" />
       </typedef>
-      <typedef name="sio_config_t">
+      <typedef name="hal_sio_config_t">
         <brief>Type of structure representing a SIO configuration.</brief>
         <basetype ctype="struct hal_sio_config" />
       </typedef>
@@ -330,11 +330,15 @@ do {
         <brief>Type of structure representing a SIO configuration
           (legacy).
         </brief>
-        <basetype ctype="sio_config_t" />
+        <basetype ctype="struct hal_sio_config" />
       </typedef>
       <typedef name="SIODriver">
         <brief>Type of structure representing a SIO driver (legacy).</brief>
-        <basetype ctype="sio_driver_c" />
+        <basetype ctype="struct hal_sio_driver" />
+      </typedef>
+      <typedef name="siocb_t">
+        <brief>Generic SIO notification callback type.</brief>
+        <basetype ctype="void (*$N)(struct hal_sio_driver *siop)" />
       </typedef>
       <verbatim><![CDATA[
 /* Inclusion of LLD header.*/
@@ -342,7 +346,7 @@ do {
     </types>
     <classes>
       <class name="hal_sio_driver" namespace="sio"
-        ancestor="base_driver" descr="SIO driver" type="regular">
+        ancestor="hal_base_driver" descr="SIO driver" type="regular">
         <brief>
         </brief>
         <fields>
@@ -394,18 +398,6 @@ self->drv.id      = 0U;
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
-          <regular>
-            <method name="drvOpen" ctype="msg_t">
-              <brief>Driver open.</brief>
-              <details>Returns a reference to the driver, on the 1st
-                open the peripheral is physically initialized. An
-                implementation-dependent default configuration is used
-                for initialization.
-              </details>
-              <return>The operation status.</return>
-              <implementation><![CDATA[ ]]></implementation>
-            </method>
-          </regular>
         </methods>
       </class>
     </classes>

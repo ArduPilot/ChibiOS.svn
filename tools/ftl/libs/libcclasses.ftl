@@ -135,6 +135,24 @@ ${funcptr}
 [/#macro]
 
 [#--
+  -- This macro generates virtual methods pointers from an XML node.
+  --]
+[#macro GeneratVMTInitializers methods=[] namespace="no-namespace"]
+  [#list methods.* as node]
+    [#if node?node_name == "method"]
+      [#local method = node /]
+      [#local methodsname    = GetMethodShortName(method) /]
+      [#local s = ("  ." + namespace + "." + methodsname)?right_pad(ccode.initializers_align) +
+                  ("= __##ns##_" + methodsname) /]
+      [#if node?has_next]
+        [#local s = (s + ", ")?right_pad(ccode.backslash_align) + "\\" /]
+      [/#if]
+${s}
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassWrapper node=[]]
@@ -151,7 +169,7 @@ ${funcptr}
 typedef struct ${classname} ${classctype};
 
   [#local methodsstruct = classname?lower_case + "_methods" /]
-  [#if ancestorname?length > 0]
+  [#if node.methods.virtual?size > 0]
 /**
 [@doxygen.EmitBrief "" "@p " + classctype + " methods as a structure." /]
  */
@@ -171,7 +189,7 @@ struct ${datastruct} {
 
   [/#if]
 /**
-[@doxygen.EmitBrief "" "@p " + classctype + " specific methods." /]
+[@doxygen.EmitBrief "" "@p " + classctype + " methods." /]
  */
   [#local methodsdefine = "__" + classname?lower_case + "_methods" /]
 #define ${methodsdefine?right_pad(68) + "\\"}
@@ -196,12 +214,12 @@ ${instance_string}
 
   [/#if]
 /**
-[@doxygen.EmitBrief "" "@p " + classctype + " specific data." /]
+[@doxygen.EmitBrief "" "@p " + classctype + " data." /]
  */
   [#local datadefine = "__" + classname?lower_case + "_data" /]
 #define ${datadefine?right_pad(68) + "\\"}
   [#if ancestorname?length > 0]
-${("  __" + ancestorname?lower_case?lower_case + "_data")?right_pad(76)}\
+${("  __" + ancestorname?lower_case + "_data")?right_pad(76)}\
   [/#if]
   [#if class.fields.*?size > 0]
 [@ccode.GenerateVariableDeclaration indent="  "
@@ -213,6 +231,22 @@ ${("  __" + ancestorname?lower_case?lower_case + "_data")?right_pad(76)}\
   /* no data */
 
   [/#if]
+/**
+[@doxygen.EmitBrief "" "@p " + classctype + " VMT initializer." /]
+ */
+  [#local vmtinitsdefine = "__" + classname?lower_case + "_vmt_init(offset, ns)" /]
+#define ${vmtinitsdefine?right_pad(68) + "\\"}
+  [#if ancestorname?length > 0]
+    [#local s = "  __" + ancestorname?lower_case + "_vmt_init(offset, ns)" /]
+    [#if node.methods.virtual?size > 0]
+      [#local s = (s + ", ")?right_pad(76) + "\\" /]
+    [/#if]
+${s}
+[@GeneratVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
+  [#else]
+  .instance_offset                          = (offset)
+  [/#if]
+
 /**
 [@doxygen.EmitBrief "" "@p " + classctype + " virtual methods table." /]
  */

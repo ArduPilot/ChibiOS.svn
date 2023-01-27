@@ -16,7 +16,7 @@
 
 /**
  * @file    oop_base_object.h
- * @brief   Generated header.
+ * @brief   Generated OOP_BASE_OBJECT header.
  *
  * @addtogroup OOP_BASE_OBJECT
  * @brief   Common ancestor abstract class.
@@ -80,7 +80,7 @@
 typedef struct base_object base_object_c;
 
 /**
- * @brief   @p base_object_c specific methods.
+ * @brief   @p base_object_c methods.
  */
 #define __base_object_methods                                               \
   /* This field represents the offset between the current object
@@ -89,10 +89,16 @@ typedef struct base_object base_object_c;
   /* no methods */
 
 /**
- * @brief   @p base_object_c specific data.
+ * @brief   @p base_object_c data.
  */
 #define __base_object_data                                                  \
   /* no data */
+
+/**
+ * @brief   @p base_object_c VMT initializer.
+ */
+#define __base_object_vmt_init(offset, ns)                                  \
+  .instance_offset                          = (offset)
 
 /**
  * @brief   @p base_object_c virtual methods table.

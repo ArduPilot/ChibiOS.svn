@@ -30,6 +30,7 @@
 [#assign tab = 2 /]
 [#assign fields_align = 44 /]
 [#assign define_value_align = 44 /]
+[#assign initializers_align = 44 /]
 [#assign backslash_align = 76 /]
 [#assign boundary = 80 /]
 

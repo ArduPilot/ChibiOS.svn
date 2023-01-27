@@ -16,7 +16,7 @@
 
 /**
  * @file    oop_sequential_stream.h
- * @brief   Generated header.
+ * @brief   Generated OOP_SEQUENTIAL_STREAM header.
  *
  * @addtogroup OOP_SEQUENTIAL_STREAM
  * @brief   Sequential data streams interface.
@@ -79,18 +79,28 @@ struct base_sequential_stream_methods {
 };
 
 /**
- * @brief   @p base_sequential_stream_c specific methods.
+ * @brief   @p base_sequential_stream_c methods.
  */
 #define __base_sequential_stream_methods                                    \
   __base_object_methods                                                     \
   struct base_sequential_stream_methods     bss;
 
 /**
- * @brief   @p base_sequential_stream_c specific data.
+ * @brief   @p base_sequential_stream_c data.
  */
 #define __base_sequential_stream_data                                       \
   __base_object_data                                                        \
   /* no data */
+
+/**
+ * @brief   @p base_sequential_stream_c VMT initializer.
+ */
+#define __base_sequential_stream_vmt_init(offset, ns)                       \
+  __base_object_vmt_init(offset, ns),                                       \
+  .bss.write                                = __##ns##_write,               \
+  .bss.read                                 = __##ns##_read,                \
+  .bss.put                                  = __##ns##_put,                 \
+  .bss.get                                  = __##ns##_get
 
 /**
  * @brief   @p base_sequential_stream_c virtual methods table.

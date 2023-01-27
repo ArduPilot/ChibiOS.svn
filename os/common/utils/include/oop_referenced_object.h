@@ -16,7 +16,7 @@
 
 /**
  * @file    oop_referenced_object.h
- * @brief   Generated header.
+ * @brief   Generated OOP_REFERENCED_OBJECT header.
  *
  * @addtogroup OOP_REFERENCED_OBJECT
  * @brief   Common ancestor class of all reference-counted objects.
@@ -82,18 +82,26 @@ struct referenced_object_data {
 };
 
 /**
- * @brief   @p referenced_object_c specific methods.
+ * @brief   @p referenced_object_c methods.
  */
 #define __referenced_object_methods                                         \
   __base_object_methods                                                     \
   struct referenced_object_methods          ro;
 
 /**
- * @brief   @p referenced_object_c specific data.
+ * @brief   @p referenced_object_c data.
  */
 #define __referenced_object_data                                            \
   __base_object_data                                                        \
   struct referenced_object_data             ro;
+
+/**
+ * @brief   @p referenced_object_c VMT initializer.
+ */
+#define __referenced_object_vmt_init(offset, ns)                            \
+  __base_object_vmt_init(offset, ns),                                       \
+  .ro.addref                                = __##ns##_addref,              \
+  .ro.release                               = __##ns##_release
 
 /**
  * @brief   @p referenced_object_c virtual methods table.

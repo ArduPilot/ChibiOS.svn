@@ -128,18 +128,28 @@ struct hal_base_driver_data {
 };
 
 /**
- * @brief   @p hal_base_driver_c specific methods.
+ * @brief   @p hal_base_driver_c methods.
  */
 #define __hal_base_driver_methods                                           \
   __base_object_methods                                                     \
   struct hal_base_driver_methods            drv;
 
 /**
- * @brief   @p hal_base_driver_c specific data.
+ * @brief   @p hal_base_driver_c data.
  */
 #define __hal_base_driver_data                                              \
   __base_object_data                                                        \
   struct hal_base_driver_data               drv;
+
+/**
+ * @brief   @p hal_base_driver_c VMT initializer.
+ */
+#define __hal_base_driver_vmt_init(offset, ns)                              \
+  __base_object_vmt_init(offset, ns),                                       \
+  .drv.start                                = __##ns##_start,               \
+  .drv.stop                                 = __##ns##_stop,                \
+  .drv.configure                            = __##ns##_configure,           \
+  .drv.getif                                = __##ns##_getif
 
 /**
  * @brief   @p hal_base_driver_c virtual methods table.

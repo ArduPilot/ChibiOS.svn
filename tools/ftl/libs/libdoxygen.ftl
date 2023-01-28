@@ -25,6 +25,45 @@
 [#assign text_align = 32 /]
 
 [#--
+  -- Ouputs a formatted text starting from a "rich text" node containing
+  -- text and formatting elements.
+  --]
+[#macro EmitRichTextFromNode p1="" pn="" textnode=[]]
+  [#list textnode?children as node]
+    [#if node?is_first]
+      [#local l1 = p1
+              ln = pn /]
+    [#else]
+      [#local l1 = pn
+              ln = pn /]
+    [/#if]
+    [#if node?node_type == "text"]
+      [#local text = node?trim?cap_first /]
+      [#if text?matches("^.*[a-zA-Z0-9]$")]
+[@utils.FormatStringAsText l1 ln utils.WithDot(text) doxygen_boundary /]
+      [#else]
+[@utils.FormatStringAsText l1 ln text doxygen_boundary /]
+      [/#if]
+    [#elseif node?node_type == "element"]
+      [#if node?node_name == "verbatim"]
+        [#local lines = node?string?split("^", "rm") /]
+        [#list lines as line]
+          [#local s = line?chop_linebreak /]
+          [#if (line_index > 0) || (s?trim?length > 0)]
+            [#if line?is_first]
+${l1 + s}
+            [#else]
+${ln + s}
+            [/#if]
+          [/#if]
+        [/#list]
+      [#elseif node?node_name == "br"]
+      [/#if]
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
   -- This macro generates a brief tag description.
   --]
 [#macro EmitBrief indent="" text=""]
@@ -164,10 +203,19 @@
   --]
 [#macro EmitParamFromNode indent="" node=[]]
   [#list node.param as param]
-[@doxygen.EmitParam indent=indent
-                    name=param.@name[0]!"no-name"
-                    dir=param.@dir[0]!"no-dir"
-                    text=param[0]!"no description"?trim /]
+    [#local name = param.@name[0]!"no-name"
+            dir  = param.@dir[0]!"no-dir" /]
+    [#if dir == "in"]
+      [#local p1 = indent + (" * @param[in]     " + name + " ")?right_pad(text_align) /]
+    [#elseif dir == "out"]
+      [#local p1 = indent + (" * @param[out]    " + name + " ")?right_pad(text_align) /]
+    [#elseif dir == "both"]
+      [#local p1 = indent + (" * @param[in,out] " + name + " ")?right_pad(text_align) /]
+    [#else]
+      [#local p1 = indent + (" * @param         " + name + " ")?right_pad(text_align) /]
+    [/#if]
+    [#local pn = indent + " *"?right_pad(text_align) /]
+[@EmitRichTextFromNode p1 pn param /]
   [/#list]
 [/#macro]
 

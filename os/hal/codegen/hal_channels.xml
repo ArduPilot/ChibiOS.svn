@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
+  name="hal_channels_test">
+  <brief>Sequential data streams interface.</brief>
+  <note>This is a generated file, do not edit directly.</note>
+  <public>
+    <definitions_early>
+      <group description="Default control operation codes">
+        <define name="CHN_CTL_INVALID" value="0">
+          <brief>Invalid operation code.</brief>
+        </define>
+        <define name="CHN_CTL_NOP" value="0">
+          <brief>Does nothing.</brief>
+        </define>
+        <define name="CHN_CTL_TX_WAIT" value="0">
+          <brief>Wait for TX completion.</brief>
+        </define>
+      </group>
+    </definitions_early>
+    <classes>
+      <class name="base_channel" namespace="chn" ancestor="base_sequential_stream"
+        descr="base I/O channel" type="interface">
+        <brief>Base I/O channel interface.</brief>
+        <details><![CDATA[This header defines an abstract interface useful
+         to access generic I/O serial devices in a standardized way.]]></details>
+        <fields>
+        </fields>
+        <methods>
+          <objinit>
+            <implementation><![CDATA[ ]]></implementation>
+          </objinit>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
+          <virtual>
+            <method name="chnWriteTimeout" shortname="writet" ctype="size_t">
+              <brief>Channel blocking write with timeout.</brief>
+              <details><![CDATA[This function writes data from a buffer to
+                       a channel. If the channel is not ready to accept data
+                       then the calling thread is suspended.]]></details>
+              <param name="bp" ctype="const uint8_t *" dir="out">Pointer to the data buffer.</param>
+              <param name="n" ctype="size_t" dir="in">The maximum amount of data to be transferred.</param>
+              <param name="timeout" ctype="sysinterval_t" dir="in">
+                the number of ticks before the operation timeouts,
+                the following special values are allowed:
+                <verbatim> <![CDATA[
+- @a TIME_IMMEDIATE immediate timeout.
+- @a TIME_INFINITE no timeout.
+.]]></verbatim>
+              </param>
+              <return><![CDATA[The number of bytes transferred.]]></return>
+            </method>
+            <method name="chnReadTimeout" shortname="readt" ctype="size_t">
+              <brief>Channel blocking read with timeout.</brief>
+              <details><![CDATA[The function reads data from a channel into
+                       a buffer. If the data is not available then the calling
+                       thread is suspended.]]></details>
+              <param name="bp" ctype="uint8_t *" dir="in">Pointer to the data buffer.</param>
+              <param name="n" ctype="size_t" dir="in">The maximum amount of data to be transferred.</param>
+              <param name="timeout" ctype="sysinterval_t" dir="in">
+                the number of ticks before the operation timeouts,
+                the following special values are allowed:
+                <verbatim> <![CDATA[
+- @a TIME_IMMEDIATE immediate timeout.
+- @a TIME_INFINITE no timeout.
+.]]></verbatim>
+              </param>
+              <return><![CDATA[The number of bytes transferred.]]></return>
+            </method>
+          </virtual>
+        </methods>
+      </class>
+    </classes>
+  </public>
+  <private>
+  </private>
+</module>

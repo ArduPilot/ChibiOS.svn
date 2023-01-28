@@ -89,7 +89,7 @@
   [#-- Scanning all public methods to be generated in this file.--]
   [#list module.public.classes.class as class]
 /*===========================================================================*/
-/* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(61)}*/
+/* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
 /*===========================================================================*/
 
 [@cclasses.GenerateClassVMTStructure class /]

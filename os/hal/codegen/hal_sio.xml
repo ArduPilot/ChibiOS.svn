@@ -83,7 +83,7 @@
         <brief>Associates a callback to the SIO instance.</brief>
         <param name="siop" dir="out">pointer to the @p hal_sio_driver_c object</param>
         <param name="f">callback function to be associated</param>
-        <implementation><![CDATA[(siop)->cb = (f)]]></implementation>
+        <implementation><![CDATA[(siop)->sio.cb = (f)]]></implementation>
       </macro>
       <macro name="sioIsRXEmptyX">
         <brief>Determines the state of the RX FIFO.</brief>
@@ -126,7 +126,7 @@
         <param name="mask" dir="in">enabled events mask to be written</param>
         <implementation><![CDATA[
 do {
-  (siop)->enabled = (mask);
+  (siop)->sio.enabled = (mask);
   sio_lld_update_enable_flags(siop);
 } while (false)]]></implementation>
       </macro>
@@ -136,7 +136,7 @@ do {
         <param name="mask" dir="in">enabled events mask to be set</param>
         <implementation><![CDATA[
 do {
-  (siop)->enabled |= (mask);
+  (siop)->sio.enabled |= (mask);
   sio_lld_update_enable_flags(siop);
 } while (false)]]></implementation>
       </macro>
@@ -146,7 +146,7 @@ do {
         <param name="mask" dir="in">enabled events mask to be cleared</param>
         <implementation><![CDATA[
 do {
-  (siop)->enabled &= ~(mask);
+  (siop)->sio.enabled &= ~(mask);
   sio_lld_update_enable_flags(siop);
 } while (false)]]></implementation>
       </macro>
@@ -154,7 +154,7 @@ do {
         <brief>Gets the enabled condition flags mask.</brief>
         <param name="siop" dir="in">pointer to the @p hal_sio_driver_c object</param>
         <return>The enabled event flags.</return>
-        <implementation><![CDATA[(siop)->enabled]]></implementation>
+        <implementation><![CDATA[(siop)->sio.enabled]]></implementation>
       </macro>
       <macro name="sioGetAndClearErrorsX">
         <brief>Gets and clears SIO error flags.</brief>
@@ -233,8 +233,8 @@ do {
           <return>The control operation status.</return>
           <implementation><![CDATA[
 do {
-  if ((siop)->cb != NULL) {
-    (siop)->cb(siop);
+  if ((siop)->sio.cb != NULL) {
+    (siop)->sio.cb(siop);
   }
 } while (false)]]></implementation>
         </macro>
@@ -245,8 +245,8 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sync_rx, SIO_MSG_ERRORS);
-  osalThreadResumeI(&(siop)->sync_rxidle, SIO_MSG_ERRORS);
+  osalThreadResumeI(&(siop)->sio.sync_rx, SIO_MSG_ERRORS);
+  osalThreadResumeI(&(siop)->sio.sync_rxidle, SIO_MSG_ERRORS);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -256,7 +256,7 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sync_rx, MSG_OK);
+  osalThreadResumeI(&(siop)->sio.sync_rx, MSG_OK);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -266,7 +266,7 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sync_rxidle, MSG_OK);
+  osalThreadResumeI(&(siop)->sio.sync_rxidle, MSG_OK);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -276,7 +276,7 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sync_tx, MSG_OK);
+  osalThreadResumeI(&(siop)->sio.sync_tx, MSG_OK);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -286,7 +286,7 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sync_txend, MSG_OK);
+  osalThreadResumeI(&(siop)->sio.sync_txend, MSG_OK);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -416,5 +416,24 @@ sio_lld_init();]]></implementation>
     <inclusions>
       <include style="regular">hal.h</include>
     </inclusions>
+    <functions>
+      <function name="__sio_start">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
+msg_t msg;
+
+msg = sio_lld_start(siop);
+if (msg == HAL_RET_SUCCESS) {
+#if SIO_USE_SYNCHRONIZATION == TRUE
+  /* If synchronization is enabled then all events by default.*/
+  sioWriteEnableFlagsX(siop, SIO_EV_ALL_EVENTS);
+#else
+  /* If synchronization is disabled then no events by default.*/
+  sioWriteEnableFlagsX(siop, SIO_EV_NONE);
+#endif
+}]]></implementation>
+      </function>
+    </functions>
   </private>
 </module>

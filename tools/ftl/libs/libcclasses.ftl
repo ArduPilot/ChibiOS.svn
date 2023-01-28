@@ -39,7 +39,7 @@
   --]
 [#function GetClassType node=[]]
   [#local class = node /]
-  [#local classtype = class.@name[0]!"no-type"?trim /]
+  [#local classtype = class.@type[0]!"no-type"?trim /]
   [#return classtype /]
 [/#function]
 
@@ -170,8 +170,10 @@ ${s}
           classtype        = GetClassType(class)
           classnamespace   = GetClassNamespace(class)
           classctype       = GetClassCType(class)
+          classdescr       = GetClassDescription(class)
           ancestorname     = GetClassAncestorName(class) /]
   [#if classtype == "regular"]
+    [#assign generated = true /]
 /**
 [@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
  */

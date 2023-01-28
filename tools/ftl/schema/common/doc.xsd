@@ -39,60 +39,44 @@
               </xs:restriction>
             </xs:simpleType>
           </xs:element>
-          <xs:element name="details" maxOccurs="1" minOccurs="0">
+          <xs:element name="details" maxOccurs="1" minOccurs="0" type="richTextType">
             <xs:annotation>
               <xs:documentation>
-                Object documentation as text, does not preserve
-                formatting.
+                Object documentation as text, does not preserve formatting.
               </xs:documentation>
             </xs:annotation>
-            <xs:simpleType>
-              <xs:restriction base="xs:string">
-                <xs:whiteSpace value="collapse"></xs:whiteSpace>
-              </xs:restriction>
-            </xs:simpleType>
           </xs:element>
-          <xs:element name="pre" maxOccurs="unbounded" minOccurs="0">
+          <xs:element name="pre" maxOccurs="unbounded" minOccurs="0" type="richTextType">
             <xs:annotation>
               <xs:documentation>
-                Object pre-requisites as text, does not preserve
-                formatting.
+                Object pre-requisites as text, does not preserve formatting.
               </xs:documentation>
             </xs:annotation>
-            <xs:simpleType>
-              <xs:restriction base="xs:string">
-                <xs:whiteSpace value="collapse"></xs:whiteSpace>
-              </xs:restriction>
-            </xs:simpleType>
           </xs:element>
-          <xs:element name="post" maxOccurs="unbounded" minOccurs="0">
+          <xs:element name="post" maxOccurs="unbounded" minOccurs="0" type="richTextType">
             <xs:annotation>
               <xs:documentation>
-                Object post-requisites as text, does not preserve
-                formatting.
+                Object post-requisites as text, does not preserve formatting.
               </xs:documentation>
             </xs:annotation>
-            <xs:simpleType>
-              <xs:restriction base="xs:string">
-                <xs:whiteSpace value="collapse"></xs:whiteSpace>
-              </xs:restriction>
-            </xs:simpleType>
           </xs:element>
-          <xs:element name="note" maxOccurs="unbounded" minOccurs="0">
+          <xs:element name="note" maxOccurs="unbounded" minOccurs="0" type="richTextType">
             <xs:annotation>
               <xs:documentation>
                 Object note as text, does not preserve formatting.
               </xs:documentation>
             </xs:annotation>
-            <xs:simpleType>
-              <xs:restriction base="xs:string">
-                <xs:whiteSpace value="collapse"></xs:whiteSpace>
-              </xs:restriction>
-            </xs:simpleType>
           </xs:element>
-                </xs:sequence>
+        </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
+
+  <xs:complexType name="richTextType" mixed="true">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="br" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="verbatim" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+    </xs:choice>
+  </xs:complexType>
 </xs:schema>

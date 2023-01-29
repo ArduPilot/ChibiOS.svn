@@ -682,7 +682,7 @@ struct ${ifname?lower_case}_vmt {
 };
 
 /**
-[@doxygen.EmitBrief "" "Structure representing a " + ifdescr + " interface." /]
+[@doxygen.EmitBrief "" "Structure representing a " + ifdescr + "." /]
  */
 struct ${ifname?lower_case} {
   /**

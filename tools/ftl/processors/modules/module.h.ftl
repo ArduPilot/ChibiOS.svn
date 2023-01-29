@@ -95,6 +95,14 @@
 
 [#-- Generating multi-line macros.--]
 [@ccode.GenerateMacrosFromNode node=module.public.macros /]
+  [#-- Scanning all interfaces to be generated in this module.--]
+  [#list module.public.interfaces.interface as interface]
+/*===========================================================================*/
+/* Module interface ${cclasses.GetInterfaceCType(interface)?right_pad(61)}*/
+/*===========================================================================*/
+
+[@cclasses.GenerateInterfaceWrapper interface /]
+  [/#list]
   [#-- Scanning all classes to be generated in this module.--]
   [#list module.public.classes.class as class]
 /*===========================================================================*/

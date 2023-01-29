@@ -50,7 +50,7 @@
       </macro>
     </macros>
     <classes>
-      <class name="base_object" namespace="bo" ancestor="" descr="base object" type="abstract">
+      <class name="base_object" namespace="bo" descr="base object" type="abstract">
         <brief>
         </brief>
         <fields>

@@ -32,25 +32,17 @@
   </xs:complexType>
   <xs:complexType name="publicType">
     <xs:sequence>
-      <xs:element name="inclusions" type="inclusionsType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="definitions_early"
-        type="definitionsType" maxOccurs="1" minOccurs="0">
+      <xs:element name="inclusions" type="inclusionsType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="definitions_early" type="definitionsType" maxOccurs="1" minOccurs="0">
       </xs:element>
-      <xs:element name="configs" type="configsType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="definitions_late"
-        type="definitionsType" maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="macros" type="macrosType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="types" type="typesType" maxOccurs="1"
-        minOccurs="0"></xs:element>
-      <xs:element name="classes" type="classesType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="variables" type="variablesType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="functions" type="functionsType"
-        maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="configs" type="configsType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="definitions_late" type="definitionsType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="macros" type="macrosType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="types" type="typesType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="interfaces" type="interfacesType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="classes" type="classesType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="variables" type="variablesType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="functions" type="functionsType" maxOccurs="1" minOccurs="0"></xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="configsType">
@@ -140,8 +132,22 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>
-        <xs:attribute name="ancestor" type="xs:string"></xs:attribute>
-        <xs:attribute name="descr" type="xs:string"></xs:attribute>
+        <xs:attribute name="ancestor">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:whiteSpace value="collapse"></xs:whiteSpace>
+              <xs:minLength value="1"></xs:minLength>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="descr">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="1"></xs:minLength>
+              <xs:whiteSpace value="collapse"></xs:whiteSpace>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -157,7 +163,6 @@
   </xs:complexType>
   <xs:simpleType name="classTypeType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="interface"></xs:enumeration>
       <xs:enumeration value="abstract"></xs:enumeration>
       <xs:enumeration value="regular"></xs:enumeration>
     </xs:restriction>
@@ -481,7 +486,11 @@
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="retvalType">
-    <xs:attribute name="value" type="xs:string"></xs:attribute>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="value" type="xs:string"></xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
   <xs:complexType name="groupedMacrosType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
@@ -542,4 +551,62 @@
 
     <xs:attribute name="NewAttribute" type="xs:string"></xs:attribute>
 
+
+    <xs:complexType name="interfaceType">
+      <xs:complexContent>
+        <xs:extension base="DocumentedItem">
+          <xs:sequence>
+                    <xs:element name="consts" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+                    <xs:element name="methods" type="interfaceMethodsType" maxOccurs="1" minOccurs="1"></xs:element>
+          </xs:sequence>
+          <xs:attribute name="namespace">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="\w+"></xs:pattern>
+                <xs:minLength value="1"></xs:minLength>
+                <xs:whiteSpace value="collapse"></xs:whiteSpace>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="ancestor">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:whiteSpace value="collapse"></xs:whiteSpace>
+                <xs:minLength value="1"></xs:minLength>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+          <xs:attribute name="descr">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="1"></xs:minLength>
+                <xs:whiteSpace value="collapse"></xs:whiteSpace>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+
+
+    <xs:complexType name="interfaceMethodsType">
+      <xs:sequence>
+        <xs:element name="method" type="interfaceMethodType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="interfaceMethodType">
+      <xs:complexContent>
+        <xs:extension base="ParameterizedItemType">
+          <xs:attribute name="ctype" type="xs:string"></xs:attribute>
+          <xs:attribute name="shortname" type="xs:string"></xs:attribute>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="interfacesType">
+      <xs:sequence>
+        <xs:element name="interface" type="interfaceType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
 </xs:schema>

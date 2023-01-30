@@ -28,7 +28,7 @@
   -- Ouputs a formatted text starting from a "rich text" node containing
   -- text and formatting elements.
   --]
-[#macro EmitRichTextFromNode p1="" pn="" textnode=[]]
+[#macro EmitRichTextFromNode p1="" pn="" textnode=[] limit=doxygen_boundary]
   [#list textnode?children as node]
     [#if node?is_first]
       [#local l1 = p1
@@ -40,7 +40,7 @@
     [#if node?node_type == "text"]
       [#local text = node?trim?cap_first /]
       [#if text?matches("^.*[a-zA-Z0-9]$")]
-[@utils.FormatStringAsText l1 ln utils.WithDot(text) doxygen_boundary /]
+[@utils.FormatStringAsText l1 ln utils.WithDot(text) limit /]
       [#else]
 [@utils.FormatStringAsText l1 ln text doxygen_boundary /]
       [/#if]
@@ -167,7 +167,9 @@ ${ln + s}
   --]
 [#macro EmitDetailsFromNode indent="" node=[]]
   [#if node.details[0]??]
-[@doxygen.EmitDetails indent node.details[0]!"no description" /]
+[@EmitRichTextFromNode indent + " * @details "
+                       indent + " *          "
+                       node.details /]
   [/#if]
 [/#macro]
 
@@ -176,7 +178,9 @@ ${ln + s}
   --]
 [#macro EmitPreFromNode indent="" node=[]]
   [#list node.pre as pre]
-[@doxygen.EmitPre indent pre[0]!"no description" /]
+[@EmitRichTextFromNode indent + " * @pre     "
+                       indent + " *          "
+                       pre /]
   [/#list]
 [/#macro]
 
@@ -185,7 +189,9 @@ ${ln + s}
   --]
 [#macro EmitPostFromNode indent="" node=[]]
   [#list node.post as post]
-[@doxygen.EmitPost indent post[0]!"no description" /]
+[@EmitRichTextFromNode indent + " * @post    "
+                       indent + " *          "
+                       post /]
   [/#list]
 [/#macro]
 
@@ -194,7 +200,9 @@ ${ln + s}
   --]
 [#macro EmitNoteFromNode indent="" node=[]]
   [#list node.note as note]
-[@doxygen.EmitNote indent note[0]!"no description" /]
+[@EmitRichTextFromNode indent + " * @note    "
+                       indent + " *          "
+                       note /]
   [/#list]
 [/#macro]
 
@@ -223,9 +231,11 @@ ${ln + s}
   -- This macro generates a return tag from an XML node.
   --]
 [#macro EmitReturnFromNode indent="" node=[]]
-  [#list node.return as return]
-[@doxygen.EmitReturn indent return[0]!"no description" /]
-  [/#list]
+  [#if node.return[0]??]
+    [#local p1 = (indent + " * @return ")?right_pad(text_align)
+            pn = (indent + " *         ")?right_pad(text_align) /]
+[@EmitRichTextFromNode p1 pn node.return /]
+  [/#if]
 [/#macro]
 
 [#--

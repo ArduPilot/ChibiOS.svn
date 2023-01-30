@@ -98,7 +98,7 @@
   [#-- Scanning all interfaces to be generated in this module.--]
   [#list module.public.interfaces.interface as interface]
 /*===========================================================================*/
-/* Module interface ${cclasses.GetInterfaceCType(interface)?right_pad(61)}*/
+/* Module interface ${cclasses.GetInterfaceCType(interface)?right_pad(57)}*/
 /*===========================================================================*/
 
 [@cclasses.GenerateInterfaceWrapper interface /]

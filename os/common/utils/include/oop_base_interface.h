@@ -29,7 +29,7 @@
 #ifndef OOP_BASE_INTERFACE_H
 #define OOP_BASE_INTERFACE_H
 
-#include "osal.h"
+#include <stddef.h>
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -51,8 +51,27 @@
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @brief   Returns an object pointer starting from an interface pointer.
+ * @details Because multiple inheritance, an object can implement multiple
+ *          interfaces.
+ *          This macro returns the pointer to the base object starting from a
+ *          pointer to any of its composing classes or interfaces. This is done
+ *          by using the @p offsetof() macro in @p stdlib.h.
+ *
+ * @param         c             Class type implementing the interface.
+ * @param         ifname        Name of the interface field within the class
+ *                              structure.
+ * @param         ip            Pointer to the interface field within the class
+ *                              structure.
+ * @return                      A pointer to an object of type @p c
+ *                              implementing the interface @p ifname.
+ */
+#define oopGetInstance(c, ifname, ip)                                       \
+  (c)(((size_t)(ip)) - (size_t)offsetof(c, c.ifname))                       
+
 /*===========================================================================*/
-/* Module interface base_interface_i                                             */
+/* Module interface base_interface_i                                         */
 /*===========================================================================*/
 
 /**
@@ -83,7 +102,7 @@ struct base_interface_vmt {
 };
 
 /**
- * @brief   Structure representing a base interface interface.
+ * @brief   Structure representing a base interface.
  */
 struct base_interface {
   /**

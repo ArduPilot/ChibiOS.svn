@@ -3,11 +3,13 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="oop_sequential_stream">
   <brief>Sequential data streams interface.</brief>
-  <note>This class is compatible with legacy HAL @p BaseSequentialStream.</note>
+  <note>This class is compatible with legacy HAL @p
+    BaseSequentialStream.
+  </note>
   <note>This is a generated file, do not edit directly.</note>
   <public>
     <inclusions>
-      <include style="regular">oop_base_object.h</include>
+      <include style="regular">oop_base_interface.h</include>
     </inclusions>
     <definitions_early>
       <group description="Streams return codes">
@@ -16,60 +18,131 @@
         <define name="STM_RESET" value="MSG_RESET" />
       </group>
     </definitions_early>
-    <classes>
-      <class name="base_sequential_stream" namespace="bss" ancestor="base_object"
-        descr="base sequential stream interface" type="interface">
+    <macros>
+      <macro name="streamWrite">
+        <brief>Sequential Stream write (implicit form).</brief>
+        <details>This function writes data from a buffer to a stream.
+        </details>
+        <param name="objp" dir="both">Pointer to the object implementing
+          the interface.
+        </param>
+        <param name="bp" dir="in">Pointer to the data buffer.</param>
+        <param name="n" dir="in">The maximum amount of data to be
+          transferred.
+        </param>
+        <return><![CDATA[The number of bytes transferred. The returned
+                value can be less than the specified number of bytes
+                if an end-of-file condition has been met.]]></return>
+        <implementation><![CDATA[bssWrite(&(objp)->bss, (bp), (n))]]></implementation>
+      </macro>
+      <macro name="streamRead">
+        <brief>Sequential Stream read (implicit form).</brief>
+        <details>This function reads data from a stream into a buffer.
+        </details>
+        <param name="objp" dir="both">Pointer to the object implementing
+          the interface.
+        </param>
+        <param name="bp" dir="out">Pointer to the data buffer.
+        </param>
+        <param name="n" dir="in">The maximum amount of data to be
+          transferred.
+        </param>
+        <return><![CDATA[The number of bytes transferred. The returned
+                value can be less than the specified number of bytes
+                if an end-of-file condition has been met.]]></return>
+        <implementation><![CDATA[bssRead(&(objp)->bss, (bp), (n))]]></implementation>
+      </macro>
+      <macro name="streamPut">
+        <brief>Sequential Stream blocking byte write (implicit form).</brief>
+        <details><![CDATA[This function writes a byte value to a stream.
+                If the stream is not ready to accept data then the
+                calling thread is suspended.]]></details>
+        <param name="objp" dir="both">Pointer to the object implementing
+          the interface.
+        </param>
+        <param name="b" ctype="uint8_t" dir="in">The byte value to be
+          written to the stream.
+        </param>
+        <return>The operation status.</return>
+        <implementation><![CDATA[bssPut(&(objp)->bss, (b))]]></implementation>
+      </macro>
+      <macro name="streamGet">
+        <brief>Sequential Stream blocking byte read (implicit form).</brief>
+        <details><![CDATA[This function reads a byte value from a stream. If
+                 the data is not available then the calling thread is
+                 suspended.]]></details>
+        <param name="objp" dir="both"> Pointer to the object implementing
+          the interface.
+        </param>
+        <return>A byte value from the stream.</return>
+        <implementation><![CDATA[bssGet(&(objp)->bss)]]></implementation>
+      </macro>
+    </macros>
+    <interfaces>
+      <interface name="base_sequential_stream" namespace="bss"
+        ancestor="base_object" descr="base sequential stream interface">
         <brief>Sequential data streams interface.</brief>
-        <details><![CDATA[This module define an interface for generic
-           sequential data streams.\n
-           This interface is meant to be implemented in classes requiring
-           streaming capability.]]></details>
-        <fields>
-        </fields>
+        <details>
+          This module define an interface for generic sequential data
+          streams.
+          <br />
+          This interface is meant to be implemented in classes requiring
+          streaming capability.
+        </details>
+        <consts>
+        </consts>
         <methods>
-          <objinit>
-            <implementation><![CDATA[ ]]></implementation>
-          </objinit>
-          <dispose>
-            <implementation><![CDATA[ ]]></implementation>
-          </dispose>
-          <virtual>
-            <method name="streamWrite" shortname="write" ctype="size_t">
-              <brief>Sequential Stream write.</brief>
-              <details>This function writes data from a buffer to a stream.</details>
-              <param name="bp" ctype="const uint8_t *">Pointer to the data buffer.</param>
-              <param name="n" ctype="size_t">The maximum amount of data to be transferred.</param>
-              <return><![CDATA[The number of bytes transferred. The returned
-                      value can be less than the specified number of bytes
-                      if an end-of-file condition has been met.]]></return>
-            </method>
-            <method name="streamRead" shortname="read" ctype="size_t">
-              <brief>Sequential Stream read.</brief>
-              <details>This function reads data from a stream into a buffer.</details>
-              <param name="bp" ctype="uint8_t *">Pointer to the data buffer.</param>
-              <param name="n" ctype="size_t">The maximum amount of data to be transferred.</param>
-              <return><![CDATA[The number of bytes transferred. The returned
-                      value can be less than the specified number of bytes
-                      if an end-of-file condition has been met.]]></return>
-            </method>
-            <method name="streamPut" shortname="put" ctype="msg_t">
-              <brief>Sequential Stream blocking byte write.</brief>
-              <details><![CDATA[This function writes a byte value to a channel.
-                If the channel is not ready to
-                accept data then the calling thread is suspended.]]></details>
-              <param name="b" ctype="uint8_t">The byte value to be written to the channel.</param>
-              <return>The operation status.</return>
-            </method>
-            <method name="streamGet" shortname="get" ctype="msg_t">
-              <brief>Sequential Stream blocking byte read.</brief>
-              <details><![CDATA[This function reads a byte value from a channel. If the data
-                       is not available then the calling thread is suspended.]]></details>
-              <return>A byte value from the queue.</return>
-            </method>
-          </virtual>
+          <method name="bssWrite" shortname="write"
+            ctype="size_t">
+            <brief>Sequential Stream write.</brief>
+            <details>This function writes data from a buffer to a
+              stream.
+            </details>
+            <param name="bp" ctype="const uint8_t *" dir="in">Pointer
+              to the data buffer.
+            </param>
+            <param name="n" ctype="size_t" dir="in">The maximum amount
+              of data to be transferred.
+            </param>
+            <return><![CDATA[The number of bytes transferred. The returned
+                    value can be less than the specified number of bytes
+                    if an end-of-file condition has been met.]]></return>
+          </method>
+          <method name="bssRead" shortname="read" ctype="size_t">
+            <brief>Sequential Stream read.</brief>
+            <details>This function reads data from a stream into a
+              buffer.
+            </details>
+            <param name="bp" ctype="uint8_t *" dir="out">Pointer to the
+              data buffer.
+            </param>
+            <param name="n" ctype="size_t" dir="in">The maximum amount
+              of data to be transferred.
+            </param>
+            <return><![CDATA[The number of bytes transferred. The returned
+                    value can be less than the specified number of bytes
+                    if an end-of-file condition has been met.]]></return>
+          </method>
+          <method name="bssPut" shortname="put" ctype="msg_t">
+            <brief>Sequential Stream blocking byte write.</brief>
+            <details><![CDATA[This function writes a byte value to a stream.
+                If the stream is not ready to accept data then the calling
+                thread is suspended.]]></details>
+            <param name="b" ctype="uint8_t" dir="in">The byte value to
+              be written to the stream.
+            </param>
+            <return>The operation status.</return>
+          </method>
+          <method name="bssGet" shortname="get" ctype="msg_t">
+            <brief>Sequential Stream blocking byte read.</brief>
+            <details><![CDATA[This function reads a byte value from a stream.
+                     If the data is not available then the calling thread is
+                     suspended.]]></details>
+            <return>A byte value from the stream.</return>
+          </method>
         </methods>
-      </class>
-    </classes>
+      </interface>
+    </interfaces>
   </public>
   <private>
   </private>

@@ -29,7 +29,10 @@
 #ifndef OOP_BASE_INTERFACE_H
 #define OOP_BASE_INTERFACE_H
 
+#include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
+#include "ccportab.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -62,13 +65,28 @@
  * @param         c             Class type implementing the interface.
  * @param         ifname        Name of the interface field within the class
  *                              structure.
- * @param         ip            Pointer to the interface field within the class
+ * @param[in]     ip            Pointer to the interface field within the class
  *                              structure.
  * @return                      A pointer to an object of type @p c
  *                              implementing the interface @p ifname.
  */
 #define oopGetInstance(c, ifname, ip)                                       \
-  (c)(((size_t)(ip)) - (size_t)offsetof(c, c.ifname))                       
+  (c)(((size_t)(ip)) - (size_t)offsetof(c, c.ifname))
+
+/**
+ * @brief   Initialization of an interface structure.
+ * @details An interface structure contains only a VMT pointer and no data, the
+ *          purpose of this macro is VMT initialization.
+ *
+ * @param[out]    ip            Pointer to the interface structure to be
+ *                              initialized.
+ * @param[in]     vmtp          VMT pointer to be assigned to the interface
+ *                              structure.
+ */
+#define oopInterfaceObjectInit(ip, vmtp)                                    \
+  do {                                                                      \
+    (ip)->vmt = (vmtp);                                                     \
+  } while (false)
 
 /*===========================================================================*/
 /* Module interface base_interface_i                                         */
@@ -83,33 +101,13 @@ typedef struct base_interface base_interface_i;
  * @brief   @p base_interface_i methods.
  */
 #define __base_interface_methods                                            \
-  /* This field represents the offset between the current object
-     and the container object.*/                                            \
-  size_t                                    instance_offset;                \
-  /* no methods */
+  /* No methods.*/
 
 /**
  * @brief   @p base_interface_i VMT initializer.
  */
-#define __base_interface_vmt_init(offset, ns)                               \
-  .instance_offset                          = (offset)
-
-/**
- * @brief   @p base_interface_i virtual methods table.
- */
-struct base_interface_vmt {
-  __base_interface_methods
-};
-
-/**
- * @brief   Structure representing a base interface.
- */
-struct base_interface {
-  /**
-   * @brief   Virtual Methods Table.
-   */
-  const struct base_interface_vmt           *vmt;
-};
+#define __base_interface_vmt_init(ns)                                       \
+  /* No methods.*/
 
 /*===========================================================================*/
 /* External declarations.                                                    */

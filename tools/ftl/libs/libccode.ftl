@@ -365,7 +365,7 @@ ${s}
     [#list lines?filter(line -> line?trim?length > 0) as line]
       [#local s = line?chop_linebreak /]
       [#if line?is_last]
-${(indent + s + "")?right_pad(backslash_align)}
+${(indent + s + "")}
       [#else]
 ${(indent + s + "")?right_pad(backslash_align) + "\\"}
       [/#if]

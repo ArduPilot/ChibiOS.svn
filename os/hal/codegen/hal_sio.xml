@@ -352,7 +352,7 @@ do {
         <fields>
           <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
             <field name="channel"
-              ctype="base_asynchronous_channel_c">
+              ctype="base_channel_i">
               <brief>Channel interface.</brief>
             </field>
           </condition>

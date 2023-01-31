@@ -28,7 +28,7 @@
 #ifndef OOP_SEQUENTIAL_STREAM_H
 #define OOP_SEQUENTIAL_STREAM_H
 
-#include "oop_base_object.h"
+#include "oop_base_interface.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -59,17 +59,72 @@
 /* Module macros.                                                            */
 /*===========================================================================*/
 
-/*===========================================================================*/
-/* Module class base_sequential_stream_c                                     */
-/*===========================================================================*/
-
 /**
- * @brief   Type of a base sequential stream interface class.
+ * @brief   Sequential Stream write (implicit form).
+ * @details This function writes data from a buffer to a stream.
+ *
+ * @param[in,out] objp          Pointer to the object implementing the
+ *                              interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The returned
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
  */
-typedef struct base_sequential_stream base_sequential_stream_c;
+#define __stmWrite(objp, bp, n)                                             \
+  stmWrite(&(objp)->stm, (bp), (n))
 
 /**
- * @brief   @p base_sequential_stream_c methods as a structure.
+ * @brief   Sequential Stream read (implicit form).
+ * @details This function reads data from a stream into a buffer.
+ *
+ * @param[in,out] objp          Pointer to the object implementing the
+ *                              interface.
+ * @param[out]    bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The returned
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
+ */
+#define __stmRead(objp, bp, n)                                              \
+  stmRead(&(objp)->stm, (bp), (n))
+
+/**
+ * @brief   Sequential Stream blocking byte write (implicit form).
+ * @details This function writes a byte value to a stream. If the stream is not
+ *          ready to accept data then the calling thread is suspended.
+ *
+ * @param[in,out] objp          Pointer to the object implementing the
+ *                              interface.
+ * @param[in]     b             The byte value to be written to the stream.
+ * @return                      The operation status.
+ */
+#define __stmPut(objp, b)                                                   \
+  stmPut(&(objp)->stm, (b))
+
+/**
+ * @brief   Sequential Stream blocking byte read (implicit form).
+ * @details This function reads a byte value from a stream. If the data is not
+ *          available then the calling thread is suspended.
+ *
+ * @param[in,out] objp          Pointer to the object implementing the
+ *                              interface.
+ * @return                      A byte value from the stream.
+ */
+#define __stmGet(objp)                                                      \
+  stmGet(&(objp)->stm)
+
+/*===========================================================================*/
+/* Module interface base_sequential_stream_i                                 */
+/*===========================================================================*/
+
+/**
+ * @brief   Type of a base sequential stream interface interface.
+ */
+typedef struct base_sequential_stream base_sequential_stream_i;
+
+/**
+ * @brief   @p base_sequential_stream_i methods as a structure.
  */
 struct base_sequential_stream_methods {
   size_t (*write)(void *ip, const uint8_t *bp, size_t n);
@@ -79,163 +134,112 @@ struct base_sequential_stream_methods {
 };
 
 /**
- * @brief   @p base_sequential_stream_c methods.
+ * @brief   @p base_sequential_stream_i methods.
  */
 #define __base_sequential_stream_methods                                    \
-  __base_object_methods                                                     \
-  struct base_sequential_stream_methods     bss;
+  __base_interface_methods                                                  \
+  struct base_sequential_stream_methods     stm;
 
 /**
- * @brief   @p base_sequential_stream_c data.
+ * @brief   @p base_sequential_stream_i VMT initializer.
  */
-#define __base_sequential_stream_data                                       \
-  __base_object_data                                                        \
-  /* no data */
+#define __base_sequential_stream_vmt_init(ns)                               \
+  __base_interface_vmt_init(ns),                                            \
+  .stm.write                                = __##ns##_stm_write,           \
+  .stm.read                                 = __##ns##_stm_read,            \
+  .stm.put                                  = __##ns##_stm_put,             \
+  .stm.get                                  = __##ns##_stm_get
 
 /**
- * @brief   @p base_sequential_stream_c VMT initializer.
- */
-#define __base_sequential_stream_vmt_init(offset, ns)                       \
-  __base_object_vmt_init(offset, ns),                                       \
-  .bss.write                                = __##ns##_write,               \
-  .bss.read                                 = __##ns##_read,                \
-  .bss.put                                  = __##ns##_put,                 \
-  .bss.get                                  = __##ns##_get
-
-/**
- * @brief   @p base_sequential_stream_c virtual methods table.
+ * @brief   @p base_sequential_stream_i virtual methods table.
  */
 struct base_sequential_stream_vmt {
   __base_sequential_stream_methods
 };
 
 /**
- * @brief   Structure representing a base sequential stream interface class.
+ * @brief   Structure representing a base sequential stream interface.
  */
 struct base_sequential_stream {
   /**
    * @brief   Virtual Methods Table.
    */
   const struct base_sequential_stream_vmt   *vmt;
-  __base_sequential_stream_data
 };
 
 /**
- * @name    Methods implementations (base_sequential_stream_c)
- * @{
- */
-/**
- * @brief   Implementation of object creation.
- * @note    This function is meant to be used by derived classes.
- *
- * @param[out]    ip            Pointer to a @p base_sequential_stream_c
- *                              structure to be initialized.
- * @param[in]     vmt           VMT pointer for the new object.
- * @return                      A new reference to the object.
- */
-CC_FORCE_INLINE
-static inline void *__base_sequential_stream_objinit_impl(void *ip, const void *vmt) {
-  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
-
-  /* Initialization of the ancestors-defined parts.*/
-  __base_object_objinit_impl(self, vmt);
-
-  /* No initialization code.*/
-
-  return self;
-}
-
-/**
- * @brief   Implementation of object finalization.
- * @note    This function is meant to be used by derived classes.
- *
- * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
- *                              structure to be disposed.
- */
-CC_FORCE_INLINE
-static inline void __base_sequential_stream_dispose_impl(void *ip) {
-  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
-
-  __base_object_dispose_impl(self);
-
-  /* No finalization code.*/
-  (void)self;
-}
-/** @} */
-
-/**
- * @name    Virtual methods of (base_sequential_stream_c)
+ * @name    Interface methods of @p base_sequential_stream_i
  * @{
  */
 /**
  * @brief   Sequential Stream write.
  * @details This function writes data from a buffer to a stream.
  *
- * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
- *                              structure.
- * @param         bp            Pointer to the data buffer.
- * @param         n             The maximum amount of data to be transferred.
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_i, or
+ *                              derived, interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
  * @return                      The number of bytes transferred. The returned
  *                              value can be less than the specified number of
  *                              bytes if an end-of-file condition has been met.
  */
 CC_FORCE_INLINE
-static inline size_t streamWrite(void *ip, const uint8_t *bp, size_t n) {
-  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
+static inline size_t stmWrite(void *ip, const uint8_t *bp, size_t n) {
+  base_sequential_stream_i *self = (base_sequential_stream_i *)ip;
 
-  return self->vmt->bss.write(ip, bp, n);
+  return self->vmt->stm.write(ip, bp, n);
 }
 
 /**
  * @brief   Sequential Stream read.
  * @details This function reads data from a stream into a buffer.
  *
- * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
- *                              structure.
- * @param         bp            Pointer to the data buffer.
- * @param         n             The maximum amount of data to be transferred.
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_i, or
+ *                              derived, interface.
+ * @param[out]    bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
  * @return                      The number of bytes transferred. The returned
  *                              value can be less than the specified number of
  *                              bytes if an end-of-file condition has been met.
  */
 CC_FORCE_INLINE
-static inline size_t streamRead(void *ip, uint8_t *bp, size_t n) {
-  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
+static inline size_t stmRead(void *ip, uint8_t *bp, size_t n) {
+  base_sequential_stream_i *self = (base_sequential_stream_i *)ip;
 
-  return self->vmt->bss.read(ip, bp, n);
+  return self->vmt->stm.read(ip, bp, n);
 }
 
 /**
  * @brief   Sequential Stream blocking byte write.
- * @details This function writes a byte value to a channel. If the channel is
- *          not ready to accept data then the calling thread is suspended.
+ * @details This function writes a byte value to a stream. If the stream is not
+ *          ready to accept data then the calling thread is suspended.
  *
- * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
- *                              structure.
- * @param         b             The byte value to be written to the channel.
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_i, or
+ *                              derived, interface.
+ * @param[in]     b             The byte value to be written to the stream.
  * @return                      The operation status.
  */
 CC_FORCE_INLINE
-static inline msg_t streamPut(void *ip, uint8_t b) {
-  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
+static inline msg_t stmPut(void *ip, uint8_t b) {
+  base_sequential_stream_i *self = (base_sequential_stream_i *)ip;
 
-  return self->vmt->bss.put(ip, b);
+  return self->vmt->stm.put(ip, b);
 }
 
 /**
  * @brief   Sequential Stream blocking byte read.
- * @details This function reads a byte value from a channel. If the data is not
+ * @details This function reads a byte value from a stream. If the data is not
  *          available then the calling thread is suspended.
  *
- * @param[in,out] ip            Pointer to a @p base_sequential_stream_c
- *                              structure.
- * @return                      A byte value from the queue.
+ * @param[in,out] ip            Pointer to a @p base_sequential_stream_i, or
+ *                              derived, interface.
+ * @return                      A byte value from the stream.
  */
 CC_FORCE_INLINE
-static inline msg_t streamGet(void *ip) {
-  base_sequential_stream_c *self = (base_sequential_stream_c *)ip;
+static inline msg_t stmGet(void *ip) {
+  base_sequential_stream_i *self = (base_sequential_stream_i *)ip;
 
-  return self->vmt->bss.get(ip);
+  return self->vmt->stm.get(ip);
 }
 /** @} */
 

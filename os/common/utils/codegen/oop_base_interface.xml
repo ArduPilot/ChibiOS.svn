@@ -36,7 +36,7 @@
           class structure.
         </param>
         <return>A pointer to an object of type @p c implementing the interface @p ifname.</return>
-        <implementation><![CDATA[(c)(((size_t)(ip)) - (size_t)offsetof(c, c.ifname))]]></implementation>
+        <implementation><![CDATA[(c *)(((size_t)(ip)) - (size_t)offsetof(c, ifname))]]></implementation>
       </macro>
       <macro name="oopInterfaceObjectInit">
         <brief>Initialization of an interface structure.</brief>

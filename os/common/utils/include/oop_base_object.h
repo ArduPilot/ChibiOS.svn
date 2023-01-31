@@ -52,24 +52,6 @@
 /* Module macros.                                                            */
 /*===========================================================================*/
 
-/**
- * @brief   Returns the object instance pointer starting from an interface
- *          pointer.
- * @details Because multiple inheritance, an object can be composed by multiple
- *          interfaces and/or classes (its ancestors).<br> This function
- *          returns the pointer to the base object starting from a pointer to
- *          any of its composing classes or interfaces. This is done by
- *          leveraging the offset field into each VMT table.
- *
- * @param         c             The class type of the object.
- * @param         p             A pointer to one of the object composing
- *                              classes or interfaces.
- * @return                      A pointer to an object of type @p c
- *                              implementing the interface/class @p p.
- */
-#define oopGetInstance(c, p)                                                \
-  (c)(((size_t)(ip)) - (**(size_t **)(p)))                                  
-
 /*===========================================================================*/
 /* Module class base_object_c                                                */
 /*===========================================================================*/

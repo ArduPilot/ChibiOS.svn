@@ -40,7 +40,6 @@ static THD_FUNCTION(Thread1, arg) {
  */
 int main(void) {
   msg_t msg;
-  base_sequential_stream_c *stream;
 
   /*
    * System initializations.
@@ -59,7 +58,6 @@ int main(void) {
   if (msg != HAL_RET_SUCCESS) {
     chSysHalt("SIO failure");
   }
-  stream = drvGetInterfaceX(&LPSIOD1);
 
   /*
    * Creates the blinker thread.
@@ -72,8 +70,8 @@ int main(void) {
    */
   while (true) {
    if (palReadLine(LINE_BUTTON)) {
-      test_execute((BaseSequentialStream *)stream, &rt_test_suite);
-      test_execute((BaseSequentialStream *)stream, &oslib_test_suite);
+      test_execute((base_sequential_stream_i *)&LPSIOD1.chn, &rt_test_suite);
+      test_execute((base_sequential_stream_i *)&LPSIOD1.chn, &oslib_test_suite);
     }
     chThdSleepMilliseconds(500);
   }

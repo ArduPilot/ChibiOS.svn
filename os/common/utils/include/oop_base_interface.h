@@ -71,7 +71,7 @@
  *                              implementing the interface @p ifname.
  */
 #define oopGetInstance(c, ifname, ip)                                       \
-  (c)(((size_t)(ip)) - (size_t)offsetof(c, c.ifname))
+  (c *)(((size_t)(ip)) - (size_t)offsetof(c, ifname))
 
 /**
  * @brief   Initialization of an interface structure.

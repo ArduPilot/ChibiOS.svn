@@ -100,8 +100,8 @@ struct referenced_object_data {
  */
 #define __referenced_object_vmt_init(offset, ns)                            \
   __base_object_vmt_init(offset, ns),                                       \
-  .ro.addref                                = __##ns##_addref,              \
-  .ro.release                               = __##ns##_release
+  .ro.addref                                = __##ns##_ro_addref,           \
+  .ro.release                               = __##ns##_ro_release
 
 /**
  * @brief   @p referenced_object_c virtual methods table.

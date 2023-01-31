@@ -131,36 +131,36 @@ typedef struct {
   /**
    * @brief   Test step being executed.
    */
-  unsigned          current_step;
+  unsigned                              current_step;
  /**
    * @brief   Global test result flag.
    */
-  bool              global_fail;
+  bool                                      global_fail;
   /**
    * @brief   Local test result flag.
    */
-  bool              local_fail;
+  bool                                      local_fail;
   /**
    * @brief   Last test failure message.
    */
-  const char        *failure_message;
+  const char                                *failure_message;
   /**
    * @brief   Pointer to the next token position.
    */
-  char              *tokp;
+  char                                      *tokp;
   /**
    * @brief   Tokens buffer.
    */
-  char              tokens_buffer[TEST_CFG_MAX_TOKENS];
+  char                                      tokens_buffer[TEST_CFG_MAX_TOKENS];
   /**
    * @brief   Current output function.
    */
-  test_putchar_t    putchar;
+  test_putchar_t                            putchar;
 #if (TEST_CFG_CHIBIOS_SUPPORT == TRUE) || defined(__DOXYGEN__)
   /**
    * @brief   Current output stream.
    */
-  BaseSequentialStream *stream;
+  base_sequential_stream_i                  *stream;
 #endif
 } ch_test_context_t;
 
@@ -315,7 +315,7 @@ extern "C" {
   bool test_execute_putchar(test_putchar_t putfunc,
                             const testsuite_t *tsp);
 #if TEST_CFG_CHIBIOS_SUPPORT == TRUE
-  bool test_execute_stream(BaseSequentialStream *stream,
+  bool test_execute_stream(base_sequential_stream_i *stream,
                            const testsuite_t *tsp);
 #endif
 #ifdef __cplusplus
@@ -331,8 +331,8 @@ extern "C" {
  * @brief   Test execution thread function.
  * @note    This is a legacy version.
  *
- * @param[in] stream    pointer to a @p BaseSequentialStream object for test
- *                      output
+ * @param[in] stream    pointer to a @p base_sequential_stream_i interface
+ *                      for test output
  * @param[in] tsp       test suite to execute
  * @return              A failure boolean.
  * @retval false        if no errors occurred.
@@ -340,7 +340,7 @@ extern "C" {
  *
  * @api
  */
-static inline msg_t test_execute(BaseSequentialStream *stream,
+static inline msg_t test_execute(base_sequential_stream_i *stream,
                                  const testsuite_t *tsp) {
 
   return (msg_t)test_execute_stream(stream, tsp);

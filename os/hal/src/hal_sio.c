@@ -44,7 +44,7 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-static msg_t __sio_start(void *ip) {
+static msg_t __sio_drv_start(void *ip) {
   SIODriver *siop = (SIODriver *)ip;
   msg_t msg;
 
@@ -62,7 +62,7 @@ static msg_t __sio_start(void *ip) {
   return msg;
 }
 
-static void __sio_stop(void *ip) {
+static void __sio_drv_stop(void *ip) {
   SIODriver *siop = (SIODriver *)ip;
 
   sio_lld_stop(siop);
@@ -70,17 +70,17 @@ static void __sio_stop(void *ip) {
   siop->enabled = (sioevents_t)0;
 }
 
-static msg_t __sio_configure(void *ip, const void *config) {
+static msg_t __sio_drv_configure(void *ip, const void *config) {
   SIODriver *siop = (SIODriver *)ip;
 
   return sio_lld_configure(siop, (const SIOConfig *)config);
 }
 
-static void *__sio_getif(void *ip) {
+static void *__sio_drv_getif(void *ip) {
   SIODriver *siop = (SIODriver *)ip;
 
 #if SIO_USE_STREAMS_INTERFACE == TRUE
-  return (void *)&siop->channel;
+  return (void *)&siop->chn;
 #else
   return __base_driver_get_interface_impl(siop);
 #endif
@@ -139,19 +139,19 @@ static size_t sync_read(SIODriver *siop, uint8_t *bp, size_t n,
  */
 
 static size_t __sio_write(void *ip, const uint8_t *bp, size_t n) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
 
   return sync_write(siop, bp, n, TIME_INFINITE);
 }
 
 static size_t __sio_read(void *ip, uint8_t *bp, size_t n) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
 
   return sync_read(siop, bp, n, TIME_INFINITE);
 }
 
 static msg_t __sio_put(void *ip, uint8_t b) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
   msg_t msg;
 
   msg = sioSynchronizeTX(siop, TIME_INFINITE);
@@ -164,7 +164,7 @@ static msg_t __sio_put(void *ip, uint8_t b) {
 }
 
 static msg_t __sio_get(void *ip) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
   msg_t msg;
 
   msg = sioSynchronizeRX(siop, TIME_INFINITE);
@@ -177,20 +177,20 @@ static msg_t __sio_get(void *ip) {
 
 static size_t __writet(void *ip, const uint8_t *bp, size_t n,
                        sysinterval_t timeout) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
 
   return sync_write(siop, bp, n, timeout);
 }
 
 static size_t __readt(void *ip, uint8_t *bp, size_t n,
                       sysinterval_t timeout) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
 
   return sync_read(siop, bp, n, timeout);
 }
 
 static msg_t __putt(void *ip, uint8_t b, sysinterval_t timeout) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
   msg_t msg;
 
   msg = sioSynchronizeTX(siop, timeout);
@@ -203,7 +203,7 @@ static msg_t __putt(void *ip, uint8_t b, sysinterval_t timeout) {
 }
 
 static msg_t __gett(void *ip, sysinterval_t timeout) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
   msg_t msg;
 
   msg = sioSynchronizeRX(siop, timeout);
@@ -215,7 +215,7 @@ static msg_t __gett(void *ip, sysinterval_t timeout) {
 }
 
 static msg_t __ctl(void *ip, unsigned int operation, void *arg) {
-  SIODriver *siop = oopGetInstance(SIODriver *, ip);
+  SIODriver *siop = oopGetInstance(SIODriver, chn, ip);
 
   osalDbgCheck(siop != NULL);
 
@@ -232,17 +232,16 @@ static msg_t __ctl(void *ip, unsigned int operation, void *arg) {
   return HAL_RET_SUCCESS;
 }
 
-static const struct base_asynchronous_channel_vmt channel_vmt = {
-  .instance_offset = (size_t)offsetof(SIODriver, channel.vmt),
-  .bss.write       = __sio_write,
-  .bss.read        = __sio_read,
-  .bss.put         = __sio_put,
-  .bss.get         = __sio_get,
-  .writet          = __writet,
-  .readt           = __readt,
-  .putt            = __putt,
-  .gett            = __gett,
-  .ctl             = __ctl
+static const struct base_channel_vmt channel_vmt = {
+  .stm.write       = __sio_write,
+  .stm.read        = __sio_read,
+  .stm.put         = __sio_put,
+  .stm.get         = __sio_get,
+  .chn.writet      = __writet,
+  .chn.readt       = __readt,
+  .chn.putt        = __putt,
+  .chn.gett        = __gett,
+  .chn.ctl         = __ctl
 };
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
 
@@ -274,7 +273,7 @@ void sioObjectInit(SIODriver *siop) {
   __hal_base_driver_objinit_impl(siop, &drv_vmt);
 
 #if SIO_USE_STREAMS_INTERFACE == TRUE
-  __base_asynchronous_channel_objinit_impl(&siop->channel, &channel_vmt);
+  oopInterfaceObjectInit(&siop->chn, &channel_vmt);
 #endif
   siop->enabled     = (sioevents_t)0;
   siop->cb          = NULL;

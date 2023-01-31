@@ -19,7 +19,7 @@
       </group>
     </definitions_early>
     <macros>
-      <macro name="streamWrite">
+      <macro name="__stmWrite">
         <brief>Sequential Stream write (implicit form).</brief>
         <details>This function writes data from a buffer to a stream.
         </details>
@@ -33,9 +33,9 @@
         <return><![CDATA[The number of bytes transferred. The returned
                 value can be less than the specified number of bytes
                 if an end-of-file condition has been met.]]></return>
-        <implementation><![CDATA[bssWrite(&(objp)->bss, (bp), (n))]]></implementation>
+        <implementation><![CDATA[stmWrite(&(objp)->stm, (bp), (n))]]></implementation>
       </macro>
-      <macro name="streamRead">
+      <macro name="__stmRead">
         <brief>Sequential Stream read (implicit form).</brief>
         <details>This function reads data from a stream into a buffer.
         </details>
@@ -50,9 +50,9 @@
         <return><![CDATA[The number of bytes transferred. The returned
                 value can be less than the specified number of bytes
                 if an end-of-file condition has been met.]]></return>
-        <implementation><![CDATA[bssRead(&(objp)->bss, (bp), (n))]]></implementation>
+        <implementation><![CDATA[stmRead(&(objp)->stm, (bp), (n))]]></implementation>
       </macro>
-      <macro name="streamPut">
+      <macro name="__stmPut">
         <brief>Sequential Stream blocking byte write (implicit form).</brief>
         <details><![CDATA[This function writes a byte value to a stream.
                 If the stream is not ready to accept data then the
@@ -64,9 +64,9 @@
           written to the stream.
         </param>
         <return>The operation status.</return>
-        <implementation><![CDATA[bssPut(&(objp)->bss, (b))]]></implementation>
+        <implementation><![CDATA[stmPut(&(objp)->stm, (b))]]></implementation>
       </macro>
-      <macro name="streamGet">
+      <macro name="__stmGet">
         <brief>Sequential Stream blocking byte read (implicit form).</brief>
         <details><![CDATA[This function reads a byte value from a stream. If
                  the data is not available then the calling thread is
@@ -75,12 +75,12 @@
           the interface.
         </param>
         <return>A byte value from the stream.</return>
-        <implementation><![CDATA[bssGet(&(objp)->bss)]]></implementation>
+        <implementation><![CDATA[stmGet(&(objp)->stm)]]></implementation>
       </macro>
     </macros>
     <interfaces>
-      <interface name="base_sequential_stream" namespace="bss"
-        ancestor="base_object" descr="base sequential stream interface">
+      <interface name="base_sequential_stream" namespace="stm"
+        ancestor="base_interface" descr="base sequential stream interface">
         <brief>Sequential data streams interface.</brief>
         <details>
           This module define an interface for generic sequential data
@@ -92,7 +92,7 @@
         <consts>
         </consts>
         <methods>
-          <method name="bssWrite" shortname="write"
+          <method name="stmWrite" shortname="write"
             ctype="size_t">
             <brief>Sequential Stream write.</brief>
             <details>This function writes data from a buffer to a
@@ -108,7 +108,7 @@
                     value can be less than the specified number of bytes
                     if an end-of-file condition has been met.]]></return>
           </method>
-          <method name="bssRead" shortname="read" ctype="size_t">
+          <method name="stmRead" shortname="read" ctype="size_t">
             <brief>Sequential Stream read.</brief>
             <details>This function reads data from a stream into a
               buffer.
@@ -123,7 +123,7 @@
                     value can be less than the specified number of bytes
                     if an end-of-file condition has been met.]]></return>
           </method>
-          <method name="bssPut" shortname="put" ctype="msg_t">
+          <method name="stmPut" shortname="put" ctype="msg_t">
             <brief>Sequential Stream blocking byte write.</brief>
             <details><![CDATA[This function writes a byte value to a stream.
                 If the stream is not ready to accept data then the calling
@@ -133,7 +133,7 @@
             </param>
             <return>The operation status.</return>
           </method>
-          <method name="bssGet" shortname="get" ctype="msg_t">
+          <method name="stmGet" shortname="get" ctype="msg_t">
             <brief>Sequential Stream blocking byte read.</brief>
             <details><![CDATA[This function reads a byte value from a stream.
                      If the data is not available then the calling thread is

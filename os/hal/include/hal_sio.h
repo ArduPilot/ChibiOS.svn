@@ -188,7 +188,7 @@ struct hal_sio_driver {
   /**
    * @brief   Virtual Methods Table.
    */
-  base_asynchronous_channel_c               channel;
+  base_channel_i                            chn;
 #endif
   /**
    * @brief   Enabled event flags.

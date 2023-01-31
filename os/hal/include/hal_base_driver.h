@@ -146,10 +146,10 @@ struct hal_base_driver_data {
  */
 #define __hal_base_driver_vmt_init(offset, ns)                              \
   __base_object_vmt_init(offset, ns),                                       \
-  .drv.start                                = __##ns##_start,               \
-  .drv.stop                                 = __##ns##_stop,                \
-  .drv.configure                            = __##ns##_configure,           \
-  .drv.getif                                = __##ns##_getif
+  .drv.start                                = __##ns##_drv_start,           \
+  .drv.stop                                 = __##ns##_drv_stop,            \
+  .drv.configure                            = __##ns##_drv_configure,       \
+  .drv.getif                                = __##ns##_drv_getif
 
 /**
  * @brief   @p hal_base_driver_c virtual methods table.

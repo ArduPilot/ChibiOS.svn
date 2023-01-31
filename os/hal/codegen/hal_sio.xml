@@ -351,7 +351,7 @@ do {
         </brief>
         <fields>
           <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
-            <field name="channel"
+            <field name="chn"
               ctype="base_channel_i">
               <brief>Channel interface.</brief>
             </field>
@@ -393,6 +393,22 @@ self->drv.owner   = NULL;
 osalMutexObjectInit(&self->drv.mutex);
 #if HAL_USE_REGISTRY == TRUE
 self->drv.id      = 0U;
+#endif
+#if SIO_USE_STREAMS_INTERFACE == TRUE
+oopInterfaceObjectInit(&siop->chn, &channel_vmt);
+#endif
+siop->enabled     = (sioevents_t)0;
+siop->cb          = NULL;
+#if SIO_USE_SYNCHRONIZATION == TRUE
+siop->sync_rx     = NULL;
+siop->sync_rxidle = NULL;
+siop->sync_tx     = NULL;
+siop->sync_txend  = NULL;
+#endif
+
+/* Optional, user-defined initializer.*/
+#if defined(SIO_DRIVER_EXT_INIT_HOOK)
+SIO_DRIVER_EXT_INIT_HOOK(siop);
 #endif]]></implementation>
           </objinit>
           <dispose>

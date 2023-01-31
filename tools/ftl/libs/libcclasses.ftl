@@ -27,6 +27,13 @@
 [#assign interface_suffix = "_i" /]
 
 [#--
+  -- Resets global variables.
+  --]
+[#macro ResetState]
+  [#assign generated = false /]
+[/#macro]
+
+[#--
   -- Returns the interface name from an XML node.
   --]
 [#function GetInterfaceName node=[]]

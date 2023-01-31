@@ -35,6 +35,8 @@
   [#assign docgroup   = basename?upper_case /]
   [#-- Generating class header.--]
   [@pp.changeOutputFile name="../include/" + headername /]
+  [@ccode.ResetState /]
+  [@cclasses.ResetState /]
 /*
 [@license.EmitLicenseAsText /]
 */
@@ -84,17 +86,17 @@
 [#-- Generating late definitions.--]
 [@ccode.GenerateDefinesFromNode node=module.public.definitions_late /]
 /*===========================================================================*/
-/* Module data structures and types.                                         */
-/*===========================================================================*/
-
-[#-- Generating types declarations.--]
-[@ccode.GenerateTypedefsFromNode node=module.public.types /]
-/*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
 
 [#-- Generating multi-line macros.--]
 [@ccode.GenerateMacrosFromNode node=module.public.macros /]
+/*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
+[#-- Generating types declarations.--]
+[@ccode.GenerateTypedefsFromNode node=module.public.types /]
   [#-- Scanning all interfaces to be generated in this module.--]
   [#list module.public.interfaces.interface as interface]
 /*===========================================================================*/

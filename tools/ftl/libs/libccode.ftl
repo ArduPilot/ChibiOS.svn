@@ -35,6 +35,13 @@
 [#assign boundary = 80 /]
 
 [#--
+  -- Resets global variables.
+  --]
+[#macro ResetState]
+  [#assign generated = false /]
+[/#macro]
+
+[#--
   -- Returns the function/macro name from an XML node.
   --]
 [#function GetName node=[]]

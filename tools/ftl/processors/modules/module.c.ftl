@@ -36,6 +36,8 @@
   [#assign docgroup   = basename?upper_case /]
   [#-- Generating class header.--]
   [@pp.changeOutputFile name="../src/" + sourcename /]
+  [@ccode.ResetState /]
+  [@cclasses.ResetState /]
 /*
 [@license.EmitLicenseAsText /]
 */
@@ -67,6 +69,12 @@
 
 [#-- Generating local definitions.--]
 [@ccode.GenerateDefinesFromNode node=module.private.definitions /]
+/*===========================================================================*/
+/* Module local macros.                                                      */
+/*===========================================================================*/
+
+[#-- Generating multi-line macros.--]
+[@ccode.GenerateMacrosFromNode node=module.private.macros /]
 /*===========================================================================*/
 /* Module exported variables.                                                */
 /*===========================================================================*/

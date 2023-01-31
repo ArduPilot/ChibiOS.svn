@@ -210,7 +210,7 @@ ${funcptr}
 [#--
   -- This macro generates a VMT initializer macro from an XML node.
   --]
-[#macro GenerateClassVMTInitializers methods=[] namespace="no-namespace"]
+[#macro GenerateVMTInitializers methods=[] namespace="no-namespace"]
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
@@ -242,7 +242,7 @@ ${s}
 [@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
  */
 static const struct ${classname}_vmt ${classnamespace}_vmt = {
-  __${ancestorname}_vmt_init((size_t)offsetof(${classctype}, vmt), ${classnamespace})
+  __${ancestorname}_vmt_init(${classnamespace})
 };
 
   [/#if]
@@ -293,10 +293,9 @@ struct ${datastruct} {
 ${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
   [#else]
     [#local instance_string = ccode.MakeVariableDeclaration("  "
-                                                            "instance_offset"
-                                                            "size_t")?right_pad(76) + "\\" /]
-  /* This field represents the offset between the current object
-     and the container object.*/                                            \
+                                                            "reserved"
+                                                            "void$I*$N")?right_pad(76) + "\\" /]
+  /* Reserved field.*/                                                      \
 ${instance_string}
   [/#if]
   [#if class.methods.virtual?size > 0]
@@ -306,7 +305,7 @@ ${instance_string}
 
 
   [#else]
-  /* no methods */
+  /* No methods.*/
 
   [/#if]
 /**
@@ -324,23 +323,23 @@ ${("  __" + ancestorname?lower_case + "_data")?right_pad(76)}\
 
 
   [#else]
-  /* no data */
+  /* No data.*/
 
   [/#if]
 /**
 [@doxygen.EmitBrief "" "@p " + classctype + " VMT initializer." /]
  */
-  [#local vmtinitsdefine = "__" + classname?lower_case + "_vmt_init(offset, ns)" /]
+  [#local vmtinitsdefine = "__" + classname?lower_case + "_vmt_init(ns)" /]
 #define ${vmtinitsdefine?right_pad(68) + "\\"}
   [#if ancestorname?length > 0]
-    [#local s = "  __" + ancestorname?lower_case + "_vmt_init(offset, ns)" /]
+    [#local s = "  __" + ancestorname?lower_case + "_vmt_init(ns)" /]
     [#if node.methods.virtual?size > 0]
       [#local s = (s + ", ")?right_pad(76) + "\\" /]
     [/#if]
 ${s}
-[@GenerateClassVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
+[@GenerateVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
   [#else]
-  .instance_offset                          = (offset)
+  .reserved                                 = NULL
   [/#if]
 
 /**
@@ -669,7 +668,7 @@ ${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
       [#local s = (s + ", ")?right_pad(76) + "\\" /]
     [/#if]
 ${s}
-[@GenerateClassVMTInitializers methods=node.methods namespace=ifnamespace /]
+[@GenerateVMTInitializers methods=node.methods namespace=ifnamespace /]
   [#else]
   /* No methods.*/
   [/#if]

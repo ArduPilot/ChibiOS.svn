@@ -387,28 +387,22 @@ sio_lld_driver_fields;]]></verbatim>
         <methods>
           <objinit>
             <implementation><![CDATA[
-self->drv.state   = HAL_DRV_STATE_STOP;
-self->drv.opencnt = 0U;
-self->drv.owner   = NULL;
-osalMutexObjectInit(&self->drv.mutex);
-#if HAL_USE_REGISTRY == TRUE
-self->drv.id      = 0U;
-#endif
+
 #if SIO_USE_STREAMS_INTERFACE == TRUE
-oopInterfaceObjectInit(&siop->chn, &channel_vmt);
+oopInterfaceObjectInit(&self->sio.chn, &channel_vmt);
 #endif
-siop->enabled     = (sioevents_t)0;
-siop->cb          = NULL;
+self->sio.enabled     = (sioevents_t)0;
+self->sio.cb          = NULL;
 #if SIO_USE_SYNCHRONIZATION == TRUE
-siop->sync_rx     = NULL;
-siop->sync_rxidle = NULL;
-siop->sync_tx     = NULL;
-siop->sync_txend  = NULL;
+self->sio.sync_rx     = NULL;
+self->sio.sync_rxidle = NULL;
+self->sio.sync_tx     = NULL;
+self->sio.sync_txend  = NULL;
 #endif
 
 /* Optional, user-defined initializer.*/
 #if defined(SIO_DRIVER_EXT_INIT_HOOK)
-SIO_DRIVER_EXT_INIT_HOOK(siop);
+SIO_DRIVER_EXT_INIT_HOOK(self);
 #endif]]></implementation>
           </objinit>
           <dispose>

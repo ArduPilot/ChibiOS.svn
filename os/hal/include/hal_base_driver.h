@@ -144,8 +144,8 @@ struct hal_base_driver_data {
 /**
  * @brief   @p hal_base_driver_c VMT initializer.
  */
-#define __hal_base_driver_vmt_init(offset, ns)                              \
-  __base_object_vmt_init(offset, ns),                                       \
+#define __hal_base_driver_vmt_init(ns)                                      \
+  __base_object_vmt_init(ns),                                               \
   .drv.start                                = __##ns##_drv_start,           \
   .drv.stop                                 = __##ns##_drv_stop,            \
   .drv.configure                            = __##ns##_drv_configure,       \

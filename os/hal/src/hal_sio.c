@@ -87,7 +87,7 @@ static void *__sio_drv_getif(void *ip) {
 }
 
 static const struct sio_driver_vmt drv_vmt = {
-  __hal_base_driver_vmt_init((size_t)offsetof(SIODriver, vmt), sio)
+  __hal_base_driver_vmt_init(sio)
 };
 
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined(__DOXYGEN__)

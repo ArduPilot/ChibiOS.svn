@@ -65,22 +65,21 @@ typedef struct base_object base_object_c;
  * @brief   @p base_object_c methods.
  */
 #define __base_object_methods                                               \
-  /* This field represents the offset between the current object
-     and the container object.*/                                            \
-  size_t                                    instance_offset;                \
-  /* no methods */
+  /* Reserved field.*/                                                      \
+  void                                      *reserved;                      \
+  /* No methods.*/
 
 /**
  * @brief   @p base_object_c data.
  */
 #define __base_object_data                                                  \
-  /* no data */
+  /* No data.*/
 
 /**
  * @brief   @p base_object_c VMT initializer.
  */
-#define __base_object_vmt_init(offset, ns)                                  \
-  .instance_offset                          = (offset)
+#define __base_object_vmt_init(ns)                                          \
+  .reserved                                 = NULL
 
 /**
  * @brief   @p base_object_c virtual methods table.

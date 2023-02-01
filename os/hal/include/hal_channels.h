@@ -153,12 +153,12 @@ struct base_channel_methods {
  * @brief   @p base_channel_i VMT initializer.
  */
 #define __base_channel_vmt_init(ns)                                         \
-  __base_sequential_stream_vmt_init(ns),                                    \
+  __base_sequential_stream_vmt_init(ns)                                     \
   .chn.writet                               = __##ns##_chn_writet,          \
   .chn.readt                                = __##ns##_chn_readt,           \
   .chn.putt                                 = __##ns##_chn_putt,            \
   .chn.gett                                 = __##ns##_chn_gett,            \
-  .chn.ctl                                  = __##ns##_chn_ctl
+  .chn.ctl                                  = __##ns##_chn_ctl,
 
 /**
  * @brief   @p base_channel_i virtual methods table.

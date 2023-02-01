@@ -65,8 +65,6 @@ typedef struct base_object base_object_c;
  * @brief   @p base_object_c methods.
  */
 #define __base_object_methods                                               \
-  /* Reserved field.*/                                                      \
-  void                                      *reserved;                      \
   /* No methods.*/
 
 /**
@@ -79,7 +77,7 @@ typedef struct base_object base_object_c;
  * @brief   @p base_object_c VMT initializer.
  */
 #define __base_object_vmt_init(ns)                                          \
-  .reserved                                 = NULL
+  /* No methods.*/
 
 /**
  * @brief   @p base_object_c virtual methods table.

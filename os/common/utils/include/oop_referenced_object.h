@@ -99,9 +99,9 @@ struct referenced_object_data {
  * @brief   @p referenced_object_c VMT initializer.
  */
 #define __referenced_object_vmt_init(ns)                                    \
-  __base_object_vmt_init(ns),                                               \
+  __base_object_vmt_init(ns)                                                \
   .ro.addref                                = __##ns##_ro_addref,           \
-  .ro.release                               = __##ns##_ro_release
+  .ro.release                               = __##ns##_ro_release,
 
 /**
  * @brief   @p referenced_object_c virtual methods table.

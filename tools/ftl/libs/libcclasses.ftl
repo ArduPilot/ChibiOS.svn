@@ -216,9 +216,9 @@ ${funcptr}
       [#local method = node /]
       [#local methodsname    = GetMethodShortName(method) /]
       [#local s = ("  ." + namespace + "." + methodsname)?right_pad(ccode.initializers_align) +
-                  ("= __##ns##_" + namespace + "_" + methodsname) /]
+                  ("= __##ns##_" + namespace + "_" + methodsname) + "," /]
       [#if node?has_next]
-        [#local s = (s + ", ")?right_pad(ccode.backslash_align) + "\\" /]
+        [#local s = (s + " ")?right_pad(ccode.backslash_align) + "\\" /]
       [/#if]
 ${s}
     [/#if]
@@ -291,12 +291,6 @@ struct ${datastruct} {
 #define ${methodsdefine?right_pad(68) + "\\"}
   [#if ancestorname?length > 0]
 ${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
-  [#else]
-    [#local instance_string = ccode.MakeVariableDeclaration("  "
-                                                            "reserved"
-                                                            "void$I*$N")?right_pad(76) + "\\" /]
-  /* Reserved field.*/                                                      \
-${instance_string}
   [/#if]
   [#if class.methods.virtual?size > 0]
 [@ccode.GenerateVariableDeclaration indent="  "
@@ -334,12 +328,12 @@ ${("  __" + ancestorname?lower_case + "_data")?right_pad(76)}\
   [#if ancestorname?length > 0]
     [#local s = "  __" + ancestorname?lower_case + "_vmt_init(ns)" /]
     [#if node.methods.virtual?size > 0]
-      [#local s = (s + ", ")?right_pad(76) + "\\" /]
+      [#local s = (s + " ")?right_pad(76) + "\\" /]
     [/#if]
 ${s}
 [@GenerateVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
   [#else]
-  .reserved                                 = NULL
+  /* No methods.*/
   [/#if]
 
 /**
@@ -665,7 +659,7 @@ ${("  __" + ancestorname?lower_case?lower_case + "_methods")?right_pad(76)}\
   [#if ancestorname?length > 0]
     [#local s = "  __" + ancestorname?lower_case + "_vmt_init(ns)" /]
     [#if node.methods?size > 0]
-      [#local s = (s + ", ")?right_pad(76) + "\\" /]
+      [#local s = (s + " ")?right_pad(76) + "\\" /]
     [/#if]
 ${s}
 [@GenerateVMTInitializers methods=node.methods namespace=ifnamespace /]

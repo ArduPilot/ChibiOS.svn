@@ -144,11 +144,11 @@ struct base_sequential_stream_methods {
  * @brief   @p base_sequential_stream_i VMT initializer.
  */
 #define __base_sequential_stream_vmt_init(ns)                               \
-  __base_interface_vmt_init(ns),                                            \
+  __base_interface_vmt_init(ns)                                             \
   .stm.write                                = __##ns##_stm_write,           \
   .stm.read                                 = __##ns##_stm_read,            \
   .stm.put                                  = __##ns##_stm_put,             \
-  .stm.get                                  = __##ns##_stm_get
+  .stm.get                                  = __##ns##_stm_get,
 
 /**
  * @brief   @p base_sequential_stream_i virtual methods table.

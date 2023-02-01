@@ -242,7 +242,7 @@ ${s}
 [@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
  */
 static const struct ${classname}_vmt ${classnamespace}_vmt = {
-  __${ancestorname}_vmt_init(${classnamespace})
+  __${classname}_vmt_init(${classnamespace})
 };
 
   [/#if]
@@ -367,6 +367,7 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
           classdescr       = GetClassDescription(class)
           ancestorname     = GetClassAncestorName(class)
           ancestorfullname = GetClassAncestorCType(class) /]
+  [#assign generated = true /]
 /**
  * @name    Methods implementations (${classctype})
  * @{
@@ -381,8 +382,7 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
                     text="VMT pointer for the new object." /]
 [@doxygen.EmitReturn text="A new reference to the object." /]
  */
-CC_FORCE_INLINE
-static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
+void *__${classname}_objinit_impl(void *ip, const void *vmt) {
   ${classctype} *self = (${classctype} *)ip;
 
   [#if ancestorname?length == 0]
@@ -412,8 +412,7 @@ static inline void *__${classname}_objinit_impl(void *ip, const void *vmt) {
 [@doxygen.EmitParam name="ip" dir="both"
                     text="Pointer to a @p " + classctype + " structure to be disposed." /]
  */
-CC_FORCE_INLINE
-static inline void __${classname}_dispose_impl(void *ip) {
+void __${classname}_dispose_impl(void *ip) {
   ${classctype} *self = (${classctype} *)ip;
 
   [#if ancestorname?length > 0]
@@ -447,10 +446,9 @@ static inline void __${classname}_dispose_impl(void *ip) {
 [@doxygen.EmitParamFromNode node=method /]
 [@doxygen.EmitReturnFromNode node=method /]
  */
-CC_FORCE_INLINE
 [@ccode.GeneratePrototype indent    = ""
                           name      = "__" + classname + "_" + methodsname + "_impl"
-                          modifiers = ["static" "inline"]
+                          modifiers = []
                           params    = ["void *ip"]
                           node      = method /] {
   ${classctype} *self = (${classctype} *)ip;

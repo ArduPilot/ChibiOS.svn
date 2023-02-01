@@ -112,7 +112,6 @@
 /*===========================================================================*/
 
 [@cclasses.GenerateClassWrapper class /]
-[@cclasses.GenerateClassMethodsImplementations class /]
 [@cclasses.GenerateClassVirtualMethods class /]
   [/#list]
 /*===========================================================================*/

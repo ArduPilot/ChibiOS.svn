@@ -130,13 +130,6 @@ object_references_t __ro_release_impl(void *ip) {
 }
 /** @} */
 
-/**
- * @brief   VMT structure of referenced object class.
- */
-static const struct referenced_object_vmt ro_vmt = {
-  __ro_vmt_init(ro)
-};
-
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/

@@ -51,6 +51,45 @@
 #define CHN_CTL_TX_WAIT                     2
 /** @} */
 
+/**
+ * @name    SIO events offsets
+ * @{
+ */
+#define CHN_CONNECTED_POS                   0
+#define CHN_DISCONNECTED_POS                1
+#define CHN_INPUT_AVAILABLE_POS             2
+#define CHN_OUTPUT_EMPTY_POS                2
+#define CHN_TRANSMISSION_END_POS            4
+#define CHN_ALL_ERRORS_POS                  5
+#define CHN_PARITY_ERROR_POS                5
+#define CHN_FRAMING_ERROR_POS               6
+#define CHN_NOISE_ERROR_POS                 7
+#define CHN_OVERRUN_ERROR_POS               8
+#define CHN_IDLE_DETECTED_POS               9
+#define CHN_BREAK_DETECTED_POS              10
+#define CHN_BUFFER_FULL_ERROR_POS           11
+/** @} */
+
+/**
+ * @name    SIO events masks
+ * @{
+ */
+#define CHN_NO_ERROR                        0U
+#define CHN_CONNECTED                       (1U << CHN_CONNECTED_POS)
+#define CHN_DISCONNECTED                    (1U << CHN_DISCONNECTED_POS)
+#define CHN_INPUT_AVAILABLE                 (1U << CHN_INPUT_AVAILABLE_POS)
+#define CHN_OUTPUT_EMPTY                    (1U << CHN_OUTPUT_EMPTY_POS)
+#define CHN_TRANSMISSION_END                (1U << CHN_TRANSMISSION_END_POS)
+#define CHN_ALL_ERRORS                      (15U << CHN_ALL_ERRORS_POS)
+#define CHN_PARITY_ERROR                    (1U << CHN_PARITY_ERROR_POS)
+#define CHN_FRAMING_ERROR                   (1U << CHN_FRAMING_ERROR_POS)
+#define CHN_NOISE_ERROR                     (1U << CHN_NOISE_ERROR_POS)
+#define CHN_OVERRUN_ERROR                   (1U << CHN_OVERRUN_ERROR_POS)
+#define CHN_IDLE_DETECTED                   (1U << CHN_IDLE_DETECTED_POS)
+#define CHN_BREAK_DETECTED                  (1U << CHN_BREAK_DETECTED_POS)
+#define CHN_BUFFER_FULL_ERROR               (1U << CHN_BUFFER_FULL_ERROR_POS)
+/** @} */
+
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/

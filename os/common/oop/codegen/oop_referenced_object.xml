@@ -16,7 +16,7 @@
     </types>
     <classes>
       <class name="referenced_object" namespace="ro" ancestor="bo"
-        descr="referenced object" type="regular">
+        descr="referenced object" type="abstract">
         <brief>Common ancestor class of all reference-counted objects.</brief>
         <details><![CDATA[Base class for objects that implement a reference
                  counter and are disposed when the number of references

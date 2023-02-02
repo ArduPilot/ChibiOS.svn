@@ -17,6 +17,37 @@
           <brief>Wait for TX completion.</brief>
         </define>
       </group>
+      <group description="SIO events offsets">
+        <define name="CHN_CONNECTED_POS" value="0" />
+        <define name="CHN_DISCONNECTED_POS" value="1" />
+        <define name="CHN_INPUT_AVAILABLE_POS" value="2" />
+        <define name="CHN_OUTPUT_EMPTY_POS" value="2" />
+        <define name="CHN_TRANSMISSION_END_POS" value="4" />
+        <define name="CHN_ALL_ERRORS_POS" value="5" />
+        <define name="CHN_PARITY_ERROR_POS" value="5" />
+        <define name="CHN_FRAMING_ERROR_POS" value="6" />
+        <define name="CHN_NOISE_ERROR_POS" value="7" />
+        <define name="CHN_OVERRUN_ERROR_POS" value="8" />
+        <define name="CHN_IDLE_DETECTED_POS" value="9" />
+        <define name="CHN_BREAK_DETECTED_POS" value="10" />
+        <define name="CHN_BUFFER_FULL_ERROR_POS" value="11" />
+      </group>
+      <group description="SIO events masks">
+        <define name="CHN_NO_ERROR" value="0U" />
+        <define name="CHN_CONNECTED" value="(1U &lt;&lt; CHN_CONNECTED_POS)" />
+        <define name="CHN_DISCONNECTED" value="(1U &lt;&lt; CHN_DISCONNECTED_POS)" />
+        <define name="CHN_INPUT_AVAILABLE" value="(1U &lt;&lt; CHN_INPUT_AVAILABLE_POS)" />
+        <define name="CHN_OUTPUT_EMPTY" value="(1U &lt;&lt; CHN_OUTPUT_EMPTY_POS)" />
+        <define name="CHN_TRANSMISSION_END" value="(1U &lt;&lt; CHN_TRANSMISSION_END_POS)" />
+        <define name="CHN_ALL_ERRORS" value="(15U &lt;&lt; CHN_ALL_ERRORS_POS)" />
+        <define name="CHN_PARITY_ERROR" value="(1U &lt;&lt; CHN_PARITY_ERROR_POS)" />
+        <define name="CHN_FRAMING_ERROR" value="(1U &lt;&lt; CHN_FRAMING_ERROR_POS)" />
+        <define name="CHN_NOISE_ERROR" value="(1U &lt;&lt; CHN_NOISE_ERROR_POS)" />
+        <define name="CHN_OVERRUN_ERROR" value="(1U &lt;&lt; CHN_OVERRUN_ERROR_POS)" />
+        <define name="CHN_IDLE_DETECTED" value="(1U &lt;&lt; CHN_IDLE_DETECTED_POS)" />
+        <define name="CHN_BREAK_DETECTED" value="(1U &lt;&lt; CHN_BREAK_DETECTED_POS)" />
+        <define name="CHN_BUFFER_FULL_ERROR" value="(1U &lt;&lt; CHN_BUFFER_FULL_ERROR_POS)" />
+      </group>
     </definitions_early>
     <macros>
       <group description="Replicated stream functions">

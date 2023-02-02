@@ -100,9 +100,7 @@
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
 /*===========================================================================*/
 
-[@cclasses.GenerateClassMethodsImplementations class /]
-[@cclasses.GenerateClassVMTStructure class /]
-[@cclasses.GenerateClassRegularMethods class /]
+[@cclasses.GenerateClassWrapperCode class /]
   [/#list]
 /*===========================================================================*/
 /* Module exported functions.                                                */

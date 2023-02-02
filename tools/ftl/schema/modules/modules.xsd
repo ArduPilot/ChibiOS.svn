@@ -399,18 +399,7 @@
     <xs:choice maxOccurs="unbounded" minOccurs="1">
       <xs:element name="method" type="virtualMethodType" maxOccurs="1"
         minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalVirtualMethodsType"
-        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
-  </xs:complexType>
-  <xs:complexType name="conditionalVirtualMethodsType">
-    <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="method" type="virtualMethodType" maxOccurs="1"
-        minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalVirtualMethodsType"
-        maxOccurs="1" minOccurs="1"></xs:element>
-    </xs:choice>
-    <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="regularMethodsType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">

@@ -187,23 +187,14 @@
 [#--
   -- This macro generates virtual methods pointers from an XML node.
   --]
-[#macro GeneratMethodsPointers methods=[] ipctype="void *"]
-  [#list methods.* as node]
-    [#if node?node_name == "method"]
-      [#local method = node /]
-      [#local methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method) /]
-      [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
-                        ccode.MakeProtoParamsSequence([ipctype + "ip"] method)?join(", ") +
-                        ");" /]
+[#macro GenerateVMTPointers methods=[] ipctype="void *"]
+  [#list methods.method as method]
+    [#local methodsname    = GetMethodShortName(method)
+            methodretctype = GetMethodCType(method) /]
+    [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
+                      ccode.MakeProtoParamsSequence([ipctype + "ip"] method)?join(", ") +
+                      ");" /]
 ${funcptr}
-    [#elseif node?node_name == "condition"]
-      [#local condition = node /]
-      [#local condcheck = (condition.@check[0]!"1")?trim /]
-#if (${condcheck}) || defined (__DOXYGEN__)
-[@GeneratMethodsPointers condition /]
-#endif /* ${condcheck} */
-    [/#if]
   [/#list]
 [/#macro]
 
@@ -216,36 +207,13 @@ ${funcptr}
       [#local method = node /]
       [#local methodsname    = GetMethodShortName(method) /]
       [#local s = ("  ." + namespace + "." + methodsname)?right_pad(ccode.initializers_align) +
-                  ("= __##ns##_" + namespace + "_" + methodsname) + "," /]
+                  ("= __##ns##_" + methodsname + "_impl,") /]
       [#if node?has_next]
         [#local s = (s + " ")?right_pad(ccode.backslash_align) + "\\" /]
       [/#if]
 ${s}
     [/#if]
   [/#list]
-[/#macro]
-
-[#--
-  -- This macro generates a VMT structure from an XML node.
-  --]
-[#macro GenerateClassVMTStructure node=[]]
-  [#local class = node /]
-  [#local classname        = GetClassName(class)
-          classtype        = GetClassType(class)
-          classnamespace   = GetClassNamespace(class)
-          classctype       = GetClassCType(class)
-          classdescr       = GetClassDescription(class)
-          ancestorname     = GetClassAncestorName(class) /]
-  [#if classtype == "regular"]
-    [#assign generated = true /]
-/**
-[@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
- */
-static const struct ${classname}_vmt ${classnamespace}_vmt = {
-  __${classname}_vmt_init(${classnamespace})
-};
-
-  [/#if]
 [/#macro]
 
 [#--
@@ -270,7 +238,7 @@ typedef struct ${classname} ${classctype};
 [@doxygen.EmitBrief "" "@p " + classctype + " methods as a structure." /]
  */
 struct ${methodsstruct} {
-[@GeneratMethodsPointers class.methods.virtual /]
+[@GenerateVMTPointers class.methods.virtual /]
 };
 
   [/#if]
@@ -358,117 +326,19 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
 [/#macro]
 
 [#--
-  -- This macro generates class method implementations from an XML node.
+  -- This macro generates virtual methods as inline functions
+  -- from an XML node.
   --]
-[#macro GenerateClassMethodsImplementations node=[]]
+[#macro GenerateClassVirtualMethods node=[]]
   [#local class = node /]
-  [#local classname        = GetClassName(class)
-          classctype       = GetClassCType(class)
-          classdescr       = GetClassDescription(class)
-          ancestorname     = GetClassAncestorName(class)
-          ancestorfullname = GetClassAncestorCType(class) /]
-  [#assign generated = true /]
+  [#if class.methods.virtual.method?size > 0]
+    [#local classnamespace = GetClassNamespace(class)
+            classctype     = GetClassCType(class) /]
 /**
- * @name    Methods implementations (${classctype})
+ * @name    Virtual methods of (${classctype})
  * @{
  */
-/**
-[@doxygen.EmitBrief "" "Implementation of object creation." /]
-[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
- *
-[@doxygen.EmitParam name="ip" dir="out"
-                    text="Pointer to a @p " + classctype + " structure to be initialized." /]
-[@doxygen.EmitParam name="vmt" dir="in"
-                    text="VMT pointer for the new object." /]
-[@doxygen.EmitReturn text="A new reference to the object." /]
- */
-void *__${classname}_objinit_impl(void *ip, const void *vmt) {
-  ${classctype} *self = (${classctype} *)ip;
-
-  [#if ancestorname?length == 0]
-  /* This is a root class, initializing the VMT pointer here.*/
-  self->vmt = (struct base_object_vmt *)vmt;
-
-  [#else]
-  /* Initialization of the ancestors-defined parts.*/
-  __${ancestorname}_objinit_impl(self, vmt);
-
-  [/#if]
-  [#if (class.methods.objinit[0].implementation[0])?? &&
-       (class.methods.objinit[0].implementation[0]?trim?length > 0)]
-  /* Initialization code.*/
-[@ccode.EmitIndentedCCode indent="  " ccode=class.methods.objinit[0].implementation[0]?string /]
-  [#else]
-  /* No initialization code.*/
-  [/#if]
-
-  return self;
-}
-
-/**
-[@doxygen.EmitBrief "" "Implementation of object finalization." /]
-[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
- *
-[@doxygen.EmitParam name="ip" dir="both"
-                    text="Pointer to a @p " + classctype + " structure to be disposed." /]
- */
-void __${classname}_dispose_impl(void *ip) {
-  ${classctype} *self = (${classctype} *)ip;
-
-  [#if ancestorname?length > 0]
-  __${ancestorname}_dispose_impl(self);
-
-  [/#if]
-  [#if (class.methods.dispose[0].implementation[0])?? &&
-       (class.methods.dispose[0].implementation[0]?trim?length > 0)]
-  /* Finalization code.*/
-[@ccode.EmitIndentedCCode indent="  " ccode=class.methods.dispose[0].implementation[0]?string /]
-  [#else]
-  /* No finalization code.*/
-  (void)self;
-  [/#if]
-}
-  [#list class.methods.virtual.* as node]
-    [#if node?node_name == "method"]
-      [#local method=node /]
-      [#local methodname     = GetMethodName(method)
-              methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method)
-              methodimpl     = (method.implementation[0]!"")?trim /]
-      [#if methodimpl?length > 0]
-
-/**
-[@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
-[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
- *
-[@doxygen.EmitParam name="ip" dir="both"
-                    text="Pointer to a @p " + classctype + " structure." /]
-[@doxygen.EmitParamFromNode node=method /]
-[@doxygen.EmitReturnFromNode node=method /]
- */
-[@ccode.GeneratePrototype indent    = ""
-                          name      = "__" + classname + "_" + methodsname + "_impl"
-                          modifiers = []
-                          params    = ["void *ip"]
-                          node      = method /] {
-  ${classctype} *self = (${classctype} *)ip;
-
-[@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
-}
-      [/#if]
-    [/#if]
-  [/#list]
-/** @} */
-
-[/#macro]
-
-[#--
-  -- This macro generates virtual methods from an XML node.
-  --]
-[#macro GeneratVirtualMethods methods=[] classctype="void" classnamespace=""]
-  [#list methods.* as node]
-    [#if node?node_name == "method"]
-      [#local method = node /]
+    [#list class.methods.virtual.method as method]
       [#local methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method) /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
@@ -480,41 +350,18 @@ CC_FORCE_INLINE
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
 
-        [#local callname   = "self->vmt->" + classnamespace + "." + methodsname /]
-        [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
-        [#if methodretctype == "void"]
+      [#local callname   = "self->vmt->" + classnamespace + "." + methodsname /]
+      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
+      [#if methodretctype == "void"]
 [@ccode.GenerateFunctionCall "  " "" callname callparams /]
-        [#else]
+      [#else]
 [@ccode.GenerateFunctionCall "  " "return" callname callparams /]
-        [/#if]
+      [/#if]
 }
-    [#elseif node?node_name == "condition"]
-      [#local condition = node /]
-      [#local condcheck = (condition.@check[0]!"1")?trim /]
-#if (${condcheck}) || defined (__DOXYGEN__)
-[@GeneratVirtualMethods condition classctype classnamespace /]
-#endif /* ${condcheck} */
-    [/#if]
-    [#if node?has_next]
+      [#if method?has_next]
 
-    [/#if]
-  [/#list]
-[/#macro]
-
-[#--
-  -- This macro generates virtual methods as inline functions
-  -- from an XML node.
-  --]
-[#macro GenerateClassVirtualMethods node=[]]
-  [#local class = node /]
-  [#if class.methods.virtual.*?size > 0]
-    [#local classnamespace = GetClassNamespace(class)
-            classctype     = GetClassCType(class) /]
-/**
- * @name    Virtual methods of (${classctype})
- * @{
- */
-[@GeneratVirtualMethods class.methods.virtual classctype classnamespace /]
+      [/#if]
+    [/#list]
 /** @} */
 
   [/#if]
@@ -555,57 +402,6 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
-  -- This macro generates regular methods from an XML node.
-  --]
-[#macro GenerateRegularMethods methods=[] classctype="void"]
-  [#list methods.* as node]
-    [#if node?node_name == "method"]
-      [#local method = node /]
-      [#local methodname     = GetMethodName(method)
-              methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method)
-              methodimpl     = (method.implementation[0]!"")?trim /]
-[@doxygen.EmitFullCommentFromNode indent="" node=method
-                                  extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + classctype + " structure." /]
-[@ccode.GeneratePrototype modifiers = []
-                          params    = ["const void *ip"]
-                          node=method /] {
-  ${classctype} *self = (${classctype} *)ip;
-
-[@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
-}
-    [#elseif node?node_name == "condition"]
-      [#local condition = node /]
-      [#local condcheck = (condition.@check[0]!"1")?trim /]
-#if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateRegularMethods condition classctype /]
-#endif /* ${condcheck} */
-    [/#if]
-    [#if node?has_next]
-
-    [/#if]
-  [/#list]
-[/#macro]
-
-[#--
-  -- This macro generates regular methods from a class XML node.
-  --]
-[#macro GenerateClassRegularMethods class=[]]
-  [#if class.methods.regular.*?size > 0]
-    [#local classctype = GetClassCType(class) /]
-    [#assign generated = true /]
-/**
- * @name    Regular methods of (${classctype})
- * @{
- */
-[@GenerateRegularMethods class.methods.regular classctype /]
-/** @} */
-
-  [/#if]
-[/#macro]
-
-[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateInterfaceWrapper node=[]]
@@ -627,7 +423,7 @@ typedef struct ${ifname} ${ifctype};
 [@doxygen.EmitBrief "" "@p " + ifctype + " methods as a structure." /]
  */
 struct ${methodsstruct} {
-[@GeneratMethodsPointers methods=if.methods /]
+[@GenerateVMTPointers methods=if.methods /]
 };
 
   [/#if]
@@ -718,6 +514,188 @@ CC_FORCE_INLINE
 
     [/#if]
   [/#list]
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates class method implementations from an XML node.
+  --]
+[#macro GenerateClassMethodsImplementations node=[]]
+  [#local class = node /]
+  [#local classname        = GetClassName(class)
+          classctype       = GetClassCType(class)
+          classnamespace   = GetClassNamespace(class)
+          classdescr       = GetClassDescription(class)
+          ancestorname     = GetClassAncestorName(class)
+          ancestorfullname = GetClassAncestorCType(class) /]
+  [#assign generated = true /]
+/**
+ * @name    Virtual methods implementations (${classctype})
+ * @{
+ */
+/**
+[@doxygen.EmitBrief "" "Implementation of object creation." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+ *
+[@doxygen.EmitParam name="ip" dir="out"
+                    text="Pointer to a @p " + classctype + " structure to be initialized." /]
+[@doxygen.EmitParam name="vmt" dir="in"
+                    text="VMT pointer for the new object." /]
+[@doxygen.EmitReturn text="A new reference to the object." /]
+ */
+void *__${classname}_objinit_impl(void *ip, const void *vmt) {
+  ${classctype} *self = (${classctype} *)ip;
+
+  [#if ancestorname?length == 0]
+  /* This is a root class, initializing the VMT pointer here.*/
+  self->vmt = (struct base_object_vmt *)vmt;
+
+  [#else]
+  /* Initialization of the ancestors-defined parts.*/
+  __${ancestorname}_objinit_impl(self, vmt);
+
+  [/#if]
+  [#if (class.methods.objinit[0].implementation[0])?? &&
+       (class.methods.objinit[0].implementation[0]?trim?length > 0)]
+  /* Initialization code.*/
+[@ccode.EmitIndentedCCode indent="  " ccode=class.methods.objinit[0].implementation[0]?string /]
+  [#else]
+  /* No initialization code.*/
+  [/#if]
+
+  return self;
+}
+
+/**
+[@doxygen.EmitBrief "" "Implementation of object finalization." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+ *
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to a @p " + classctype + " structure to be disposed." /]
+ */
+void __${classname}_dispose_impl(void *ip) {
+  ${classctype} *self = (${classctype} *)ip;
+
+  [#if ancestorname?length > 0]
+  __${ancestorname}_dispose_impl(self);
+
+  [/#if]
+  [#if (class.methods.dispose[0].implementation[0])?? &&
+       (class.methods.dispose[0].implementation[0]?trim?length > 0)]
+  /* Finalization code.*/
+[@ccode.EmitIndentedCCode indent="  " ccode=class.methods.dispose[0].implementation[0]?string /]
+  [#else]
+  /* No finalization code.*/
+  (void)self;
+  [/#if]
+}
+  [#list class.methods.virtual.* as node]
+    [#if node?node_name == "method"]
+      [#local method=node /]
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = (method.implementation[0]!"")?trim /]
+      [#if methodimpl?length > 0]
+
+/**
+[@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+ *
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to a @p " + classctype + " structure." /]
+[@doxygen.EmitParamFromNode node=method /]
+[@doxygen.EmitReturnFromNode node=method /]
+ */
+[@ccode.GeneratePrototype indent    = ""
+                          name      = "__" + classnamespace + "_" + methodsname + "_impl"
+                          modifiers = []
+                          params    = ["void *ip"]
+                          node      = method /] {
+  ${classctype} *self = (${classctype} *)ip;
+
+[@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
+}
+      [/#if]
+    [/#if]
+  [/#list]
+/** @} */
+
+[/#macro]
+
+[#--
+  -- This macro generates a VMT structure from an XML node.
+  --]
+[#macro GenerateClassVMTStructure node=[]]
+  [#local class = node /]
+  [#local classname        = GetClassName(class)
+          classtype        = GetClassType(class)
+          classnamespace   = GetClassNamespace(class)
+          classctype       = GetClassCType(class)
+          classdescr       = GetClassDescription(class)
+          ancestorname     = GetClassAncestorName(class) /]
+  [#if classtype == "regular"]
+    [#assign generated = true /]
+/**
+[@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
+ */
+static const struct ${classname}_vmt ${classnamespace}_vmt = {
+  __${classname}_vmt_init(${classnamespace})
+};
+
+  [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates regular methods from an XML node.
+  --]
+[#macro GenerateClassRegularMethods methods=[] classctype="void"]
+  [#list methods.* as node]
+    [#if node?node_name == "method"]
+      [#local method = node /]
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = (method.implementation[0]!"")?trim /]
+[@doxygen.EmitFullCommentFromNode indent="" node=method
+                                  extraname="ip" extradir="both"
+                                  extratext="Pointer to a @p " + classctype + " structure." /]
+[@ccode.GeneratePrototype modifiers = []
+                          params    = ["const void *ip"]
+                          node=method /] {
+  ${classctype} *self = (${classctype} *)ip;
+
+[@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
+}
+    [#elseif node?node_name == "condition"]
+      [#local condition = node /]
+      [#local condcheck = (condition.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateRegularMethods condition classctype /]
+#endif /* ${condcheck} */
+    [/#if]
+    [#if node?has_next]
+
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates a class wrapper (.c part) from an XML node.
+  --]
+[#macro GenerateClassWrapperCode class=[]]
+[@GenerateClassMethodsImplementations class /]
+[@GenerateClassVMTStructure class /]
+  [#if class.methods.regular.*?size > 0]
+    [#local classctype = GetClassCType(class) /]
+    [#assign generated = true /]
+/**
+ * @name    Regular methods of (${classctype})
+ * @{
+ */
+[@GenerateClassRegularMethods class.methods.regular classctype /]
 /** @} */
 
   [/#if]

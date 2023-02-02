@@ -392,13 +392,36 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
+  -- This macro generates regular method prototypes from an XML node.
+  --]
+[#macro GenerateVirtualMethodsPrototypes class=[]]
+  [#local classname        = GetClassName(class)
+          classnamespace   = GetClassNamespace(class) /]
+  void *__${classname}_objinit_impl(void *ip, const void *vmt);
+  void __${classname}_dispose_impl(void *ip);
+  [#list class.methods.virtual.* as node]
+    [#if node?node_name == "method"]
+      [#local method=node /]
+      [#local methodname     = GetMethodName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = (method.implementation[0]!"")?trim /]
+[@ccode.GeneratePrototype indent    = "  "
+                          name      = "__" + classnamespace + "_" + methodsname + "_impl"
+                          modifiers = []
+                          params    = ["void *ip"]
+                          node      = method /];
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
   -- This macro generates regular method prototypes from a class XML node.
   --]
-[#macro GenerateClassRegularMethodsPrototypes class=[]]
-  [#if class.methods.regular.*?size > 0]
+[#macro GenerateClassMethodsPrototypes class=[]]
   /* Methods of ${GetClassCType(class)}.*/
 [@GenerateRegularMethodsPrototypes class.methods.regular /]
-  [/#if]
+[@GenerateVirtualMethodsPrototypes class /]
 [/#macro]
 
 [#--

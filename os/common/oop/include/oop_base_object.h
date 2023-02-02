@@ -104,6 +104,9 @@ struct base_object {
 #ifdef __cplusplus
 extern "C" {
 #endif
+  /* Methods of base_object_c.*/
+  void *__base_object_objinit_impl(void *ip, const void *vmt);
+  void __base_object_dispose_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif

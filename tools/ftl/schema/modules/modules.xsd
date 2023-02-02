@@ -137,6 +137,7 @@
               <xs:minLength value="1"></xs:minLength>
               <xs:whiteSpace value="collapse"></xs:whiteSpace>
               <xs:pattern value="\w+"></xs:pattern>
+              <xs:maxLength value="8"></xs:maxLength>
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>
@@ -145,6 +146,8 @@
             <xs:restriction base="xs:string">
               <xs:whiteSpace value="collapse"></xs:whiteSpace>
               <xs:minLength value="1"></xs:minLength>
+              <xs:maxLength value="8"></xs:maxLength>
+              <xs:pattern value="\w+"></xs:pattern>
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>

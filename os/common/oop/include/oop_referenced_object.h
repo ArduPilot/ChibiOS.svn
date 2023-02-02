@@ -163,6 +163,11 @@ static inline object_references_t roRelease(void *ip) {
 #ifdef __cplusplus
 extern "C" {
 #endif
+  /* Methods of referenced_object_c.*/
+  void *__referenced_object_objinit_impl(void *ip, const void *vmt);
+  void __referenced_object_dispose_impl(void *ip);
+  void * __ro_addref_impl(void *ip);
+  object_references_t __ro_release_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif

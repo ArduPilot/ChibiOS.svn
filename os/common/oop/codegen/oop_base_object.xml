@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
+  name="oop_base_object">
+  <brief>Common ancestor abstract class.</brief>
+  <details>This abstract class is the common ancestor of all classes
+    used in ChibiOS. This class just defines the position of the VMT
+    pointer inside the structure.
+  </details>
+  <note>This is a generated file, do not edit directly.</note>
+  <public>
+    <inclusions>
+      <include style="regular">osal.h</include>
+    </inclusions>
+    <classes>
+      <class name="base_object" namespace="bo" descr="base object" type="abstract">
+        <brief>
+        </brief>
+        <fields>
+        </fields>
+        <methods>
+          <objinit>
+            <implementation><![CDATA[ ]]></implementation>
+          </objinit>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
+        </methods>
+      </class>
+    </classes>
+  </public>
+  <private>
+  </private>
+</module>

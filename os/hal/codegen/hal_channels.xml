@@ -75,7 +75,7 @@
     </macros>
     <interfaces>
       <interface name="base_channel" namespace="chn"
-        ancestor="base_sequential_stream" descr="base I/O channel">
+        ancestor="stm" descr="base I/O channel">
         <brief>Base I/O channel interface.</brief>
         <details><![CDATA[This header defines an abstract interface useful
          to access generic I/O serial devices in a standardized way.]]></details>

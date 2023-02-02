@@ -346,7 +346,7 @@ do {
     </types>
     <classes>
       <class name="hal_sio_driver" namespace="sio"
-        ancestor="hal_base_driver" descr="SIO driver" type="regular">
+        ancestor="drv" descr="SIO driver" type="regular">
         <brief>
         </brief>
         <fields>

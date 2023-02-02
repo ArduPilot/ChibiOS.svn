@@ -15,7 +15,7 @@
       </typedef>
     </types>
     <classes>
-      <class name="referenced_object" namespace="ro" ancestor="base_object"
+      <class name="referenced_object" namespace="ro" ancestor="bo"
         descr="referenced object" type="regular">
         <brief>Common ancestor class of all reference-counted objects.</brief>
         <details><![CDATA[Base class for objects that implement a reference
@@ -55,7 +55,7 @@ return self;]]></implementation>
 osalDbgAssert(self->ro.references > 0U, "zero references");
 
 if (--self->ro.references == 0U) {
-  __referenced_object_dispose_impl(self);
+  __ro_dispose_impl(self);
 }
 
 return self->ro.references;]]></implementation>

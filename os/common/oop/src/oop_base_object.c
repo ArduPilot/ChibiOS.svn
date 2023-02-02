@@ -65,7 +65,7 @@
  * @param[in]     vmt           VMT pointer for the new object.
  * @return                      A new reference to the object.
  */
-void *__base_object_objinit_impl(void *ip, const void *vmt) {
+void *__bo_objinit_impl(void *ip, const void *vmt) {
   base_object_c *self = (base_object_c *)ip;
 
   /* This is a root class, initializing the VMT pointer here.*/
@@ -83,7 +83,7 @@ void *__base_object_objinit_impl(void *ip, const void *vmt) {
  * @param[in,out] ip            Pointer to a @p base_object_c structure to be
  *                              disposed.
  */
-void __base_object_dispose_impl(void *ip) {
+void __bo_dispose_impl(void *ip) {
   base_object_c *self = (base_object_c *)ip;
 
   /* No finalization code.*/

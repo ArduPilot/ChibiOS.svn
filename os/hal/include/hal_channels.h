@@ -134,7 +134,7 @@ typedef struct base_channel base_channel_i;
 /**
  * @brief   @p base_channel_i methods as a structure.
  */
-struct base_channel_methods {
+struct chn_methods {
   size_t (*writet)(void *ip, const uint8_t *bp, size_t n, sysinterval_t timeout);
   size_t (*readt)(void *ip, uint8_t *bp, size_t n, sysinterval_t timeout);
   msg_t (*putt)(void *ip, uint8_t b, sysinterval_t timeout);
@@ -145,26 +145,26 @@ struct base_channel_methods {
 /**
  * @brief   @p base_channel_i methods.
  */
-#define __base_channel_methods                                              \
-  __base_sequential_stream_methods                                          \
-  struct base_channel_methods               chn;
+#define __chn_methods                                                       \
+  __stm_methods                                                             \
+  struct chn_methods                        chn;
 
 /**
  * @brief   @p base_channel_i VMT initializer.
  */
-#define __base_channel_vmt_init(ns)                                         \
-  __base_sequential_stream_vmt_init(ns)                                     \
-  .chn.writet                               = __##ns##_chn_writet,          \
-  .chn.readt                                = __##ns##_chn_readt,           \
-  .chn.putt                                 = __##ns##_chn_putt,            \
-  .chn.gett                                 = __##ns##_chn_gett,            \
-  .chn.ctl                                  = __##ns##_chn_ctl,
+#define __chn_vmt_init(ns)                                                  \
+  __stm_vmt_init(ns)                                                        \
+  .chn.writet                               = __##ns##_writet_impl,         \
+  .chn.readt                                = __##ns##_readt_impl,          \
+  .chn.putt                                 = __##ns##_putt_impl,           \
+  .chn.gett                                 = __##ns##_gett_impl,           \
+  .chn.ctl                                  = __##ns##_ctl_impl,
 
 /**
  * @brief   @p base_channel_i virtual methods table.
  */
 struct base_channel_vmt {
-  __base_channel_methods
+  __chn_methods
 };
 
 /**

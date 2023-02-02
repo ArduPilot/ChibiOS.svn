@@ -65,11 +65,11 @@
  * @param[in]     vmt           VMT pointer for the new object.
  * @return                      A new reference to the object.
  */
-void *__referenced_object_objinit_impl(void *ip, const void *vmt) {
+void *__ro_objinit_impl(void *ip, const void *vmt) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
   /* Initialization of the ancestors-defined parts.*/
-  __base_object_objinit_impl(self, vmt);
+  __bo_objinit_impl(self, vmt);
 
   /* Initialization code.*/
   self->ro.references = (object_references_t)0;
@@ -84,10 +84,10 @@ void *__referenced_object_objinit_impl(void *ip, const void *vmt) {
  * @param[in,out] ip            Pointer to a @p referenced_object_c structure
  *                              to be disposed.
  */
-void __referenced_object_dispose_impl(void *ip) {
+void __ro_dispose_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  __base_object_dispose_impl(self);
+  __bo_dispose_impl(self);
 
   /* No finalization code.*/
   (void)self;
@@ -123,7 +123,7 @@ object_references_t __ro_release_impl(void *ip) {
   osalDbgAssert(self->ro.references > 0U, "zero references");
 
   if (--self->ro.references == 0U) {
-    __referenced_object_dispose_impl(self);
+    __ro_dispose_impl(self);
   }
 
   return self->ro.references;
@@ -134,7 +134,7 @@ object_references_t __ro_release_impl(void *ip) {
  * @brief   VMT structure of referenced object class.
  */
 static const struct referenced_object_vmt ro_vmt = {
-  __referenced_object_vmt_init(ro)
+  __ro_vmt_init(ro)
 };
 
 /*===========================================================================*/

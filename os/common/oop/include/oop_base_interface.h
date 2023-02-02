@@ -100,13 +100,13 @@ typedef struct base_interface base_interface_i;
 /**
  * @brief   @p base_interface_i methods.
  */
-#define __base_interface_methods                                            \
+#define __bi_methods                                                        \
   /* No methods.*/
 
 /**
  * @brief   @p base_interface_i VMT initializer.
  */
-#define __base_interface_vmt_init(ns)                                       \
+#define __bi_vmt_init(ns)                                                   \
   /* No methods.*/
 
 /*===========================================================================*/

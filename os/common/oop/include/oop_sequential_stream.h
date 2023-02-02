@@ -126,7 +126,7 @@ typedef struct base_sequential_stream base_sequential_stream_i;
 /**
  * @brief   @p base_sequential_stream_i methods as a structure.
  */
-struct base_sequential_stream_methods {
+struct stm_methods {
   size_t (*write)(void *ip, const uint8_t *bp, size_t n);
   size_t (*read)(void *ip, uint8_t *bp, size_t n);
   msg_t (*put)(void *ip, uint8_t b);
@@ -136,15 +136,15 @@ struct base_sequential_stream_methods {
 /**
  * @brief   @p base_sequential_stream_i methods.
  */
-#define __base_sequential_stream_methods                                    \
-  __base_interface_methods                                                  \
-  struct base_sequential_stream_methods     stm;
+#define __stm_methods                                                       \
+  __bi_methods                                                              \
+  struct stm_methods                        stm;
 
 /**
  * @brief   @p base_sequential_stream_i VMT initializer.
  */
-#define __base_sequential_stream_vmt_init(ns)                               \
-  __base_interface_vmt_init(ns)                                             \
+#define __stm_vmt_init(ns)                                                  \
+  __bi_vmt_init(ns)                                                         \
   .stm.write                                = __##ns##_write_impl,          \
   .stm.read                                 = __##ns##_read_impl,           \
   .stm.put                                  = __##ns##_put_impl,            \
@@ -154,7 +154,7 @@ struct base_sequential_stream_methods {
  * @brief   @p base_sequential_stream_i virtual methods table.
  */
 struct base_sequential_stream_vmt {
-  __base_sequential_stream_methods
+  __stm_methods
 };
 
 /**

@@ -64,26 +64,26 @@ typedef struct base_object base_object_c;
 /**
  * @brief   @p base_object_c methods.
  */
-#define __base_object_methods                                               \
+#define __bo_methods                                                        \
   /* No methods.*/
 
 /**
  * @brief   @p base_object_c data.
  */
-#define __base_object_data                                                  \
+#define __bo_data                                                           \
   /* No data.*/
 
 /**
  * @brief   @p base_object_c VMT initializer.
  */
-#define __base_object_vmt_init(ns)                                          \
+#define __bo_vmt_init(ns)                                                   \
   /* No methods.*/
 
 /**
  * @brief   @p base_object_c virtual methods table.
  */
 struct base_object_vmt {
-  __base_object_methods
+  __bo_methods
 };
 
 /**
@@ -94,7 +94,7 @@ struct base_object {
    * @brief   Virtual Methods Table.
    */
   const struct base_object_vmt              *vmt;
-  __base_object_data
+  __bo_data
 };
 
 /*===========================================================================*/
@@ -105,8 +105,8 @@ struct base_object {
 extern "C" {
 #endif
   /* Methods of base_object_c.*/
-  void *__base_object_objinit_impl(void *ip, const void *vmt);
-  void __base_object_dispose_impl(void *ip);
+  void *__bo_objinit_impl(void *ip, const void *vmt);
+  void __bo_dispose_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif

@@ -44,7 +44,7 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-static msg_t __sio_drv_start(void *ip) {
+static msg_t __sio_start_impl(void *ip) {
   SIODriver *siop = (SIODriver *)ip;
   msg_t msg;
 
@@ -62,7 +62,7 @@ static msg_t __sio_drv_start(void *ip) {
   return msg;
 }
 
-static void __sio_drv_stop(void *ip) {
+static void __sio_stop_impl(void *ip) {
   SIODriver *siop = (SIODriver *)ip;
 
   sio_lld_stop(siop);
@@ -70,13 +70,13 @@ static void __sio_drv_stop(void *ip) {
   siop->enabled = (sioevents_t)0;
 }
 
-static msg_t __sio_drv_configure(void *ip, const void *config) {
+static msg_t __sio_configure_impl(void *ip, const void *config) {
   SIODriver *siop = (SIODriver *)ip;
 
   return sio_lld_configure(siop, (const SIOConfig *)config);
 }
 
-static void *__sio_drv_getif(void *ip) {
+static void *__sio_getif_impl(void *ip) {
   SIODriver *siop = (SIODriver *)ip;
 
 #if SIO_USE_STREAMS_INTERFACE == TRUE
@@ -87,7 +87,7 @@ static void *__sio_drv_getif(void *ip) {
 }
 
 static const struct sio_driver_vmt drv_vmt = {
-  __hal_base_driver_vmt_init(sio)
+  __drv_vmt_init(sio)
 };
 
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined(__DOXYGEN__)
@@ -270,7 +270,7 @@ void sioInit(void) {
  */
 void sioObjectInit(SIODriver *siop) {
 
-  __hal_base_driver_objinit_impl(siop, &drv_vmt);
+  __drv_objinit_impl(siop, &drv_vmt);
 
 #if SIO_USE_STREAMS_INTERFACE == TRUE
   oopInterfaceObjectInit(&siop->chn, &channel_vmt);

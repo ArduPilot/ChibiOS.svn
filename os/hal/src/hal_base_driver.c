@@ -53,6 +53,54 @@
 /*===========================================================================*/
 
 /**
+ * @name    Virtual methods implementations (hal_base_driver_c)
+ * @{
+ */
+/**
+ * @brief   Implementation of object creation.
+ * @note    This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p hal_base_driver_c structure to
+ *                              be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @return                      A new reference to the object.
+ */
+void *__drv_objinit_impl(void *ip, const void *vmt) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
+  /* Initialization of the ancestors-defined parts.*/
+  __bo_objinit_impl(self, vmt);
+
+  /* Initialization code.*/
+  self->drv.state   = HAL_DRV_STATE_STOP;
+  self->drv.opencnt = 0U;
+  self->drv.owner   = NULL;
+  osalMutexObjectInit(&self->drv.mutex);
+#if HAL_USE_REGISTRY == TRUE
+  self->drv.id      = 0U;
+#endif
+
+  return self;
+}
+
+/**
+ * @brief   Implementation of object finalization.
+ * @note    This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure to
+ *                              be disposed.
+ */
+void __drv_dispose_impl(void *ip) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
+  __bo_dispose_impl(self);
+
+  /* No finalization code.*/
+  (void)self;
+}
+/** @} */
+
+/**
  * @name    Regular methods of (hal_base_driver_c)
  * @{
  */

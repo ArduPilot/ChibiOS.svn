@@ -108,7 +108,7 @@ typedef struct hal_base_driver hal_base_driver_c;
 /**
  * @brief   @p hal_base_driver_c methods as a structure.
  */
-struct hal_base_driver_methods {
+struct drv_methods {
   msg_t (*start)(void *ip);
   void (*stop)(void *ip);
   msg_t (*configure)(void *ip, const void *config);
@@ -118,7 +118,7 @@ struct hal_base_driver_methods {
 /**
  * @brief   @p hal_base_driver_c data as a structure.
  */
-struct hal_base_driver_data {
+struct drv_data {
   driver_state_t                            state;
   unsigned int                              opencnt;
   void                                      *owner;
@@ -130,32 +130,32 @@ struct hal_base_driver_data {
 /**
  * @brief   @p hal_base_driver_c methods.
  */
-#define __hal_base_driver_methods                                           \
-  __base_object_methods                                                     \
-  struct hal_base_driver_methods            drv;
+#define __drv_methods                                                       \
+  __bo_methods                                                              \
+  struct drv_methods                        drv;
 
 /**
  * @brief   @p hal_base_driver_c data.
  */
-#define __hal_base_driver_data                                              \
-  __base_object_data                                                        \
-  struct hal_base_driver_data               drv;
+#define __drv_data                                                          \
+  __bo_data                                                                 \
+  struct drv_data                           drv;
 
 /**
  * @brief   @p hal_base_driver_c VMT initializer.
  */
-#define __hal_base_driver_vmt_init(ns)                                      \
-  __base_object_vmt_init(ns)                                                \
-  .drv.start                                = __##ns##_drv_start,           \
-  .drv.stop                                 = __##ns##_drv_stop,            \
-  .drv.configure                            = __##ns##_drv_configure,       \
-  .drv.getif                                = __##ns##_drv_getif,
+#define __drv_vmt_init(ns)                                                  \
+  __bo_vmt_init(ns)                                                         \
+  .drv.start                                = __##ns##_start_impl,          \
+  .drv.stop                                 = __##ns##_stop_impl,           \
+  .drv.configure                            = __##ns##_configure_impl,      \
+  .drv.getif                                = __##ns##_getif_impl,
 
 /**
  * @brief   @p hal_base_driver_c virtual methods table.
  */
 struct hal_base_driver_vmt {
-  __hal_base_driver_methods
+  __drv_methods
 };
 
 /**
@@ -166,58 +166,8 @@ struct hal_base_driver {
    * @brief   Virtual Methods Table.
    */
   const struct hal_base_driver_vmt          *vmt;
-  __hal_base_driver_data
+  __drv_data
 };
-
-/**
- * @name    Methods implementations (hal_base_driver_c)
- * @{
- */
-/**
- * @brief   Implementation of object creation.
- * @note    This function is meant to be used by derived classes.
- *
- * @param[out]    ip            Pointer to a @p hal_base_driver_c structure to
- *                              be initialized.
- * @param[in]     vmt           VMT pointer for the new object.
- * @return                      A new reference to the object.
- */
-CC_FORCE_INLINE
-static inline void *__hal_base_driver_objinit_impl(void *ip, const void *vmt) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
-  /* Initialization of the ancestors-defined parts.*/
-  __base_object_objinit_impl(self, vmt);
-
-  /* Initialization code.*/
-  self->drv.state   = HAL_DRV_STATE_STOP;
-  self->drv.opencnt = 0U;
-  self->drv.owner   = NULL;
-  osalMutexObjectInit(&self->drv.mutex);
-#if HAL_USE_REGISTRY == TRUE
-  self->drv.id      = 0U;
-#endif
-
-  return self;
-}
-
-/**
- * @brief   Implementation of object finalization.
- * @note    This function is meant to be used by derived classes.
- *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure to
- *                              be disposed.
- */
-CC_FORCE_INLINE
-static inline void __hal_base_driver_dispose_impl(void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
-  __base_object_dispose_impl(self);
-
-  /* No finalization code.*/
-  (void)self;
-}
-/** @} */
 
 /**
  * @name    Virtual methods of (hal_base_driver_c)
@@ -298,6 +248,12 @@ extern "C" {
   void drvLock(const void *ip);
   void drvUnlock(const void *ip);
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
+  void *__drv_objinit_impl(void *ip, const void *vmt);
+  void __drv_dispose_impl(void *ip);
+  msg_t __drv_start_impl(void *ip);
+  void __drv_stop_impl(void *ip);
+  msg_t __drv_configure_impl(void *ip, const void *config);
+  void * __drv_getif_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif

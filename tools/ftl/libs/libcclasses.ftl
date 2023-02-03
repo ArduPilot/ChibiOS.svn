@@ -314,7 +314,7 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
     [#local classnamespace = GetClassNamespace(class)
             classctype     = GetClassCType(class) /]
 /**
- * @name    Virtual methods of (${classctype})
+ * @name    Virtual methods of ${classctype}
  * @{
  */
     [#list class.methods.virtual.method as method]
@@ -532,7 +532,7 @@ CC_FORCE_INLINE
           ancestornamespace = GetClassAncestorNamespace(class) /]
   [#assign generated = true /]
 /**
- * @name    Virtual methods implementations (${classctype})
+ * @name    Virtual methods implementations of ${classctype}
  * @{
  */
 /**
@@ -626,18 +626,22 @@ void __${classnamespace}_dispose_impl(void *ip) {
 [/#macro]
 
 [#--
-  -- This macro generates a VMT structure from an XML node.
+  -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateClassVMTStructure node=[]]
+[#macro GenerateClassConstructorDestructor node=[]]
   [#local class = node /]
   [#local classname         = GetClassName(class)
           classtype         = GetClassType(class)
           classnamespace    = GetClassNamespace(class)
           classctype        = GetClassCType(class)
-          classdescr        = GetClassDescription(class)
-          ancestornamespace = GetClassAncestorNamespace(class) /]
+          classdescr        = GetClassDescription(class) /]
   [#if classtype == "regular"]
     [#assign generated = true /]
+    [#local paramname = classnamespace + "p" /]
+/**
+ * @name    Constructor and destructor of ${classctype}
+ * @{
+ */
 /**
 [@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
  */
@@ -645,20 +649,46 @@ static const struct ${classname}_vmt ${classnamespace}_vmt = {
   __${classnamespace}_vmt_init(${classnamespace})
 };
 
+/**
+[@doxygen.EmitBrief "" "Default initialize function of @p " + classctype + "." /]
+ *
+[@doxygen.EmitParam name=paramname dir="out"
+                    text="Pointer to a @p " + classctype + " structure to be initialized." /]
+[@doxygen.EmitReturn text="Pointer to the initialized object." /]
+ */
+${classctype} *${classnamespace}ObjectInit(${classctype} *${paramname}) {
+
+  return __${classnamespace}_objinit_impl(${paramname}, &${classnamespace}_vmt);
+}
+
+/**
+[@doxygen.EmitBrief "" "Default finalize function of @p " + classctype + "." /]
+ *
+[@doxygen.EmitParam name=paramname dir="both"
+                    text="Pointer to a @p " + classctype + " structure to be finalized." /]
+ */
+void ${classnamespace}Dispose(${classctype} *${paramname}) {
+
+  __${classnamespace}_dispose_impl(${paramname});
+}
+/** @} */
+
   [/#if]
 [/#macro]
 
 [#--
   -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateClassRegularMethods methods=[] classctype="void"]
-  [#list methods.* as node]
+[#macro GenerateClassRegularMethods node=[]]
+  [#local class = node /]
+  [#list class.methods.regular.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = (method.implementation[0]!"")?trim /]
+      [#assign generated = true /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
                                   extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + classctype + " structure." /]
@@ -687,15 +717,15 @@ static const struct ${classname}_vmt ${classnamespace}_vmt = {
   --]
 [#macro GenerateClassWrapperCode class=[]]
 [@GenerateClassMethodsImplementations class /]
-[@GenerateClassVMTStructure class /]
+[@GenerateClassConstructorDestructor class /]
   [#if class.methods.regular.*?size > 0]
     [#local classctype = GetClassCType(class) /]
     [#assign generated = true /]
 /**
- * @name    Regular methods of (${classctype})
+ * @name    Regular methods of ${classctype}
  * @{
  */
-[@GenerateClassRegularMethods class.methods.regular classctype /]
+[@GenerateClassRegularMethods class /]
 /** @} */
 
   [/#if]

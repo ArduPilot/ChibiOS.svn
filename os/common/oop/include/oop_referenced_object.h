@@ -122,7 +122,7 @@ struct referenced_object {
 };
 
 /**
- * @name    Virtual methods of (referenced_object_c)
+ * @name    Virtual methods of referenced_object_c
  * @{
  */
 /**

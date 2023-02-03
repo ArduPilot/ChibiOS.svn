@@ -94,7 +94,12 @@
 /*===========================================================================*/
 
 [@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
-  [#-- Scanning all public methods to be generated in this file.--]
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+[@ccode.GenerateFunctionsFromNode node=module.public.functions /]
+  [#-- Scanning all classes code to be generated in this module.--]
   [#list module.public.classes.class as class]
 /*===========================================================================*/
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
@@ -102,11 +107,6 @@
 
 [@cclasses.GenerateClassWrapperCode class /]
   [/#list]
-/*===========================================================================*/
-/* Module exported functions.                                                */
-/*===========================================================================*/
-
-[@ccode.GenerateFunctionsFromNode node=module.public.functions /]
   [#if module_condition?length > 0]
 #endif /* ${module_condition} */
 

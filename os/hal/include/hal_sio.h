@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,76 +16,71 @@
 
 /**
  * @file    hal_sio.h
- * @brief   SIO Driver macros and structures.
+ * @brief   Generated HAL_SIO header.
  *
  * @addtogroup HAL_SIO
+ * @brief   SIO Driver macros and structures.
+ * @note    This is a generated file, do not edit directly.
  * @{
  */
-
+ 
 #ifndef HAL_SIO_H
 #define HAL_SIO_H
 
-#if (HAL_USE_SIO == TRUE) || defined(__DOXYGEN__)
+#if (HAL_USE_SIO == TRUE) || defined (__DOXYGEN__)
 
 /*===========================================================================*/
-/* Driver constants.                                                         */
+/* Module constants.                                                         */
 /*===========================================================================*/
 
 /**
  * @name    SIO masks offsets
  * @{
  */
-#define SIO_EV_RXNOTEMPY_POS            2       /* CHN_INPUT_AVAILABLE */
-#define SIO_EV_TXNOTFULL_POS            3       /* CHN_OUTPUT_EMPTY */
-#define SIO_EV_TXDONE_POS               4       /* CHN_TRANSMISSION_END */
-#define SIO_EV_ALL_ERRORS_POS           SIO_EV_PARITY_ERR_POS
-#define SIO_EV_PARITY_ERR_POS           5       /* CHN_PARITY_ERROR */
-#define SIO_EV_FRAMING_ERR_POS          6       /* CHN_FRAMING_ERROR */
-#define SIO_EV_NOISE_ERR_POS            7       /* CHN_NOISE_ERROR */
-#define SIO_EV_OVERRUN_ERR_POS          8       /* CHN_OVERRUN_ERROR */
-#define SIO_EV_RXIDLE_POS               9       /* CHN_IDLE_DETECTED */
-#define SIO_EV_RXBREAK_POS              10      /* CHN_BREAK_DETECTED */
+#define SIO_EV_RXNOTEMPY_POS                CHN_INPUT_AVAILABLE_POS
+#define SIO_EV_TXNOTFULL_POS                CHN_OUTPUT_EMPTY_POS
+#define SIO_EV_TXDONE_POS                   CHN_TRANSMISSION_END_POS
+#define SIO_EV_ALL_ERRORS_POS               CHN_PARITY_ERROR_POS
+#define SIO_EV_PARITY_ERR_POS               CHN_PARITY_ERROR_POS
+#define SIO_EV_FRAMING_ERR_POS              CHN_FRAMING_ERROR_POS
+#define SIO_EV_NOISE_ERR_POS                CHN_NOISE_ERROR_POS
+#define SIO_EV_OVERRUN_ERR_POS              CHN_OVERRUN_ERROR_POS
+#define SIO_EV_RXIDLE_POS                   CHN_IDLE_DETECTED_POS
+#define SIO_EV_RXBREAK_POS                  CHN_BREAK_DETECTED_POS
 /** @} */
 
 /**
- * @name    Event flags (compatible with channel and serial events)
+ * @name    SIO event flags
  * @{
  */
-#define SIO_EV_NONE                     0U
-#define SIO_EV_RXNOTEMPY                (1U << SIO_EV_RXNOTEMPY_POS)
-#define SIO_EV_TXNOTFULL                (1U << SIO_EV_TXNOTFULL_POS)
-#define SIO_EV_ALL_DATA                 (SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)
-#define SIO_EV_TXDONE                   (1U << SIO_EV_TXDONE_POS)
-#define SIO_EV_PARITY_ERR               (1U << SIO_EV_PARITY_ERR_POS)
-#define SIO_EV_FRAMING_ERR              (1U << SIO_EV_FRAMING_ERR_POS)
-#define SIO_EV_NOISE_ERR                (1U << SIO_EV_NOISE_ERR_POS)
-#define SIO_EV_OVERRUN_ERR              (1U << SIO_EV_OVERRUN_ERR_POS)
-#define SIO_EV_RXIDLE                   (1U << SIO_EV_RXIDLE_POS)
-#define SIO_EV_RXBREAK                  (1U << SIO_EV_RXBREAK_POS)
-#define SIO_EV_ALL_ERRORS               (SIO_EV_PARITY_ERR  |               \
-                                         SIO_EV_FRAMING_ERR |               \
-                                         SIO_EV_OVERRUN_ERR |               \
-                                         SIO_EV_NOISE_ERR   |               \
-                                         SIO_EV_RXBREAK)
-#define SIO_EV_ALL_EVENTS               (SIO_EV_ALL_DATA    |               \
-                                         SIO_EV_ALL_ERRORS  |               \
-                                         SIO_EV_TXDONE      |               \
-                                         SIO_EV_RXIDLE)
+#define SIO_EV_NONE                         0U
+#define SIO_EV_RXNOTEMPY                    CHN_INPUT_AVAILABLE
+#define SIO_EV_TXNOTFULL                    CHN_OUTPUT_EMPTY
+#define SIO_EV_ALL_DATA                     (SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)
+#define SIO_EV_TXDONE                       CHN_TRANSMISSION_END
+#define SIO_EV_ALL_ERRORS                   CHN_ALL_ERRORS
+#define SIO_EV_PARITY_ERR                   SIO_EV_PARITY_ERR
+#define SIO_EV_FRAMING_ERR                  SIO_EV_FRAMING_ERR
+#define SIO_EV_NOISE_ERR                    SIO_EV_NOISE_ERR
+#define SIO_EV_OVERRUN_ERR                  SIO_EV_OVERRUN_ERR
+#define SIO_EV_RXIDLE                       CHN_IDLE_DETECTED
+#define SIO_EV_RXBREAK                      CHN_BREAK_DETECTED
+#define SIO_EV_ALL_EVENTS                   (SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)
 /** @} */
 
 /**
  * @name    Additional messages
  * @{
  */
-#define SIO_MSG_ERRORS                  1
+#define SIO_MSG_ERRORS                      1
 /** @} */
 
 /*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
+/* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
 /**
- * @name    SIO configuration options
+ * @name    Configuration options
  * @{
  */
 /**
@@ -105,7 +100,7 @@
 #endif
 
 /**
- * @brief   Support for streams interfacwe.
+ * @brief   Support for streams interface.
  */
 #if !defined(SIO_USE_STREAMS_INTERFACE) || defined(__DOXYGEN__)
 #define SIO_USE_STREAMS_INTERFACE           SIO_USE_SYNCHRONIZATION
@@ -116,80 +111,364 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-#if (SIO_USE_STREAMS_INTERFACE == TRUE) && (SIO_USE_SYNCHRONIZATION == FALSE)
-#error "SIO_USE_STREAMS_INTERFACE requires SIO_USE_SYNCHRONIZATION"
+/* Checks on SIO_DEFAULT_BITRATE configuration.*/
+#if SIO_DEFAULT_BITRATE <= 0
+#error "invalid SIO_DEFAULT_BITRATE value"
+#endif
+
+/* Checks on SIO_USE_SYNCHRONIZATION configuration.*/
+#if (SIO_USE_SYNCHRONIZATION != FALSE) && (SIO_USE_SYNCHRONIZATION != TRUE)
+#error "invalid SIO_USE_SYNCHRONIZATION value"
+#endif
+
+/* Checks on SIO_USE_STREAMS_INTERFACE configuration.*/
+#if (SIO_USE_STREAMS_INTERFACE != FALSE) && (SIO_USE_STREAMS_INTERFACE != TRUE)
+#error "invalid SIO_USE_STREAMS_INTERFACE value"
 #endif
 
 /*===========================================================================*/
-/* Driver data structures and types.                                         */
+/* Module macros.                                                            */
 /*===========================================================================*/
 
 /**
- * @brief   Type of event flags.
+ * @brief   Associates a callback to the SIO instance.
+ *
+ * @param[out]    siop          Pointer to the @p hal_sio_driver_c object
+ * @param         f             Callback function to be associated.
+ */
+#define sioSetCallbackX(siop, f)                                            \
+  (siop)->sio.cb = (f)
+
+/**
+ * @brief   Determines the state of the RX FIFO.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The RX FIFO state.
+ */
+#define sioIsRXEmptyX(siop)                                                 \
+  sio_lld_is_rx_empty(siop)
+
+/**
+ * @brief   Determines the activity state of the receiver.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The RX activity state.
+ */
+#define sioIsRXIdleX(siop)                                                  \
+  sio_lld_is_rx_idle(siop)
+
+/**
+ * @brief   Determines if RX has pending errors to be read and cleared.
+ * @note    Only error flags are handled, data and idle flags are not
+ *          considered.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The RX error events.
+ */
+#define sioHasRXErrorsX(siop)                                               \
+  sio_lld_has_rx_errors(siop)
+
+/**
+ * @brief   Determines the state of the TX FIFO.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The TX FIFO state.
+ */
+#define sioIsTXFullX(siop)                                                  \
+  sio_lld_is_tx_full(siop)
+
+/**
+ * @brief   Determines the transmission state.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The transmission state.
+ */
+#define sioIsTXOngoingX(siop)                                               \
+  sio_lld_is_tx_ongoing(siop)
+
+/**
+ * @brief   Writes the enabled events mask.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @param[in]     mask          Enabled events mask to be written.
+ */
+#define sioWriteEnableFlagsX(siop, mask)                                    \
+  do {                                                                      \
+    (siop)->sio.enabled = (mask);                                           \
+    sio_lld_update_enable_flags(siop);                                      \
+  } while (false)
+
+/**
+ * @brief   Sets flags into the enabled events flags mask.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @param[in]     mask          Enabled events mask to be set.
+ */
+#define sioSetEnableFlagsX(siop, mask)                                      \
+  do {                                                                      \
+    (siop)->sio.enabled |= (mask);                                          \
+    sio_lld_update_enable_flags(siop);                                      \
+  } while (false)
+
+/**
+ * @brief   Clears flags from the enabled events flags mask.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @param[in]     mask          Enabled events mask to be cleared.
+ */
+#define sioClearEnableFlagsX(siop, mask)                                    \
+  do {                                                                      \
+    (siop)->sio.enabled &= ~(mask);                                         \
+    sio_lld_update_enable_flags(siop);                                      \
+  } while (false)
+
+/**
+ * @brief   Gets the enabled condition flags mask.
+ *
+ * @param[in]     siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The enabled event flags.
+ */
+#define sioGetEnableFlagsX(siop)                                            \
+  (siop)->sio.enabled
+
+/**
+ * @brief   Gets and clears SIO error flags.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The pending error flags.
+ */
+#define sioGetAndClearErrorsX(siop)                                         \
+  sio_lld_get_and_clear_errors(siop)
+
+/**
+ * @brief   Gets and clears SIO event flags.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The pending event flags.
+ */
+#define sioGetAndClearEventsX(siop)                                         \
+  sio_lld_get_and_clear_events(siop)
+
+/**
+ * @brief   Returns all SIO event flags.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The pending event flags.
+ */
+#define sioGetEventsX(siop)                                                 \
+  sio_lld_get_events(siop)
+
+/**
+ * @brief   Returns one frame from the RX FIFO.
+ * @note    If the FIFO is empty then the returned value is unpredictable.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The frame from RX FIFO.
+ */
+#define sioGetX(siop)                                                       \
+  sio_lld_get(siop)
+
+/**
+ * @brief   Pushes one frame into the TX FIFO.
+ * @note    If the FIFO is full then the behavior is unpredictable.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @param[in]     data          Frame to be written.
+ */
+#define sioPutX(siop, data)                                                 \
+  sio_lld_put(siop, data)
+
+/**
+ * @brief   Reads data from the RX FIFO.
+ * @details This function is non-blocking, data is read if present and the
+ *          effective amount is returned.
+ * @note    This function can be called from any context but it is meant to be
+ *          called from the @p cb callback handler.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @param[in]     size          Maximum number of frames to read.
+ * @param[out]    buffer        Buffer for the received data.
+ * @return                      The number of received frames.
+ */
+#define sioAsyncReadX(siop, size, buffer)                                   \
+  sio_lld_read(siop, size, buffer)
+
+/**
+ * @brief   Writes data into the TX FIFO.
+ * @details This function is non-blocking, data is written if there is space in
+ *          the FIFO and the effective amount is returned.
+ * @note    This function can be called from any context but it is meant to be
+ *          called from the @p cb callback handler.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @param[in]     size          Maximum number of frames to read.
+ * @param[in]     buffer        Buffer containing the data to be transmitted
+ * @return                      The number of transmitted frames.
+ */
+#define sioAsyncWriteX(siop, size, buffer)                                  \
+  sio_lld_write(siop, size, buffer)
+
+/**
+ * @brief   Control operation on a serial port.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @param[in]     operation     Control operation code.
+ * @param[in,out] arg           Operation argument.
+ * @return                      The control operation status.
+ */
+#define sioControlX(siop, operation, arg)                                   \
+  sio_lld_control(siop, operation, arg)
+
+/**
+ * @name    Low level driver helper macros
+ * @{
+ */
+/**
+ * @brief   SIO callback.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @return                      The control operation status.
+ */
+#define __sio_callback(siop)                                                \
+  do {                                                                      \
+    if ((siop)->sio.cb != NULL) {                                           \
+      (siop)->sio.cb(siop);                                                 \
+    }                                                                       \
+  } while (false)
+
+#if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief   Wakes up because RX errors.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ */
+#define __sio_wakeup_errors(siop)                                           \
+  do {                                                                      \
+    osalSysLockFromISR();                                                   \
+    osalThreadResumeI(&(siop)->sio.sync_rx, SIO_MSG_ERRORS);                \
+    osalThreadResumeI(&(siop)->sio.sync_rxidle, SIO_MSG_ERRORS);            \
+    osalSysUnlockFromISR();                                                 \
+  } while (false)
+
+/**
+ * @brief   Wakes up the RX-waiting thread.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ */
+#define __sio_wakeup_rx(siop)                                               \
+  do {                                                                      \
+    osalSysLockFromISR();                                                   \
+    osalThreadResumeI(&(siop)->sio.sync_rx, MSG_OK);                        \
+    osalSysUnlockFromISR();                                                 \
+  } while (false)
+
+/**
+ * @brief   Wakes up the RX-idle-waiting thread.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ */
+#define __sio_wakeup_rxidle(siop)                                           \
+  do {                                                                      \
+    osalSysLockFromISR();                                                   \
+    osalThreadResumeI(&(siop)->sio.sync_rxidle, MSG_OK);                    \
+    osalSysUnlockFromISR();                                                 \
+  } while (false)
+
+/**
+ * @brief   Wakes up the TX-waiting thread.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ */
+#define __sio_wakeup_tx(siop)                                               \
+  do {                                                                      \
+    osalSysLockFromISR();                                                   \
+    osalThreadResumeI(&(siop)->sio.sync_tx, MSG_OK);                        \
+    osalSysUnlockFromISR();                                                 \
+  } while (false)
+
+/**
+ * @brief   Wakes up the TXend-waiting thread.
+ *
+ * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ */
+#define __sio_wakeup_txend(siop)                                            \
+  do {                                                                      \
+    osalSysLockFromISR();                                                   \
+    osalThreadResumeI(&(siop)->sio.sync_txend, MSG_OK);                     \
+    osalSysUnlockFromISR();                                                 \
+  } while (false)
+
+#else
+#define __sio_wakeup_errors(siop)
+#define __sio_wakeup_rx(siop)
+#define __sio_wakeup_rxidle(siop)
+#define __sio_wakeup_tx(siop)
+#define __sio_wakeup_txend(siop)
+#endif /* SIO_USE_SYNCHRONIZATION == TRUE */
+/** @} */
+
+/**
+ * @brief   Relocates a bit field.
+ *
+ * @param[in]     v             Value.
+ * @param[in]     m             Mask of the bit field.
+ * @param[in]     s             Source bit offset.
+ * @param[in]     d             Destination bit offset.
+ */
+#define __sio_reloc_field(v, m, s, d)                                       \
+  ((((v) & m) >> (s)) << (d))
+
+/*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
+/**
+ * @brief   Type of SIO event flags.
  */
 typedef eventflags_t sioevents_t;
 
 /**
- * @brief   Type of structure representing a SIO driver.
+ * @brief   Type of structure representing a SIO configuration.
  */
-typedef struct hal_sio_driver SIODriver;
+typedef struct hal_sio_config hal_sio_config_t;
 
 /**
- * @brief   Type of structure representing a SIO configuration.
+ * @brief   Type of structure representing a SIO configuration (legacy).
  */
 typedef struct hal_sio_config SIOConfig;
 
 /**
- * @brief   Generic SIO notification callback type.
- *
- * @param[in] siop     pointer to the @p SIODriver object
+ * @brief   Type of structure representing a SIO driver (legacy).
  */
-typedef void (*siocb_t)(SIODriver *siop);
+typedef struct hal_sio_driver SIODriver;
 
+/**
+ * @brief   Generic SIO notification callback type.
+ */
+typedef void (*siocb_t)(struct hal_sio_driver *siop);
+
+/* Inclusion of LLD header.*/
 #include "hal_sio_lld.h"
 
-/**
- * @brief   Driver configuration structure.
- * @note    Implementations may extend this structure to contain more,
- *          architecture dependent, fields.
- */
-struct hal_sio_config {
-  /* End of the mandatory fields.*/
-  sio_lld_config_fields;
-#if defined(SIO_CONFIG_EXT_FIELS)
-  SIO_CONFIG_EXT_FIELDS
-#endif
-};
+/*===========================================================================*/
+/* Module class hal_sio_driver_c                                             */
+/*===========================================================================*/
 
 /**
- * @brief   @p SIODriver specific methods.
+ * @brief   Type of a SIO driver class.
  */
-#define __sio_driver_methods                                                \
-  __drv_methods
+typedef struct hal_sio_driver hal_sio_driver_c;
 
 /**
- * @extends BaseChannelVMT
- *
- * @brief   @p SIODriver virtual methods table.
+ * @brief   @p hal_sio_driver_c data as a structure.
  */
-struct sio_driver_vmt {
-  __sio_driver_methods
-};
-
-/**
- * @brief   Structure representing a SIO driver.
- * @note    Implementations may extend this structure to contain more,
- *          architecture dependent, fields.
- */
-struct hal_sio_driver {
-  const struct sio_driver_vmt               *vmt;
-  __drv_data
-#if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined(__DOXYGEN__)
+struct sio_data {
+#if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
   /**
-   * @brief   Virtual Methods Table.
+   * @brief   Channel interface.
    */
   base_channel_i                            chn;
-#endif
+#endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
   /**
    * @brief   Enabled event flags.
    */
@@ -199,7 +478,7 @@ struct hal_sio_driver {
    * @note    Can be @p NULL.
    */
   siocb_t                                   cb;
-#if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
   /**
    * @brief   Synchronization point for RX.
    */
@@ -216,7 +495,7 @@ struct hal_sio_driver {
    * @brief   Synchronization point for TX-end.
    */
   thread_reference_t                        sync_txend;
-#endif /* SIO_USE_SYNCHRONIZATION == TRUE */
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 #if defined(SIO_DRIVER_EXT_FIELS)
   SIO_DRIVER_EXT_FIELDS
 #endif
@@ -224,326 +503,43 @@ struct hal_sio_driver {
   sio_lld_driver_fields;
 };
 
-/*===========================================================================*/
-/* Driver macros.                                                            */
-/*===========================================================================*/
+/**
+ * @brief   @p hal_sio_driver_c methods.
+ */
+#define __sio_methods                                                       \
+  __drv_methods                                                             \
+  /* No methods.*/
 
 /**
- * @brief   Associates a callback to the SIO instance.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] f         callback to be associated
+ * @brief   @p hal_sio_driver_c data.
  */
-#define sioSetCallbackX(siop, f) (siop)->cb = (f)
+#define __sio_data                                                          \
+  __drv_data                                                                \
+  struct sio_data                           sio;
 
 /**
- * @brief   Determines the state of the RX FIFO.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The RX FIFO state.
- * @retval false        if RX FIFO is not empty.
- * @retval true         if RX FIFO is empty.
- *
- * @xclass
+ * @brief   @p hal_sio_driver_c VMT initializer.
  */
-#define sioIsRXEmptyX(siop) sio_lld_is_rx_empty(siop)
+#define __sio_vmt_init(ns)                                                  \
+  __drv_vmt_init(ns)
 
 /**
- * @brief   Determines the activity state of the receiver.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The RX activity state.
- * @retval false        if RX is in active state.
- * @retval true         if RX is in idle state.
- *
- * @xclass
+ * @brief   @p hal_sio_driver_c virtual methods table.
  */
-#define sioIsRXIdleX(siop) sio_lld_is_rx_idle(siop)
+struct hal_sio_driver_vmt {
+  __sio_methods
+};
 
 /**
- * @brief   Determines if RX has pending errors to be read and cleared.
- * @note    Only errors are handled, data and idle events are not considered.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The RX error events.
- * @retval false        if RX has no pending events.
- * @retval true         if RX has pending events.
- *
- * @xclass
+ * @brief   Structure representing a SIO driver class.
  */
-#define sioHasRXErrorsX(siop)  sio_lld_has_rx_errors(siop)
-
-/**
- * @brief   Determines the state of the TX FIFO.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The TX FIFO state.
- * @retval false        if TX FIFO is not full.
- * @retval true         if TX FIFO is full.
- *
- * @xclass
- */
-#define sioIsTXFullX(siop) sio_lld_is_tx_full(siop)
-
-/**
- * @brief   Determines the transmission state.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The TX FIFO state.
- * @retval false        if transmission is over.
- * @retval true         if transmission is ongoing.
- *
- * @xclass
- */
-#define sioIsTXOngoingX(siop) sio_lld_is_tx_ongoing(siop)
-
-/**
- * @brief   Writes the enabled events mask.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] mask      enabled events mask to be written
- *
- * @xclass
- */
-#define sioWriteEnableFlagsX(siop, mask) do {                               \
-  (siop)->enabled = (mask);                                                 \
-  sio_lld_update_enable_flags(siop);                                        \
-} while (false)
-
-/**
- * @brief   Sets flags into the enabled events flags mask.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] mask      enabled events mask to be set
- *
- * @xclass
- */
-#define sioSetEnableFlagsX(siop, mask) do {                                 \
-  (siop)->enabled |= (mask);                                                \
-  sio_lld_update_enable_flags(siop);                                        \
-} while (false)
-
-/**
- * @brief   Clears flags from the enabled events flags mask.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] mask      enabled events mask to be cleared
- *
- * @xclass
- */
-#define sioClearEnableFlagsX(siop, mask) do {                               \
-  (siop)->enabled &= ~(mask);                                               \
-  sio_lld_update_enable_flags(siop);                                        \
-} while (false)
-
-/**
- * @brief   Return the enabled condition flags mask.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @xclass
- */
-#define sioGetEnableFlagsX(siop) (siop)->enabled
-
-/**
- * @brief   Get and clears SIO error event flags.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The pending error event flags.
- *
- * @xclass
- */
-#define sioGetAndClearErrorsX(siop) sio_lld_get_and_clear_errors(siop)
-
-/**
- * @brief   Get and clears SIO event flags.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The pending event flags.
- *
- * @xclass
- */
-#define sioGetAndClearEventsX(siop) sio_lld_get_and_clear_events(siop)
-
-/**
- * @brief   Returns the pending SIO event flags.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The pending event flags.
- *
- * @xclass
- */
-#define sioGetEventsX(siop) sio_lld_get_events(siop)
-
-/**
- * @brief   Returns one frame from the RX FIFO.
- * @note    If the FIFO is empty then the returned value is unpredictable.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @return              The frame from RX FIFO.
- *
- * @xclass
- */
-#define sioGetX(siop) sio_lld_get(siop)
-
-/**
- * @brief   Pushes one frame into the TX FIFO.
- * @note    If the FIFO is full then the behavior is unpredictable.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] data      frame to be written
- *
- * @xclass
- */
-#define sioPutX(siop, data) sio_lld_put(siop, data)
-
-/**
- * @brief   Reads data from the RX FIFO.
- * @details This function is non-blocking, data is read if present and the
- *          effective amount is returned.
- * @note    This function can be called from any context but it is meant to
- *          be called from the @p rxne_cb callback handler.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] size      maximum number of frames to read
- * @param[in] buffer    buffer for the received data
- * @return              The number of received frames.
- *
- * @xclass
- */
-#define sioAsyncReadX(siop, size, buffer) sio_lld_read(siop, size, buffer)
-
-/**
- * @brief   Writes data into the TX FIFO.
- * @details This function is non-blocking, data is written if there is space
- *          in the FIFO and the effective amount is returned.
- * @note    This function can be called from any context but it is meant to
- *          be called from the @p txnf_cb callback handler.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] size      maximum number of frames to read
- * @param[out] buffer   buffer containing the data to be transmitted
- * @return              The number of transmitted frames.
- *
- * @xclass
- */
-#define sioAsyncWriteX(siop, size, buffer) sio_lld_write(siop, size, buffer)
-
-/**
- * @brief   Control operation on a serial port.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] operation control operation code
- * @param[in,out] arg   operation argument
- *
- * @return              The control operation status.
- * @retval MSG_OK       in case of success.
- * @retval MSG_TIMEOUT  in case of operation timeout.
- * @retval MSG_RESET    in case of operation reset.
- *
- * @xclass
- */
-#define sioControlX(siop, operation, arg) sio_lld_control(siop, operation, arg)
-
-/**
- * @name    Low level driver helper macros
- * @{
- */
-/**
- * @brief   SIO callback.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_callback(siop) do {                                           \
-  if ((siop)->cb != NULL) {                                                 \
-    (siop)->cb(siop);                                                       \
-  }                                                                         \
-} while (false)
-
-#if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
-/**
- * @brief   Wakes up because RX errors.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_wakeup_errors(siop) do {                                      \
-  osalSysLockFromISR();                                                     \
-  osalThreadResumeI(&(siop)->sync_rx, SIO_MSG_ERRORS);                      \
-  osalThreadResumeI(&(siop)->sync_rxidle, SIO_MSG_ERRORS);                  \
-  osalSysUnlockFromISR();                                                   \
-} while (false)
-
-/**
- * @brief   Wakes up the RX-waiting thread.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_wakeup_rx(siop) do {                                          \
-  osalSysLockFromISR();                                                     \
-  osalThreadResumeI(&(siop)->sync_rx, MSG_OK);                              \
-  osalSysUnlockFromISR();                                                   \
-} while (false)
-
-/**
- * @brief   Wakes up the RX-idle-waiting thread.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_wakeup_rxidle(siop) do {                                      \
-  osalSysLockFromISR();                                                     \
-  osalThreadResumeI(&(siop)->sync_rxidle, MSG_OK);                          \
-  osalSysUnlockFromISR();                                                   \
-} while (false)
-
-/**
- * @brief   Wakes up the TX-waiting thread.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_wakeup_tx(siop) do {                                          \
-  osalSysLockFromISR();                                                     \
-  osalThreadResumeI(&(siop)->sync_tx, MSG_OK);                              \
-  osalSysUnlockFromISR();                                                   \
-} while (false)
-
-/**
- * @brief   Wakes up the TXend-waiting thread.
- *
- * @param[in] siop      pointer to the @p SIODriver object
- *
- * @notapi
- */
-#define __sio_wakeup_txend(siop) do {                                       \
-  osalSysLockFromISR();                                                     \
-  osalThreadResumeI(&(siop)->sync_txend, MSG_OK);                           \
-  osalSysUnlockFromISR();                                                   \
-} while (false)
-#else /* !SIO_USE_SYNCHRONIZATION */
-#define __sio_wakeup_rx(siop, msg)
-#define __sio_wakeup_tx(siop, msg)
-#define __sio_wakeup_txend(siop, msg)
-#endif /* !SIO_USE_SYNCHRONIZATION */
-/** @} */
-
-/**
- * @brief   Relocates a bit field.
- *
- * @param[in] v         value
- * @param[in] m         mask of the bit field
- * @param[in] s         source bit offset
- * @param[in] d         destination bit offset
- */
-#define __sio_reloc_field(v, m, s, d)   ((((v) & m) >> (s)) << (d))
+struct hal_sio_driver {
+  /**
+   * @brief   Virtual Methods Table.
+   */
+  const struct hal_sio_driver_vmt           *vmt;
+  __sio_data
+};
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -552,27 +548,18 @@ struct hal_sio_driver {
 #ifdef __cplusplus
 extern "C" {
 #endif
+  /* Methods of hal_sio_driver_c.*/
+  void *__sio_objinit_impl(void *ip, const void *vmt);
+  void __sio_dispose_impl(void *ip);
+  /* Regular functions.*/
   void sioInit(void);
-  void sioObjectInit(SIODriver *siop);
-  msg_t sioStart(SIODriver *siop, const SIOConfig *config);
-  void sioStop(SIODriver *siop);
-  void sioWriteEnableFlags(SIODriver *siop, sioevents_t mask);
-  void sioSetEnableFlags(SIODriver *siop, sioevents_t mask);
-  void sioClearEnableFlags(SIODriver *siop, sioevents_t mask);
-  sioevents_t sioGetAndClearErrors(SIODriver *siop);
-  sioevents_t sioGetAndClearEvents(SIODriver *siop);
-  sioevents_t sioGetEvents(SIODriver *siop);
-  size_t sioAsyncRead(SIODriver *siop, uint8_t *buffer, size_t n);
-  size_t sioAsyncWrite(SIODriver *siop, const uint8_t *buffer, size_t n);
-#if (SIO_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
-  msg_t sioSynchronizeRX(SIODriver *siop, sysinterval_t timeout);
-  msg_t sioSynchronizeRXIdle(SIODriver *siop, sysinterval_t timeout);
-  msg_t sioSynchronizeTX(SIODriver *siop, sysinterval_t timeout);
-  msg_t sioSynchronizeTXEnd(SIODriver *siop, sysinterval_t timeout);
-#endif
 #ifdef __cplusplus
 }
 #endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
 
 #endif /* HAL_USE_SIO == TRUE */
 

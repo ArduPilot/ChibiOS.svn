@@ -44,24 +44,24 @@
 [#--
   -- Returns the function/macro name from an XML node.
   --]
-[#function GetName node=[]]
-  [#local name = (node.@name[0]!"no-name")?trim /]
+[#function GetName node=[] default="no-name"]
+  [#local name = (node.@name[0]!default)?trim /]
   [#return name /]
 [/#function]
 
 [#--
   -- Returns the function return C type from an XML node.
   --]
-[#function GetCType node=[]]
-  [#local ctype = (node.@ctype[0]!"void")?trim /]
+[#function GetCType node=[] default="void"]
+  [#local ctype = (node.@ctype[0]!default)?trim /]
   [#return ctype /]
 [/#function]
 
 [#--
   -- Returns the function/macro implementation from an XML node.
   --]
-[#function GetImplementation node=[]]
-  [#local impl = node.implementation[0]!"" /]
+[#function GetImplementation node=[] default=""]
+  [#local impl = (node.implementation[0]!default)?trim /]
   [#return impl /]
 [/#function]
 
@@ -256,12 +256,12 @@ ${s}
     [#if this?node_name == "define"]
       [#if this.brief[0]??]
 [@doxygen.EmitFullCommentFromNode "" this /]
-[@ccode.GenerateDefineFromNode this /]
+[@GenerateDefineFromNode this /]
         [#if this?has_next || node?node_name?starts_with("definitions")]
 
         [/#if]
       [#else]
-[@ccode.GenerateDefineFromNode this /]
+[@GenerateDefineFromNode this /]
         [#if node?node_name?starts_with("definitions")]
 
         [/#if]
@@ -272,7 +272,7 @@ ${s}
  * @name    ${groupdescription}
  * @{
  */
-[@ccode.GenerateDefinesFromNode this /]
+[@GenerateDefinesFromNode this /]
 /** @} */
       [#if (node?node_name != "group") && (node?node_name != "condition")]
 
@@ -316,7 +316,7 @@ ${s}
     [#list configs.* as this]
       [#if this?node_name == "config"]
 [@doxygen.EmitFullCommentFromNode "" this /]
-[@ccode.GenerateConfigFromNode this /]
+[@GenerateConfigFromNode this /]
       [/#if]
       [#if !this?is_last]
 
@@ -433,14 +433,14 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
   --]
 [#macro GenerateTypedefFromNode indent="" node=[]]
   [#local typedef = node /]
-  [#local typename = (typedef.@name!"no-name")?trim /]
+  [#local typename = GetName(typedef) /]
   [#if typedef.basetype[0]??]
-    [#local basetypename = (typedef.basetype[0].@ctype!"no-type")?trim /]
-    [#if basetypename?contains("$N")]
-      [#local basetypename = basetypename?replace("$N", typename) /]
-typedef ${basetypename};
+    [#local basectype = GetCType(typedef.basetype[0]) /]
+    [#if basectype?contains("$N")]
+      [#local basectype = basectype?replace("$N", typename) /]
+${indent}typedef ${basectype};
     [#else]
-typedef ${basetypename} ${typename};
+${indent}typedef ${basectype} ${typename};
     [/#if]
   [#elseif typedef.structtype[0]??]
   [#elseif typedef.enumtype[0]??]
@@ -450,13 +450,47 @@ typedef ${basetypename} ${typename};
 [/#macro]
 
 [#--
+  -- This macro generates a struct definition from an XML node.
+  --]
+[#macro GenerateStructFromNode indent="" node=[] default="###no-name###"]
+  [#local structname = GetName(node, default) /]
+  [#if structname?length > 0]
+    [#local structname = structname + " " /]
+  [/#if]
+${indent}struct ${structname}{
+[@ccode.GenerateStructureFields indent+indentation node.fields /]
+${indent}};
+[/#macro]
+
+[#--
+  -- This macro generates a union definition from an XML node.
+  --]
+[#macro GenerateUnionFromNode indent="" node=[] default="###no-name###"]
+  [#local unionname = GetName(node, default) /]
+  [#if unionname?length > 0]
+    [#local unionname = unionname + " " /]
+  [/#if]
+${indent}union ${unionname}{
+[@ccode.GenerateStructureFields indent+indentation node.fields /]
+${indent}};
+[/#macro]
+
+[#--
   -- Generates all type definitions from an XML node.
   --]
 [#macro GenerateTypedefsFromNode indent="" node=[]]
   [#list node.* as this]
     [#if this?node_name == "typedef"]
 [@doxygen.EmitFullCommentFromNode indent this /]
-[@ccode.GenerateTypedefFromNode node=this /]
+[@GenerateTypedefFromNode node=this /]
+
+    [#elseif this?node_name == "struct"]
+[@doxygen.EmitFullCommentFromNode indent this /]
+[@GenerateStructFromNode indent this /]
+
+    [#elseif this?node_name == "union"]
+[@doxygen.EmitFullCommentFromNode indent this /]
+[@GenerateUnionFromNode indent this /]
 
     [#elseif this?node_name == "verbatim"]
       [#local ccode = (this[0]!"")?trim /]

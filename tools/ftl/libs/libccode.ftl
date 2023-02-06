@@ -541,7 +541,7 @@ ${fieldstring}
 [#macro GenerateFunctionsFromNode modifiers=[] node=[]]
   [#list node.* as this]
     [#if this?node_name == "function"]
-      [#if this.brief[0]?? && !this?is_first]
+      [#if !this?is_first]
 
       [/#if]
 [@doxygen.EmitFullCommentFromNode "" this /]

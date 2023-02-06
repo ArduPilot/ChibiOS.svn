@@ -1,38 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_sio_test" check="HAL_USE_SIO == TRUE">
+  name="hal_sio" check="HAL_USE_SIO == TRUE">
   <brief>SIO Driver macros and structures.</brief>
   <note>This is a generated file, do not edit directly.</note>
   <public>
     <definitions_early>
       <group description="SIO masks offsets">
-        <define name="SIO_EV_RXNOTEMPY_POS" value="CHN_INPUT_AVAILABLE_POS" />
-        <define name="SIO_EV_TXNOTFULL_POS" value="CHN_OUTPUT_EMPTY_POS" />
-        <define name="SIO_EV_TXDONE_POS" value="CHN_TRANSMISSION_END_POS" />
-        <define name="SIO_EV_ALL_ERRORS_POS" value="CHN_PARITY_ERROR_POS" />
-        <define name="SIO_EV_PARITY_ERR_POS" value="CHN_PARITY_ERROR_POS" />
-        <define name="SIO_EV_FRAMING_ERR_POS" value="CHN_FRAMING_ERROR_POS" />
-        <define name="SIO_EV_NOISE_ERR_POS" value="CHN_NOISE_ERROR_POS" />
-        <define name="SIO_EV_OVERRUN_ERR_POS" value="CHN_OVERRUN_ERROR_POS" />
-        <define name="SIO_EV_RXIDLE_POS" value="CHN_IDLE_DETECTED_POS" />
-        <define name="SIO_EV_RXBREAK_POS" value="CHN_BREAK_DETECTED_POS" />
+        <define name="SIO_EV_RXNOTEMPY_POS"
+          value="CHN_INPUT_AVAILABLE_POS" />
+        <define name="SIO_EV_TXNOTFULL_POS"
+          value="CHN_OUTPUT_EMPTY_POS" />
+        <define name="SIO_EV_TXDONE_POS"
+          value="CHN_TRANSMISSION_END_POS" />
+        <define name="SIO_EV_ALL_ERRORS_POS"
+          value="CHN_PARITY_ERROR_POS" />
+        <define name="SIO_EV_PARITY_ERR_POS"
+          value="CHN_PARITY_ERROR_POS" />
+        <define name="SIO_EV_FRAMING_ERR_POS"
+          value="CHN_FRAMING_ERROR_POS" />
+        <define name="SIO_EV_NOISE_ERR_POS"
+          value="CHN_NOISE_ERROR_POS" />
+        <define name="SIO_EV_OVERRUN_ERR_POS"
+          value="CHN_OVERRUN_ERROR_POS" />
+        <define name="SIO_EV_RXIDLE_POS"
+          value="CHN_IDLE_DETECTED_POS" />
+        <define name="SIO_EV_RXBREAK_POS"
+          value="CHN_BREAK_DETECTED_POS" />
       </group>
-      <group
-        description="SIO event flags">
+      <group description="SIO event flags">
         <define name="SIO_EV_NONE" value="0U" />
-        <define name="SIO_EV_RXNOTEMPY" value="CHN_INPUT_AVAILABLE" />
+        <define name="SIO_EV_RXNOTEMPY"
+          value="CHN_INPUT_AVAILABLE" />
         <define name="SIO_EV_TXNOTFULL" value="CHN_OUTPUT_EMPTY" />
-        <define name="SIO_EV_ALL_DATA" value="(SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)" />
+        <define name="SIO_EV_ALL_DATA"
+          value="(SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)" />
         <define name="SIO_EV_TXDONE" value="CHN_TRANSMISSION_END" />
         <define name="SIO_EV_ALL_ERRORS" value="CHN_ALL_ERRORS" />
-        <define name="SIO_EV_PARITY_ERR" value="SIO_EV_PARITY_ERR" />
-        <define name="SIO_EV_FRAMING_ERR" value="SIO_EV_FRAMING_ERR" />
-        <define name="SIO_EV_NOISE_ERR" value="SIO_EV_NOISE_ERR" />
-        <define name="SIO_EV_OVERRUN_ERR" value="SIO_EV_OVERRUN_ERR" />
+        <define name="SIO_EV_PARITY_ERR" value="CHN_PARITY_ERROR" />
+        <define name="SIO_EV_FRAMING_ERR"
+          value="CHN_FRAMING_ERROR" />
+        <define name="SIO_EV_NOISE_ERR" value="CHN_NOISE_ERROR" />
+        <define name="SIO_EV_OVERRUN_ERR"
+          value="CHN_OVERRUN_ERROR" />
         <define name="SIO_EV_RXIDLE" value="CHN_IDLE_DETECTED" />
         <define name="SIO_EV_RXBREAK" value="CHN_BREAK_DETECTED" />
-        <define name="SIO_EV_ALL_EVENTS" value="(SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)" />
+        <define name="SIO_EV_ALL_EVENTS"
+          value="(SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)" />
       </group>
       <group description="Additional messages">
         <define name="SIO_MSG_ERRORS" value="1" />
@@ -379,6 +393,21 @@ do {
       <verbatim><![CDATA[
 /* Inclusion of LLD header.*/
 #include "hal_sio_lld.h"]]></verbatim>
+      <struct name="hal_sio_config">
+        <brief>Driver configuration structure.</brief>
+        <note>Implementations may extend this structure to contain more,
+          architecture dependent, fields.
+        </note>
+        <fields>
+          <verbatim><![CDATA[
+/* End of the mandatory fields.*/
+sio_lld_config_fields;]]></verbatim>
+          <condition check="defined(SIO_CONFIG_EXT_FIELS)">
+            <verbatim><![CDATA[
+SIO_CONFIG_EXT_FIELDS]]></verbatim>
+          </condition>
+        </fields>
+      </struct>
     </types>
     <classes>
       <class name="hal_sio_driver" namespace="sio" ancestor="drv"
@@ -424,6 +453,9 @@ sio_lld_driver_fields;]]></verbatim>
             <implementation><![CDATA[
 
 #if SIO_USE_STREAMS_INTERFACE == TRUE
+static const struct base_channel_vmt channel_vmt = {
+  __chn_vmt_init(sio)
+};
 oopInterfaceObjectInit(&self->sio.chn, &channel_vmt);
 #endif
 self->sio.enabled     = (sioevents_t)0;
@@ -443,6 +475,173 @@ SIO_DRIVER_EXT_INIT_HOOK(self);
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
+          <regular>
+            <condition check="SIO_USE_SYNCHRONIZATION == TRUE">
+              <method name="sioSynchronizeRX" ctype="msg_t">
+                <brief>Synchronizes with RX FIFO data availability.</brief>
+                <note>The exact behavior depends on low level FIFO
+                  settings such as thresholds, etc.
+                </note>
+                <note>This function can only be called by a single
+                  thread at time.
+                </note>
+                <param name="timeout" ctype="sysinterval_t" dir="in">synchronization
+                  timeout</param>
+                <return>The synchronization result.</return>
+                <retval value="MSG_OK">If there is data in the RX FIFO.</retval>
+                <retval value="MSG_TIMEOUT">If synchronization timed out.</retval>
+                <retval value="MSG_RESET">It the driver has been stopped while waiting.</retval>
+                <retval value="SIO_MSG_ERRORS">It RX errors occurred before or during wait.</retval>
+                <implementation><![CDATA[
+msg_t msg;
+
+osalDbgCheck(self != NULL);
+
+osalSysLock();
+
+osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+
+/* Checking for errors before going to sleep.*/
+if (sioHasRXErrorsX(self)) {
+  osalSysUnlock();
+  return SIO_MSG_ERRORS;
+}
+
+msg = MSG_OK;
+/*lint -save -e506 -e681 [2.1] Silencing this error because it is
+  tested with a template implementation of sio_lld_is_rx_empty() which
+  is constant.*/
+while (sioIsRXEmptyX(self)) {
+/*lint -restore*/
+  msg = osalThreadSuspendTimeoutS(&self->sio.sync_rx, timeout);
+  if (msg != MSG_OK) {
+    break;
+  }
+}
+
+osalSysUnlock();
+
+return msg;]]></implementation>
+              </method>
+              <method name="sioSynchronizeRXIdle" ctype="msg_t">
+                <brief>Synchronizes with RX going idle.</brief>
+                <note>This function can only be called by a single
+                  thread at time.
+                </note>
+                <param name="timeout" ctype="sysinterval_t" dir="in">synchronization
+                  timeout</param>
+                <return>The synchronization result.</return>
+                <retval value="MSG_OK">If there is data in the RX FIFO.</retval>
+                <retval value="MSG_TIMEOUT">If synchronization timed out.</retval>
+                <retval value="MSG_RESET">It the driver has been stopped while waiting.</retval>
+                <retval value="SIO_MSG_ERRORS">It RX errors occurred before or during wait.</retval>
+                <implementation><![CDATA[
+msg_t msg;
+
+osalDbgCheck(self != NULL);
+
+osalSysLock();
+
+osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+
+/* Checking for errors before going to sleep.*/
+if (sioHasRXErrorsX(self)) {
+  osalSysUnlock();
+  return SIO_MSG_ERRORS;
+}
+
+msg = MSG_OK;
+/*lint -save -e506 -e681 [2.1] Silencing this error because it is
+  tested with a template implementation of sio_lld_is_rx_empty() which
+  is constant.*/
+while (!sioIsRXIdleX(self)) {
+/*lint -restore*/
+  msg = osalThreadSuspendTimeoutS(&self->sio.sync_rxidle, timeout);
+  if (msg != MSG_OK) {
+    break;
+  }
+}
+
+osalSysUnlock();
+
+return msg;]]></implementation>
+              </method>
+              <method name="sioSynchronizeTX" ctype="msg_t">
+                <brief>Synchronizes with TX FIFO space availability.</brief>
+                <note>The exact behavior depends on low level FIFO
+                  settings such as thresholds, etc.
+                </note>
+                <note>This function can only be called by a single
+                  thread at time.
+                </note>
+                <param name="timeout" ctype="sysinterval_t" dir="in">synchronization
+                  timeout</param>
+                <return>The synchronization result.</return>
+                <retval value="MSG_OK">If there is space in the TX FIFO.</retval>
+                <retval value="MSG_TIMEOUT">If synchronization timed out.</retval>
+                <retval value="MSG_RESET">It the driver has been stopped while waiting.</retval>
+                <implementation><![CDATA[
+msg_t msg;
+
+osalDbgCheck(self != NULL);
+
+osalSysLock();
+
+osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+
+msg = MSG_OK;
+/*lint -save -e506 -e681 [2.1] Silencing this error because it is
+  tested with a template implementation of sio_lld_is_tx_full() which
+  is constant.*/
+while (sioIsTXFullX(self)) {
+/*lint -restore*/
+  msg = osalThreadSuspendTimeoutS(&self->sio.sync_tx, timeout);
+  if (msg != MSG_OK) {
+    break;
+  }
+}
+
+osalSysUnlock();
+
+return msg;]]></implementation>
+              </method>
+              <method name="sioSynchronizeTXEnd" ctype="msg_t">
+                <brief>Synchronizes with TX completion.</brief>
+                <note>This function can only be called by a single
+                  thread at time.
+                </note>
+                <param name="timeout" ctype="sysinterval_t" dir="in">synchronization
+                  timeout</param>
+                <return>The synchronization result.</return>
+                <retval value="MSG_OK">If there is space in the TX FIFO.</retval>
+                <retval value="MSG_TIMEOUT">If synchronization timed out.</retval>
+                <retval value="MSG_RESET">It the driver has been stopped while waiting.</retval>
+                <implementation><![CDATA[
+msg_t msg;
+
+osalDbgCheck(self != NULL);
+
+osalSysLock();
+
+osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+
+/*lint -save -e506 -e774 [2.1, 14.3] Silencing this error because
+  it is tested with a template implementation of sio_lld_is_tx_ongoing()
+  which is constant.*/
+if (sioIsTXOngoingX(self)) {
+/*lint -restore*/
+  msg = osalThreadSuspendTimeoutS(&self->sio.sync_txend, timeout);
+}
+else {
+  msg = MSG_OK;
+}
+
+osalSysUnlock();
+
+return msg;]]></implementation>
+              </method>
+            </condition>
+          </regular>
         </methods>
       </class>
     </classes>
@@ -463,7 +662,7 @@ sio_lld_init();]]></implementation>
       <include style="regular">hal.h</include>
     </inclusions>
     <functions>
-      <function name="__sio_start">
+      <function name="__sio_start_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
@@ -478,8 +677,201 @@ if (msg == HAL_RET_SUCCESS) {
   /* If synchronization is disabled then no events by default.*/
   sioWriteEnableFlagsX(siop, SIO_EV_NONE);
 #endif
-}]]></implementation>
+}
+
+return msg;]]></implementation>
       </function>
+      <function name="__sio_stop_impl" ctype="void">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
+
+sio_lld_stop(siop);
+siop->sio.cb      = NULL;
+siop->sio.enabled = (sioevents_t)0;
+
+#if SIO_USE_SYNCHRONIZATION == TRUE
+/* Informing waiting threads, if any.*/
+osalThreadResumeI(&siop->sio.sync_rx, MSG_RESET);
+osalThreadResumeI(&siop->sio.sync_rxidle, MSG_RESET);
+osalThreadResumeI(&siop->sio.sync_tx, MSG_RESET);
+osalThreadResumeI(&siop->sio.sync_txend, MSG_RESET);
+osalOsRescheduleS();
+#endif]]></implementation>
+      </function>
+      <function name="__sio_configure_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="config" ctype="const void *" />
+        <implementation><![CDATA[
+hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
+
+return sio_lld_configure(siop, (const hal_sio_config_t *)config);]]></implementation>
+      </function>
+      <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
+        <function name="sio_sync_write" ctype="size_t">
+          <param name="siop" ctype="hal_sio_driver_c *" />
+          <param name="bp" ctype="const uint8_t *" />
+          <param name="n" ctype="size_t" />
+          <param name="timeout" ctype="sysinterval_t" />
+          <implementation><![CDATA[
+size_t i;
+
+i = 0U;
+while (i < n) {
+  size_t written;
+  msg_t msg;
+
+  msg = sioSynchronizeTX(siop, timeout);
+  if (msg != MSG_OK) {
+    break;
+  }
+
+  written = sioAsyncWriteX(siop, bp, n - i);
+  i += written;
+  bp += written;
+}
+return i;]]></implementation>
+        </function>
+        <function name="sio_sync_read" ctype="size_t">
+          <param name="siop" ctype="hal_sio_driver_c *" />
+          <param name="bp" ctype="uint8_t *" />
+          <param name="n" ctype="size_t" />
+          <param name="timeout" ctype="sysinterval_t" />
+          <implementation><![CDATA[
+size_t i;
+
+i = 0U;
+while (i < n) {
+  size_t read;
+  msg_t msg;
+
+  msg = sioSynchronizeRX(siop, timeout);
+  if (msg != MSG_OK) {
+    break;
+  }
+
+  read = sioAsyncReadX(siop, bp, n - i);
+  i += read;
+  bp += read;
+}
+return i;]]></implementation>
+        </function>
+        <function name="__sio_write_impl" ctype="size_t">
+          <param name="ip" ctype="void *" />
+          <param name="bp" ctype="const uint8_t *" />
+          <param name="n" ctype="size_t" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+
+return sio_sync_write(siop, bp, n, TIME_INFINITE);]]></implementation>
+        </function>
+        <function name="__sio_read_impl" ctype="size_t">
+          <param name="ip" ctype="void *" />
+          <param name="bp" ctype="uint8_t *" />
+          <param name="n" ctype="size_t" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+
+return sio_sync_read(siop, bp, n, TIME_INFINITE);]]></implementation>
+        </function>
+        <function name="__sio_put_impl" ctype="msg_t">
+          <param name="ip" ctype="void *" />
+          <param name="b" ctype="uint8_t" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+msg_t msg;
+
+msg = sioSynchronizeTX(siop, TIME_INFINITE);
+if (msg != MSG_OK) {
+  return msg;
+}
+
+sioPutX(siop, b);
+return MSG_OK;]]></implementation>
+        </function>
+        <function name="__sio_get_impl" ctype="msg_t">
+          <param name="ip" ctype="void *" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+msg_t msg;
+
+msg = sioSynchronizeRX(siop, TIME_INFINITE);
+if (msg != MSG_OK) {
+  return msg;
+}
+
+return sioGetX(siop);]]></implementation>
+        </function>
+        <function name="__sio_writet_impl" ctype="size_t">
+          <param name="ip" ctype="void *" />
+          <param name="bp" ctype="const uint8_t *" />
+          <param name="n" ctype="size_t" />
+          <param name="timeout" ctype="sysinterval_t" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+
+return sio_sync_write(siop, bp, n, timeout);]]></implementation>
+        </function>
+        <function name="__sio_readt_impl" ctype="size_t">
+          <param name="ip" ctype="void *" />
+          <param name="bp" ctype="uint8_t *" />
+          <param name="n" ctype="size_t" />
+          <param name="timeout" ctype="sysinterval_t" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+
+return sio_sync_read(siop, bp, n, timeout);]]></implementation>
+        </function>
+        <function name="__sio_putt_impl" ctype="msg_t">
+          <param name="ip" ctype="void *" />
+          <param name="b" ctype="uint8_t" />
+          <param name="timeout" ctype="sysinterval_t" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+msg_t msg;
+
+msg = sioSynchronizeTX(siop, timeout);
+if (msg != MSG_OK) {
+  return msg;
+}
+
+sioPutX(siop, b);
+return MSG_OK;]]></implementation>
+        </function>
+        <function name="__sio_gett_impl" ctype="msg_t">
+          <param name="ip" ctype="void *" />
+          <param name="timeout" ctype="sysinterval_t" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+msg_t msg;
+
+msg = sioSynchronizeRX(siop, timeout);
+if (msg != MSG_OK) {
+  return msg;
+}
+
+return sioGetX(siop);]]></implementation>
+        </function>
+        <function name="__sio_ctl_impl" ctype="msg_t">
+          <param name="ip" ctype="void *" />
+          <param name="operation" ctype="unsigned int" />
+          <param name="arg" ctype="void *" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+
+switch (operation) {
+case CHN_CTL_NOP:
+  osalDbgCheck(arg == NULL);
+  break;
+case CHN_CTL_INVALID:
+  return HAL_RET_UNKNOWN_CTL;
+default:
+  /* Delegating to the LLD if supported.*/
+  return sio_lld_control(siop, operation, arg);
+}
+return HAL_RET_SUCCESS;]]></implementation>
+        </function>
+      </condition>
     </functions>
   </private>
 </module>

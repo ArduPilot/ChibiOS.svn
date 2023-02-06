@@ -59,10 +59,10 @@
 #define SIO_EV_ALL_DATA                     (SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)
 #define SIO_EV_TXDONE                       CHN_TRANSMISSION_END
 #define SIO_EV_ALL_ERRORS                   CHN_ALL_ERRORS
-#define SIO_EV_PARITY_ERR                   SIO_EV_PARITY_ERR
-#define SIO_EV_FRAMING_ERR                  SIO_EV_FRAMING_ERR
-#define SIO_EV_NOISE_ERR                    SIO_EV_NOISE_ERR
-#define SIO_EV_OVERRUN_ERR                  SIO_EV_OVERRUN_ERR
+#define SIO_EV_PARITY_ERR                   CHN_PARITY_ERROR
+#define SIO_EV_FRAMING_ERR                  CHN_FRAMING_ERROR
+#define SIO_EV_NOISE_ERR                    CHN_NOISE_ERROR
+#define SIO_EV_OVERRUN_ERR                  CHN_OVERRUN_ERROR
 #define SIO_EV_RXIDLE                       CHN_IDLE_DETECTED
 #define SIO_EV_RXBREAK                      CHN_BREAK_DETECTED
 #define SIO_EV_ALL_EVENTS                   (SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)
@@ -450,6 +450,19 @@ typedef void (*siocb_t)(struct hal_sio_driver *siop);
 /* Inclusion of LLD header.*/
 #include "hal_sio_lld.h"
 
+/**
+ * @brief   Driver configuration structure.
+ * @note    Implementations may extend this structure to contain more,
+ *          architecture dependent, fields.
+ */
+struct hal_sio_config {
+  /* End of the mandatory fields.*/
+  sio_lld_config_fields;
+#if (defined(SIO_CONFIG_EXT_FIELS)) || defined (__DOXYGEN__)
+  SIO_CONFIG_EXT_FIELDS
+#endif /* defined(SIO_CONFIG_EXT_FIELS) */
+};
+
 /*===========================================================================*/
 /* Module class hal_sio_driver_c                                             */
 /*===========================================================================*/
@@ -549,6 +562,14 @@ struct hal_sio_driver {
 extern "C" {
 #endif
   /* Methods of hal_sio_driver_c.*/
+  hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *siop);
+  void sioDispose(hal_sio_driver_c *siop);
+#if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
+  msg_t sioSynchronizeRX(const void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeRXIdle(const void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeTX(const void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeTXEnd(const void *ip, sysinterval_t timeout);
+#endif /* SIO_USE_SYNCHRONIZATION == TRUE */
   void *__sio_objinit_impl(void *ip, const void *vmt);
   void __sio_dispose_impl(void *ip);
   /* Regular functions.*/

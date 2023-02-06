@@ -347,6 +347,21 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
+  -- This macro generates constructor and destructor prototypes from an XML node.
+  --]
+[#macro GenerateClassConstructorDestructorPrototypes node=[]]
+  [#local class = node /]
+  [#local classtype         = GetClassType(class)
+          classnamespace    = GetClassNamespace(class)
+          classctype        = GetClassCType(class) /]
+  [#if classtype == "regular"]
+    [#local paramname = classnamespace + "p" /]
+  ${classctype} *${classnamespace}ObjectInit(${classctype} *${paramname});
+  void ${classnamespace}Dispose(${classctype} *${paramname});
+  [/#if]
+[/#macro]
+
+[#--
   -- This macro generates regular method prototypes from an XML node.
   --]
 [#macro GenerateRegularMethodsPrototypes methods=[]]
@@ -398,7 +413,9 @@ CC_FORCE_INLINE
   -- This macro generates regular method prototypes from a class XML node.
   --]
 [#macro GenerateClassMethodsPrototypes class=[]]
-  /* Methods of ${GetClassCType(class)}.*/
+    [#local classctype = GetClassCType(class) /]
+  /* Methods of ${classctype}.*/
+[@GenerateClassConstructorDestructorPrototypes class /]
 [@GenerateRegularMethodsPrototypes class.methods.regular /]
 [@GenerateVirtualMethodsPrototypes class /]
 [/#macro]
@@ -626,7 +643,7 @@ void __${classnamespace}_dispose_impl(void *ip) {
 [/#macro]
 
 [#--
-  -- This macro generates regular methods from an XML node.
+  -- This macro generates constructor and destructor from an XML node.
   --]
 [#macro GenerateClassConstructorDestructor node=[]]
   [#local class = node /]
@@ -679,9 +696,8 @@ void ${classnamespace}Dispose(${classctype} *${paramname}) {
 [#--
   -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateClassRegularMethods node=[]]
-  [#local class = node /]
-  [#list class.methods.regular.* as node]
+[#macro GenerateClassRegularMethods methods=[] classctype="no-ctype"]
+  [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
       [#local methodname     = GetMethodName(method)
@@ -725,7 +741,7 @@ void ${classnamespace}Dispose(${classctype} *${paramname}) {
  * @name    Regular methods of ${classctype}
  * @{
  */
-[@GenerateClassRegularMethods class /]
+[@GenerateClassRegularMethods class.methods.regular classctype /]
 /** @} */
 
   [/#if]

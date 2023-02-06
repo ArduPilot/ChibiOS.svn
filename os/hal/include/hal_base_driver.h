@@ -112,7 +112,6 @@ struct drv_methods {
   msg_t (*start)(void *ip);
   void (*stop)(void *ip);
   msg_t (*configure)(void *ip, const void *config);
-  void * (*getif)(void *ip);
 };
 
 /**
@@ -148,8 +147,7 @@ struct drv_data {
   __bo_vmt_init(ns)                                                         \
   .drv.start                                = __##ns##_start_impl,          \
   .drv.stop                                 = __##ns##_stop_impl,           \
-  .drv.configure                            = __##ns##_configure_impl,      \
-  .drv.getif                                = __##ns##_getif_impl,
+  .drv.configure                            = __##ns##_configure_impl,
 
 /**
  * @brief   @p hal_base_driver_c virtual methods table.
@@ -170,7 +168,7 @@ struct hal_base_driver {
 };
 
 /**
- * @name    Virtual methods of (hal_base_driver_c)
+ * @name    Virtual methods of hal_base_driver_c
  * @{
  */
 /**
@@ -215,19 +213,6 @@ static inline msg_t drvConfigureX(void *ip, const void *config) {
 
   return self->vmt->drv.configure(ip, config);
 }
-
-/**
- * @brief   Driver interface get.
- *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
- * @return                      The driver interface or @p NULL if none.
- */
-CC_FORCE_INLINE
-static inline void * drvGetInterfaceX(void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
-  return self->vmt->drv.getif(ip);
-}
 /** @} */
 
 /*===========================================================================*/
@@ -253,7 +238,6 @@ extern "C" {
   msg_t __drv_start_impl(void *ip);
   void __drv_stop_impl(void *ip);
   msg_t __drv_configure_impl(void *ip, const void *config);
-  void * __drv_getif_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif

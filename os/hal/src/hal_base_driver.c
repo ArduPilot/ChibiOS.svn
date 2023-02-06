@@ -49,11 +49,15 @@
 /*===========================================================================*/
 
 /*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+/*===========================================================================*/
 /* Module class "hal_base_driver_c" methods.                                 */
 /*===========================================================================*/
 
 /**
- * @name    Virtual methods implementations (hal_base_driver_c)
+ * @name    Virtual methods implementations of hal_base_driver_c
  * @{
  */
 /**
@@ -101,7 +105,7 @@ void __drv_dispose_impl(void *ip) {
 /** @} */
 
 /**
- * @name    Regular methods of (hal_base_driver_c)
+ * @name    Regular methods of hal_base_driver_c
  * @{
  */
 /**
@@ -238,9 +242,5 @@ void drvUnlock(const void *ip) {
 }
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 /** @} */
-
-/*===========================================================================*/
-/* Module exported functions.                                                */
-/*===========================================================================*/
 
 /** @} */

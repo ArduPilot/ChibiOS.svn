@@ -85,10 +85,6 @@ self->drv.id      = 0U;
                 current state.</note>
               <param ctype="const void *" name="config">New driver configuration.</param>
             </method>
-            <method name="drvGetInterfaceX" shortname="getif" ctype="void *">
-              <brief>Driver interface get.</brief>
-              <return>The driver interface or @p NULL if none.</return>
-            </method>
           </virtual>
           <regular>
             <method name="drvOpen" ctype="msg_t">

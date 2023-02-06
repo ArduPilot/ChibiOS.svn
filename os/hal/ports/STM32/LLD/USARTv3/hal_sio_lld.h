@@ -363,7 +363,7 @@
  * @notapi
  */
 #define sio_lld_is_rx_empty(siop)                                           \
-  (bool)(((siop)->usart->ISR & USART_ISR_RXNE) == 0U)
+  (bool)(((siop)->sio.usart->ISR & USART_ISR_RXNE) == 0U)
 
 /**
  * @brief   Determines the activity state of the receiver.
@@ -376,7 +376,7 @@
  * @notapi
  */
 #define sio_lld_is_rx_idle(siop)                                            \
-  (bool)(((siop)->usart->ISR & USART_ISR_IDLE) != 0U)
+  (bool)(((siop)->sio.usart->ISR & USART_ISR_IDLE) != 0U)
 
 /**
  * @brief   Determines if RX has pending error events to be read and cleared.
@@ -391,7 +391,7 @@
  * @notapi
  */
 #define sio_lld_has_rx_errors(siop)                                         \
-  (bool)(((siop)->usart->ISR & SIO_LLD_ISR_RX_ERRORS) != 0U)
+  (bool)(((siop)->sio.usart->ISR & SIO_LLD_ISR_RX_ERRORS) != 0U)
 
 /**
  * @brief   Determines the state of the TX FIFO.
@@ -404,7 +404,7 @@
  * @notapi
  */
 #define sio_lld_is_tx_full(siop)                                            \
-  (bool)(((siop)->usart->ISR & USART_ISR_TXE) == 0U)
+  (bool)(((siop)->sio.usart->ISR & USART_ISR_TXE) == 0U)
 
 /**
  * @brief   Determines the transmission state.
@@ -417,7 +417,7 @@
  * @notapi
  */
 #define sio_lld_is_tx_ongoing(siop)                                         \
-  (bool)(((siop)->usart->ISR & USART_ISR_TC) == 0U)
+  (bool)(((siop)->sio.usart->ISR & USART_ISR_TC) == 0U)
 
 /*===========================================================================*/
 /* External declarations.                                                    */

@@ -239,6 +239,18 @@ ${ln + s}
 [/#macro]
 
 [#--
+  -- This macro generates retval tags from an XML node.
+  --]
+[#macro EmitRetvalFromNode indent="" node=[]]
+  [#list node.retval as retval]
+    [#local value = (retval.@value[0]!"no-value")?trim ]
+    [#local p1 = (indent + " * @retval " + value + " ")?right_pad(text_align)
+            pn = (indent + " *         ")?right_pad(text_align) /]
+[@EmitRichTextFromNode p1 pn retval /]
+  [/#list]
+[/#macro]
+
+[#--
   -- This macro generates a function class tag from an XML node.
   --]
 [#macro EmitFunctionClassFromNode indent="" node=[]]
@@ -288,6 +300,7 @@ ${indent} *
       [/#if]
 [@doxygen.EmitParamFromNode indent node /]
 [@doxygen.EmitReturnFromNode indent node /]
+[@doxygen.EmitRetvalFromNode indent node /]
     [/#if]
 [@doxygen.EmitFunctionClassFromNode indent node /]
 ${indent} */

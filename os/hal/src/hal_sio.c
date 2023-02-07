@@ -356,6 +356,10 @@ void sioDispose(hal_sio_driver_c *siop) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
  * @param[in]     timeout       Synchronization timeout
  * @return                      The synchronization result.
+ * @retval MSG_OK               If there is data in the RX FIFO.
+ * @retval MSG_TIMEOUT          If synchronization timed out.
+ * @retval MSG_RESET            It the driver has been stopped while waiting.
+ * @retval SIO_MSG_ERRORS       It RX errors occurred before or during wait.
  *
  * @api
  */
@@ -400,6 +404,10 @@ msg_t sioSynchronizeRX(const void *ip, sysinterval_t timeout) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
  * @param[in]     timeout       Synchronization timeout
  * @return                      The synchronization result.
+ * @retval MSG_OK               If there is data in the RX FIFO.
+ * @retval MSG_TIMEOUT          If synchronization timed out.
+ * @retval MSG_RESET            It the driver has been stopped while waiting.
+ * @retval SIO_MSG_ERRORS       It RX errors occurred before or during wait.
  *
  * @api
  */
@@ -446,6 +454,9 @@ msg_t sioSynchronizeRXIdle(const void *ip, sysinterval_t timeout) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
  * @param[in]     timeout       Synchronization timeout
  * @return                      The synchronization result.
+ * @retval MSG_OK               If there is space in the TX FIFO.
+ * @retval MSG_TIMEOUT          If synchronization timed out.
+ * @retval MSG_RESET            It the driver has been stopped while waiting.
  *
  * @api
  */
@@ -484,6 +495,9 @@ msg_t sioSynchronizeTX(const void *ip, sysinterval_t timeout) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
  * @param[in]     timeout       Synchronization timeout
  * @return                      The synchronization result.
+ * @retval MSG_OK               If there is space in the TX FIFO.
+ * @retval MSG_TIMEOUT          If synchronization timed out.
+ * @retval MSG_RESET            It the driver has been stopped while waiting.
  *
  * @api
  */

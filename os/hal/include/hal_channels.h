@@ -141,6 +141,8 @@
  * @param[in,out] ip            Pointer to a @p base_channel_c structure.
  * @param[in]     b             The byte value to be written to the channel.
  * @return                      The operation status.
+ * @retval STM_OK               If the operation succeeded."
+ * @retval STM_RESET            If the channel was reset."
  */
 #define chnPut(ip, b)                                                       \
   streamPut(ip, b)
@@ -152,6 +154,7 @@
  *
  * @param[in,out] ip            Pointer to a @p base_channel_c structure.
  * @return                      A byte value from the channel.
+ * @retval STM_RESET            If the channel was reset."
  */
 #define chnGet(ip)                                                          \
   streamGet(ip)
@@ -286,6 +289,9 @@ static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
  *                              - @a TIME_INFINITE no timeout.
  *                              .
  * @return                      The operation status.
+ * @retval STM_OK               If the operation succeeded."
+ * @retval STM_TIMEOUT          If the specified time expired."
+ * @retval STM_RESET            If the channel was reset."
  */
 CC_FORCE_INLINE
 static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
@@ -308,6 +314,8 @@ static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
  *                              - @a TIME_INFINITE no timeout.
  *                              .
  * @return                      A byte value from the channel.
+ * @retval STM_TIMEOUT          If the specified time expired."
+ * @retval STM_RESET            If the channel was reset."
  */
 CC_FORCE_INLINE
 static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
@@ -324,6 +332,9 @@ static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
  * @param[in]     operation     Control operation code
  * @param[in,out] arg           Operation argument
  * @return                      The operation status.
+ * @retval STM_OK               If the operation succeeded."
+ * @retval STM_TIMEOUT          If the specified time expired."
+ * @retval STM_RESET            If the channel was reset."
  */
 CC_FORCE_INLINE
 static inline msg_t chnControl(void *ip, unsigned int operation, void *arg) {

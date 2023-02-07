@@ -235,6 +235,8 @@ static msg_t __sio_ctl_impl(void *ip, unsigned int operation, void *arg) {
  * @brief   SIO Driver initialization.
  * @note    This function is implicitly invoked by @p halInit(), there is no
  *          need to explicitly initialize the driver.
+ *
+ * @init
  */
 void sioInit(void) {
   sio_lld_init();
@@ -354,6 +356,8 @@ void sioDispose(hal_sio_driver_c *siop) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
  * @param[in]     timeout       Synchronization timeout
  * @return                      The synchronization result.
+ *
+ * @api
  */
 msg_t sioSynchronizeRX(const void *ip, sysinterval_t timeout) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
@@ -396,6 +400,8 @@ msg_t sioSynchronizeRX(const void *ip, sysinterval_t timeout) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
  * @param[in]     timeout       Synchronization timeout
  * @return                      The synchronization result.
+ *
+ * @api
  */
 msg_t sioSynchronizeRXIdle(const void *ip, sysinterval_t timeout) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
@@ -440,6 +446,8 @@ msg_t sioSynchronizeRXIdle(const void *ip, sysinterval_t timeout) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
  * @param[in]     timeout       Synchronization timeout
  * @return                      The synchronization result.
+ *
+ * @api
  */
 msg_t sioSynchronizeTX(const void *ip, sysinterval_t timeout) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
@@ -476,6 +484,8 @@ msg_t sioSynchronizeTX(const void *ip, sysinterval_t timeout) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
  * @param[in]     timeout       Synchronization timeout
  * @return                      The synchronization result.
+ *
+ * @api
  */
 msg_t sioSynchronizeTXEnd(const void *ip, sysinterval_t timeout) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;

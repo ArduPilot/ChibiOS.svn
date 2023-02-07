@@ -135,6 +135,8 @@
  *
  * @param[out]    siop          Pointer to the @p hal_sio_driver_c object
  * @param         f             Callback function to be associated.
+ *
+ * @xclass
  */
 #define sioSetCallbackX(siop, f)                                            \
   (siop)->sio.cb = (f)
@@ -144,6 +146,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The RX FIFO state.
+ *
+ * @xclass
  */
 #define sioIsRXEmptyX(siop)                                                 \
   sio_lld_is_rx_empty(siop)
@@ -153,6 +157,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The RX activity state.
+ *
+ * @xclass
  */
 #define sioIsRXIdleX(siop)                                                  \
   sio_lld_is_rx_idle(siop)
@@ -164,6 +170,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The RX error events.
+ *
+ * @xclass
  */
 #define sioHasRXErrorsX(siop)                                               \
   sio_lld_has_rx_errors(siop)
@@ -173,6 +181,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The TX FIFO state.
+ *
+ * @xclass
  */
 #define sioIsTXFullX(siop)                                                  \
   sio_lld_is_tx_full(siop)
@@ -182,6 +192,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The transmission state.
+ *
+ * @xclass
  */
 #define sioIsTXOngoingX(siop)                                               \
   sio_lld_is_tx_ongoing(siop)
@@ -191,6 +203,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     mask          Enabled events mask to be written.
+ *
+ * @xclass
  */
 #define sioWriteEnableFlagsX(siop, mask)                                    \
   do {                                                                      \
@@ -203,6 +217,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     mask          Enabled events mask to be set.
+ *
+ * @xclass
  */
 #define sioSetEnableFlagsX(siop, mask)                                      \
   do {                                                                      \
@@ -215,6 +231,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     mask          Enabled events mask to be cleared.
+ *
+ * @xclass
  */
 #define sioClearEnableFlagsX(siop, mask)                                    \
   do {                                                                      \
@@ -227,6 +245,8 @@
  *
  * @param[in]     siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The enabled event flags.
+ *
+ * @xclass
  */
 #define sioGetEnableFlagsX(siop)                                            \
   (siop)->sio.enabled
@@ -236,6 +256,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The pending error flags.
+ *
+ * @xclass
  */
 #define sioGetAndClearErrorsX(siop)                                         \
   sio_lld_get_and_clear_errors(siop)
@@ -245,6 +267,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The pending event flags.
+ *
+ * @xclass
  */
 #define sioGetAndClearEventsX(siop)                                         \
   sio_lld_get_and_clear_events(siop)
@@ -254,6 +278,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The pending event flags.
+ *
+ * @xclass
  */
 #define sioGetEventsX(siop)                                                 \
   sio_lld_get_events(siop)
@@ -264,6 +290,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The frame from RX FIFO.
+ *
+ * @xclass
  */
 #define sioGetX(siop)                                                       \
   sio_lld_get(siop)
@@ -274,6 +302,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     data          Frame to be written.
+ *
+ * @xclass
  */
 #define sioPutX(siop, data)                                                 \
   sio_lld_put(siop, data)
@@ -289,6 +319,8 @@
  * @param[in]     size          Maximum number of frames to read.
  * @param[out]    buffer        Buffer for the received data.
  * @return                      The number of received frames.
+ *
+ * @xclass
  */
 #define sioAsyncReadX(siop, size, buffer)                                   \
   sio_lld_read(siop, size, buffer)
@@ -304,6 +336,8 @@
  * @param[in]     size          Maximum number of frames to read.
  * @param[in]     buffer        Buffer containing the data to be transmitted
  * @return                      The number of transmitted frames.
+ *
+ * @xclass
  */
 #define sioAsyncWriteX(siop, size, buffer)                                  \
   sio_lld_write(siop, size, buffer)
@@ -315,6 +349,8 @@
  * @param[in]     operation     Control operation code.
  * @param[in,out] arg           Operation argument.
  * @return                      The control operation status.
+ *
+ * @xclass
  */
 #define sioControlX(siop, operation, arg)                                   \
   sio_lld_control(siop, operation, arg)
@@ -328,6 +364,8 @@
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The control operation status.
+ *
+ * @notapi
  */
 #define __sio_callback(siop)                                                \
   do {                                                                      \
@@ -341,6 +379,8 @@
  * @brief   Wakes up because RX errors.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ *
+ * @notapi
  */
 #define __sio_wakeup_errors(siop)                                           \
   do {                                                                      \
@@ -354,6 +394,8 @@
  * @brief   Wakes up the RX-waiting thread.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ *
+ * @notapi
  */
 #define __sio_wakeup_rx(siop)                                               \
   do {                                                                      \
@@ -366,6 +408,8 @@
  * @brief   Wakes up the RX-idle-waiting thread.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ *
+ * @notapi
  */
 #define __sio_wakeup_rxidle(siop)                                           \
   do {                                                                      \
@@ -378,6 +422,8 @@
  * @brief   Wakes up the TX-waiting thread.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ *
+ * @notapi
  */
 #define __sio_wakeup_tx(siop)                                               \
   do {                                                                      \
@@ -390,6 +436,8 @@
  * @brief   Wakes up the TXend-waiting thread.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ *
+ * @notapi
  */
 #define __sio_wakeup_txend(siop)                                            \
   do {                                                                      \

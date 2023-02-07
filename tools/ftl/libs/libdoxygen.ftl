@@ -239,6 +239,31 @@ ${ln + s}
 [/#macro]
 
 [#--
+  -- This macro generates a function class tag from an XML node.
+  --]
+[#macro EmitFunctionClassFromNode indent="" node=[]]
+  [#if node.api[0]??]
+${indent + " *"}
+${indent + " * @api"}
+  [#elseif node.notapi[0]??]
+${indent + " *"}
+${indent + " * @notapi"}
+  [#elseif node.iclass[0]??]
+${indent + " *"}
+${indent + " * @iclass"}
+  [#elseif node.sclass[0]??]
+${indent + " *"}
+${indent + " * @sclass"}
+  [#elseif node.xclass[0]??]
+${indent + " *"}
+${indent + " * @xclass"}
+  [#elseif node.init[0]??]
+${indent + " *"}
+${indent + " * @init"}
+  [/#if]
+[/#macro]
+
+[#--
   -- This macro generates a complete Doxygen documentation comment.
   --]
 [#macro EmitFullCommentFromNode indent="" node=[]
@@ -252,12 +277,13 @@ ${indent}/**
 [@doxygen.EmitNoteFromNode indent node /]
     [#if node.param[0]?? || node.return[0]?? || (extraname?length > 0)]
 ${indent} *
-  [#if extraname?length > 0]
+      [#if extraname?length > 0]
 [@doxygen.EmitParam indent extraname extradir extratext /]
-  [/#if]
+      [/#if]
 [@doxygen.EmitParamFromNode indent node /]
 [@doxygen.EmitReturnFromNode indent node /]
     [/#if]
+[@doxygen.EmitFunctionClassFromNode indent node /]
 ${indent} */
   [/#if]
 [/#macro]

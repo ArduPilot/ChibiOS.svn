@@ -5,7 +5,8 @@
   <xs:complexType name="NamedItem">
     <xs:annotation>
       <xs:documentation>
-        >Generic item with optional name and brief description
+        >Generic item with optional name and brief
+        description
       </xs:documentation>
     </xs:annotation>
     <xs:attribute name="name">
@@ -25,7 +26,8 @@
     <xs:complexContent>
       <xs:extension base="NamedItem">
         <xs:sequence>
-          <xs:element name="brief" maxOccurs="1" minOccurs="0">
+          <xs:element name="brief" maxOccurs="1"
+            minOccurs="0">
             <xs:annotation>
               <xs:documentation>
                 Brief description of the object.
@@ -39,31 +41,39 @@
               </xs:restriction>
             </xs:simpleType>
           </xs:element>
-          <xs:element name="details" maxOccurs="1" minOccurs="0" type="richTextType">
+          <xs:element name="details" maxOccurs="1"
+            minOccurs="0" type="richTextType">
             <xs:annotation>
               <xs:documentation>
-                Object documentation as text, does not preserve formatting.
+                Object documentation as text, does not
+                preserve formatting.
               </xs:documentation>
             </xs:annotation>
           </xs:element>
-          <xs:element name="pre" maxOccurs="unbounded" minOccurs="0" type="richTextType">
+          <xs:element name="pre" maxOccurs="unbounded"
+            minOccurs="0" type="richTextType">
             <xs:annotation>
               <xs:documentation>
-                Object pre-requisites as text, does not preserve formatting.
+                Object pre-requisites as text, does not
+                preserve formatting.
               </xs:documentation>
             </xs:annotation>
           </xs:element>
-          <xs:element name="post" maxOccurs="unbounded" minOccurs="0" type="richTextType">
+          <xs:element name="post" maxOccurs="unbounded"
+            minOccurs="0" type="richTextType">
             <xs:annotation>
               <xs:documentation>
-                Object post-requisites as text, does not preserve formatting.
+                Object post-requisites as text, does not
+                preserve formatting.
               </xs:documentation>
             </xs:annotation>
           </xs:element>
-          <xs:element name="note" maxOccurs="unbounded" minOccurs="0" type="richTextType">
+          <xs:element name="note" maxOccurs="unbounded"
+            minOccurs="0" type="richTextType">
             <xs:annotation>
               <xs:documentation>
-                Object note as text, does not preserve formatting.
+                Object note as text, does not preserve
+                formatting.
               </xs:documentation>
             </xs:annotation>
           </xs:element>
@@ -71,12 +81,12 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-
-
   <xs:complexType name="richTextType" mixed="true">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="br" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="verbatim" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="br" type="xs:string" maxOccurs="1"
+        minOccurs="1"></xs:element>
+      <xs:element name="verbatim" type="xs:string"
+        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
   </xs:complexType>
 </xs:schema>

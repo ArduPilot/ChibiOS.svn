@@ -77,6 +77,7 @@
           object
         </param>
         <param name="f">callback function to be associated</param>
+        <xclass />
         <implementation><![CDATA[(siop)->sio.cb = (f)]]></implementation>
       </macro>
       <macro name="sioIsRXEmptyX">
@@ -85,6 +86,7 @@
           object
         </param>
         <return>The RX FIFO state.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_is_rx_empty(siop)]]></implementation>
       </macro>
       <macro name="sioIsRXIdleX">
@@ -93,12 +95,12 @@
           object
         </param>
         <return>The RX activity state.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_is_rx_idle(siop)]]></implementation>
       </macro>
       <macro name="sioHasRXErrorsX">
         <brief>Determines if RX has pending errors to be read and
-          cleared.
-        </brief>
+          cleared.</brief>
         <note>Only error flags are handled, data and idle flags are not
           considered.
         </note>
@@ -106,6 +108,7 @@
           object
         </param>
         <return>The RX error events.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_has_rx_errors(siop)]]></implementation>
       </macro>
       <macro name="sioIsTXFullX">
@@ -114,6 +117,7 @@
           object
         </param>
         <return>The TX FIFO state.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_is_tx_full(siop)]]></implementation>
       </macro>
       <macro name="sioIsTXOngoingX">
@@ -122,6 +126,7 @@
           object
         </param>
         <return>The transmission state.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_is_tx_ongoing(siop)]]></implementation>
       </macro>
       <macro name="sioWriteEnableFlagsX">
@@ -131,6 +136,7 @@
         </param>
         <param name="mask" dir="in">enabled events mask to be written
         </param>
+        <xclass />
         <implementation><![CDATA[
 do {
   (siop)->sio.enabled = (mask);
@@ -144,6 +150,7 @@ do {
         </param>
         <param name="mask" dir="in">enabled events mask to be set
         </param>
+        <xclass />
         <implementation><![CDATA[
 do {
   (siop)->sio.enabled |= (mask);
@@ -157,6 +164,7 @@ do {
         </param>
         <param name="mask" dir="in">enabled events mask to be cleared
         </param>
+        <xclass />
         <implementation><![CDATA[
 do {
   (siop)->sio.enabled &= ~(mask);
@@ -169,6 +177,7 @@ do {
           object
         </param>
         <return>The enabled event flags.</return>
+        <xclass />
         <implementation><![CDATA[(siop)->sio.enabled]]></implementation>
       </macro>
       <macro name="sioGetAndClearErrorsX">
@@ -177,6 +186,7 @@ do {
           object
         </param>
         <return>The pending error flags.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_get_and_clear_errors(siop)]]></implementation>
       </macro>
       <macro name="sioGetAndClearEventsX">
@@ -185,6 +195,7 @@ do {
           object
         </param>
         <return>The pending event flags.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_get_and_clear_events(siop)]]></implementation>
       </macro>
       <macro name="sioGetEventsX">
@@ -193,6 +204,7 @@ do {
           object
         </param>
         <return>The pending event flags.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_get_events(siop)]]></implementation>
       </macro>
       <macro name="sioGetX">
@@ -204,6 +216,7 @@ do {
           object
         </param>
         <return>The frame from RX FIFO.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_get(siop)]]></implementation>
       </macro>
       <macro name="sioPutX">
@@ -214,6 +227,7 @@ do {
           object
         </param>
         <param name="data" dir="in">frame to be written</param>
+        <xclass />
         <implementation><![CDATA[sio_lld_put(siop, data)]]></implementation>
       </macro>
       <macro name="sioAsyncReadX">
@@ -232,6 +246,7 @@ do {
         <param name="buffer" dir="out">buffer for the received data
         </param>
         <return>The number of received frames.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_read(siop, size, buffer)]]></implementation>
       </macro>
       <macro name="sioAsyncWriteX">
@@ -251,6 +266,7 @@ do {
           transmitted
         </param>
         <return>The number of transmitted frames.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_write(siop, size, buffer)]]></implementation>
       </macro>
       <macro name="sioControlX">
@@ -261,6 +277,7 @@ do {
         <param name="operation" dir="in">control operation code</param>
         <param name="arg" dir="both">operation argument</param>
         <return>The control operation status.</return>
+        <xclass />
         <implementation><![CDATA[sio_lld_control(siop, operation, arg)]]></implementation>
       </macro>
       <group description="Low level driver helper macros">
@@ -270,6 +287,7 @@ do {
             hal_sio_driver_c object
           </param>
           <return>The control operation status.</return>
+          <notapi />
           <implementation><![CDATA[
 do {
   if ((siop)->sio.cb != NULL) {
@@ -283,6 +301,7 @@ do {
             <param name="siop" dir="both">pointer to the @p
               hal_sio_driver_c object
             </param>
+            <notapi />
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -296,6 +315,7 @@ do {
             <param name="siop" dir="both">pointer to the @p
               hal_sio_driver_c object
             </param>
+            <notapi />
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -308,6 +328,7 @@ do {
             <param name="siop" dir="both">pointer to the @p
               hal_sio_driver_c object
             </param>
+            <notapi />
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -320,6 +341,7 @@ do {
             <param name="siop" dir="both">pointer to the @p
               hal_sio_driver_c object
             </param>
+            <notapi />
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -332,6 +354,7 @@ do {
             <param name="siop" dir="both">pointer to the @p
               hal_sio_driver_c object
             </param>
+            <notapi />
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
@@ -377,8 +400,7 @@ do {
       </typedef>
       <typedef name="SIOConfig">
         <brief>Type of structure representing a SIO configuration
-          (legacy).
-        </brief>
+          (legacy).</brief>
         <basetype ctype="struct hal_sio_config" />
       </typedef>
       <typedef name="SIODriver">
@@ -485,13 +507,16 @@ SIO_DRIVER_EXT_INIT_HOOK(self);
                 <note>This function can only be called by a single
                   thread at time.
                 </note>
-                <param name="timeout" ctype="sysinterval_t" dir="in">synchronization
-                  timeout</param>
+                <param name="timeout" ctype="sysinterval_t"
+                  dir="in">synchronization
+                  timeout
+                </param>
                 <return>The synchronization result.</return>
                 <retval value="MSG_OK">If there is data in the RX FIFO.</retval>
                 <retval value="MSG_TIMEOUT">If synchronization timed out.</retval>
                 <retval value="MSG_RESET">It the driver has been stopped while waiting.</retval>
                 <retval value="SIO_MSG_ERRORS">It RX errors occurred before or during wait.</retval>
+                <api />
                 <implementation><![CDATA[
 msg_t msg;
 
@@ -528,13 +553,16 @@ return msg;]]></implementation>
                 <note>This function can only be called by a single
                   thread at time.
                 </note>
-                <param name="timeout" ctype="sysinterval_t" dir="in">synchronization
-                  timeout</param>
+                <param name="timeout" ctype="sysinterval_t"
+                  dir="in">synchronization
+                  timeout
+                </param>
                 <return>The synchronization result.</return>
                 <retval value="MSG_OK">If there is data in the RX FIFO.</retval>
                 <retval value="MSG_TIMEOUT">If synchronization timed out.</retval>
                 <retval value="MSG_RESET">It the driver has been stopped while waiting.</retval>
                 <retval value="SIO_MSG_ERRORS">It RX errors occurred before or during wait.</retval>
+                <api />
                 <implementation><![CDATA[
 msg_t msg;
 
@@ -574,12 +602,15 @@ return msg;]]></implementation>
                 <note>This function can only be called by a single
                   thread at time.
                 </note>
-                <param name="timeout" ctype="sysinterval_t" dir="in">synchronization
-                  timeout</param>
+                <param name="timeout" ctype="sysinterval_t"
+                  dir="in">synchronization
+                  timeout
+                </param>
                 <return>The synchronization result.</return>
                 <retval value="MSG_OK">If there is space in the TX FIFO.</retval>
                 <retval value="MSG_TIMEOUT">If synchronization timed out.</retval>
                 <retval value="MSG_RESET">It the driver has been stopped while waiting.</retval>
+                <api />
                 <implementation><![CDATA[
 msg_t msg;
 
@@ -610,12 +641,15 @@ return msg;]]></implementation>
                 <note>This function can only be called by a single
                   thread at time.
                 </note>
-                <param name="timeout" ctype="sysinterval_t" dir="in">synchronization
-                  timeout</param>
+                <param name="timeout" ctype="sysinterval_t"
+                  dir="in">synchronization
+                  timeout
+                </param>
                 <return>The synchronization result.</return>
                 <retval value="MSG_OK">If there is space in the TX FIFO.</retval>
                 <retval value="MSG_TIMEOUT">If synchronization timed out.</retval>
                 <retval value="MSG_RESET">It the driver has been stopped while waiting.</retval>
+                <api />
                 <implementation><![CDATA[
 msg_t msg;
 
@@ -651,6 +685,7 @@ return msg;]]></implementation>
         <note>This function is implicitly invoked by @p halInit(), there
           is no need to explicitly initialize the driver.
         </note>
+        <init />
         <implementation><![CDATA[
 
 sio_lld_init();]]></implementation>

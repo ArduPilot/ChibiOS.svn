@@ -242,7 +242,16 @@ ${ln + s}
   -- This macro generates a function class tag from an XML node.
   --]
 [#macro EmitFunctionClassFromNode indent="" node=[]]
-  [#if node.api[0]??]
+  [#if node.init[0]??]
+${indent + " *"}
+${indent + " * @init"}
+  [#elseif node.objinit[0]??]
+${indent + " *"}
+${indent + " * @objinit"}
+  [#elseif node.dispose[0]??]
+${indent + " *"}
+${indent + " * @dispose"}
+  [#elseif node.api[0]??]
 ${indent + " *"}
 ${indent + " * @api"}
   [#elseif node.notapi[0]??]
@@ -257,9 +266,6 @@ ${indent + " * @sclass"}
   [#elseif node.xclass[0]??]
 ${indent + " *"}
 ${indent + " * @xclass"}
-  [#elseif node.init[0]??]
-${indent + " *"}
-${indent + " * @init"}
   [/#if]
 [/#macro]
 

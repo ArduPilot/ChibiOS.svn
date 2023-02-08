@@ -54,6 +54,9 @@
   --]
 [#function GetCType node=[] default="void"]
   [#local ctype = (node.@ctype[0]!default)?trim /]
+  [#if ctype?length == 0]
+    [#local ctype = default /]
+  [/#if]
   [#return ctype /]
 [/#function]
 

@@ -319,6 +319,7 @@
  * @param[in]     size          Maximum number of frames to read.
  * @param[out]    buffer        Buffer for the received data.
  * @return                      The number of received frames.
+ * @retval 0                    RX FIFO is empty.
  *
  * @xclass
  */
@@ -336,6 +337,7 @@
  * @param[in]     size          Maximum number of frames to read.
  * @param[in]     buffer        Buffer containing the data to be transmitted
  * @return                      The number of transmitted frames.
+ * @retval 0                    TX FIFO is full.
  *
  * @xclass
  */
@@ -610,13 +612,19 @@ struct hal_sio_driver {
 extern "C" {
 #endif
   /* Methods of hal_sio_driver_c.*/
-  hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *siop);
-  void sioDispose(hal_sio_driver_c *siop);
+  hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self);
+  void sioDispose(hal_sio_driver_c *self);
+  void sioWriteEnableFlags(hal_sio_driver_c *self, sioevents_t mask);
+  void sioSetEnableFlags(hal_sio_driver_c *self, sioevents_t mask);
+  void sioClearEnableFlags(hal_sio_driver_c *self, sioevents_t mask);
+  sioevents_t sioGetAndClearErrors(hal_sio_driver_c *self);
+  sioevents_t sioGetAndClearEvents(hal_sio_driver_c *self);
+  sioevents_t sioGetEvents(hal_sio_driver_c *self);
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
-  msg_t sioSynchronizeRX(const void *ip, sysinterval_t timeout);
-  msg_t sioSynchronizeRXIdle(const void *ip, sysinterval_t timeout);
-  msg_t sioSynchronizeTX(const void *ip, sysinterval_t timeout);
-  msg_t sioSynchronizeTXEnd(const void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeRX(hal_sio_driver_c *self, sysinterval_t timeout);
+  msg_t sioSynchronizeRXIdle(hal_sio_driver_c *self, sysinterval_t timeout);
+  msg_t sioSynchronizeTX(hal_sio_driver_c *self, sysinterval_t timeout);
+  msg_t sioSynchronizeTXEnd(hal_sio_driver_c *self, sysinterval_t timeout);
 #endif /* SIO_USE_SYNCHRONIZATION == TRUE */
   void *__sio_objinit_impl(void *ip, const void *vmt);
   void __sio_dispose_impl(void *ip);

@@ -223,15 +223,15 @@ static inline msg_t drvConfigureX(void *ip, const void *config) {
 extern "C" {
 #endif
   /* Methods of hal_base_driver_c.*/
-  msg_t drvOpen(const void *ip);
-  void drvClose(const void *ip);
-  driver_state_t drvGetStateX(const void *ip);
-  void drvSetStateX(const void *ip, driver_state_t state);
-  void * drvGetOwnerX(const void *ip);
-  void drvSetOwnerX(const void *ip, void *owner);
+  msg_t drvOpen(hal_base_driver_c *self);
+  void drvClose(hal_base_driver_c *self);
+  driver_state_t drvGetStateX(hal_base_driver_c *self);
+  void drvSetStateX(hal_base_driver_c *self, driver_state_t state);
+  void * drvGetOwnerX(hal_base_driver_c *self);
+  void drvSetOwnerX(hal_base_driver_c *self, void *owner);
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
-  void drvLock(const void *ip);
-  void drvUnlock(const void *ip);
+  void drvLock(hal_base_driver_c *self);
+  void drvUnlock(hal_base_driver_c *self);
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
   void *__drv_objinit_impl(void *ip, const void *vmt);
   void __drv_dispose_impl(void *ip);

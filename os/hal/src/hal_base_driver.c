@@ -114,12 +114,10 @@ void __drv_dispose_impl(void *ip) {
  *          is physically initialized. An implementation-dependent default
  *          configuration is used for initialization.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] self          Pointer to a @p hal_base_driver_c instance.
  * @return                      The operation status.
  */
-msg_t drvOpen(const void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
+msg_t drvOpen(hal_base_driver_c *self) {
   msg_t msg;
 
   osalDbgCheck(self != NULL);
@@ -151,11 +149,9 @@ msg_t drvOpen(const void *ip) {
  * @details Releases a reference to the driver, when the count reaches zero
  *          then the peripheral is physically uninitialized.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] self          Pointer to a @p hal_base_driver_c instance.
  */
-void drvClose(const void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
+void drvClose(hal_base_driver_c *self) {
   osalDbgCheck(self != NULL);
 
   osalSysLock();
@@ -173,48 +169,40 @@ void drvClose(const void *ip) {
 /**
  * @brief   Driver state get.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] self          Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver state.
  */
-driver_state_t drvGetStateX(const void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
+driver_state_t drvGetStateX(hal_base_driver_c *self) {
   return self->drv.state;
 }
 
 /**
  * @brief   Driver state set.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] self          Pointer to a @p hal_base_driver_c instance.
  * @param         state         New driver state.
  */
-void drvSetStateX(const void *ip, driver_state_t state) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
+void drvSetStateX(hal_base_driver_c *self, driver_state_t state) {
   self->drv.state = state;
 }
 
 /**
  * @brief   Driver owner get.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] self          Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver owner.
  */
-void * drvGetOwnerX(const void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
+void * drvGetOwnerX(hal_base_driver_c *self) {
   return self->drv.owner;
 }
 
 /**
  * @brief   Driver owner set.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] self          Pointer to a @p hal_base_driver_c instance.
  * @param         owner         New driver owner.
  */
-void drvSetOwnerX(const void *ip, void *owner) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
+void drvSetOwnerX(hal_base_driver_c *self, void *owner) {
   self->drv.owner = owner;
 }
 
@@ -222,22 +210,18 @@ void drvSetOwnerX(const void *ip, void *owner) {
 /**
  * @brief   Driver lock.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] self          Pointer to a @p hal_base_driver_c instance.
  */
-void drvLock(const void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
+void drvLock(hal_base_driver_c *self) {
   osalMutexLock(&self->drv.mutex);
 }
 
 /**
  * @brief   Driver unlock.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] self          Pointer to a @p hal_base_driver_c instance.
  */
-void drvUnlock(const void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
+void drvUnlock(hal_base_driver_c *self) {
   osalMutexUnlock(&self->drv.mutex);
 }
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */

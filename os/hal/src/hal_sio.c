@@ -321,24 +321,24 @@ static const struct hal_sio_driver_vmt sio_vmt = {
 /**
  * @brief   Default initialize function of @p hal_sio_driver_c.
  *
- * @param[out]    siop          Pointer to a @p hal_sio_driver_c structure to
+ * @param[out]    no-name       Pointer to a @p hal_sio_driver_c structure to
  *                              be initialized.
  * @return                      Pointer to the initialized object.
  */
-hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *siop) {
+hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
 
-  return __sio_objinit_impl(siop, &sio_vmt);
+  return __sio_objinit_impl(self, &sio_vmt);
 }
 
 /**
  * @brief   Default finalize function of @p hal_sio_driver_c.
  *
- * @param[in,out] siop          Pointer to a @p hal_sio_driver_c structure to
+ * @param[in,out] no-name       Pointer to a @p hal_sio_driver_c structure to
  *                              be finalized.
  */
-void sioDispose(hal_sio_driver_c *siop) {
+void sioDispose(hal_sio_driver_c *self) {
 
-  __sio_dispose_impl(siop);
+  __sio_dispose_impl(self);
 }
 /** @} */
 
@@ -346,6 +346,120 @@ void sioDispose(hal_sio_driver_c *siop) {
  * @name    Regular methods of hal_sio_driver_c
  * @{
  */
+/**
+ * @brief   Writes the enabled events flags mask.
+ *
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param         mask          Enabled events mask to be written
+ *
+ * @api
+ */
+void sioWriteEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
+  osalDbgCheck(self != NULL);
+
+  osalSysLock();
+  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  sioWriteEnableFlagsX(self, mask);
+  osalSysUnlock();
+}
+
+/**
+ * @brief   Sets flags into the enabled events flags mask.
+ *
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param         mask          Enabled events mask to be set
+ *
+ * @api
+ */
+void sioSetEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
+  osalDbgCheck(self != NULL);
+
+  osalSysLock();
+  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  sioSetEnableFlagsX(self, mask);
+  osalSysUnlock();
+}
+
+/**
+ * @brief   Clears flags from the enabled events flags mask.
+ *
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param         mask          Enabled events mask to be cleared
+ *
+ * @api
+ */
+void sioClearEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
+  osalDbgCheck(self != NULL);
+
+  osalSysLock();
+  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  sioClearEnableFlagsX(self, mask);
+  osalSysUnlock();
+}
+
+/**
+ * @brief   Get and clears SIO error event flags.
+ *
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @return                      The pending error event flags.
+ *
+ * @api
+ */
+sioevents_t sioGetAndClearErrors(hal_sio_driver_c *self) {
+  sioevents_t errors;
+
+  osalDbgCheck(self != NULL);
+
+  osalSysLock();
+  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  errors = sioGetAndClearErrorsX(self);
+  osalSysUnlock();
+
+  return errors;
+}
+
+/**
+ * @brief   Get and clears SIO event flags.
+ *
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @return                      The pending event flags.
+ *
+ * @api
+ */
+sioevents_t sioGetAndClearEvents(hal_sio_driver_c *self) {
+  sioevents_t events;
+
+  osalDbgCheck(self != NULL);
+
+  osalSysLock();
+  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  events = sioGetAndClearEventsX(self);
+  osalSysUnlock();
+
+  return events;
+}
+
+/**
+ * @brief   Returns the pending SIO event flags.
+ *
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @return                      The pending event flags.
+ *
+ * @api
+ */
+sioevents_t sioGetEvents(hal_sio_driver_c *self) {
+  sioevents_t events;
+
+  osalDbgCheck(self != NULL);
+
+  osalSysLock();
+  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  events = sioGetEventsX(self);
+  osalSysUnlock();
+
+  return events;
+}
+
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
 /**
  * @brief   Synchronizes with RX FIFO data availability.
@@ -353,8 +467,8 @@ void sioDispose(hal_sio_driver_c *siop) {
  *          thresholds, etc.
  * @note    This function can only be called by a single thread at time.
  *
- * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
- * @param[in]     timeout       Synchronization timeout
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in]     timeout       Synchronization timeout.
  * @return                      The synchronization result.
  * @retval MSG_OK               If there is data in the RX FIFO.
  * @retval MSG_TIMEOUT          If synchronization timed out.
@@ -363,9 +477,7 @@ void sioDispose(hal_sio_driver_c *siop) {
  *
  * @api
  */
-msg_t sioSynchronizeRX(const void *ip, sysinterval_t timeout) {
-  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
-
+msg_t sioSynchronizeRX(hal_sio_driver_c *self, sysinterval_t timeout) {
   msg_t msg;
 
   osalDbgCheck(self != NULL);
@@ -401,8 +513,8 @@ msg_t sioSynchronizeRX(const void *ip, sysinterval_t timeout) {
  * @brief   Synchronizes with RX going idle.
  * @note    This function can only be called by a single thread at time.
  *
- * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
- * @param[in]     timeout       Synchronization timeout
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in]     timeout       Synchronization timeout.
  * @return                      The synchronization result.
  * @retval MSG_OK               If there is data in the RX FIFO.
  * @retval MSG_TIMEOUT          If synchronization timed out.
@@ -411,9 +523,7 @@ msg_t sioSynchronizeRX(const void *ip, sysinterval_t timeout) {
  *
  * @api
  */
-msg_t sioSynchronizeRXIdle(const void *ip, sysinterval_t timeout) {
-  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
-
+msg_t sioSynchronizeRXIdle(hal_sio_driver_c *self, sysinterval_t timeout) {
   msg_t msg;
 
   osalDbgCheck(self != NULL);
@@ -451,8 +561,8 @@ msg_t sioSynchronizeRXIdle(const void *ip, sysinterval_t timeout) {
  *          thresholds, etc.
  * @note    This function can only be called by a single thread at time.
  *
- * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
- * @param[in]     timeout       Synchronization timeout
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in]     timeout       Synchronization timeout.
  * @return                      The synchronization result.
  * @retval MSG_OK               If there is space in the TX FIFO.
  * @retval MSG_TIMEOUT          If synchronization timed out.
@@ -460,9 +570,7 @@ msg_t sioSynchronizeRXIdle(const void *ip, sysinterval_t timeout) {
  *
  * @api
  */
-msg_t sioSynchronizeTX(const void *ip, sysinterval_t timeout) {
-  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
-
+msg_t sioSynchronizeTX(hal_sio_driver_c *self, sysinterval_t timeout) {
   msg_t msg;
 
   osalDbgCheck(self != NULL);
@@ -492,8 +600,8 @@ msg_t sioSynchronizeTX(const void *ip, sysinterval_t timeout) {
  * @brief   Synchronizes with TX completion.
  * @note    This function can only be called by a single thread at time.
  *
- * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure.
- * @param[in]     timeout       Synchronization timeout
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in]     timeout       Synchronization timeout.
  * @return                      The synchronization result.
  * @retval MSG_OK               If there is space in the TX FIFO.
  * @retval MSG_TIMEOUT          If synchronization timed out.
@@ -501,9 +609,7 @@ msg_t sioSynchronizeTX(const void *ip, sysinterval_t timeout) {
  *
  * @api
  */
-msg_t sioSynchronizeTXEnd(const void *ip, sysinterval_t timeout) {
-  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
-
+msg_t sioSynchronizeTXEnd(hal_sio_driver_c *self, sysinterval_t timeout) {
   msg_t msg;
 
   osalDbgCheck(self != NULL);

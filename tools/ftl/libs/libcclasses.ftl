@@ -355,16 +355,15 @@ CC_FORCE_INLINE
           classnamespace    = GetClassNamespace(class)
           classctype        = GetClassCType(class) /]
   [#if classtype == "regular"]
-    [#local paramname = classnamespace + "p" /]
-  ${classctype} *${classnamespace}ObjectInit(${classctype} *${paramname});
-  void ${classnamespace}Dispose(${classctype} *${paramname});
+  ${classctype} *${classnamespace}ObjectInit(${classctype} *self);
+  void ${classnamespace}Dispose(${classctype} *self);
   [/#if]
 [/#macro]
 
 [#--
   -- This macro generates regular method prototypes from an XML node.
   --]
-[#macro GenerateRegularMethodsPrototypes methods=[]]
+[#macro GenerateRegularMethodsPrototypes methods=[] classctype="no-ctype"]
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
@@ -373,13 +372,13 @@ CC_FORCE_INLINE
               methodretctype = GetMethodCType(method) /]
 [@ccode.GeneratePrototype indent    = "  "
                           modifiers = []
-                          params    = ["const void *ip"]
+                          params    = [classctype + " *self"]
                           node=method /];
     [#elseif node?node_name == "condition"]
       [#local condition = node /]
       [#local condcheck = (condition.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateRegularMethodsPrototypes condition /]
+[@GenerateRegularMethodsPrototypes condition classctype /]
 #endif /* ${condcheck} */
     [/#if]
   [/#list]
@@ -416,7 +415,7 @@ CC_FORCE_INLINE
     [#local classctype = GetClassCType(class) /]
   /* Methods of ${classctype}.*/
 [@GenerateClassConstructorDestructorPrototypes class /]
-[@GenerateRegularMethodsPrototypes class.methods.regular /]
+[@GenerateRegularMethodsPrototypes class.methods.regular classctype /]
 [@GenerateVirtualMethodsPrototypes class /]
 [/#macro]
 
@@ -654,7 +653,6 @@ void __${classnamespace}_dispose_impl(void *ip) {
           classdescr        = GetClassDescription(class) /]
   [#if classtype == "regular"]
     [#assign generated = true /]
-    [#local paramname = classnamespace + "p" /]
 /**
  * @name    Constructor and destructor of ${classctype}
  * @{
@@ -673,9 +671,9 @@ static const struct ${classname}_vmt ${classnamespace}_vmt = {
                     text="Pointer to a @p " + classctype + " structure to be initialized." /]
 [@doxygen.EmitReturn text="Pointer to the initialized object." /]
  */
-${classctype} *${classnamespace}ObjectInit(${classctype} *${paramname}) {
+${classctype} *${classnamespace}ObjectInit(${classctype} *self) {
 
-  return __${classnamespace}_objinit_impl(${paramname}, &${classnamespace}_vmt);
+  return __${classnamespace}_objinit_impl(self, &${classnamespace}_vmt);
 }
 
 /**
@@ -684,9 +682,9 @@ ${classctype} *${classnamespace}ObjectInit(${classctype} *${paramname}) {
 [@doxygen.EmitParam name=paramname dir="both"
                     text="Pointer to a @p " + classctype + " structure to be finalized." /]
  */
-void ${classnamespace}Dispose(${classctype} *${paramname}) {
+void ${classnamespace}Dispose(${classctype} *self) {
 
-  __${classnamespace}_dispose_impl(${paramname});
+  __${classnamespace}_dispose_impl(self);
 }
 /** @} */
 
@@ -706,13 +704,11 @@ void ${classnamespace}Dispose(${classctype} *${paramname}) {
               methodimpl     = (method.implementation[0]!"")?trim /]
       [#assign generated = true /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
-                                  extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + classctype + " structure." /]
+                                  extraname="self" extradir="both"
+                                  extratext="Pointer to a @p " + classctype + " instance." /]
 [@ccode.GeneratePrototype modifiers = []
-                          params    = ["const void *ip"]
+                          params    = [classctype + " *self"]
                           node=method /] {
-  ${classctype} *self = (${classctype} *)ip;
-
 [@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
     [#elseif node?node_name == "condition"]

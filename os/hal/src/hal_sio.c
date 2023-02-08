@@ -239,6 +239,7 @@ static msg_t __sio_ctl_impl(void *ip, unsigned int operation, void *arg) {
  * @init
  */
 void sioInit(void) {
+
   sio_lld_init();
 }
 
@@ -254,8 +255,8 @@ void sioInit(void) {
  * @brief   Implementation of object creation.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[out]    ip            Pointer to a @p hal_sio_driver_c structure to
- *                              be initialized.
+ * @param[out]    ip            Pointer to a @p hal_sio_driver_c instance to be
+ *                              initialized.
  * @param[in]     vmt           VMT pointer for the new object.
  * @return                      A new reference to the object.
  */
@@ -266,7 +267,6 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
   __drv_objinit_impl(self, vmt);
 
   /* Initialization code.*/
-
 #if SIO_USE_STREAMS_INTERFACE == TRUE
   static const struct base_channel_vmt channel_vmt = {
     __chn_vmt_init(sio)
@@ -294,8 +294,8 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
  * @brief   Implementation of object finalization.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[in,out] ip            Pointer to a @p hal_sio_driver_c structure to
- *                              be disposed.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance to be
+ *                              disposed.
  */
 void __sio_dispose_impl(void *ip) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
@@ -321,8 +321,8 @@ static const struct hal_sio_driver_vmt sio_vmt = {
 /**
  * @brief   Default initialize function of @p hal_sio_driver_c.
  *
- * @param[out]    no-name       Pointer to a @p hal_sio_driver_c structure to
- *                              be initialized.
+ * @param[out]    no-name       Pointer to a @p hal_sio_driver_c instance to be
+ *                              initialized.
  * @return                      Pointer to the initialized object.
  */
 hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
@@ -333,8 +333,8 @@ hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
 /**
  * @brief   Default finalize function of @p hal_sio_driver_c.
  *
- * @param[in,out] no-name       Pointer to a @p hal_sio_driver_c structure to
- *                              be finalized.
+ * @param[in,out] no-name       Pointer to a @p hal_sio_driver_c instance to be
+ *                              finalized.
  */
 void sioDispose(hal_sio_driver_c *self) {
 
@@ -349,12 +349,14 @@ void sioDispose(hal_sio_driver_c *self) {
 /**
  * @brief   Writes the enabled events flags mask.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param         mask          Enabled events mask to be written
  *
  * @api
  */
-void sioWriteEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
+void sioWriteEnableFlags(void *ip, sioevents_t mask) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
+
   osalDbgCheck(self != NULL);
 
   osalSysLock();
@@ -366,12 +368,14 @@ void sioWriteEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
 /**
  * @brief   Sets flags into the enabled events flags mask.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param         mask          Enabled events mask to be set
  *
  * @api
  */
-void sioSetEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
+void sioSetEnableFlags(void *ip, sioevents_t mask) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
+
   osalDbgCheck(self != NULL);
 
   osalSysLock();
@@ -383,12 +387,14 @@ void sioSetEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
 /**
  * @brief   Clears flags from the enabled events flags mask.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param         mask          Enabled events mask to be cleared
  *
  * @api
  */
-void sioClearEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
+void sioClearEnableFlags(void *ip, sioevents_t mask) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
+
   osalDbgCheck(self != NULL);
 
   osalSysLock();
@@ -400,12 +406,13 @@ void sioClearEnableFlags(hal_sio_driver_c *self, sioevents_t mask) {
 /**
  * @brief   Get and clears SIO error event flags.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @return                      The pending error event flags.
  *
  * @api
  */
-sioevents_t sioGetAndClearErrors(hal_sio_driver_c *self) {
+sioevents_t sioGetAndClearErrors(void *ip) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   sioevents_t errors;
 
   osalDbgCheck(self != NULL);
@@ -421,12 +428,13 @@ sioevents_t sioGetAndClearErrors(hal_sio_driver_c *self) {
 /**
  * @brief   Get and clears SIO event flags.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @return                      The pending event flags.
  *
  * @api
  */
-sioevents_t sioGetAndClearEvents(hal_sio_driver_c *self) {
+sioevents_t sioGetAndClearEvents(void *ip) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   sioevents_t events;
 
   osalDbgCheck(self != NULL);
@@ -442,12 +450,13 @@ sioevents_t sioGetAndClearEvents(hal_sio_driver_c *self) {
 /**
  * @brief   Returns the pending SIO event flags.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @return                      The pending event flags.
  *
  * @api
  */
-sioevents_t sioGetEvents(hal_sio_driver_c *self) {
+sioevents_t sioGetEvents(void *ip) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   sioevents_t events;
 
   osalDbgCheck(self != NULL);
@@ -467,7 +476,7 @@ sioevents_t sioGetEvents(hal_sio_driver_c *self) {
  *          thresholds, etc.
  * @note    This function can only be called by a single thread at time.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param[in]     timeout       Synchronization timeout.
  * @return                      The synchronization result.
  * @retval MSG_OK               If there is data in the RX FIFO.
@@ -477,7 +486,8 @@ sioevents_t sioGetEvents(hal_sio_driver_c *self) {
  *
  * @api
  */
-msg_t sioSynchronizeRX(hal_sio_driver_c *self, sysinterval_t timeout) {
+msg_t sioSynchronizeRX(void *ip, sysinterval_t timeout) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   msg_t msg;
 
   osalDbgCheck(self != NULL);
@@ -513,7 +523,7 @@ msg_t sioSynchronizeRX(hal_sio_driver_c *self, sysinterval_t timeout) {
  * @brief   Synchronizes with RX going idle.
  * @note    This function can only be called by a single thread at time.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param[in]     timeout       Synchronization timeout.
  * @return                      The synchronization result.
  * @retval MSG_OK               If there is data in the RX FIFO.
@@ -523,7 +533,8 @@ msg_t sioSynchronizeRX(hal_sio_driver_c *self, sysinterval_t timeout) {
  *
  * @api
  */
-msg_t sioSynchronizeRXIdle(hal_sio_driver_c *self, sysinterval_t timeout) {
+msg_t sioSynchronizeRXIdle(void *ip, sysinterval_t timeout) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   msg_t msg;
 
   osalDbgCheck(self != NULL);
@@ -561,7 +572,7 @@ msg_t sioSynchronizeRXIdle(hal_sio_driver_c *self, sysinterval_t timeout) {
  *          thresholds, etc.
  * @note    This function can only be called by a single thread at time.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param[in]     timeout       Synchronization timeout.
  * @return                      The synchronization result.
  * @retval MSG_OK               If there is space in the TX FIFO.
@@ -570,7 +581,8 @@ msg_t sioSynchronizeRXIdle(hal_sio_driver_c *self, sysinterval_t timeout) {
  *
  * @api
  */
-msg_t sioSynchronizeTX(hal_sio_driver_c *self, sysinterval_t timeout) {
+msg_t sioSynchronizeTX(void *ip, sysinterval_t timeout) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   msg_t msg;
 
   osalDbgCheck(self != NULL);
@@ -600,7 +612,7 @@ msg_t sioSynchronizeTX(hal_sio_driver_c *self, sysinterval_t timeout) {
  * @brief   Synchronizes with TX completion.
  * @note    This function can only be called by a single thread at time.
  *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param[in]     timeout       Synchronization timeout.
  * @return                      The synchronization result.
  * @retval MSG_OK               If there is space in the TX FIFO.
@@ -609,7 +621,8 @@ msg_t sioSynchronizeTX(hal_sio_driver_c *self, sysinterval_t timeout) {
  *
  * @api
  */
-msg_t sioSynchronizeTXEnd(hal_sio_driver_c *self, sysinterval_t timeout) {
+msg_t sioSynchronizeTXEnd(void *ip, sysinterval_t timeout) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   msg_t msg;
 
   osalDbgCheck(self != NULL);

@@ -54,7 +54,7 @@ int main(void) {
   /*
    * Activates the Serial or SIO driver using the default configuration.
    */
-  msg = drvOpen((hal_base_driver_c *)&LPSIOD1);
+  msg = drvOpen(&LPSIOD1);
   if (msg != HAL_RET_SUCCESS) {
     chSysHalt("SIO failure");
   }

@@ -186,7 +186,6 @@ struct base_sequential_stream {
 CC_FORCE_INLINE
 static inline size_t stmWrite(void *ip, const uint8_t *bp, size_t n) {
   base_sequential_stream_i *self = (base_sequential_stream_i *)ip;
-
   return self->vmt->stm.write(ip, bp, n);
 }
 
@@ -205,7 +204,6 @@ static inline size_t stmWrite(void *ip, const uint8_t *bp, size_t n) {
 CC_FORCE_INLINE
 static inline size_t stmRead(void *ip, uint8_t *bp, size_t n) {
   base_sequential_stream_i *self = (base_sequential_stream_i *)ip;
-
   return self->vmt->stm.read(ip, bp, n);
 }
 
@@ -222,7 +220,6 @@ static inline size_t stmRead(void *ip, uint8_t *bp, size_t n) {
 CC_FORCE_INLINE
 static inline msg_t stmPut(void *ip, uint8_t b) {
   base_sequential_stream_i *self = (base_sequential_stream_i *)ip;
-
   return self->vmt->stm.put(ip, b);
 }
 
@@ -238,7 +235,6 @@ static inline msg_t stmPut(void *ip, uint8_t b) {
 CC_FORCE_INLINE
 static inline msg_t stmGet(void *ip) {
   base_sequential_stream_i *self = (base_sequential_stream_i *)ip;
-
   return self->vmt->stm.get(ip);
 }
 /** @} */

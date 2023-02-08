@@ -130,13 +130,12 @@ struct referenced_object {
  * @details The references counter is increased and a new reference pointer is
  *          returned.
  *
- * @param[in,out] ip            Pointer to a @p referenced_object_c structure.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      A new reference pointer.
  */
 CC_FORCE_INLINE
 static inline void * roAddRef(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
-
   return self->vmt->ro.addref(ip);
 }
 
@@ -145,13 +144,12 @@ static inline void * roAddRef(void *ip) {
  * @details The reference counter is decreased, if the counter reaches zero
  *          then the object is disposed.
  *
- * @param[in,out] ip            Pointer to a @p referenced_object_c structure.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      The value of the reference counter.
  */
 CC_FORCE_INLINE
 static inline object_references_t roRelease(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
-
   return self->vmt->ro.release(ip);
 }
 /** @} */

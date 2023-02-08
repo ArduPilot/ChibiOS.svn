@@ -614,17 +614,17 @@ extern "C" {
   /* Methods of hal_sio_driver_c.*/
   hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self);
   void sioDispose(hal_sio_driver_c *self);
-  void sioWriteEnableFlags(hal_sio_driver_c *self, sioevents_t mask);
-  void sioSetEnableFlags(hal_sio_driver_c *self, sioevents_t mask);
-  void sioClearEnableFlags(hal_sio_driver_c *self, sioevents_t mask);
-  sioevents_t sioGetAndClearErrors(hal_sio_driver_c *self);
-  sioevents_t sioGetAndClearEvents(hal_sio_driver_c *self);
-  sioevents_t sioGetEvents(hal_sio_driver_c *self);
+  void sioWriteEnableFlags(void *ip, sioevents_t mask);
+  void sioSetEnableFlags(void *ip, sioevents_t mask);
+  void sioClearEnableFlags(void *ip, sioevents_t mask);
+  sioevents_t sioGetAndClearErrors(void *ip);
+  sioevents_t sioGetAndClearEvents(void *ip);
+  sioevents_t sioGetEvents(void *ip);
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
-  msg_t sioSynchronizeRX(hal_sio_driver_c *self, sysinterval_t timeout);
-  msg_t sioSynchronizeRXIdle(hal_sio_driver_c *self, sysinterval_t timeout);
-  msg_t sioSynchronizeTX(hal_sio_driver_c *self, sysinterval_t timeout);
-  msg_t sioSynchronizeTXEnd(hal_sio_driver_c *self, sysinterval_t timeout);
+  msg_t sioSynchronizeRX(void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeRXIdle(void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeTX(void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeTXEnd(void *ip, sysinterval_t timeout);
 #endif /* SIO_USE_SYNCHRONIZATION == TRUE */
   void *__sio_objinit_impl(void *ip, const void *vmt);
   void __sio_dispose_impl(void *ip);

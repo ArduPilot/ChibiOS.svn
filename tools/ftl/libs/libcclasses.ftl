@@ -322,13 +322,12 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
               methodretctype = GetMethodCType(method) /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
                                   extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + classctype + " structure." /]
+                                  extratext="Pointer to a @p " + classctype + " instance." /]
 CC_FORCE_INLINE
 [@ccode.GeneratePrototype modifiers = ["static", "inline"]
                           params    = ["void *ip"]
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
-
       [#local callname   = "self->vmt->" + classnamespace + "." + methodsname /]
       [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
       [#if methodretctype == "void"]
@@ -363,7 +362,7 @@ CC_FORCE_INLINE
 [#--
   -- This macro generates regular method prototypes from an XML node.
   --]
-[#macro GenerateRegularMethodsPrototypes methods=[] classctype="no-ctype"]
+[#macro GenerateRegularMethodsPrototypes methods=[]]
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
@@ -372,13 +371,13 @@ CC_FORCE_INLINE
               methodretctype = GetMethodCType(method) /]
 [@ccode.GeneratePrototype indent    = "  "
                           modifiers = []
-                          params    = [classctype + " *self"]
+                          params    = ["void *ip"]
                           node=method /];
     [#elseif node?node_name == "condition"]
       [#local condition = node /]
       [#local condcheck = (condition.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateRegularMethodsPrototypes condition classctype /]
+[@GenerateRegularMethodsPrototypes condition /]
 #endif /* ${condcheck} */
     [/#if]
   [/#list]
@@ -415,7 +414,7 @@ CC_FORCE_INLINE
     [#local classctype = GetClassCType(class) /]
   /* Methods of ${classctype}.*/
 [@GenerateClassConstructorDestructorPrototypes class /]
-[@GenerateRegularMethodsPrototypes class.methods.regular classctype /]
+[@GenerateRegularMethodsPrototypes class.methods.regular /]
 [@GenerateVirtualMethodsPrototypes class /]
 [/#macro]
 
@@ -518,7 +517,6 @@ CC_FORCE_INLINE
                           params    = ["void *ip"]
                           node=method /] {
   ${ifctype} *self = (${ifctype} *)ip;
-
     [#local callname   = "self->vmt->" + ifnamespace + "." + methodsname /]
     [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
     [#if methodretctype == "void"]
@@ -556,7 +554,7 @@ CC_FORCE_INLINE
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
 [@doxygen.EmitParam name="ip" dir="out"
-                    text="Pointer to a @p " + classctype + " structure to be initialized." /]
+                    text="Pointer to a @p " + classctype + " instance to be initialized." /]
 [@doxygen.EmitParam name="vmt" dir="in"
                     text="VMT pointer for the new object." /]
 [@doxygen.EmitReturn text="A new reference to the object." /]
@@ -589,7 +587,7 @@ void *__${classnamespace}_objinit_impl(void *ip, const void *vmt) {
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
 [@doxygen.EmitParam name="ip" dir="both"
-                    text="Pointer to a @p " + classctype + " structure to be disposed." /]
+                    text="Pointer to a @p " + classctype + " instance to be disposed." /]
  */
 void __${classnamespace}_dispose_impl(void *ip) {
   ${classctype} *self = (${classctype} *)ip;
@@ -621,7 +619,7 @@ void __${classnamespace}_dispose_impl(void *ip) {
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
 [@doxygen.EmitParam name="ip" dir="both"
-                    text="Pointer to a @p " + classctype + " structure." /]
+                    text="Pointer to a @p " + classctype + " instance." /]
 [@doxygen.EmitParamFromNode node=method /]
 [@doxygen.EmitReturnFromNode node=method /]
  */
@@ -631,7 +629,6 @@ void __${classnamespace}_dispose_impl(void *ip) {
                           params    = ["void *ip"]
                           node      = method /] {
   ${classctype} *self = (${classctype} *)ip;
-
 [@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
       [/#if]
@@ -668,7 +665,7 @@ static const struct ${classname}_vmt ${classnamespace}_vmt = {
 [@doxygen.EmitBrief "" "Default initialize function of @p " + classctype + "." /]
  *
 [@doxygen.EmitParam name=paramname dir="out"
-                    text="Pointer to a @p " + classctype + " structure to be initialized." /]
+                    text="Pointer to a @p " + classctype + " instance to be initialized." /]
 [@doxygen.EmitReturn text="Pointer to the initialized object." /]
  */
 ${classctype} *${classnamespace}ObjectInit(${classctype} *self) {
@@ -680,7 +677,7 @@ ${classctype} *${classnamespace}ObjectInit(${classctype} *self) {
 [@doxygen.EmitBrief "" "Default finalize function of @p " + classctype + "." /]
  *
 [@doxygen.EmitParam name=paramname dir="both"
-                    text="Pointer to a @p " + classctype + " structure to be finalized." /]
+                    text="Pointer to a @p " + classctype + " instance to be finalized." /]
  */
 void ${classnamespace}Dispose(${classctype} *self) {
 
@@ -701,14 +698,15 @@ void ${classnamespace}Dispose(${classctype} *self) {
       [#local methodname     = GetMethodName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
-              methodimpl     = (method.implementation[0]!"")?trim /]
+              methodimpl     = method.implementation[0]!"" /]
       [#assign generated = true /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
-                                  extraname="self" extradir="both"
+                                  extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + classctype + " instance." /]
 [@ccode.GeneratePrototype modifiers = []
-                          params    = [classctype + " *self"]
+                          params    = ["void *ip"]
                           node=method /] {
+  ${classctype} *self = (${classctype} *)ip;
 [@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
 }
     [#elseif node?node_name == "condition"]

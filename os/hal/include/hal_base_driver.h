@@ -174,25 +174,23 @@ struct hal_base_driver {
 /**
  * @brief   Low level driver start.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The operation status.
  */
 CC_FORCE_INLINE
 static inline msg_t __drv_start_protected(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
   return self->vmt->drv.start(ip);
 }
 
 /**
  * @brief   Low level driver stop.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  */
 CC_FORCE_INLINE
 static inline void __drv_stop_protected(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
    self->vmt->drv.stop(ip);
 }
 
@@ -204,13 +202,12 @@ static inline void __drv_stop_protected(void *ip) {
  *          actively operating, this function can fail depending on the driver
  *          implementation and current state.
  *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c structure.
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @param         config        New driver configuration.
  */
 CC_FORCE_INLINE
 static inline msg_t drvConfigureX(void *ip, const void *config) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
   return self->vmt->drv.configure(ip, config);
 }
 /** @} */
@@ -223,15 +220,15 @@ static inline msg_t drvConfigureX(void *ip, const void *config) {
 extern "C" {
 #endif
   /* Methods of hal_base_driver_c.*/
-  msg_t drvOpen(hal_base_driver_c *self);
-  void drvClose(hal_base_driver_c *self);
-  driver_state_t drvGetStateX(hal_base_driver_c *self);
-  void drvSetStateX(hal_base_driver_c *self, driver_state_t state);
-  void * drvGetOwnerX(hal_base_driver_c *self);
-  void drvSetOwnerX(hal_base_driver_c *self, void *owner);
+  msg_t drvOpen(void *ip);
+  void drvClose(void *ip);
+  driver_state_t drvGetStateX(void *ip);
+  void drvSetStateX(void *ip, driver_state_t state);
+  void * drvGetOwnerX(void *ip);
+  void drvSetOwnerX(void *ip, void *owner);
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
-  void drvLock(hal_base_driver_c *self);
-  void drvUnlock(hal_base_driver_c *self);
+  void drvLock(void *ip);
+  void drvUnlock(void *ip);
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
   void *__drv_objinit_impl(void *ip, const void *vmt);
   void __drv_dispose_impl(void *ip);

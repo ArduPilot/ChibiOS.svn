@@ -64,8 +64,8 @@
  * @brief   Implementation of object creation.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[out]    ip            Pointer to a @p referenced_object_c structure
- *                              to be initialized.
+ * @param[out]    ip            Pointer to a @p referenced_object_c instance to
+ *                              be initialized.
  * @param[in]     vmt           VMT pointer for the new object.
  * @return                      A new reference to the object.
  */
@@ -85,8 +85,8 @@ void *__ro_objinit_impl(void *ip, const void *vmt) {
  * @brief   Implementation of object finalization.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[in,out] ip            Pointer to a @p referenced_object_c structure
- *                              to be disposed.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c instance to
+ *                              be disposed.
  */
 void __ro_dispose_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
@@ -101,12 +101,11 @@ void __ro_dispose_impl(void *ip) {
  * @brief   Implementation of method @p roAddRef().
  * @note    This function is meant to be used by derived classes.
  *
- * @param[in,out] ip            Pointer to a @p referenced_object_c structure.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      A new reference pointer.
  */
 void * __ro_addref_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
-
   self->ro.references++;
 
   osalDbgAssert(self->ro.references != (object_references_t)0, "overflow");
@@ -118,12 +117,11 @@ void * __ro_addref_impl(void *ip) {
  * @brief   Implementation of method @p roRelease().
  * @note    This function is meant to be used by derived classes.
  *
- * @param[in,out] ip            Pointer to a @p referenced_object_c structure.
+ * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      The value of the reference counter.
  */
 object_references_t __ro_release_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
-
   osalDbgAssert(self->ro.references > 0U, "zero references");
 
   if (--self->ro.references == 0U) {

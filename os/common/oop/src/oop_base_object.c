@@ -64,7 +64,7 @@
  * @brief   Implementation of object creation.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[out]    ip            Pointer to a @p base_object_c structure to be
+ * @param[out]    ip            Pointer to a @p base_object_c instance to be
  *                              initialized.
  * @param[in]     vmt           VMT pointer for the new object.
  * @return                      A new reference to the object.
@@ -84,7 +84,7 @@ void *__bo_objinit_impl(void *ip, const void *vmt) {
  * @brief   Implementation of object finalization.
  * @note    This function is meant to be used by derived classes.
  *
- * @param[in,out] ip            Pointer to a @p base_object_c structure to be
+ * @param[in,out] ip            Pointer to a @p base_object_c instance to be
  *                              disposed.
  */
 void __bo_dispose_impl(void *ip) {

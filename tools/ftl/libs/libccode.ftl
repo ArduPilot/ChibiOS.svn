@@ -64,7 +64,7 @@
   -- Returns the function/macro implementation from an XML node.
   --]
 [#function GetImplementation node=[] default=""]
-  [#local impl = (node.implementation[0]!default)?trim /]
+  [#local impl = node.implementation[0]!default /]
   [#return impl /]
 [/#function]
 
@@ -76,7 +76,7 @@
   [#local lines = ccode?string?split("^", "rm") /]
   [#list lines as line]
     [#local s = line?chop_linebreak /]
-    [#if (line_index > 0) || (s?trim?length > 0)]
+    [#if !line?is_first || (s?trim?length > 0)]
       [#if s?trim?length > 0]
         [#if s[0] == "#"]
 ${s}

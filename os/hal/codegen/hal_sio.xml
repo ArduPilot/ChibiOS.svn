@@ -477,7 +477,6 @@ sio_lld_driver_fields;]]></verbatim>
         <methods>
           <objinit>
             <implementation><![CDATA[
-
 #if SIO_USE_STREAMS_INTERFACE == TRUE
 static const struct base_channel_vmt channel_vmt = {
   __chn_vmt_init(sio)

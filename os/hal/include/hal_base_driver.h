@@ -101,6 +101,12 @@ typedef unsigned int driver_state_t;
 /*===========================================================================*/
 
 /**
+ * @class       hal_base_driver_c
+ * @extends     base_object_c
+ *
+ */
+
+/**
  * @brief   Type of a HAL base driver class.
  */
 typedef struct hal_base_driver hal_base_driver_c;

@@ -96,7 +96,7 @@
 /*===========================================================================*/
 
 [#-- Generating types declarations.--]
-[@ccode.GenerateTypedefsFromNode node=module.public.types /]
+[@ccode.GenerateTypesFromNode node=module.public.types /]
   [#-- Scanning all interfaces to be generated in this module.--]
   [#list module.public.interfaces.interface as interface]
 /*===========================================================================*/

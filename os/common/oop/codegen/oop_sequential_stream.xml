@@ -79,8 +79,9 @@
       </macro>
     </macros>
     <interfaces>
-      <interface name="base_sequential_stream" namespace="stm"
-        ancestor="bi" descr="base sequential stream interface">
+      <interface name="sequential_stream" namespace="stm"
+        ancestorname="base_interface" ancestornamespace="bi"
+        descr="sequential stream interface">
         <brief>Sequential data streams interface.</brief>
         <details>
           This module define an interface for generic sequential data

@@ -59,6 +59,16 @@ typedef unsigned int object_references_t;
 /*===========================================================================*/
 
 /**
+ * @class       referenced_object_c
+ * @extends     base_object_c
+ *
+ * @brief   Common ancestor class of all reference-counted objects.
+ * @details Base class for objects that implement a reference counter and are
+ *          disposed when the number of references reaches zero. This class
+ *          extends @p base_object_c class.
+ */
+
+/**
  * @brief   Type of a referenced object class.
  */
 typedef struct referenced_object referenced_object_c;

@@ -36,121 +36,175 @@
 [#--
   -- Returns the interface name from an XML node.
   --]
-[#function GetInterfaceName node=[]]
+[#function GetInterfaceName node=[] default="no-name"]
   [#local if = node /]
-  [#local ifname = (if.@name[0]!"no-name")?trim /]
+  [#local ifname = (if.@name[0]!default)?trim /]
   [#return ifname /]
-[/#function]
-
-[#--
-  -- Returns the interface C type from an XML node.
-  --]
-[#function GetInterfaceCType node=[]]
-  [#local if = node /]
-  [#local ifname  = GetInterfaceName(if)
-          ifctype = ifname + interface_suffix /]
-  [#return ifctype /]
 [/#function]
 
 [#--
   -- Returns the interface namespace from an XML node.
   --]
-[#function GetInterfaceNamespace node=[]]
+[#function GetInterfaceNamespace node=[] default="no-namespace"]
   [#local if = node /]
-  [#local ifnamespace = (if.@namespace[0]!"no-namespace")?trim /]
+  [#local ifnamespace = (if.@namespace[0]!default)?trim /]
   [#return ifnamespace /]
+[/#function]
+
+[#--
+  -- Returns the interface C type from an XML node.
+  --]
+[#function GetInterfaceCType node=[] default=""]
+  [#local if = node /]
+  [#local ifname  = GetInterfaceName(if default) /]
+  [#if ifname?length > 0]
+    [#local ifctype = ifname + interface_suffix /]
+  [#else ]
+    [#local ifctype = default /]
+  [/#if]
+  [#return ifctype /]
 [/#function]
 
 [#--
   -- Returns the interface description from an XML node.
   --]
-[#function GetInterfaceDescription node=[]]
+[#function GetInterfaceDescription node=[] default="no-descr"]
   [#local if = node /]
-  [#local ifdescr = (if.@descr[0]!"no-descr")?trim /]
+  [#local ifdescr = (if.@descr[0]!default)?trim /]
   [#return ifdescr /]
 [/#function]
 
 [#--
   -- Returns the interface ancestor name from an XML node.
   --]
-[#function GetInterfaceAncestorNamespace node=[]]
+[#function GetInterfaceAncestorName node=[] default=""]
   [#local if = node /]
-  [#local ancestornamespace = (if.@ancestor[0]!"")?trim /]
+  [#local ancestornamespace = (if.@ancestorname[0]!default)?trim /]
   [#return ancestornamespace /]
+[/#function]
+
+[#--
+  -- Returns the interface ancestor name from an XML node.
+  --]
+[#function GetInterfaceAncestorNamespace node=[] default=""]
+  [#local if = node /]
+  [#local ancestornamespace = (if.@ancestornamespace[0]!default)?trim /]
+  [#return ancestornamespace /]
+[/#function]
+
+[#--
+  -- Returns the interface ancestor C type from an XML node.
+  --]
+[#function GetInterfaceAncestorCType node=[] default=""]
+  [#local if = node /]
+  [#local ancestorname  = GetInterfaceAncestorName(if default) /]
+  [#if ancestorname?length > 0]
+    [#local ancestorctype = ancestorname + interface_suffix /]
+  [#else ]
+    [#local ancestorctype = default /]
+  [/#if]
+  [#return ancestorctype /]
 [/#function]
 
 [#--
   -- Returns the class name from an XML node.
   --]
-[#function GetClassName node=[]]
+[#function GetClassName node=[] default="no-name"]
   [#local class = node /]
-  [#local classname = (class.@name[0]!"no-name")?trim /]
+  [#local classname = (class.@name[0]!default)?trim /]
   [#return classname /]
-[/#function]
-
-[#--
-  -- Returns the class type from an XML node.
-  --]
-[#function GetClassType node=[]]
-  [#local class = node /]
-  [#local classtype = (class.@type[0]!"no-type")?trim /]
-  [#return classtype /]
 [/#function]
 
 [#--
   -- Returns the class namespace from an XML node.
   --]
-[#function GetClassNamespace node=[]]
+[#function GetClassNamespace node=[] default="no-namespace"]
   [#local class = node /]
-  [#local classnamespace = (class.@namespace[0]!"no-namespace")?trim /]
+  [#local classnamespace = (class.@namespace[0]!default)?trim /]
   [#return classnamespace /]
 [/#function]
 
 [#--
   -- Returns the class C type from an XML node.
   --]
-[#function GetClassCType node=[]]
+[#function GetClassCType node=[] default=""]
   [#local class = node /]
-  [#local classname  = GetClassName(class)
-          classctype = classname + class_suffix /]
+  [#local classname  = GetClassName(class default) /]
+  [#if classname?length > 0]
+    [#local classctype = classname + class_suffix /]
+  [#else ]
+    [#local classctype = default /]
+  [/#if]
   [#return classctype /]
+[/#function]
+
+[#--
+  -- Returns the class type from an XML node.
+  --]
+[#function GetClassType node=[] default="no-type"]
+  [#local class = node /]
+  [#local classtype = (class.@type[0]!default)?trim /]
+  [#return classtype /]
 [/#function]
 
 [#--
   -- Returns the class description from an XML node.
   --]
-[#function GetClassDescription node=[]]
+[#function GetClassDescription node=[] default="no-descr"]
   [#local class = node /]
-  [#local classdescr = (class.@descr[0]!"no-descr")?trim /]
+  [#local classdescr = (class.@descr[0]!default)?trim /]
   [#return classdescr /]
 [/#function]
 
 [#--
   -- Returns the class ancestor name from an XML node.
   --]
-[#function GetClassAncestorNamespace node=[]]
+[#function GetClassAncestorName node=[] default=""]
   [#local class = node /]
-  [#local ancestornamespace = (class.@ancestor[0]!"")?trim /]
+  [#local ancestornamespace = (class.@ancestorname[0]!default)?trim /]
   [#return ancestornamespace /]
+[/#function]
+
+[#--
+  -- Returns the class ancestor namespace from an XML node.
+  --]
+[#function GetClassAncestorNamespace node=[] default=""]
+  [#local class = node /]
+  [#local ancestornamespace = (class.@ancestornamespace[0]!default)?trim /]
+  [#return ancestornamespace /]
+[/#function]
+
+[#--
+  -- Returns the class ancestor C type from an XML node.
+  --]
+[#function GetClassAncestorCType node=[] default=""]
+  [#local class = node /]
+  [#local ancestorname  = GetClassAncestorName(class default) /]
+  [#if ancestorname?length > 0]
+    [#local ancestorctype = ancestorname + class_suffix /]
+  [#else ]
+    [#local ancestorctype = default /]
+  [/#if]
+  [#return ancestorctype /]
 [/#function]
 
 [#--
   -- Returns the method name from an XML node.
   --]
-[#function GetMethodName node=[]]
+[#function GetMethodName node=[] default="no-name"]
   [#local method = node /]
-  [#local methodname = (method.@name[0]!"no-name")?trim /]
+  [#local methodname = (method.@name[0]!default)?trim /]
   [#return methodname /]
 [/#function]
 
 [#--
   -- Returns the method short name from an XML node.
   --]
-[#function GetMethodShortName node=[]]
+[#function GetMethodShortName node=[] default=""]
   [#local method = node /]
-  [#local methodsname = (method.@shortname[0]!"")?trim /]
+  [#local methodsname = (method.@shortname[0]!default)?trim /]
     [#if methodsname?length == 0]
-      [#local methodsname = GetMethodName(method)?lower_case /]
+      [#local methodsname = GetMethodName(method default)?lower_case /]
     [/#if]
   [#return methodsname /]
 [/#function]
@@ -158,9 +212,9 @@
 [#--
   -- Returns the method return C type from an XML node.
   --]
-[#function GetMethodCType node=[]]
+[#function GetMethodCType node=[] default="void"]
   [#local method = node /]
-  [#local methodctype = (method.@ctype[0]!"void")?trim /]
+  [#local methodctype = (method.@ctype[0]!default)?trim /]
   [#return methodctype /]
 [/#function]
 
@@ -205,7 +259,24 @@ ${s}
           classnamespace    = GetClassNamespace(class)
           classctype        = GetClassCType(class)
           classdescr        = GetClassDescription(class)
+          ancestorname      = GetClassAncestorName(class)
+          ancestorctype     = GetClassAncestorCType(class)
           ancestornamespace = GetClassAncestorNamespace(class) /]
+/**
+ * @class       ${classctype}
+  [#if ancestorctype?length > 0]
+ * @extends     ${ancestorctype}
+  [/#if]
+  [#if class.brief[0]??]
+ *
+[@doxygen.EmitBriefFromNode node=class /]
+[@doxygen.EmitDetailsFromNode node=class /]
+[@doxygen.EmitPreFromNode node=class /]
+[@doxygen.EmitPostFromNode node=class /]
+[@doxygen.EmitNoteFromNode node=class /]
+  [/#if]
+ */
+
 /**
 [@doxygen.EmitBrief "" "Type of a " + classdescr + " class." /]
  */
@@ -427,7 +498,24 @@ CC_FORCE_INLINE
           ifnamespace       = GetInterfaceNamespace(if)
           ifctype           = GetInterfaceCType(if)
           ifdescr           = GetInterfaceDescription(if)
+          ancestorname      = GetInterfaceAncestorName(if)
+          ancestorctype     = GetInterfaceAncestorCType(if)
           ancestornamespace = GetInterfaceAncestorNamespace(if) /]
+/**
+ * @interface   ${ifctype}
+  [#if ancestorctype?length > 0]
+ * @extends     ${ancestorctype}
+  [/#if]
+  [#if if.brief[0]??]
+ *
+[@doxygen.EmitBriefFromNode node=if /]
+[@doxygen.EmitDetailsFromNode node=if /]
+[@doxygen.EmitPreFromNode node=if /]
+[@doxygen.EmitPostFromNode node=if /]
+[@doxygen.EmitNoteFromNode node=if /]
+  [/#if]
+ */
+
 /**
 [@doxygen.EmitBrief "" "Type of a " + ifdescr + " interface." /]
  */

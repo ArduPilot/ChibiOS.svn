@@ -20,8 +20,6 @@
  *
  * @addtogroup OOP_BASE_INTERFACE
  * @brief   Common interfaces ancestor.
- * @details There are no methods in this interface. This interface is just
- *          meant to be the common ancestor of all interfaces used in ChibiOS.
  * @note    This is a generated file, do not edit directly.
  * @{
  */
@@ -91,6 +89,14 @@
 /*===========================================================================*/
 /* Module interface base_interface_i                                         */
 /*===========================================================================*/
+
+/**
+ * @interface   base_interface_i
+ *
+ * @brief   Common interfaces ancestor.
+ * @details There are no methods in this interface. This interface is just
+ *          meant to be the common ancestor of all interfaces used in ChibiOS.
+ */
 
 /**
  * @brief   Type of a base interface interface.

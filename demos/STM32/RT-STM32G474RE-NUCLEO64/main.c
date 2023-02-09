@@ -70,8 +70,8 @@ int main(void) {
    */
   while (true) {
    if (palReadLine(LINE_BUTTON)) {
-      test_execute((base_sequential_stream_i *)&LPSIOD1.sio.chn, &rt_test_suite);
-      test_execute((base_sequential_stream_i *)&LPSIOD1.sio.chn, &oslib_test_suite);
+      test_execute((sequential_stream_i *)&LPSIOD1.sio.chn, &rt_test_suite);
+      test_execute((sequential_stream_i *)&LPSIOD1.sio.chn, &oslib_test_suite);
     }
     chThdSleepMilliseconds(500);
   }

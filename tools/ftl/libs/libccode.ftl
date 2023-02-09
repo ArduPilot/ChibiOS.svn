@@ -481,7 +481,7 @@ ${indent}};
 [#--
   -- Generates all type definitions from an XML node.
   --]
-[#macro GenerateTypedefsFromNode indent="" node=[]]
+[#macro GenerateTypesFromNode indent="" node=[]]
   [#list node.* as this]
     [#if this?node_name == "typedef"]
 [@doxygen.EmitFullCommentFromNode indent this /]

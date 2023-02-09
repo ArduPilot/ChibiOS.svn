@@ -268,7 +268,7 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
 
   /* Initialization code.*/
 #if SIO_USE_STREAMS_INTERFACE == TRUE
-  static const struct base_channel_vmt channel_vmt = {
+  static const struct asynchronous_channel_vmt channel_vmt = {
     __chn_vmt_init(sio)
   };
   oopInterfaceObjectInit(&self->sio.chn, &channel_vmt);

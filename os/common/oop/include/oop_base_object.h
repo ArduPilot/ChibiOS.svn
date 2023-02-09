@@ -20,9 +20,6 @@
  *
  * @addtogroup OOP_BASE_OBJECT
  * @brief   Common ancestor abstract class.
- * @details This abstract class is the common ancestor of all classes used in
- *          ChibiOS. This class just defines the position of the VMT pointer
- *          inside the structure.
  * @note    This is a generated file, do not edit directly.
  * @{
  */
@@ -55,6 +52,15 @@
 /*===========================================================================*/
 /* Module class base_object_c                                                */
 /*===========================================================================*/
+
+/**
+ * @class       base_object_c
+ *
+ * @brief   Common ancestor abstract class.
+ * @details This abstract class is the common ancestor of all classes used in
+ *          ChibiOS. This class just defines the position of the VMT pointer
+ *          inside the structure.
+ */
 
 /**
  * @brief   Type of a base object class.

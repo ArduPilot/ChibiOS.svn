@@ -3,9 +3,8 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="hal_base_driver">
   <brief>Common driver base abstract class.</brief>
-  <details>This abstract class is the common ancestor of all HAL
-    stateful HAL drivers.
-  </details>
+  <details><![CDATA[This abstract class is the common ancestor of all HAL
+    stateful HAL drivers.]]></details>
   <note>This is a generated file, do not edit directly.</note>
   <public>
     <definitions_early>
@@ -20,7 +19,8 @@
     <configs>
       <config name="HAL_USE_MUTUAL_EXCLUSION" default="TRUE">
         <brief>Enables the mutual exclusion APIs on driver
-          instances.</brief>
+          instances.
+        </brief>
         <note>Disabling this option saves both code and data space.</note>
         <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
       </config>
@@ -39,8 +39,9 @@
       </typedef>
     </types>
     <classes>
-      <class name="hal_base_driver" namespace="drv" ancestor="bo" descr="HAL base driver"
-        type="abstract">
+      <class type="abstract" name="hal_base_driver" namespace="drv"
+        ancestorname="base_object" ancestornamespace="bo"
+        descr="HAL base driver">
         <brief>
         </brief>
         <fields>
@@ -66,34 +67,38 @@ self->drv.id      = 0U;
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <virtual>
-            <method name="__drv_start_protected" shortname="start" ctype="msg_t">
+            <method name="__drv_start_protected" shortname="start"
+              ctype="msg_t">
               <brief>Low level driver start.</brief>
               <return>The operation status.</return>
             </method>
-            <method name="__drv_stop_protected" shortname="stop" ctype="void">
+            <method name="__drv_stop_protected" shortname="stop"
+              ctype="void">
               <brief>Low level driver stop.</brief>
             </method>
-            <method name="drvConfigureX" shortname="configure" ctype="msg_t">
+            <method name="drvConfigureX" shortname="configure"
+              ctype="msg_t">
               <brief>Driver configure.</brief>
-              <details>Applies a new configuration to the driver. The configuration
-                structure is
-                architecture-dependent.</details>
-              <note>Applying a configuration should be done while the peripheral
-                is not actively
-                operating, this function can fail depending
-                on the driver implementation and
-                current state.</note>
-              <param ctype="const void *" name="config">New driver configuration.</param>
+              <details><![CDATA[Applies a new configuration to the driver. The
+                configuration structure is architecture-dependent.]]>
+              </details>
+              <note><![CDATA[Applying a configuration should be done while the
+                peripheral is not actively operating, this function can fail
+                depending on the driver implementation and current state.]]>
+              </note>
+              <param ctype="const void *" name="config">New driver
+                configuration.
+              </param>
             </method>
           </virtual>
           <regular>
             <method name="drvOpen" ctype="msg_t">
               <brief>Driver open.</brief>
-              <details>Returns a reference to the driver, on the 1st open the peripheral
-                is
-                physically initialized. An implementation-dependent default
-                configuration is used
-                for initialization.</details>
+              <details><![CDATA[Returns a reference to the driver, on the
+                1st open the peripheral is physically initialized. An
+                implementation-dependent default configuration is used
+                for initialization.]]>
+              </details>
               <return>The operation status.</return>
               <implementation><![CDATA[
 msg_t msg;
@@ -123,9 +128,10 @@ return msg;]]></implementation>
             </method>
             <method name="drvClose" ctype="void">
               <brief>Driver close.</brief>
-              <details>Releases a reference to the driver, when the count reaches zero
-                then the
-                peripheral is physically uninitialized.</details>
+              <details><![CDATA[Releases a reference to the driver, when
+                the count reaches zero then the peripheral is physically
+                uninitialized.]]>
+              </details>
               <implementation><![CDATA[
 osalDbgCheck(self != NULL);
 
@@ -148,7 +154,8 @@ osalSysUnlock();]]></implementation>
             <method name="drvSetStateX" ctype="void">
               <brief>Driver state set.</brief>
               <param ctype="driver_state_t" name="state">New driver
-                  state.</param>
+                state.
+              </param>
               <implementation><![CDATA[self->drv.state = state;]]></implementation>
             </method>
             <method name="drvGetOwnerX" ctype="void *">

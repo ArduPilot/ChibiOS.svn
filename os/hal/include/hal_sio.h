@@ -518,6 +518,13 @@ struct hal_sio_config {
 /*===========================================================================*/
 
 /**
+ * @class       hal_sio_driver_c
+ * @extends     hal_base_driver_c
+ *
+ * @brief   Class of a SIO (Serial I/O) driver.
+ */
+
+/**
  * @brief   Type of a SIO driver class.
  */
 typedef struct hal_sio_driver hal_sio_driver_c;
@@ -530,7 +537,7 @@ struct sio_data {
   /**
    * @brief   Channel interface.
    */
-  base_channel_i                            chn;
+  asynchronous_channel_i                    chn;
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
   /**
    * @brief   Enabled event flags.

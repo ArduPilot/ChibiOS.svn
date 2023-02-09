@@ -84,7 +84,7 @@
 /*===========================================================================*/
 
 [#-- Generating local types.--]
-[@ccode.GenerateTypedefsFromNode node=module.private.types /]
+[@ccode.GenerateTypesFromNode node=module.private.types /]
 /*===========================================================================*/
 /* Module local variables.                                                   */
 /*===========================================================================*/

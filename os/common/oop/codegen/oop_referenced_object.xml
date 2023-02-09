@@ -15,8 +15,9 @@
       </typedef>
     </types>
     <classes>
-      <class name="referenced_object" namespace="ro" ancestor="bo"
-        descr="referenced object" type="abstract">
+      <class type="abstract" name="referenced_object" namespace="ro"
+        ancestorname="base_object" ancestornamespace="bo"
+        descr="referenced object">
         <brief>Common ancestor class of all reference-counted objects.</brief>
         <details><![CDATA[Base class for objects that implement a reference
                  counter and are disposed when the number of references
@@ -46,7 +47,8 @@ osalDbgAssert(self->ro.references != (object_references_t)0, "overflow");
 
 return self;]]></implementation>
             </method>
-            <method name="roRelease" shortname="release" ctype="object_references_t">
+            <method name="roRelease" shortname="release"
+              ctype="object_references_t">
               <brief>Release of an object reference.</brief>
               <details><![CDATA[The reference counter is decreased, if the counter
                        reaches zero then the object is disposed.]]></details>

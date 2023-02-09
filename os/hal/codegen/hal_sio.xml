@@ -436,10 +436,10 @@ SIO_CONFIG_EXT_FIELDS]]></verbatim>
       </struct>
     </types>
     <classes>
-      <class name="hal_sio_driver" namespace="sio" ancestor="drv"
-        descr="SIO driver" type="regular">
-        <brief>
-        </brief>
+      <class type="regular" name="hal_sio_driver" namespace="sio"
+        ancestorname="hal_base_driver" ancestornamespace="drv"
+        descr="SIO driver">
+        <brief>Class of a SIO (Serial I/O) driver.</brief>
         <fields>
           <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
             <field name="chn" ctype="base_channel_i">

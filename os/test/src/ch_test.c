@@ -303,7 +303,7 @@ bool test_execute_putchar(test_putchar_t putfunc,
  *
  * @api
  */
-bool test_execute_stream(base_sequential_stream_i *stream,
+bool test_execute_stream(sequential_stream_i *stream,
                          const testsuite_t *tsp) {
 
   /* Output initialization using streams.*/

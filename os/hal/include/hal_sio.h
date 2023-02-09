@@ -15,12 +15,12 @@
 */
 
 /**
- * @file    hal_sio.h
- * @brief   Generated HAL_SIO header.
+ * @file        hal_sio.h
+ * @brief       Generated HAL_SIO header.
  *
- * @addtogroup HAL_SIO
- * @brief   SIO Driver macros and structures.
- * @note    This is a generated file, do not edit directly.
+ * @addtogroup  HAL_SIO
+ * @brief       SIO Driver macros and structures.
+ * @note        This is a generated file, do not edit directly.
  * @{
  */
  
@@ -84,23 +84,23 @@
  * @{
  */
 /**
- * @brief   Default bit rate.
- * @details Configuration parameter, this is the baud rate selected for the
- *          default configuration.
+ * @brief       Default bit rate.
+ * @details     Configuration parameter, this is the baud rate selected for the
+ *              default configuration.
  */
 #if !defined(SIO_DEFAULT_BITRATE) || defined(__DOXYGEN__)
 #define SIO_DEFAULT_BITRATE                 38400
 #endif
 
 /**
- * @brief   Support for thread synchronization API.
+ * @brief       Support for thread synchronization API.
  */
 #if !defined(SIO_USE_SYNCHRONIZATION) || defined(__DOXYGEN__)
 #define SIO_USE_SYNCHRONIZATION             TRUE
 #endif
 
 /**
- * @brief   Support for streams interface.
+ * @brief       Support for streams interface.
  */
 #if !defined(SIO_USE_STREAMS_INTERFACE) || defined(__DOXYGEN__)
 #define SIO_USE_STREAMS_INTERFACE           SIO_USE_SYNCHRONIZATION
@@ -131,7 +131,7 @@
 /*===========================================================================*/
 
 /**
- * @brief   Associates a callback to the SIO instance.
+ * @brief       Associates a callback to the SIO instance.
  *
  * @param[out]    siop          Pointer to the @p hal_sio_driver_c object
  * @param         f             Callback function to be associated.
@@ -142,7 +142,7 @@
   (siop)->sio.cb = (f)
 
 /**
- * @brief   Determines the state of the RX FIFO.
+ * @brief       Determines the state of the RX FIFO.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The RX FIFO state.
@@ -153,7 +153,7 @@
   sio_lld_is_rx_empty(siop)
 
 /**
- * @brief   Determines the activity state of the receiver.
+ * @brief       Determines the activity state of the receiver.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The RX activity state.
@@ -164,9 +164,9 @@
   sio_lld_is_rx_idle(siop)
 
 /**
- * @brief   Determines if RX has pending errors to be read and cleared.
- * @note    Only error flags are handled, data and idle flags are not
- *          considered.
+ * @brief       Determines if RX has pending errors to be read and cleared.
+ * @note        Only error flags are handled, data and idle flags are not
+ *              considered.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The RX error events.
@@ -177,7 +177,7 @@
   sio_lld_has_rx_errors(siop)
 
 /**
- * @brief   Determines the state of the TX FIFO.
+ * @brief       Determines the state of the TX FIFO.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The TX FIFO state.
@@ -188,7 +188,7 @@
   sio_lld_is_tx_full(siop)
 
 /**
- * @brief   Determines the transmission state.
+ * @brief       Determines the transmission state.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The transmission state.
@@ -199,7 +199,7 @@
   sio_lld_is_tx_ongoing(siop)
 
 /**
- * @brief   Writes the enabled events mask.
+ * @brief       Writes the enabled events mask.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     mask          Enabled events mask to be written.
@@ -213,7 +213,7 @@
   } while (false)
 
 /**
- * @brief   Sets flags into the enabled events flags mask.
+ * @brief       Sets flags into the enabled events flags mask.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     mask          Enabled events mask to be set.
@@ -227,7 +227,7 @@
   } while (false)
 
 /**
- * @brief   Clears flags from the enabled events flags mask.
+ * @brief       Clears flags from the enabled events flags mask.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     mask          Enabled events mask to be cleared.
@@ -241,7 +241,7 @@
   } while (false)
 
 /**
- * @brief   Gets the enabled condition flags mask.
+ * @brief       Gets the enabled condition flags mask.
  *
  * @param[in]     siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The enabled event flags.
@@ -252,7 +252,7 @@
   (siop)->sio.enabled
 
 /**
- * @brief   Gets and clears SIO error flags.
+ * @brief       Gets and clears SIO error flags.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The pending error flags.
@@ -263,7 +263,7 @@
   sio_lld_get_and_clear_errors(siop)
 
 /**
- * @brief   Gets and clears SIO event flags.
+ * @brief       Gets and clears SIO event flags.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The pending event flags.
@@ -274,7 +274,7 @@
   sio_lld_get_and_clear_events(siop)
 
 /**
- * @brief   Returns all SIO event flags.
+ * @brief       Returns all SIO event flags.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The pending event flags.
@@ -285,8 +285,8 @@
   sio_lld_get_events(siop)
 
 /**
- * @brief   Returns one frame from the RX FIFO.
- * @note    If the FIFO is empty then the returned value is unpredictable.
+ * @brief       Returns one frame from the RX FIFO.
+ * @note        If the FIFO is empty then the returned value is unpredictable.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The frame from RX FIFO.
@@ -297,8 +297,8 @@
   sio_lld_get(siop)
 
 /**
- * @brief   Pushes one frame into the TX FIFO.
- * @note    If the FIFO is full then the behavior is unpredictable.
+ * @brief       Pushes one frame into the TX FIFO.
+ * @note        If the FIFO is full then the behavior is unpredictable.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     data          Frame to be written.
@@ -309,11 +309,11 @@
   sio_lld_put(siop, data)
 
 /**
- * @brief   Reads data from the RX FIFO.
- * @details This function is non-blocking, data is read if present and the
- *          effective amount is returned.
- * @note    This function can be called from any context but it is meant to be
- *          called from the @p cb callback handler.
+ * @brief       Reads data from the RX FIFO.
+ * @details     This function is non-blocking, data is read if present and the
+ *              effective amount is returned.
+ * @note        This function can be called from any context but it is meant to
+ *              be called from the @p cb callback handler.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     size          Maximum number of frames to read.
@@ -327,11 +327,11 @@
   sio_lld_read(siop, size, buffer)
 
 /**
- * @brief   Writes data into the TX FIFO.
- * @details This function is non-blocking, data is written if there is space in
- *          the FIFO and the effective amount is returned.
- * @note    This function can be called from any context but it is meant to be
- *          called from the @p cb callback handler.
+ * @brief       Writes data into the TX FIFO.
+ * @details     This function is non-blocking, data is written if there is
+ *              space in the FIFO and the effective amount is returned.
+ * @note        This function can be called from any context but it is meant to
+ *              be called from the @p cb callback handler.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     size          Maximum number of frames to read.
@@ -345,7 +345,7 @@
   sio_lld_write(siop, size, buffer)
 
 /**
- * @brief   Control operation on a serial port.
+ * @brief       Control operation on a serial port.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @param[in]     operation     Control operation code.
@@ -362,7 +362,7 @@
  * @{
  */
 /**
- * @brief   SIO callback.
+ * @brief       SIO callback.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  * @return                      The control operation status.
@@ -378,7 +378,7 @@
 
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
 /**
- * @brief   Wakes up because RX errors.
+ * @brief       Wakes up because RX errors.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  *
@@ -393,7 +393,7 @@
   } while (false)
 
 /**
- * @brief   Wakes up the RX-waiting thread.
+ * @brief       Wakes up the RX-waiting thread.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  *
@@ -407,7 +407,7 @@
   } while (false)
 
 /**
- * @brief   Wakes up the RX-idle-waiting thread.
+ * @brief       Wakes up the RX-idle-waiting thread.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  *
@@ -421,7 +421,7 @@
   } while (false)
 
 /**
- * @brief   Wakes up the TX-waiting thread.
+ * @brief       Wakes up the TX-waiting thread.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  *
@@ -435,7 +435,7 @@
   } while (false)
 
 /**
- * @brief   Wakes up the TXend-waiting thread.
+ * @brief       Wakes up the TXend-waiting thread.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
  *
@@ -458,7 +458,7 @@
 /** @} */
 
 /**
- * @brief   Relocates a bit field.
+ * @brief       Relocates a bit field.
  *
  * @param[in]     v             Value.
  * @param[in]     m             Mask of the bit field.
@@ -473,27 +473,27 @@
 /*===========================================================================*/
 
 /**
- * @brief   Type of SIO event flags.
+ * @brief       Type of SIO event flags.
  */
 typedef eventflags_t sioevents_t;
 
 /**
- * @brief   Type of structure representing a SIO configuration.
+ * @brief       Type of structure representing a SIO configuration.
  */
 typedef struct hal_sio_config hal_sio_config_t;
 
 /**
- * @brief   Type of structure representing a SIO configuration (legacy).
+ * @brief       Type of structure representing a SIO configuration (legacy).
  */
 typedef struct hal_sio_config SIOConfig;
 
 /**
- * @brief   Type of structure representing a SIO driver (legacy).
+ * @brief       Type of structure representing a SIO driver (legacy).
  */
 typedef struct hal_sio_driver SIODriver;
 
 /**
- * @brief   Generic SIO notification callback type.
+ * @brief       Generic SIO notification callback type.
  */
 typedef void (*siocb_t)(struct hal_sio_driver *siop);
 
@@ -501,9 +501,9 @@ typedef void (*siocb_t)(struct hal_sio_driver *siop);
 #include "hal_sio_lld.h"
 
 /**
- * @brief   Driver configuration structure.
- * @note    Implementations may extend this structure to contain more,
- *          architecture dependent, fields.
+ * @brief       Driver configuration structure.
+ * @note        Implementations may extend this structure to contain more,
+ *              architecture dependent, fields.
  */
 struct hal_sio_config {
   /* End of the mandatory fields.*/
@@ -519,50 +519,51 @@ struct hal_sio_config {
 
 /**
  * @class       hal_sio_driver_c
- * @extends     hal_base_driver_c
+ * @extends     hal_sio_driver_c
+ * @implements  asynchronous_channel_i
  *
- * @brief   Class of a SIO (Serial I/O) driver.
+ * @brief       Class of a SIO (Serial I/O) driver.
  */
 
 /**
- * @brief   Type of a SIO driver class.
+ * @brief       Type of a SIO driver class.
  */
 typedef struct hal_sio_driver hal_sio_driver_c;
 
 /**
- * @brief   @p hal_sio_driver_c data as a structure.
+ * @brief       @p hal_sio_driver_c data as a structure.
  */
 struct sio_data {
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
   /**
-   * @brief   Channel interface.
+   * @brief       Channel interface.
    */
   asynchronous_channel_i                    chn;
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
   /**
-   * @brief   Enabled event flags.
+   * @brief       Enabled event flags.
    */
   sioevents_t                               enabled;
   /**
-   * @brief   Events callback.
-   * @note    Can be @p NULL.
+   * @brief       Events callback.
+   * @note        Can be @p NULL.
    */
   siocb_t                                   cb;
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
   /**
-   * @brief   Synchronization point for RX.
+   * @brief       Synchronization point for RX.
    */
   thread_reference_t                        sync_rx;
   /**
-   * @brief   Synchronization point for RX idle.
+   * @brief       Synchronization point for RX idle.
    */
   thread_reference_t                        sync_rxidle;
   /**
-   * @brief   Synchronization point for TX.
+   * @brief       Synchronization point for TX.
    */
   thread_reference_t                        sync_tx;
   /**
-   * @brief   Synchronization point for TX-end.
+   * @brief       Synchronization point for TX-end.
    */
   thread_reference_t                        sync_txend;
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
@@ -574,38 +575,38 @@ struct sio_data {
 };
 
 /**
- * @brief   @p hal_sio_driver_c methods.
+ * @brief       @p hal_sio_driver_c methods.
  */
 #define __sio_methods                                                       \
   __drv_methods                                                             \
   /* No methods.*/
 
 /**
- * @brief   @p hal_sio_driver_c data.
+ * @brief       @p hal_sio_driver_c data.
  */
 #define __sio_data                                                          \
   __drv_data                                                                \
   struct sio_data                           sio;
 
 /**
- * @brief   @p hal_sio_driver_c VMT initializer.
+ * @brief       @p hal_sio_driver_c VMT initializer.
  */
 #define __sio_vmt_init(ns)                                                  \
   __drv_vmt_init(ns)
 
 /**
- * @brief   @p hal_sio_driver_c virtual methods table.
+ * @brief       @p hal_sio_driver_c virtual methods table.
  */
 struct hal_sio_driver_vmt {
   __sio_methods
 };
 
 /**
- * @brief   Structure representing a SIO driver class.
+ * @brief       Structure representing a SIO driver class.
  */
 struct hal_sio_driver {
   /**
-   * @brief   Virtual Methods Table.
+   * @brief       Virtual Methods Table.
    */
   const struct hal_sio_driver_vmt           *vmt;
   __sio_data

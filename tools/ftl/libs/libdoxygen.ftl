@@ -22,7 +22,8 @@
   -- Coding style global settings.
   -->
 [#assign doxygen_boundary = 80 /]
-[#assign text_align = 32 /]
+[#assign near_align = 16 /]
+[#assign middle_align = 32 /]
 
 [#--
   -- Ouputs a formatted text starting from a "rich text" node containing
@@ -64,53 +65,56 @@ ${ln + s}
 [/#macro]
 
 [#--
+  -- This macro generates a generic tag with unformatted text.
+  --]
+[#macro EmitTagVerbatim indent="" tag="no-tag" text="" align=near_align]
+  [#local s = (indent + " * @" + tag + " ")?right_pad(align) + text]
+${s}
+[/#macro]
+
+[#--
+  -- This macro generates a generic tag with formatted text.
+  --]
+[#macro EmitTagFormatted indent="" tag="no-tag" text="" align=near_align]
+[@utils.FormatStringAsText indent + (" * @" + tag + " ")?right_pad(align)
+                           indent + (" *")?right_pad(align)
+                           utils.WithDot(text?cap_first)
+                           doxygen_boundary /]
+[/#macro]
+
+[#--
   -- This macro generates a brief tag description.
   --]
 [#macro EmitBrief indent="" text=""]
-[@utils.FormatStringAsText indent + " * @brief   "
-                           indent + " *          "
-                           utils.WithDot(text?cap_first)
-                           doxygen_boundary /]
+[@EmitTagFormatted indent "brief" text /]
 [/#macro]
 
 [#--
   -- This macro generates a details tag description.
   --]
 [#macro EmitDetails indent="" text=""]
-[@utils.FormatStringAsText indent + " * @details "
-                           indent + " *          "
-                           utils.WithDot(text?cap_first)
-                           doxygen_boundary /]
+[@EmitTagFormatted indent "details" text /]
 [/#macro]
 
 [#--
   -- This macro generates a pre tag description.
   --]
 [#macro EmitPre indent="" text=""]
-[@utils.FormatStringAsText indent + " * @pre     "
-                           indent + " *          "
-                           utils.WithDot(text?cap_first)
-                           doxygen_boundary /]
+[@EmitTagFormatted indent "pre" text /]
 [/#macro]
 
 [#--
   -- This macro generates a post tag description.
   --]
 [#macro EmitPost indent="" text=""]
-[@utils.FormatStringAsText indent + " * @post    "
-                           indent + " *          "
-                           utils.WithDot(text?cap_first)
-                           doxygen_boundary /]
+[@EmitTagFormatted indent "post" text /]
 [/#macro]
 
 [#--
   -- This macro generates a note tag description.
   --]
 [#macro EmitNote indent="" text=""]
-[@utils.FormatStringAsText indent + " * @note    "
-                           indent + " *          "
-                           utils.WithDot(text?cap_first)
-                           doxygen_boundary /]
+[@EmitTagFormatted indent "note" text /]
 [/#macro]
 
 [#--
@@ -121,23 +125,23 @@ ${ln + s}
     [#local text="missing description" /]
   [/#if]
   [#if dir == "in"]
-[@utils.FormatStringAsText indent + (" * @param[in]     " + name + " ")?right_pad(text_align)
-                           indent + " *"?right_pad(text_align)
+[@utils.FormatStringAsText indent + (" * @param[in]     " + name + " ")?right_pad(middle_align)
+                           indent + " *"?right_pad(middle_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
   [#elseif dir == "out"]
-[@utils.FormatStringAsText indent + (" * @param[out]    " + name + " ")?right_pad(text_align)
-                           indent + " *"?right_pad(text_align)
+[@utils.FormatStringAsText indent + (" * @param[out]    " + name + " ")?right_pad(middle_align)
+                           indent + " *"?right_pad(middle_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
   [#elseif dir == "both"]
-[@utils.FormatStringAsText indent + (" * @param[in,out] " + name + " ")?right_pad(text_align)
-                           indent + " *"?right_pad(text_align)
+[@utils.FormatStringAsText indent + (" * @param[in,out] " + name + " ")?right_pad(middle_align)
+                           indent + " *"?right_pad(middle_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
   [#else]
-[@utils.FormatStringAsText indent + (" * @param         " + name + " ")?right_pad(text_align)
-                           indent + " *"?right_pad(text_align)
+[@utils.FormatStringAsText indent + (" * @param         " + name + " ")?right_pad(middle_align)
+                           indent + " *"?right_pad(middle_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
   [/#if]
@@ -147,8 +151,8 @@ ${ln + s}
   -- This macro generates a return tag description.
   --]
 [#macro EmitReturn indent="" text=""]
-[@utils.FormatStringAsText indent + (" * @return")?right_pad(text_align)
-                           indent + " *"?right_pad(text_align)
+[@utils.FormatStringAsText indent + (" * @return")?right_pad(middle_align)
+                           indent + " *"?right_pad(middle_align)
                            utils.WithDot(text?cap_first)
                            doxygen_boundary /]
 [/#macro]
@@ -167,8 +171,8 @@ ${ln + s}
   --]
 [#macro EmitDetailsFromNode indent="" node=[]]
   [#if node.details[0]??]
-[@EmitRichTextFromNode indent + " * @details "
-                       indent + " *          "
+[@EmitRichTextFromNode indent + (" * @details ")?right_pad(near_align)
+                       indent + " *"?right_pad(near_align)
                        node.details /]
   [/#if]
 [/#macro]
@@ -178,8 +182,8 @@ ${ln + s}
   --]
 [#macro EmitPreFromNode indent="" node=[]]
   [#list node.pre as pre]
-[@EmitRichTextFromNode indent + " * @pre     "
-                       indent + " *          "
+[@EmitRichTextFromNode indent + " * @pre "?right_pad(near_align)
+                       indent + " *"?right_pad(near_align)
                        pre /]
   [/#list]
 [/#macro]
@@ -189,8 +193,8 @@ ${ln + s}
   --]
 [#macro EmitPostFromNode indent="" node=[]]
   [#list node.post as post]
-[@EmitRichTextFromNode indent + " * @post    "
-                       indent + " *          "
+[@EmitRichTextFromNode indent + " * @post "?right_pad(near_align)
+                       indent + " *"?right_pad(near_align)
                        post /]
   [/#list]
 [/#macro]
@@ -200,8 +204,8 @@ ${ln + s}
   --]
 [#macro EmitNoteFromNode indent="" node=[]]
   [#list node.note as note]
-[@EmitRichTextFromNode indent + " * @note    "
-                       indent + " *          "
+[@EmitRichTextFromNode indent + " * @note "?right_pad(near_align)
+                       indent + " *"?right_pad(near_align)
                        note /]
   [/#list]
 [/#macro]
@@ -214,15 +218,15 @@ ${ln + s}
     [#local name = param.@name[0]!"no-name"
             dir  = param.@dir[0]!"no-dir" /]
     [#if dir == "in"]
-      [#local p1 = indent + (" * @param[in]     " + name + " ")?right_pad(text_align) /]
+      [#local p1 = indent + (" * @param[in]     " + name + " ")?right_pad(middle_align) /]
     [#elseif dir == "out"]
-      [#local p1 = indent + (" * @param[out]    " + name + " ")?right_pad(text_align) /]
+      [#local p1 = indent + (" * @param[out]    " + name + " ")?right_pad(middle_align) /]
     [#elseif dir == "both"]
-      [#local p1 = indent + (" * @param[in,out] " + name + " ")?right_pad(text_align) /]
+      [#local p1 = indent + (" * @param[in,out] " + name + " ")?right_pad(middle_align) /]
     [#else]
-      [#local p1 = indent + (" * @param         " + name + " ")?right_pad(text_align) /]
+      [#local p1 = indent + (" * @param         " + name + " ")?right_pad(middle_align) /]
     [/#if]
-    [#local pn = indent + " *"?right_pad(text_align) /]
+    [#local pn = indent + " *"?right_pad(middle_align) /]
 [@EmitRichTextFromNode p1 pn param /]
   [/#list]
 [/#macro]
@@ -232,8 +236,8 @@ ${ln + s}
   --]
 [#macro EmitReturnFromNode indent="" node=[]]
   [#if node.return[0]??]
-    [#local p1 = (indent + " * @return ")?right_pad(text_align)
-            pn = (indent + " *         ")?right_pad(text_align) /]
+    [#local p1 = (indent + " * @return ")?right_pad(middle_align)
+            pn = (indent + " *         ")?right_pad(middle_align) /]
 [@EmitRichTextFromNode p1 pn node.return /]
   [/#if]
 [/#macro]
@@ -244,8 +248,8 @@ ${ln + s}
 [#macro EmitRetvalFromNode indent="" node=[]]
   [#list node.retval as retval]
     [#local value = (retval.@value[0]!"no-value")?trim ]
-    [#local p1 = (indent + " * @retval " + value + " ")?right_pad(text_align)
-            pn = (indent + " *         ")?right_pad(text_align) /]
+    [#local p1 = (indent + " * @retval " + value + " ")?right_pad(middle_align)
+            pn = (indent + " *         ")?right_pad(middle_align) /]
 [@EmitRichTextFromNode p1 pn retval /]
   [/#list]
 [/#macro]

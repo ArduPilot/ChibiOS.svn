@@ -34,21 +34,38 @@
 [/#macro]
 
 [#--
-  -- Returns the interface name from an XML node.
+  -- Returns the name attribute from an XML node.
   --]
-[#function GetInterfaceName node=[] default="no-name"]
-  [#local if = node /]
-  [#local ifname = (if.@name[0]!default)?trim /]
-  [#return ifname /]
+[#function GetNodeName node=[] default="no-name"]
+  [#return (node.@name[0]!default)?trim /]
 [/#function]
 
 [#--
-  -- Returns the interface namespace from an XML node.
+  -- Returns the namespace attribute from an XML node.
   --]
-[#function GetInterfaceNamespace node=[] default="no-namespace"]
-  [#local if = node /]
-  [#local ifnamespace = (if.@namespace[0]!default)?trim /]
-  [#return ifnamespace /]
+[#function GetNodeNamespace node=[] default="no-namespace"]
+  [#return (node.@namespace[0]!default)?trim /]
+[/#function]
+
+[#--
+  -- Returns the ancestorname attribute from an XML node.
+  --]
+[#function GetNodeAncestorName node=[] default=""]
+  [#return (node.@ancestorname[0]!default)?trim /]
+[/#function]
+
+[#--
+  -- Returns the ancestornamespace attribute from an XML node.
+  --]
+[#function GetNodeAncestorNamespace node=[] default=""]
+  [#return (node.@ancestornamespace[0]!default)?trim /]
+[/#function]
+
+[#--
+  -- Returns the descr attribute from an XML node.
+  --]
+[#function GetNodeDescription node=[] default="no-descr"]
+  [#return (node.@descr[0]!default)?trim /]
 [/#function]
 
 [#--
@@ -56,7 +73,7 @@
   --]
 [#function GetInterfaceCType node=[] default=""]
   [#local if = node /]
-  [#local ifname  = GetInterfaceName(if default) /]
+  [#local ifname  = GetNodeName(if default) /]
   [#if ifname?length > 0]
     [#local ifctype = ifname + interface_suffix /]
   [#else ]
@@ -66,38 +83,11 @@
 [/#function]
 
 [#--
-  -- Returns the interface description from an XML node.
-  --]
-[#function GetInterfaceDescription node=[] default="no-descr"]
-  [#local if = node /]
-  [#local ifdescr = (if.@descr[0]!default)?trim /]
-  [#return ifdescr /]
-[/#function]
-
-[#--
-  -- Returns the interface ancestor name from an XML node.
-  --]
-[#function GetInterfaceAncestorName node=[] default=""]
-  [#local if = node /]
-  [#local ancestornamespace = (if.@ancestorname[0]!default)?trim /]
-  [#return ancestornamespace /]
-[/#function]
-
-[#--
-  -- Returns the interface ancestor name from an XML node.
-  --]
-[#function GetInterfaceAncestorNamespace node=[] default=""]
-  [#local if = node /]
-  [#local ancestornamespace = (if.@ancestornamespace[0]!default)?trim /]
-  [#return ancestornamespace /]
-[/#function]
-
-[#--
   -- Returns the interface ancestor C type from an XML node.
   --]
 [#function GetInterfaceAncestorCType node=[] default=""]
   [#local if = node /]
-  [#local ancestorname  = GetInterfaceAncestorName(if default) /]
+  [#local ancestorname  = GetNodeAncestorName(if default) /]
   [#if ancestorname?length > 0]
     [#local ancestorctype = ancestorname + interface_suffix /]
   [#else ]
@@ -107,35 +97,31 @@
 [/#function]
 
 [#--
-  -- Returns the class name from an XML node.
-  --]
-[#function GetClassName node=[] default="no-name"]
-  [#local class = node /]
-  [#local classname = (class.@name[0]!default)?trim /]
-  [#return classname /]
-[/#function]
-
-[#--
-  -- Returns the class namespace from an XML node.
-  --]
-[#function GetClassNamespace node=[] default="no-namespace"]
-  [#local class = node /]
-  [#local classnamespace = (class.@namespace[0]!default)?trim /]
-  [#return classnamespace /]
-[/#function]
-
-[#--
   -- Returns the class C type from an XML node.
   --]
 [#function GetClassCType node=[] default=""]
   [#local class = node /]
-  [#local classname  = GetClassName(class default) /]
+  [#local classname  = GetNodeName(class default) /]
   [#if classname?length > 0]
     [#local classctype = classname + class_suffix /]
   [#else ]
     [#local classctype = default /]
   [/#if]
   [#return classctype /]
+[/#function]
+
+[#--
+  -- Returns the class ancestor C type from an XML node.
+  --]
+[#function GetClassAncestorCType node=[] default=""]
+  [#local class = node /]
+  [#local ancestorname  = GetNodeName(class default) /]
+  [#if ancestorname?length > 0]
+    [#local ancestorctype = ancestorname + class_suffix /]
+  [#else ]
+    [#local ancestorctype = default /]
+  [/#if]
+  [#return ancestorctype /]
 [/#function]
 
 [#--
@@ -148,63 +134,13 @@
 [/#function]
 
 [#--
-  -- Returns the class description from an XML node.
-  --]
-[#function GetClassDescription node=[] default="no-descr"]
-  [#local class = node /]
-  [#local classdescr = (class.@descr[0]!default)?trim /]
-  [#return classdescr /]
-[/#function]
-
-[#--
-  -- Returns the class ancestor name from an XML node.
-  --]
-[#function GetClassAncestorName node=[] default=""]
-  [#local class = node /]
-  [#local ancestornamespace = (class.@ancestorname[0]!default)?trim /]
-  [#return ancestornamespace /]
-[/#function]
-
-[#--
-  -- Returns the class ancestor namespace from an XML node.
-  --]
-[#function GetClassAncestorNamespace node=[] default=""]
-  [#local class = node /]
-  [#local ancestornamespace = (class.@ancestornamespace[0]!default)?trim /]
-  [#return ancestornamespace /]
-[/#function]
-
-[#--
-  -- Returns the class ancestor C type from an XML node.
-  --]
-[#function GetClassAncestorCType node=[] default=""]
-  [#local class = node /]
-  [#local ancestorname  = GetClassAncestorName(class default) /]
-  [#if ancestorname?length > 0]
-    [#local ancestorctype = ancestorname + class_suffix /]
-  [#else ]
-    [#local ancestorctype = default /]
-  [/#if]
-  [#return ancestorctype /]
-[/#function]
-
-[#--
-  -- Returns the method name from an XML node.
-  --]
-[#function GetMethodName node=[] default="no-name"]
-  [#local method = node /]
-  [#local methodname = (method.@name[0]!default)?trim /]
-  [#return methodname /]
-[/#function]
-
-[#--
   -- Returns the method short name from an XML node.
   --]
 [#function GetMethodShortName node=[] default=""]
   [#local method = node /]
   [#local methodsname = (method.@shortname[0]!default)?trim /]
     [#if methodsname?length == 0]
-      [#local methodsname = GetMethodName(method default)?lower_case /]
+      [#local methodsname = GetNodeName(method default)?lower_case /]
     [/#if]
   [#return methodsname /]
 [/#function]
@@ -255,18 +191,24 @@ ${s}
   --]
 [#macro GenerateClassWrapper node=[]]
   [#local class = node /]
-  [#local classname         = GetClassName(class)
-          classnamespace    = GetClassNamespace(class)
+  [#local classname         = GetNodeName(class)
+          classnamespace    = GetNodeNamespace(class)
           classctype        = GetClassCType(class)
-          classdescr        = GetClassDescription(class)
-          ancestorname      = GetClassAncestorName(class)
-          ancestorctype     = GetClassAncestorCType(class)
-          ancestornamespace = GetClassAncestorNamespace(class) /]
+          classdescr        = GetNodeDescription(class)
+          ancestorname      = GetNodeName(class)
+          ancestornamespace = GetNodeAncestorNamespace(class)
+          ancestorctype     = GetClassAncestorCType(class) /]
 /**
- * @class       ${classctype}
+[@doxygen.EmitTagVerbatim indent="" tag="class" text=classctype /]
   [#if ancestorctype?length > 0]
- * @extends     ${ancestorctype}
+[@doxygen.EmitTagVerbatim indent="" tag="extends" text=ancestorctype /]
   [/#if]
+  [#list class.implements.ifref as ifref]
+    [#local refname      = GetNodeName(ifref)
+            refnamespace = GetNodeNamespace(ifref)
+            refctype     = GetInterfaceCType(ifref) /]
+[@doxygen.EmitTagVerbatim indent="" tag="implements" text=refctype /]
+  [/#list]
   [#if class.brief[0]??]
  *
 [@doxygen.EmitBriefFromNode node=class /]
@@ -382,7 +324,7 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
 [#macro GenerateClassVirtualMethods node=[]]
   [#local class = node /]
   [#if class.methods.virtual.method?size > 0]
-    [#local classnamespace = GetClassNamespace(class)
+    [#local classnamespace = GetNodeNamespace(class)
             classctype     = GetClassCType(class) /]
 /**
  * @name    Virtual methods of ${classctype}
@@ -421,8 +363,8 @@ CC_FORCE_INLINE
   --]
 [#macro GenerateClassConstructorDestructorPrototypes node=[]]
   [#local class = node /]
-  [#local classtype         = GetClassType(class)
-          classnamespace    = GetClassNamespace(class)
+  [#local classnamespace    = GetNodeNamespace(class)
+          classtype         = GetClassType(class)
           classctype        = GetClassCType(class) /]
   [#if classtype == "regular"]
   ${classctype} *${classnamespace}ObjectInit(${classctype} *self);
@@ -437,7 +379,7 @@ CC_FORCE_INLINE
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
-      [#local methodname     = GetMethodName(method)
+      [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method) /]
 [@ccode.GeneratePrototype indent    = "  "
@@ -458,14 +400,14 @@ CC_FORCE_INLINE
   -- This macro generates regular method prototypes from an XML node.
   --]
 [#macro GenerateVirtualMethodsPrototypes class=[]]
-  [#local classname        = GetClassName(class)
-          classnamespace   = GetClassNamespace(class) /]
+  [#local classname        = GetNodeName(class)
+          classnamespace   = GetNodeNamespace(class) /]
   void *__${classnamespace}_objinit_impl(void *ip, const void *vmt);
   void __${classnamespace}_dispose_impl(void *ip);
   [#list class.methods.virtual.* as node]
     [#if node?node_name == "method"]
       [#local method=node /]
-      [#local methodname     = GetMethodName(method)
+      [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = (method.implementation[0]!"")?trim /]
@@ -494,13 +436,13 @@ CC_FORCE_INLINE
   --]
 [#macro GenerateInterfaceWrapper node=[]]
   [#local if = node /]
-  [#local ifname            = GetInterfaceName(if)
-          ifnamespace       = GetInterfaceNamespace(if)
+  [#local ifname            = GetNodeName(if)
+          ifnamespace       = GetNodeNamespace(if)
           ifctype           = GetInterfaceCType(if)
-          ifdescr           = GetInterfaceDescription(if)
-          ancestorname      = GetInterfaceAncestorName(if)
-          ancestorctype     = GetInterfaceAncestorCType(if)
-          ancestornamespace = GetInterfaceAncestorNamespace(if) /]
+          ifdescr           = GetNodeDescription(if)
+          ancestorname      = GetNodeAncestorName(if)
+          ancestornamespace = GetNodeAncestorNamespace(if)
+          ancestorctype     = GetInterfaceAncestorCType(if) /]
 /**
  * @interface   ${ifctype}
   [#if ancestorctype?length > 0]
@@ -627,11 +569,11 @@ CC_FORCE_INLINE
   --]
 [#macro GenerateClassMethodsImplementations node=[]]
   [#local class = node /]
-  [#local classname         = GetClassName(class)
+  [#local classname         = GetNodeName(class)
+          classnamespace    = GetNodeNamespace(class)
           classctype        = GetClassCType(class)
-          classnamespace    = GetClassNamespace(class)
-          classdescr        = GetClassDescription(class)
-          ancestornamespace = GetClassAncestorNamespace(class) /]
+          classdescr        = GetNodeDescription(class)
+          ancestornamespace = GetNodeAncestorNamespace(class) /]
   [#assign generated = true /]
 /**
  * @name    Virtual methods implementations of ${classctype}
@@ -696,7 +638,7 @@ void __${classnamespace}_dispose_impl(void *ip) {
   [#list class.methods.virtual.* as node]
     [#if node?node_name == "method"]
       [#local method=node /]
-      [#local methodname     = GetMethodName(method)
+      [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = (method.implementation[0]!"")?trim /]
@@ -731,11 +673,11 @@ void __${classnamespace}_dispose_impl(void *ip) {
   --]
 [#macro GenerateClassConstructorDestructor node=[]]
   [#local class = node /]
-  [#local classname         = GetClassName(class)
+  [#local classname         = GetNodeName(class)
+          classnamespace    = GetNodeNamespace(class)
           classtype         = GetClassType(class)
-          classnamespace    = GetClassNamespace(class)
           classctype        = GetClassCType(class)
-          classdescr        = GetClassDescription(class) /]
+          classdescr        = GetNodeDescription(class) /]
   [#if classtype == "regular"]
     [#assign generated = true /]
 /**
@@ -783,7 +725,7 @@ void ${classnamespace}Dispose(${classctype} *self) {
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
-      [#local methodname     = GetMethodName(method)
+      [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!"" /]

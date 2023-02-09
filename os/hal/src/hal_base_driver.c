@@ -15,10 +15,10 @@
 */
 
 /**
- * @file    hal_base_driver.c
- * @brief   Generated HAL_BASE_DRIVER source.
+ * @file        hal_base_driver.c
+ * @brief       Generated HAL_BASE_DRIVER source.
  *
- * @addtogroup HAL_BASE_DRIVER
+ * @addtogroup  HAL_BASE_DRIVER
  * @{
  */
 
@@ -61,8 +61,8 @@
  * @{
  */
 /**
- * @brief   Implementation of object creation.
- * @note    This function is meant to be used by derived classes.
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
  *
  * @param[out]    ip            Pointer to a @p hal_base_driver_c instance to
  *                              be initialized.
@@ -88,8 +88,8 @@ void *__drv_objinit_impl(void *ip, const void *vmt) {
 }
 
 /**
- * @brief   Implementation of object finalization.
- * @note    This function is meant to be used by derived classes.
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance to
  *                              be disposed.
@@ -109,10 +109,11 @@ void __drv_dispose_impl(void *ip) {
  * @{
  */
 /**
- * @brief   Driver open.
- * @details Returns a reference to the driver, on the 1st open the peripheral
- *          is physically initialized. An implementation-dependent default
- *          configuration is used for initialization.
+ * @brief       Driver open.
+ * @details     Returns a reference to the driver, on the 1st open the
+ *              peripheral is physically initialized. An
+ *              implementation-dependent default configuration is used for
+ *              initialization.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The operation status.
@@ -146,9 +147,9 @@ msg_t drvOpen(void *ip) {
 }
 
 /**
- * @brief   Driver close.
- * @details Releases a reference to the driver, when the count reaches zero
- *          then the peripheral is physically uninitialized.
+ * @brief       Driver close.
+ * @details     Releases a reference to the driver, when the count reaches zero
+ *              then the peripheral is physically uninitialized.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  */
@@ -169,7 +170,7 @@ void drvClose(void *ip) {
 }
 
 /**
- * @brief   Driver state get.
+ * @brief       Driver state get.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver state.
@@ -180,7 +181,7 @@ driver_state_t drvGetStateX(void *ip) {
 }
 
 /**
- * @brief   Driver state set.
+ * @brief       Driver state set.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @param         state         New driver state.
@@ -191,7 +192,7 @@ void drvSetStateX(void *ip, driver_state_t state) {
 }
 
 /**
- * @brief   Driver owner get.
+ * @brief       Driver owner get.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver owner.
@@ -202,7 +203,7 @@ void * drvGetOwnerX(void *ip) {
 }
 
 /**
- * @brief   Driver owner set.
+ * @brief       Driver owner set.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @param         owner         New driver owner.
@@ -214,7 +215,7 @@ void drvSetOwnerX(void *ip, void *owner) {
 
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
 /**
- * @brief   Driver lock.
+ * @brief       Driver lock.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  */
@@ -224,7 +225,7 @@ void drvLock(void *ip) {
 }
 
 /**
- * @brief   Driver unlock.
+ * @brief       Driver unlock.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  */

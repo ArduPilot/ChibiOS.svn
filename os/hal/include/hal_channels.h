@@ -15,12 +15,12 @@
 */
 
 /**
- * @file    hal_channels.h
- * @brief   Generated HAL_CHANNELS header.
+ * @file        hal_channels.h
+ * @brief       Generated HAL_CHANNELS header.
  *
- * @addtogroup HAL_CHANNELS
- * @brief   Sequential data streams interface.
- * @note    This is a generated file, do not edit directly.
+ * @addtogroup  HAL_CHANNELS
+ * @brief       Sequential data streams interface.
+ * @note        This is a generated file, do not edit directly.
  * @{
  */
  
@@ -36,17 +36,17 @@
  * @{
  */
 /**
- * @brief   Invalid operation code.
+ * @brief       Invalid operation code.
  */
 #define CHN_CTL_INVALID                     0
 
 /**
- * @brief   Does nothing.
+ * @brief       Does nothing.
  */
 #define CHN_CTL_NOP                         1
 
 /**
- * @brief   Wait for TX completion.
+ * @brief       Wait for TX completion.
  */
 #define CHN_CTL_TX_WAIT                     2
 /** @} */
@@ -107,10 +107,10 @@
  * @{
  */
 /**
- * @brief   Channel blocking write.
- * @details This function writes data from a buffer to a channel. If the
- *          channel is not ready to accept data then the calling thread is
- *          suspended.
+ * @brief       Channel blocking write.
+ * @details     This function writes data from a buffer to a channel. If the
+ *              channel is not ready to accept data then the calling thread is
+ *              suspended.
  *
  * @param[in,out] ip            Pointer to a @p base_channel_c structure.
  * @param[in]     bp            Pointer to the data buffer.
@@ -121,9 +121,9 @@
   streamWrite(ip, bp, n)
 
 /**
- * @brief   Channel blocking read with timeout.
- * @details The function reads data from a channel into a buffer. If the data
- *          is not available then the calling thread is suspended.
+ * @brief       Channel blocking read with timeout.
+ * @details     The function reads data from a channel into a buffer. If the
+ *              data is not available then the calling thread is suspended.
  *
  * @param[in,out] ip            Pointer to a @p base_channel_c structure.
  * @param[out]    bp            Pointer to the data buffer.
@@ -134,9 +134,10 @@
   streamRead(ip, bp, n)
 
 /**
- * @brief   Channel blocking byte write with timeout.
- * @details This function writes a byte value to a channel. If the channel is
- *          not ready to accept data then the calling thread is suspended.
+ * @brief       Channel blocking byte write with timeout.
+ * @details     This function writes a byte value to a channel. If the channel
+ *              is not ready to accept data then the calling thread is
+ *              suspended.
  *
  * @param[in,out] ip            Pointer to a @p base_channel_c structure.
  * @param[in]     b             The byte value to be written to the channel.
@@ -148,9 +149,9 @@
   streamPut(ip, b)
 
 /**
- * @brief   Channel blocking byte read with timeout.
- * @details This function reads a byte value from a channel. If the data is not
- *          available then the calling thread is suspended.
+ * @brief       Channel blocking byte read with timeout.
+ * @details     This function reads a byte value from a channel. If the data is
+ *              not available then the calling thread is suspended.
  *
  * @param[in,out] ip            Pointer to a @p base_channel_c structure.
  * @return                      A byte value from the channel.
@@ -172,18 +173,18 @@
  * @interface   asynchronous_channel_i
  * @extends     sequential_stream_i
  *
- * @brief   Base I/O channel interface.
- * @details This header defines an abstract interface useful to access generic
- *          I/O serial devices in a standardized way.
+ * @brief       Base I/O channel interface.
+ * @details     This header defines an abstract interface useful to access
+ *              generic I/O serial devices in a standardized way.
  */
 
 /**
- * @brief   Type of a base I/O channel interface.
+ * @brief       Type of a base I/O channel interface.
  */
 typedef struct asynchronous_channel asynchronous_channel_i;
 
 /**
- * @brief   @p asynchronous_channel_i methods as a structure.
+ * @brief       @p asynchronous_channel_i methods as a structure.
  */
 struct chn_methods {
   size_t (*writet)(void *ip, const uint8_t *bp, size_t n, sysinterval_t timeout);
@@ -194,14 +195,14 @@ struct chn_methods {
 };
 
 /**
- * @brief   @p asynchronous_channel_i methods.
+ * @brief       @p asynchronous_channel_i methods.
  */
 #define __chn_methods                                                       \
   __stm_methods                                                             \
   struct chn_methods                        chn;
 
 /**
- * @brief   @p asynchronous_channel_i VMT initializer.
+ * @brief       @p asynchronous_channel_i VMT initializer.
  */
 #define __chn_vmt_init(ns)                                                  \
   __stm_vmt_init(ns)                                                        \
@@ -212,18 +213,18 @@ struct chn_methods {
   .chn.ctl                                  = __##ns##_ctl_impl,
 
 /**
- * @brief   @p asynchronous_channel_i virtual methods table.
+ * @brief       @p asynchronous_channel_i virtual methods table.
  */
 struct asynchronous_channel_vmt {
   __chn_methods
 };
 
 /**
- * @brief   Structure representing a base I/O channel.
+ * @brief       Structure representing a base I/O channel.
  */
 struct asynchronous_channel {
   /**
-   * @brief   Virtual Methods Table.
+   * @brief       Virtual Methods Table.
    */
   const struct asynchronous_channel_vmt     *vmt;
 };
@@ -233,10 +234,10 @@ struct asynchronous_channel {
  * @{
  */
 /**
- * @brief   Channel blocking write with timeout.
- * @details This function writes data from a buffer to a channel. If the
- *          channel is not ready to accept data then the calling thread is
- *          suspended.
+ * @brief       Channel blocking write with timeout.
+ * @details     This function writes data from a buffer to a channel. If the
+ *              channel is not ready to accept data then the calling thread is
+ *              suspended.
  *
  * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
  *                              derived, interface.
@@ -258,9 +259,9 @@ static inline size_t chnWriteTimeout(void *ip, const uint8_t *bp, size_t n,
 }
 
 /**
- * @brief   Channel blocking read with timeout.
- * @details The function reads data from a channel into a buffer. If the data
- *          is not available then the calling thread is suspended.
+ * @brief       Channel blocking read with timeout.
+ * @details     The function reads data from a channel into a buffer. If the
+ *              data is not available then the calling thread is suspended.
  *
  * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
  *                              derived, interface.
@@ -282,9 +283,10 @@ static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
 }
 
 /**
- * @brief   Channel blocking byte write with timeout.
- * @details This function writes a byte value to a channel. If the channel is
- *          not ready to accept data then the calling thread is suspended.
+ * @brief       Channel blocking byte write with timeout.
+ * @details     This function writes a byte value to a channel. If the channel
+ *              is not ready to accept data then the calling thread is
+ *              suspended.
  *
  * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
  *                              derived, interface.
@@ -307,9 +309,9 @@ static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
 }
 
 /**
- * @brief   Channel blocking byte read with timeout.
- * @details This function reads a byte value from a channel. If the data is not
- *          available then the calling thread is suspended.
+ * @brief       Channel blocking byte read with timeout.
+ * @details     This function reads a byte value from a channel. If the data is
+ *              not available then the calling thread is suspended.
  *
  * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
  *                              derived, interface.
@@ -330,7 +332,7 @@ static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
 }
 
 /**
- * @brief   Control operation on a channel.
+ * @brief       Control operation on a channel.
  *
  * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
  *                              derived, interface.

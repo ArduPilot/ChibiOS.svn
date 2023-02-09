@@ -42,10 +42,10 @@
 */
 
 /**
- * @file    ${headername}
+[@doxygen.EmitTagVerbatim indent="" tag="file" text=headername /]
 [@doxygen.EmitBrief "" "Generated " + docgroup + " header." /]
  *
- * @addtogroup ${docgroup}
+[@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=docgroup /]
 [@doxygen.EmitBriefFromNode node=module /]
 [@doxygen.EmitDetailsFromNode node=module /]
 [@doxygen.EmitNoteFromNode node=module /]

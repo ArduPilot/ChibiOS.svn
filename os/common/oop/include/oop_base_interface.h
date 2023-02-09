@@ -15,12 +15,12 @@
 */
 
 /**
- * @file    oop_base_interface.h
- * @brief   Generated OOP_BASE_INTERFACE header.
+ * @file        oop_base_interface.h
+ * @brief       Generated OOP_BASE_INTERFACE header.
  *
- * @addtogroup OOP_BASE_INTERFACE
- * @brief   Common interfaces ancestor.
- * @note    This is a generated file, do not edit directly.
+ * @addtogroup  OOP_BASE_INTERFACE
+ * @brief       Common interfaces ancestor.
+ * @note        This is a generated file, do not edit directly.
  * @{
  */
  
@@ -49,12 +49,12 @@
 /*===========================================================================*/
 
 /**
- * @brief   Returns an object pointer starting from an interface pointer.
- * @details Because multiple inheritance, an object can implement multiple
- *          interfaces.
- *          This macro returns the pointer to the base object starting from a
- *          pointer to any of its composing classes or interfaces. This is done
- *          by using the @p offsetof() macro in @p stdlib.h.
+ * @brief       Returns an object pointer starting from an interface pointer.
+ * @details     Because multiple inheritance, an object can implement multiple
+ *              interfaces.
+ *              This macro returns the pointer to the base object starting from
+ *              a pointer to any of its composing classes or interfaces. This
+ *              is done by using the @p offsetof() macro in @p stdlib.h.
  *
  * @param         c             Class type implementing the interface.
  * @param         ifname        Name of the interface field within the class
@@ -68,9 +68,9 @@
   (c *)(((size_t)(ip)) - (size_t)offsetof(c, ifname))
 
 /**
- * @brief   Initialization of an interface structure.
- * @details An interface structure contains only a VMT pointer and no data, the
- *          purpose of this macro is VMT initialization.
+ * @brief       Initialization of an interface structure.
+ * @details     An interface structure contains only a VMT pointer and no data,
+ *              the purpose of this macro is VMT initialization.
  *
  * @param[out]    ip            Pointer to the interface structure to be
  *                              initialized.
@@ -93,24 +93,25 @@
 /**
  * @interface   base_interface_i
  *
- * @brief   Common interfaces ancestor.
- * @details There are no methods in this interface. This interface is just
- *          meant to be the common ancestor of all interfaces used in ChibiOS.
+ * @brief       Common interfaces ancestor.
+ * @details     There are no methods in this interface. This interface is just
+ *              meant to be the common ancestor of all interfaces used in
+ *              ChibiOS.
  */
 
 /**
- * @brief   Type of a base interface interface.
+ * @brief       Type of a base interface interface.
  */
 typedef struct base_interface base_interface_i;
 
 /**
- * @brief   @p base_interface_i methods.
+ * @brief       @p base_interface_i methods.
  */
 #define __bi_methods                                                        \
   /* No methods.*/
 
 /**
- * @brief   @p base_interface_i VMT initializer.
+ * @brief       @p base_interface_i VMT initializer.
  */
 #define __bi_vmt_init(ns)                                                   \
   /* No methods.*/

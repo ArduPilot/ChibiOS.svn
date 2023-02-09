@@ -133,10 +133,15 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="fields" type="fieldsType" maxOccurs="1"
-            minOccurs="1"></xs:element>
+                    <xs:element name="implements" type="implementsType"
+                      maxOccurs="1" minOccurs="0">
+                    </xs:element>
+                    <xs:element name="fields" type="fieldsType" maxOccurs="1"
+            minOccurs="1">
+          </xs:element>
           <xs:element name="methods" type="methodsType" maxOccurs="1"
-            minOccurs="1"></xs:element>
+            minOccurs="1">
+          </xs:element>
         </xs:sequence>
         <xs:attribute name="type" type="classTypeType"></xs:attribute>
         <xs:attribute name="namespace">
@@ -267,7 +272,14 @@
       <xs:element name="verbatim" type="xs:string" maxOccurs="1"
         minOccurs="1"></xs:element>
     </xs:choice>
-    <xs:attribute name="name" type="xs:string"></xs:attribute>
+    <xs:attribute name="name">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[_\w][\w\d_]*"></xs:pattern>
+          <xs:whiteSpace value="collapse"></xs:whiteSpace>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="ctype" type="xs:string"></xs:attribute>
     <xs:attribute name="dir">
       <xs:simpleType>
@@ -390,7 +402,14 @@
       <xs:element name="fields" type="fieldsType" maxOccurs="1"
         minOccurs="1"></xs:element>
     </xs:sequence>
-    <xs:attribute name="name" type="xs:string"></xs:attribute>
+    <xs:attribute name="name">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[_\w][\w\d_]*"></xs:pattern>
+          <xs:whiteSpace value="collapse"></xs:whiteSpace>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
   <xs:complexType name="enumtypeType"></xs:complexType>
   <xs:complexType name="structType">
@@ -408,7 +427,14 @@
       <xs:element name="fields" type="fieldsType" maxOccurs="1"
         minOccurs="1"></xs:element>
     </xs:sequence>
-    <xs:attribute name="name" type="xs:string"></xs:attribute>
+    <xs:attribute name="name">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[_\w][\w\d_]*"></xs:pattern>
+          <xs:whiteSpace value="collapse"></xs:whiteSpace>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
   <xs:complexType name="unionType">
     <xs:complexContent>
@@ -674,4 +700,24 @@
       <xs:pattern value="\w+"></xs:pattern>
     </xs:restriction>
   </xs:simpleType>
+
+  <xs:complexType name="implementsType">
+    <xs:sequence>
+      <xs:element name="ifref" type="ifrefType" maxOccurs="unbounded"
+        minOccurs="0">
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ifrefType">
+    <xs:attribute name="name">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[_\w][\w\d_]*"></xs:pattern>
+          <xs:whiteSpace value="collapse"></xs:whiteSpace>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="namespace" type="xs:string"></xs:attribute>
+  </xs:complexType>
 </xs:schema>

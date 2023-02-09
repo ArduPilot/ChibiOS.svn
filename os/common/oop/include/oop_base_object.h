@@ -15,12 +15,12 @@
 */
 
 /**
- * @file    oop_base_object.h
- * @brief   Generated OOP_BASE_OBJECT header.
+ * @file        oop_base_object.h
+ * @brief       Generated OOP_BASE_OBJECT header.
  *
- * @addtogroup OOP_BASE_OBJECT
- * @brief   Common ancestor abstract class.
- * @note    This is a generated file, do not edit directly.
+ * @addtogroup  OOP_BASE_OBJECT
+ * @brief       Common ancestor abstract class.
+ * @note        This is a generated file, do not edit directly.
  * @{
  */
  
@@ -55,49 +55,50 @@
 
 /**
  * @class       base_object_c
+ * @extends     base_object_c
  *
- * @brief   Common ancestor abstract class.
- * @details This abstract class is the common ancestor of all classes used in
- *          ChibiOS. This class just defines the position of the VMT pointer
- *          inside the structure.
+ * @brief       Common ancestor abstract class.
+ * @details     This abstract class is the common ancestor of all classes used
+ *              in ChibiOS. This class just defines the position of the VMT
+ *              pointer inside the structure.
  */
 
 /**
- * @brief   Type of a base object class.
+ * @brief       Type of a base object class.
  */
 typedef struct base_object base_object_c;
 
 /**
- * @brief   @p base_object_c methods.
+ * @brief       @p base_object_c methods.
  */
 #define __bo_methods                                                        \
   /* No methods.*/
 
 /**
- * @brief   @p base_object_c data.
+ * @brief       @p base_object_c data.
  */
 #define __bo_data                                                           \
   /* No data.*/
 
 /**
- * @brief   @p base_object_c VMT initializer.
+ * @brief       @p base_object_c VMT initializer.
  */
 #define __bo_vmt_init(ns)                                                   \
   /* No methods.*/
 
 /**
- * @brief   @p base_object_c virtual methods table.
+ * @brief       @p base_object_c virtual methods table.
  */
 struct base_object_vmt {
   __bo_methods
 };
 
 /**
- * @brief   Structure representing a base object class.
+ * @brief       Structure representing a base object class.
  */
 struct base_object {
   /**
-   * @brief   Virtual Methods Table.
+   * @brief       Virtual Methods Table.
    */
   const struct base_object_vmt              *vmt;
   __bo_data

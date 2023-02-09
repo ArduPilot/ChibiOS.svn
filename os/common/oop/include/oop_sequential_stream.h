@@ -15,13 +15,14 @@
 */
 
 /**
- * @file    oop_sequential_stream.h
- * @brief   Generated OOP_SEQUENTIAL_STREAM header.
+ * @file        oop_sequential_stream.h
+ * @brief       Generated OOP_SEQUENTIAL_STREAM header.
  *
- * @addtogroup OOP_SEQUENTIAL_STREAM
- * @brief   Sequential data streams interface.
- * @note    This class is compatible with legacy HAL @p BaseSequentialStream.
- * @note    This is a generated file, do not edit directly.
+ * @addtogroup  OOP_SEQUENTIAL_STREAM
+ * @brief       Sequential data streams interface.
+ * @note        This class is compatible with legacy HAL @p
+ *              BaseSequentialStream.
+ * @note        This is a generated file, do not edit directly.
  * @{
  */
  
@@ -56,8 +57,8 @@
 /*===========================================================================*/
 
 /**
- * @brief   Sequential Stream write (implicit form).
- * @details This function writes data from a buffer to a stream.
+ * @brief       Sequential Stream write (implicit form).
+ * @details     This function writes data from a buffer to a stream.
  *
  * @param[in,out] objp          Pointer to the object implementing the
  *                              interface.
@@ -71,8 +72,8 @@
   stmWrite(&(objp)->stm, (bp), (n))
 
 /**
- * @brief   Sequential Stream read (implicit form).
- * @details This function reads data from a stream into a buffer.
+ * @brief       Sequential Stream read (implicit form).
+ * @details     This function reads data from a stream into a buffer.
  *
  * @param[in,out] objp          Pointer to the object implementing the
  *                              interface.
@@ -86,9 +87,9 @@
   stmRead(&(objp)->stm, (bp), (n))
 
 /**
- * @brief   Sequential Stream blocking byte write (implicit form).
- * @details This function writes a byte value to a stream. If the stream is not
- *          ready to accept data then the calling thread is suspended.
+ * @brief       Sequential Stream blocking byte write (implicit form).
+ * @details     This function writes a byte value to a stream. If the stream is
+ *              not ready to accept data then the calling thread is suspended.
  *
  * @param[in,out] objp          Pointer to the object implementing the
  *                              interface.
@@ -99,9 +100,9 @@
   stmPut(&(objp)->stm, (b))
 
 /**
- * @brief   Sequential Stream blocking byte read (implicit form).
- * @details This function reads a byte value from a stream. If the data is not
- *          available then the calling thread is suspended.
+ * @brief       Sequential Stream blocking byte read (implicit form).
+ * @details     This function reads a byte value from a stream. If the data is
+ *              not available then the calling thread is suspended.
  *
  * @param[in,out] objp          Pointer to the object implementing the
  *                              interface.
@@ -122,20 +123,20 @@
  * @interface   sequential_stream_i
  * @extends     base_interface_i
  *
- * @brief   Sequential data streams interface.
- * @details This module define an interface for generic sequential data
- *          streams.
- *          This interface is meant to be implemented in classes requiring
- *          streaming capability.
+ * @brief       Sequential data streams interface.
+ * @details     This module define an interface for generic sequential data
+ *              streams.
+ *              This interface is meant to be implemented in classes requiring
+ *              streaming capability.
  */
 
 /**
- * @brief   Type of a sequential stream interface interface.
+ * @brief       Type of a sequential stream interface interface.
  */
 typedef struct sequential_stream sequential_stream_i;
 
 /**
- * @brief   @p sequential_stream_i methods as a structure.
+ * @brief       @p sequential_stream_i methods as a structure.
  */
 struct stm_methods {
   size_t (*write)(void *ip, const uint8_t *bp, size_t n);
@@ -145,14 +146,14 @@ struct stm_methods {
 };
 
 /**
- * @brief   @p sequential_stream_i methods.
+ * @brief       @p sequential_stream_i methods.
  */
 #define __stm_methods                                                       \
   __bi_methods                                                              \
   struct stm_methods                        stm;
 
 /**
- * @brief   @p sequential_stream_i VMT initializer.
+ * @brief       @p sequential_stream_i VMT initializer.
  */
 #define __stm_vmt_init(ns)                                                  \
   __bi_vmt_init(ns)                                                         \
@@ -162,18 +163,18 @@ struct stm_methods {
   .stm.get                                  = __##ns##_get_impl,
 
 /**
- * @brief   @p sequential_stream_i virtual methods table.
+ * @brief       @p sequential_stream_i virtual methods table.
  */
 struct sequential_stream_vmt {
   __stm_methods
 };
 
 /**
- * @brief   Structure representing a sequential stream interface.
+ * @brief       Structure representing a sequential stream interface.
  */
 struct sequential_stream {
   /**
-   * @brief   Virtual Methods Table.
+   * @brief       Virtual Methods Table.
    */
   const struct sequential_stream_vmt        *vmt;
 };
@@ -183,8 +184,8 @@ struct sequential_stream {
  * @{
  */
 /**
- * @brief   Sequential Stream write.
- * @details This function writes data from a buffer to a stream.
+ * @brief       Sequential Stream write.
+ * @details     This function writes data from a buffer to a stream.
  *
  * @param[in,out] ip            Pointer to a @p sequential_stream_i, or
  *                              derived, interface.
@@ -201,8 +202,8 @@ static inline size_t stmWrite(void *ip, const uint8_t *bp, size_t n) {
 }
 
 /**
- * @brief   Sequential Stream read.
- * @details This function reads data from a stream into a buffer.
+ * @brief       Sequential Stream read.
+ * @details     This function reads data from a stream into a buffer.
  *
  * @param[in,out] ip            Pointer to a @p sequential_stream_i, or
  *                              derived, interface.
@@ -219,9 +220,9 @@ static inline size_t stmRead(void *ip, uint8_t *bp, size_t n) {
 }
 
 /**
- * @brief   Sequential Stream blocking byte write.
- * @details This function writes a byte value to a stream. If the stream is not
- *          ready to accept data then the calling thread is suspended.
+ * @brief       Sequential Stream blocking byte write.
+ * @details     This function writes a byte value to a stream. If the stream is
+ *              not ready to accept data then the calling thread is suspended.
  *
  * @param[in,out] ip            Pointer to a @p sequential_stream_i, or
  *                              derived, interface.
@@ -235,9 +236,9 @@ static inline msg_t stmPut(void *ip, uint8_t b) {
 }
 
 /**
- * @brief   Sequential Stream blocking byte read.
- * @details This function reads a byte value from a stream. If the data is not
- *          available then the calling thread is suspended.
+ * @brief       Sequential Stream blocking byte read.
+ * @details     This function reads a byte value from a stream. If the data is
+ *              not available then the calling thread is suspended.
  *
  * @param[in,out] ip            Pointer to a @p sequential_stream_i, or
  *                              derived, interface.

@@ -15,14 +15,14 @@
 */
 
 /**
- * @file    hal_base_driver.h
- * @brief   Generated HAL_BASE_DRIVER header.
+ * @file        hal_base_driver.h
+ * @brief       Generated HAL_BASE_DRIVER header.
  *
- * @addtogroup HAL_BASE_DRIVER
- * @brief   Common driver base abstract class.
- * @details This abstract class is the common ancestor of all HAL stateful HAL
- *          drivers.
- * @note    This is a generated file, do not edit directly.
+ * @addtogroup  HAL_BASE_DRIVER
+ * @brief       Common driver base abstract class.
+ * @details     This abstract class is the common ancestor of all HAL stateful
+ *              HAL drivers.
+ * @note        This is a generated file, do not edit directly.
  * @{
  */
  
@@ -53,16 +53,16 @@
  * @{
  */
 /**
- * @brief   Enables the mutual exclusion APIs on driver instances.
- * @note    Disabling this option saves both code and data space.
+ * @brief       Enables the mutual exclusion APIs on driver instances.
+ * @note        Disabling this option saves both code and data space.
  */
 #if !defined(HAL_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
 #define HAL_USE_MUTUAL_EXCLUSION            TRUE
 #endif
 
 /**
- * @brief   Enables the HAL registry for drivers.
- * @note    Disabling this option saves both code and data space.
+ * @brief       Enables the HAL registry for drivers.
+ * @note        Disabling this option saves both code and data space.
  */
 #if !defined(HAL_USE_REGISTRY) || defined(__DOXYGEN__)
 #define HAL_USE_REGISTRY                    FALSE
@@ -92,7 +92,7 @@
 /*===========================================================================*/
 
 /**
- * @brief   Type of a driver state variable.
+ * @brief       Type of a driver state variable.
  */
 typedef unsigned int driver_state_t;
 
@@ -102,17 +102,17 @@ typedef unsigned int driver_state_t;
 
 /**
  * @class       hal_base_driver_c
- * @extends     base_object_c
+ * @extends     hal_base_driver_c
  *
  */
 
 /**
- * @brief   Type of a HAL base driver class.
+ * @brief       Type of a HAL base driver class.
  */
 typedef struct hal_base_driver hal_base_driver_c;
 
 /**
- * @brief   @p hal_base_driver_c methods as a structure.
+ * @brief       @p hal_base_driver_c methods as a structure.
  */
 struct drv_methods {
   msg_t (*start)(void *ip);
@@ -121,7 +121,7 @@ struct drv_methods {
 };
 
 /**
- * @brief   @p hal_base_driver_c data as a structure.
+ * @brief       @p hal_base_driver_c data as a structure.
  */
 struct drv_data {
   driver_state_t                            state;
@@ -133,21 +133,21 @@ struct drv_data {
 };
 
 /**
- * @brief   @p hal_base_driver_c methods.
+ * @brief       @p hal_base_driver_c methods.
  */
 #define __drv_methods                                                       \
   __bo_methods                                                              \
   struct drv_methods                        drv;
 
 /**
- * @brief   @p hal_base_driver_c data.
+ * @brief       @p hal_base_driver_c data.
  */
 #define __drv_data                                                          \
   __bo_data                                                                 \
   struct drv_data                           drv;
 
 /**
- * @brief   @p hal_base_driver_c VMT initializer.
+ * @brief       @p hal_base_driver_c VMT initializer.
  */
 #define __drv_vmt_init(ns)                                                  \
   __bo_vmt_init(ns)                                                         \
@@ -156,18 +156,18 @@ struct drv_data {
   .drv.configure                            = __##ns##_configure_impl,
 
 /**
- * @brief   @p hal_base_driver_c virtual methods table.
+ * @brief       @p hal_base_driver_c virtual methods table.
  */
 struct hal_base_driver_vmt {
   __drv_methods
 };
 
 /**
- * @brief   Structure representing a HAL base driver class.
+ * @brief       Structure representing a HAL base driver class.
  */
 struct hal_base_driver {
   /**
-   * @brief   Virtual Methods Table.
+   * @brief       Virtual Methods Table.
    */
   const struct hal_base_driver_vmt          *vmt;
   __drv_data
@@ -178,7 +178,7 @@ struct hal_base_driver {
  * @{
  */
 /**
- * @brief   Low level driver start.
+ * @brief       Low level driver start.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The operation status.
@@ -190,7 +190,7 @@ static inline msg_t __drv_start_protected(void *ip) {
 }
 
 /**
- * @brief   Low level driver stop.
+ * @brief       Low level driver stop.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  */
@@ -201,12 +201,12 @@ static inline void __drv_stop_protected(void *ip) {
 }
 
 /**
- * @brief   Driver configure.
- * @details Applies a new configuration to the driver. The configuration
- *          structure is architecture-dependent.
- * @note    Applying a configuration should be done while the peripheral is not
- *          actively operating, this function can fail depending on the driver
- *          implementation and current state.
+ * @brief       Driver configure.
+ * @details     Applies a new configuration to the driver. The configuration
+ *              structure is architecture-dependent.
+ * @note        Applying a configuration should be done while the peripheral is
+ *              not actively operating, this function can fail depending on the
+ *              driver implementation and current state.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @param         config        New driver configuration.

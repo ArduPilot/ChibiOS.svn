@@ -43,10 +43,10 @@
 */
 
 /**
- * @file    ${sourcename}
+[@doxygen.EmitTagVerbatim indent="" tag="file" text=sourcename /]
 [@doxygen.EmitBrief "" "Generated " + docgroup + " source." /]
  *
- * @addtogroup ${docgroup}
+[@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=docgroup /]
  * @{
  */
 

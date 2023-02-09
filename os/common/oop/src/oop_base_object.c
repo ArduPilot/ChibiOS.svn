@@ -15,10 +15,10 @@
 */
 
 /**
- * @file    oop_base_object.c
- * @brief   Generated OOP_BASE_OBJECT source.
+ * @file        oop_base_object.c
+ * @brief       Generated OOP_BASE_OBJECT source.
  *
- * @addtogroup OOP_BASE_OBJECT
+ * @addtogroup  OOP_BASE_OBJECT
  * @{
  */
 
@@ -61,8 +61,8 @@
  * @{
  */
 /**
- * @brief   Implementation of object creation.
- * @note    This function is meant to be used by derived classes.
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
  *
  * @param[out]    ip            Pointer to a @p base_object_c instance to be
  *                              initialized.
@@ -81,8 +81,8 @@ void *__bo_objinit_impl(void *ip, const void *vmt) {
 }
 
 /**
- * @brief   Implementation of object finalization.
- * @note    This function is meant to be used by derived classes.
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
  *
  * @param[in,out] ip            Pointer to a @p base_object_c instance to be
  *                              disposed.

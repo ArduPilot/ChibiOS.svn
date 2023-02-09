@@ -440,9 +440,12 @@ SIO_CONFIG_EXT_FIELDS]]></verbatim>
         ancestorname="hal_base_driver" ancestornamespace="drv"
         descr="SIO driver">
         <brief>Class of a SIO (Serial I/O) driver.</brief>
+        <implements>
+          <ifref name="asynchronous_channel" namespace="chn"/>
+        </implements>
         <fields>
           <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
-            <field name="chn" ctype="base_channel_i">
+            <field name="chn" ctype="asynchronous_channel_i">
               <brief>Channel interface.</brief>
             </field>
           </condition>
@@ -478,7 +481,7 @@ sio_lld_driver_fields;]]></verbatim>
           <objinit>
             <implementation><![CDATA[
 #if SIO_USE_STREAMS_INTERFACE == TRUE
-static const struct base_channel_vmt channel_vmt = {
+static const struct asynchronous_channel_vmt channel_vmt = {
   __chn_vmt_init(sio)
 };
 oopInterfaceObjectInit(&self->sio.chn, &channel_vmt);

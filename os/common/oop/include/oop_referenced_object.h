@@ -15,12 +15,12 @@
 */
 
 /**
- * @file    oop_referenced_object.h
- * @brief   Generated OOP_REFERENCED_OBJECT header.
+ * @file        oop_referenced_object.h
+ * @brief       Generated OOP_REFERENCED_OBJECT header.
  *
- * @addtogroup OOP_REFERENCED_OBJECT
- * @brief   Common ancestor class of all reference-counted objects.
- * @note    This is a generated file, do not edit directly.
+ * @addtogroup  OOP_REFERENCED_OBJECT
+ * @brief       Common ancestor class of all reference-counted objects.
+ * @note        This is a generated file, do not edit directly.
  * @{
  */
  
@@ -50,7 +50,7 @@
 /*===========================================================================*/
 
 /**
- * @brief   Type of a references counter.
+ * @brief       Type of a references counter.
  */
 typedef unsigned int object_references_t;
 
@@ -60,21 +60,21 @@ typedef unsigned int object_references_t;
 
 /**
  * @class       referenced_object_c
- * @extends     base_object_c
+ * @extends     referenced_object_c
  *
- * @brief   Common ancestor class of all reference-counted objects.
- * @details Base class for objects that implement a reference counter and are
- *          disposed when the number of references reaches zero. This class
- *          extends @p base_object_c class.
+ * @brief       Common ancestor class of all reference-counted objects.
+ * @details     Base class for objects that implement a reference counter and
+ *              are disposed when the number of references reaches zero. This
+ *              class extends @p base_object_c class.
  */
 
 /**
- * @brief   Type of a referenced object class.
+ * @brief       Type of a referenced object class.
  */
 typedef struct referenced_object referenced_object_c;
 
 /**
- * @brief   @p referenced_object_c methods as a structure.
+ * @brief       @p referenced_object_c methods as a structure.
  */
 struct ro_methods {
   void * (*addref)(void *ip);
@@ -82,31 +82,31 @@ struct ro_methods {
 };
 
 /**
- * @brief   @p referenced_object_c data as a structure.
+ * @brief       @p referenced_object_c data as a structure.
  */
 struct ro_data {
   /**
-   * @brief   Number of references to the object.
+   * @brief       Number of references to the object.
    */
   object_references_t                       references;
 };
 
 /**
- * @brief   @p referenced_object_c methods.
+ * @brief       @p referenced_object_c methods.
  */
 #define __ro_methods                                                        \
   __bo_methods                                                              \
   struct ro_methods                         ro;
 
 /**
- * @brief   @p referenced_object_c data.
+ * @brief       @p referenced_object_c data.
  */
 #define __ro_data                                                           \
   __bo_data                                                                 \
   struct ro_data                            ro;
 
 /**
- * @brief   @p referenced_object_c VMT initializer.
+ * @brief       @p referenced_object_c VMT initializer.
  */
 #define __ro_vmt_init(ns)                                                   \
   __bo_vmt_init(ns)                                                         \
@@ -114,18 +114,18 @@ struct ro_data {
   .ro.release                               = __##ns##_release_impl,
 
 /**
- * @brief   @p referenced_object_c virtual methods table.
+ * @brief       @p referenced_object_c virtual methods table.
  */
 struct referenced_object_vmt {
   __ro_methods
 };
 
 /**
- * @brief   Structure representing a referenced object class.
+ * @brief       Structure representing a referenced object class.
  */
 struct referenced_object {
   /**
-   * @brief   Virtual Methods Table.
+   * @brief       Virtual Methods Table.
    */
   const struct referenced_object_vmt        *vmt;
   __ro_data
@@ -136,9 +136,9 @@ struct referenced_object {
  * @{
  */
 /**
- * @brief   New object reference creation.
- * @details The references counter is increased and a new reference pointer is
- *          returned.
+ * @brief       New object reference creation.
+ * @details     The references counter is increased and a new reference pointer
+ *              is returned.
  *
  * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      A new reference pointer.
@@ -150,9 +150,9 @@ static inline void * roAddRef(void *ip) {
 }
 
 /**
- * @brief   Release of an object reference.
- * @details The reference counter is decreased, if the counter reaches zero
- *          then the object is disposed.
+ * @brief       Release of an object reference.
+ * @details     The reference counter is decreased, if the counter reaches zero
+ *              then the object is disposed.
  *
  * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      The value of the reference counter.

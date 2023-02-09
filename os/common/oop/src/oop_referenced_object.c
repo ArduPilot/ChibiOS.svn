@@ -15,10 +15,10 @@
 */
 
 /**
- * @file    oop_referenced_object.c
- * @brief   Generated OOP_REFERENCED_OBJECT source.
+ * @file        oop_referenced_object.c
+ * @brief       Generated OOP_REFERENCED_OBJECT source.
  *
- * @addtogroup OOP_REFERENCED_OBJECT
+ * @addtogroup  OOP_REFERENCED_OBJECT
  * @{
  */
 
@@ -61,8 +61,8 @@
  * @{
  */
 /**
- * @brief   Implementation of object creation.
- * @note    This function is meant to be used by derived classes.
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
  *
  * @param[out]    ip            Pointer to a @p referenced_object_c instance to
  *                              be initialized.
@@ -82,8 +82,8 @@ void *__ro_objinit_impl(void *ip, const void *vmt) {
 }
 
 /**
- * @brief   Implementation of object finalization.
- * @note    This function is meant to be used by derived classes.
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
  *
  * @param[in,out] ip            Pointer to a @p referenced_object_c instance to
  *                              be disposed.
@@ -98,8 +98,8 @@ void __ro_dispose_impl(void *ip) {
 }
 
 /**
- * @brief   Implementation of method @p roAddRef().
- * @note    This function is meant to be used by derived classes.
+ * @brief       Implementation of method @p roAddRef().
+ * @note        This function is meant to be used by derived classes.
  *
  * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      A new reference pointer.
@@ -114,8 +114,8 @@ void * __ro_addref_impl(void *ip) {
 }
 
 /**
- * @brief   Implementation of method @p roRelease().
- * @note    This function is meant to be used by derived classes.
+ * @brief       Implementation of method @p roRelease().
+ * @note        This function is meant to be used by derived classes.
  *
  * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      The value of the reference counter.

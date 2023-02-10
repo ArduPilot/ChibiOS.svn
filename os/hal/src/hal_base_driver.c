@@ -61,6 +61,9 @@
  * @{
  */
 /**
+ * @memberof    hal_base_driver_c
+ * @protected
+ *
  * @brief       Implementation of object creation.
  * @note        This function is meant to be used by derived classes.
  *
@@ -88,6 +91,9 @@ void *__drv_objinit_impl(void *ip, const void *vmt) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @protected
+ *
  * @brief       Implementation of object finalization.
  * @note        This function is meant to be used by derived classes.
  *
@@ -109,6 +115,9 @@ void __drv_dispose_impl(void *ip) {
  * @{
  */
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver open.
  * @details     Returns a reference to the driver, on the 1st open the
  *              peripheral is physically initialized. An
@@ -147,6 +156,9 @@ msg_t drvOpen(void *ip) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver close.
  * @details     Releases a reference to the driver, when the count reaches zero
  *              then the peripheral is physically uninitialized.
@@ -170,6 +182,9 @@ void drvClose(void *ip) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver state get.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
@@ -181,6 +196,9 @@ driver_state_t drvGetStateX(void *ip) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver state set.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
@@ -192,6 +210,9 @@ void drvSetStateX(void *ip, driver_state_t state) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver owner get.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
@@ -203,6 +224,9 @@ void * drvGetOwnerX(void *ip) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver owner set.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
@@ -215,6 +239,9 @@ void drvSetOwnerX(void *ip, void *owner) {
 
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver lock.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
@@ -225,6 +252,9 @@ void drvLock(void *ip) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver unlock.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.

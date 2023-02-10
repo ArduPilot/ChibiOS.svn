@@ -115,7 +115,7 @@
   --]
 [#function GetClassAncestorCType node=[] default=""]
   [#local class = node /]
-  [#local ancestorname  = GetNodeName(class default) /]
+  [#local ancestorname  = GetNodeAncestorName(class default) /]
   [#if ancestorname?length > 0]
     [#local ancestorctype = ancestorname + class_suffix /]
   [#else ]
@@ -209,14 +209,16 @@ ${s}
             refctype     = GetInterfaceCType(ifref) /]
 [@doxygen.EmitTagVerbatim indent="" tag="implements" text=refctype /]
   [/#list]
-  [#if class.brief[0]??]
  *
 [@doxygen.EmitBriefFromNode node=class /]
 [@doxygen.EmitDetailsFromNode node=class /]
 [@doxygen.EmitPreFromNode node=class /]
 [@doxygen.EmitPostFromNode node=class /]
 [@doxygen.EmitNoteFromNode node=class /]
-  [/#if]
+[@doxygen.EmitNote text="The class name space is <tt>" + classnamespace + "</tt>, access to " +
+                        "class fields is done using: <tt><objp>->" + classnamespace + ".<fieldname></tt><br>" +
+                        "Note that fields of ancestor classes are in their own name space in order to " +
+                        "avoid field naming conflicts." /]
  */
 
 /**
@@ -335,7 +337,8 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
               methodretctype = GetMethodCType(method) /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
                                   extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + classctype + " instance." /]
+                                  extratext="Pointer to a @p " + classctype + " instance."
+                                  memberof=classctype /]
 CC_FORCE_INLINE
 [@ccode.GeneratePrototype modifiers = ["static", "inline"]
                           params    = ["void *ip"]
@@ -448,14 +451,15 @@ CC_FORCE_INLINE
   [#if ancestorctype?length > 0]
  * @extends     ${ancestorctype}
   [/#if]
-  [#if if.brief[0]??]
  *
 [@doxygen.EmitBriefFromNode node=if /]
 [@doxygen.EmitDetailsFromNode node=if /]
 [@doxygen.EmitPreFromNode node=if /]
 [@doxygen.EmitPostFromNode node=if /]
 [@doxygen.EmitNoteFromNode node=if /]
-  [/#if]
+[@doxygen.EmitNote text="The interface name space is <tt>" + ifnamespace + "</tt>, access to " +
+                        "an implemented interface is done using: " +
+                        "<tt>&<objp>-><classnamespace>." + ifnamespace + "</tt>"/]
  */
 
 /**
@@ -541,7 +545,8 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
 [@doxygen.EmitFullCommentFromNode indent="" node=method
                                   extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + ifctype +
-                                            ", or derived, interface." /]
+                                            ", or derived, interface."
+                                  memberof=ifctype /]
 CC_FORCE_INLINE
 [@ccode.GeneratePrototype modifiers = ["static", "inline"]
                           params    = ["void *ip"]
@@ -580,6 +585,9 @@ CC_FORCE_INLINE
  * @{
  */
 /**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ * @protected
+ *
 [@doxygen.EmitBrief "" "Implementation of object creation." /]
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
@@ -613,6 +621,9 @@ void *__${classnamespace}_objinit_impl(void *ip, const void *vmt) {
 }
 
 /**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ * @protected
+ *
 [@doxygen.EmitBrief "" "Implementation of object finalization." /]
 [@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
  *
@@ -692,6 +703,8 @@ static const struct ${classname}_vmt ${classnamespace}_vmt = {
 };
 
 /**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ *
 [@doxygen.EmitBrief "" "Default initialize function of @p " + classctype + "." /]
  *
 [@doxygen.EmitParam name=paramname dir="out"
@@ -704,6 +717,8 @@ ${classctype} *${classnamespace}ObjectInit(${classctype} *self) {
 }
 
 /**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ *
 [@doxygen.EmitBrief "" "Default finalize function of @p " + classctype + "." /]
  *
 [@doxygen.EmitParam name=paramname dir="both"
@@ -732,7 +747,8 @@ void ${classnamespace}Dispose(${classctype} *self) {
       [#assign generated = true /]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
                                   extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + classctype + " instance." /]
+                                  extratext="Pointer to a @p " + classctype + " instance."
+                                  memberof=classctype /]
 [@ccode.GeneratePrototype modifiers = []
                           params    = ["void *ip"]
                           node=method /] {

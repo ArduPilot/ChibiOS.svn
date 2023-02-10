@@ -176,6 +176,9 @@
  * @brief       Base I/O channel interface.
  * @details     This header defines an abstract interface useful to access
  *              generic I/O serial devices in a standardized way.
+ * @note        The interface name space is <tt>chn</tt>, access to an
+ *              implemented interface is done using:
+ *              <tt>&<objp>-><classnamespace>.chn</tt>.
  */
 
 /**
@@ -234,6 +237,9 @@ struct asynchronous_channel {
  * @{
  */
 /**
+ * @memberof    asynchronous_channel_i
+ * @public
+ *
  * @brief       Channel blocking write with timeout.
  * @details     This function writes data from a buffer to a channel. If the
  *              channel is not ready to accept data then the calling thread is
@@ -259,6 +265,9 @@ static inline size_t chnWriteTimeout(void *ip, const uint8_t *bp, size_t n,
 }
 
 /**
+ * @memberof    asynchronous_channel_i
+ * @public
+ *
  * @brief       Channel blocking read with timeout.
  * @details     The function reads data from a channel into a buffer. If the
  *              data is not available then the calling thread is suspended.
@@ -283,6 +292,9 @@ static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
 }
 
 /**
+ * @memberof    asynchronous_channel_i
+ * @public
+ *
  * @brief       Channel blocking byte write with timeout.
  * @details     This function writes a byte value to a channel. If the channel
  *              is not ready to accept data then the calling thread is
@@ -309,6 +321,9 @@ static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
 }
 
 /**
+ * @memberof    asynchronous_channel_i
+ * @public
+ *
  * @brief       Channel blocking byte read with timeout.
  * @details     This function reads a byte value from a channel. If the data is
  *              not available then the calling thread is suspended.
@@ -332,6 +347,9 @@ static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
 }
 
 /**
+ * @memberof    asynchronous_channel_i
+ * @public
+ *
  * @brief       Control operation on a channel.
  *
  * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or

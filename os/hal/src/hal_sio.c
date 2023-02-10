@@ -252,6 +252,9 @@ void sioInit(void) {
  * @{
  */
 /**
+ * @memberof    hal_sio_driver_c
+ * @protected
+ *
  * @brief       Implementation of object creation.
  * @note        This function is meant to be used by derived classes.
  *
@@ -291,6 +294,9 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @protected
+ *
  * @brief       Implementation of object finalization.
  * @note        This function is meant to be used by derived classes.
  *
@@ -319,6 +325,8 @@ static const struct hal_sio_driver_vmt sio_vmt = {
 };
 
 /**
+ * @memberof    hal_sio_driver_c
+ *
  * @brief       Default initialize function of @p hal_sio_driver_c.
  *
  * @param[out]    no-name       Pointer to a @p hal_sio_driver_c instance to be
@@ -331,6 +339,8 @@ hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ *
  * @brief       Default finalize function of @p hal_sio_driver_c.
  *
  * @param[in,out] no-name       Pointer to a @p hal_sio_driver_c instance to be
@@ -347,6 +357,9 @@ void sioDispose(hal_sio_driver_c *self) {
  * @{
  */
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Writes the enabled events flags mask.
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
@@ -366,6 +379,9 @@ void sioWriteEnableFlags(void *ip, sioevents_t mask) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Sets flags into the enabled events flags mask.
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
@@ -385,6 +401,9 @@ void sioSetEnableFlags(void *ip, sioevents_t mask) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Clears flags from the enabled events flags mask.
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
@@ -404,6 +423,9 @@ void sioClearEnableFlags(void *ip, sioevents_t mask) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Get and clears SIO error event flags.
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
@@ -426,6 +448,9 @@ sioevents_t sioGetAndClearErrors(void *ip) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Get and clears SIO event flags.
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
@@ -448,6 +473,9 @@ sioevents_t sioGetAndClearEvents(void *ip) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Returns the pending SIO event flags.
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
@@ -471,6 +499,9 @@ sioevents_t sioGetEvents(void *ip) {
 
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Synchronizes with RX FIFO data availability.
  * @note        The exact behavior depends on low level FIFO settings such as
  *              thresholds, etc.
@@ -520,6 +551,9 @@ msg_t sioSynchronizeRX(void *ip, sysinterval_t timeout) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Synchronizes with RX going idle.
  * @note        This function can only be called by a single thread at time.
  *
@@ -567,6 +601,9 @@ msg_t sioSynchronizeRXIdle(void *ip, sysinterval_t timeout) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Synchronizes with TX FIFO space availability.
  * @note        The exact behavior depends on low level FIFO settings such as
  *              thresholds, etc.
@@ -609,6 +646,9 @@ msg_t sioSynchronizeTX(void *ip, sysinterval_t timeout) {
 }
 
 /**
+ * @memberof    hal_sio_driver_c
+ * @public
+ *
  * @brief       Synchronizes with TX completion.
  * @note        This function can only be called by a single thread at time.
  *

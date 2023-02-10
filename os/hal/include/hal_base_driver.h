@@ -102,8 +102,12 @@ typedef unsigned int driver_state_t;
 
 /**
  * @class       hal_base_driver_c
- * @extends     hal_base_driver_c
+ * @extends     base_object_c
  *
+ * @note        The class name space is <tt>drv</tt>, access to class fields is
+ *              done using: <tt><objp>->drv.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own name space in order
+ *              to avoid field naming conflicts.
  */
 
 /**
@@ -178,6 +182,9 @@ struct hal_base_driver {
  * @{
  */
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Low level driver start.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
@@ -190,6 +197,9 @@ static inline msg_t __drv_start_protected(void *ip) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Low level driver stop.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
@@ -201,6 +211,9 @@ static inline void __drv_stop_protected(void *ip) {
 }
 
 /**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
  * @brief       Driver configure.
  * @details     Applies a new configuration to the driver. The configuration
  *              structure is architecture-dependent.

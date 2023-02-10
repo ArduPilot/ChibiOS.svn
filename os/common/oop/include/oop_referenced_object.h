@@ -60,12 +60,16 @@ typedef unsigned int object_references_t;
 
 /**
  * @class       referenced_object_c
- * @extends     referenced_object_c
+ * @extends     base_object_c
  *
  * @brief       Common ancestor class of all reference-counted objects.
  * @details     Base class for objects that implement a reference counter and
  *              are disposed when the number of references reaches zero. This
  *              class extends @p base_object_c class.
+ * @note        The class name space is <tt>ro</tt>, access to class fields is
+ *              done using: <tt><objp>->ro.<fieldname></tt><br>Note that fields
+ *              of ancestor classes are in their own name space in order to
+ *              avoid field naming conflicts.
  */
 
 /**
@@ -136,6 +140,9 @@ struct referenced_object {
  * @{
  */
 /**
+ * @memberof    referenced_object_c
+ * @public
+ *
  * @brief       New object reference creation.
  * @details     The references counter is increased and a new reference pointer
  *              is returned.
@@ -150,6 +157,9 @@ static inline void * roAddRef(void *ip) {
 }
 
 /**
+ * @memberof    referenced_object_c
+ * @public
+ *
  * @brief       Release of an object reference.
  * @details     The reference counter is decreased, if the counter reaches zero
  *              then the object is disposed.

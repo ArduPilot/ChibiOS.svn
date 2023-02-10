@@ -55,12 +55,15 @@
 
 /**
  * @class       base_object_c
- * @extends     base_object_c
  *
  * @brief       Common ancestor abstract class.
  * @details     This abstract class is the common ancestor of all classes used
  *              in ChibiOS. This class just defines the position of the VMT
  *              pointer inside the structure.
+ * @note        The class name space is <tt>bo</tt>, access to class fields is
+ *              done using: <tt><objp>->bo.<fieldname></tt><br>Note that fields
+ *              of ancestor classes are in their own name space in order to
+ *              avoid field naming conflicts.
  */
 
 /**

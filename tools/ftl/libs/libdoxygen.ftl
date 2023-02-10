@@ -289,24 +289,30 @@ ${indent + " * @xclass"}
   -- This macro generates a complete Doxygen documentation comment.
   --]
 [#macro EmitFullCommentFromNode indent="" node=[]
-                                extraname="" extradir="" extratext=""]
-  [#if node.brief[0]??]
+                                extraname="" extradir="" extratext=""
+                                memberof=""]
+  [#if node.brief[0]?? || (memberof?length > 0)]
 ${indent}/**
-[@doxygen.EmitBriefFromNode indent node /]
-[@doxygen.EmitDetailsFromNode indent node /]
-[@doxygen.EmitPreFromNode indent node /]
-[@doxygen.EmitPostFromNode indent node /]
-[@doxygen.EmitNoteFromNode indent node /]
+  [#if memberof?length > 0]
+[@EmitTagVerbatim indent "memberof" memberof /]
+${indent} * @public
+${indent} *
+  [/#if]
+[@EmitBriefFromNode indent node /]
+[@EmitDetailsFromNode indent node /]
+[@EmitPreFromNode indent node /]
+[@EmitPostFromNode indent node /]
+[@EmitNoteFromNode indent node /]
     [#if node.param[0]?? || node.return[0]?? || (extraname?length > 0)]
 ${indent} *
       [#if extraname?length > 0]
-[@doxygen.EmitParam indent extraname extradir extratext /]
+[@EmitParam indent extraname extradir extratext /]
       [/#if]
-[@doxygen.EmitParamFromNode indent node /]
-[@doxygen.EmitReturnFromNode indent node /]
-[@doxygen.EmitRetvalFromNode indent node /]
+[@EmitParamFromNode indent node /]
+[@EmitReturnFromNode indent node /]
+[@EmitRetvalFromNode indent node /]
     [/#if]
-[@doxygen.EmitFunctionClassFromNode indent node /]
+[@EmitFunctionClassFromNode indent node /]
 ${indent} */
   [/#if]
 [/#macro]

@@ -128,6 +128,9 @@
  *              streams.
  *              This interface is meant to be implemented in classes requiring
  *              streaming capability.
+ * @note        The interface name space is <tt>stm</tt>, access to an
+ *              implemented interface is done using:
+ *              <tt>&<objp>-><classnamespace>.stm</tt>.
  */
 
 /**
@@ -184,6 +187,9 @@ struct sequential_stream {
  * @{
  */
 /**
+ * @memberof    sequential_stream_i
+ * @public
+ *
  * @brief       Sequential Stream write.
  * @details     This function writes data from a buffer to a stream.
  *
@@ -202,6 +208,9 @@ static inline size_t stmWrite(void *ip, const uint8_t *bp, size_t n) {
 }
 
 /**
+ * @memberof    sequential_stream_i
+ * @public
+ *
  * @brief       Sequential Stream read.
  * @details     This function reads data from a stream into a buffer.
  *
@@ -220,6 +229,9 @@ static inline size_t stmRead(void *ip, uint8_t *bp, size_t n) {
 }
 
 /**
+ * @memberof    sequential_stream_i
+ * @public
+ *
  * @brief       Sequential Stream blocking byte write.
  * @details     This function writes a byte value to a stream. If the stream is
  *              not ready to accept data then the calling thread is suspended.
@@ -236,6 +248,9 @@ static inline msg_t stmPut(void *ip, uint8_t b) {
 }
 
 /**
+ * @memberof    sequential_stream_i
+ * @public
+ *
  * @brief       Sequential Stream blocking byte read.
  * @details     This function reads a byte value from a stream. If the data is
  *              not available then the calling thread is suspended.

@@ -519,10 +519,14 @@ struct hal_sio_config {
 
 /**
  * @class       hal_sio_driver_c
- * @extends     hal_sio_driver_c
+ * @extends     hal_base_driver_c
  * @implements  asynchronous_channel_i
  *
  * @brief       Class of a SIO (Serial I/O) driver.
+ * @note        The class name space is <tt>sio</tt>, access to class fields is
+ *              done using: <tt><objp>->sio.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own name space in order
+ *              to avoid field naming conflicts.
  */
 
 /**

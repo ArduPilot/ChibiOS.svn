@@ -18,66 +18,6 @@
         <define name="STM_RESET" value="MSG_RESET" />
       </group>
     </definitions_early>
-    <macros>
-      <macro name="__stmWrite">
-        <brief>Sequential Stream write (implicit form).</brief>
-        <details>This function writes data from a buffer to a stream.
-        </details>
-        <param name="objp" dir="both">Pointer to the object implementing
-          the interface.
-        </param>
-        <param name="bp" dir="in">Pointer to the data buffer.</param>
-        <param name="n" dir="in">The maximum amount of data to be
-          transferred.
-        </param>
-        <return><![CDATA[The number of bytes transferred. The returned
-                value can be less than the specified number of bytes
-                if an end-of-file condition has been met.]]></return>
-        <implementation><![CDATA[stmWrite(&(objp)->stm, (bp), (n))]]></implementation>
-      </macro>
-      <macro name="__stmRead">
-        <brief>Sequential Stream read (implicit form).</brief>
-        <details>This function reads data from a stream into a buffer.
-        </details>
-        <param name="objp" dir="both">Pointer to the object implementing
-          the interface.
-        </param>
-        <param name="bp" dir="out">Pointer to the data buffer.
-        </param>
-        <param name="n" dir="in">The maximum amount of data to be
-          transferred.
-        </param>
-        <return><![CDATA[The number of bytes transferred. The returned
-                value can be less than the specified number of bytes
-                if an end-of-file condition has been met.]]></return>
-        <implementation><![CDATA[stmRead(&(objp)->stm, (bp), (n))]]></implementation>
-      </macro>
-      <macro name="__stmPut">
-        <brief>Sequential Stream blocking byte write (implicit form).</brief>
-        <details><![CDATA[This function writes a byte value to a stream.
-                If the stream is not ready to accept data then the
-                calling thread is suspended.]]></details>
-        <param name="objp" dir="both">Pointer to the object implementing
-          the interface.
-        </param>
-        <param name="b" ctype="uint8_t" dir="in">The byte value to be
-          written to the stream.
-        </param>
-        <return>The operation status.</return>
-        <implementation><![CDATA[stmPut(&(objp)->stm, (b))]]></implementation>
-      </macro>
-      <macro name="__stmGet">
-        <brief>Sequential Stream blocking byte read (implicit form).</brief>
-        <details><![CDATA[This function reads a byte value from a stream. If
-                 the data is not available then the calling thread is
-                 suspended.]]></details>
-        <param name="objp" dir="both"> Pointer to the object implementing
-          the interface.
-        </param>
-        <return>A byte value from the stream.</return>
-        <implementation><![CDATA[stmGet(&(objp)->stm)]]></implementation>
-      </macro>
-    </macros>
     <interfaces>
       <interface name="sequential_stream" namespace="stm"
         ancestorname="base_interface" ancestornamespace="bi"

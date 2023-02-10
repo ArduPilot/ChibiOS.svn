@@ -488,7 +488,7 @@
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="regularMethodsType">
-    <xs:choice maxOccurs="unbounded" minOccurs="1">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="method" type="regularMethodType"
         maxOccurs="1" minOccurs="1"></xs:element>
       <xs:element name="condition"
@@ -710,15 +710,14 @@
       <xs:pattern value="\w+"></xs:pattern>
     </xs:restriction>
   </xs:simpleType>
-
   <xs:complexType name="implementsType">
-    <xs:sequence>
-      <xs:element name="ifref" type="ifrefType" maxOccurs="unbounded"
-        minOccurs="0">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="ifref" type="ifrefType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalIfrefType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
-    </xs:sequence>
+    </xs:choice>
   </xs:complexType>
-
   <xs:complexType name="ifrefType">
     <xs:attribute name="name">
       <xs:simpleType>
@@ -729,5 +728,15 @@
       </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="namespace" type="xs:string"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="conditionalIfrefType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="ifref" type="ifrefType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalIfrefType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+    </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
 </xs:schema>

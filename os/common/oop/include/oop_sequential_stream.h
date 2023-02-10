@@ -56,61 +56,6 @@
 /* Module macros.                                                            */
 /*===========================================================================*/
 
-/**
- * @brief       Sequential Stream write (implicit form).
- * @details     This function writes data from a buffer to a stream.
- *
- * @param[in,out] objp          Pointer to the object implementing the
- *                              interface.
- * @param[in]     bp            Pointer to the data buffer.
- * @param[in]     n             The maximum amount of data to be transferred.
- * @return                      The number of bytes transferred. The returned
- *                              value can be less than the specified number of
- *                              bytes if an end-of-file condition has been met.
- */
-#define __stmWrite(objp, bp, n)                                             \
-  stmWrite(&(objp)->stm, (bp), (n))
-
-/**
- * @brief       Sequential Stream read (implicit form).
- * @details     This function reads data from a stream into a buffer.
- *
- * @param[in,out] objp          Pointer to the object implementing the
- *                              interface.
- * @param[out]    bp            Pointer to the data buffer.
- * @param[in]     n             The maximum amount of data to be transferred.
- * @return                      The number of bytes transferred. The returned
- *                              value can be less than the specified number of
- *                              bytes if an end-of-file condition has been met.
- */
-#define __stmRead(objp, bp, n)                                              \
-  stmRead(&(objp)->stm, (bp), (n))
-
-/**
- * @brief       Sequential Stream blocking byte write (implicit form).
- * @details     This function writes a byte value to a stream. If the stream is
- *              not ready to accept data then the calling thread is suspended.
- *
- * @param[in,out] objp          Pointer to the object implementing the
- *                              interface.
- * @param[in]     b             The byte value to be written to the stream.
- * @return                      The operation status.
- */
-#define __stmPut(objp, b)                                                   \
-  stmPut(&(objp)->stm, (b))
-
-/**
- * @brief       Sequential Stream blocking byte read (implicit form).
- * @details     This function reads a byte value from a stream. If the data is
- *              not available then the calling thread is suspended.
- *
- * @param[in,out] objp          Pointer to the object implementing the
- *                              interface.
- * @return                      A byte value from the stream.
- */
-#define __stmGet(objp)                                                      \
-  stmGet(&(objp)->stm)
-
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/

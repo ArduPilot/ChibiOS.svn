@@ -186,6 +186,19 @@ ${s}
   [/#list]
 [/#macro]
 
+[#macro GenerateClassImplementsTags node=[]]
+  [#list node.* as this]
+    [#if this?node_name == "ifref"]
+    [#local refname      = GetNodeName(this)
+            refnamespace = GetNodeNamespace(this)
+            refctype     = GetInterfaceCType(this) /]
+[@doxygen.EmitTagVerbatim indent="" tag="implements" text=refctype /]
+    [#elseif this?node_name == "condition"]
+[@GenerateClassImplementsTags this /]
+    [/#if]
+  [/#list]
+[/#macro]
+
 [#--
   -- This macro generates a class wrapper from an XML node.
   --]
@@ -203,12 +216,7 @@ ${s}
   [#if ancestorctype?length > 0]
 [@doxygen.EmitTagVerbatim indent="" tag="extends" text=ancestorctype /]
   [/#if]
-  [#list class.implements.ifref as ifref]
-    [#local refname      = GetNodeName(ifref)
-            refnamespace = GetNodeNamespace(ifref)
-            refctype     = GetInterfaceCType(ifref) /]
-[@doxygen.EmitTagVerbatim indent="" tag="implements" text=refctype /]
-  [/#list]
+[@GenerateClassImplementsTags class.implements /]
  *
 [@doxygen.EmitBriefFromNode node=class /]
 [@doxygen.EmitDetailsFromNode node=class /]
@@ -572,6 +580,35 @@ CC_FORCE_INLINE
 [#--
   -- This macro generates class method implementations from an XML node.
   --]
+[#macro GenerateClassInterfacesInitialization node=[] classnamespace="no-namespace"]
+  [#list node.* as this]
+    [#if this?node_name == "ifref"]
+      [#local ifname      = GetNodeName(this)
+              ifnamespace = GetNodeNamespace(this)
+              ifctype     = GetInterfaceCType(this) /]
+  /* Implementation of interface ${ifctype}.*/
+  {
+    static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
+      __chn_vmt_init(${classnamespace})
+    };
+    oopInterfaceObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
+  }
+      [#if node?node_name != "condition"]
+
+      [/#if]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateClassInterfacesInitialization this classnamespace /]
+#endif /* ${condcheck} */
+
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates class method implementations from an XML node.
+  --]
 [#macro GenerateClassMethodsImplementations node=[]]
   [#local class = node /]
   [#local classname         = GetNodeName(class)
@@ -608,6 +645,9 @@ void *__${classnamespace}_objinit_impl(void *ip, const void *vmt) {
   /* Initialization of the ancestors-defined parts.*/
   __${ancestornamespace}_objinit_impl(self, vmt);
 
+  [/#if]
+  [#if class.implements.*?size > 0]
+[@GenerateClassInterfacesInitialization class.implements classnamespace /]
   [/#if]
   [#if (class.methods.objinit[0].implementation[0])?? &&
        (class.methods.objinit[0].implementation[0]?trim?length > 0)]

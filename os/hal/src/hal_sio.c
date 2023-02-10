@@ -269,13 +269,17 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
   /* Initialization of the ancestors-defined parts.*/
   __drv_objinit_impl(self, vmt);
 
+#if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
+  /* Implementation of interface asynchronous_channel_i.*/
+  {
+    static const struct asynchronous_channel_vmt sio_chn_vmt = {
+      __chn_vmt_init(sio)
+    };
+    oopInterfaceObjectInit(&self->sio.chn, &sio_chn_vmt);
+  }
+#endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
+
   /* Initialization code.*/
-#if SIO_USE_STREAMS_INTERFACE == TRUE
-  static const struct asynchronous_channel_vmt channel_vmt = {
-    __chn_vmt_init(sio)
-  };
-  oopInterfaceObjectInit(&self->sio.chn, &channel_vmt);
-#endif
   self->sio.enabled     = (sioevents_t)0;
   self->sio.cb          = NULL;
 #if SIO_USE_SYNCHRONIZATION == TRUE

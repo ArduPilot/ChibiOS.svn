@@ -441,7 +441,9 @@ SIO_CONFIG_EXT_FIELDS]]></verbatim>
         descr="SIO driver">
         <brief>Class of a SIO (Serial I/O) driver.</brief>
         <implements>
-          <ifref name="asynchronous_channel" namespace="chn"/>
+          <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
+            <ifref name="asynchronous_channel" namespace="chn"/>
+          </condition>
         </implements>
         <fields>
           <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
@@ -480,12 +482,6 @@ sio_lld_driver_fields;]]></verbatim>
         <methods>
           <objinit>
             <implementation><![CDATA[
-#if SIO_USE_STREAMS_INTERFACE == TRUE
-static const struct asynchronous_channel_vmt channel_vmt = {
-  __chn_vmt_init(sio)
-};
-oopInterfaceObjectInit(&self->sio.chn, &channel_vmt);
-#endif
 self->sio.enabled     = (sioevents_t)0;
 self->sio.cb          = NULL;
 #if SIO_USE_SYNCHRONIZATION == TRUE

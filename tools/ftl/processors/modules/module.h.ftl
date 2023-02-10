@@ -30,9 +30,10 @@
 [#-- Scanning all files to be generated.--]
 [#list instance.modules.module as module]
   [#-- Generating the header file.--]
-  [#assign basename   = module.@name[0]?trim /]
-  [#assign headername = basename + ".h" /]
-  [#assign docgroup   = basename?upper_case /]
+  [#assign modulename        = cclasses.GetNodeName(module) /]
+  [#assign moduledescription = cclasses.GetNodeDescription(module) /]
+  [#assign headername        = modulename + ".h" /]
+  [#assign docgroup          = modulename?upper_case /]
   [#-- Generating class header.--]
   [@pp.changeOutputFile name="../include/" + headername /]
   [@ccode.ResetState /]
@@ -43,7 +44,7 @@
 
 /**
 [@doxygen.EmitTagVerbatim indent="" tag="file" text=headername /]
-[@doxygen.EmitBrief "" "Generated " + docgroup + " header." /]
+[@doxygen.EmitBrief "" "Generated " + moduledescription + " header." /]
  *
 [@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=docgroup /]
 [@doxygen.EmitBriefFromNode node=module /]
@@ -52,8 +53,8 @@
  * @{
  */
  
-#ifndef ${basename?upper_case}_H
-#define ${basename?upper_case}_H
+#ifndef ${docgroup}_H
+#define ${docgroup}_H
 
   [#-- Generating inclusions.--]
   [#if (module.public.inclusions[0])??]
@@ -140,7 +141,7 @@ extern "C" {
 #endif /* ${module_condition} */
 
   [/#if]
-#endif /* ${basename?upper_case}_H */
+#endif /* ${docgroup}_H */
 
 /** @} */
 [/#list]

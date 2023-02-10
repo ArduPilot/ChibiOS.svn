@@ -16,7 +16,7 @@
 
 /**
  * @file        hal_sio.h
- * @brief       Generated HAL_SIO header.
+ * @brief       Generated SIO Driver header.
  *
  * @addtogroup  HAL_SIO
  * @brief       SIO Driver macros and structures.

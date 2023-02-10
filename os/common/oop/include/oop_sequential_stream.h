@@ -16,7 +16,7 @@
 
 /**
  * @file        oop_sequential_stream.h
- * @brief       Generated OOP_SEQUENTIAL_STREAM header.
+ * @brief       Generated Sequential Stream Interface header.
  *
  * @addtogroup  OOP_SEQUENTIAL_STREAM
  * @brief       Sequential data streams interface.

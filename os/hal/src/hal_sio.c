@@ -16,7 +16,7 @@
 
 /**
  * @file        hal_sio.c
- * @brief       Generated HAL_SIO source.
+ * @brief       Generated SIO Driver source.
  *
  * @addtogroup  HAL_SIO
  * @{

@@ -16,7 +16,7 @@
 
 /**
  * @file        oop_base_object.c
- * @brief       Generated OOP_BASE_OBJECT source.
+ * @brief       Generated Base Object source.
  *
  * @addtogroup  OOP_BASE_OBJECT
  * @{

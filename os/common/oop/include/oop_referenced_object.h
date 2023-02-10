@@ -16,7 +16,7 @@
 
 /**
  * @file        oop_referenced_object.h
- * @brief       Generated OOP_REFERENCED_OBJECT header.
+ * @brief       Generated Referenced Object header.
  *
  * @addtogroup  OOP_REFERENCED_OBJECT
  * @brief       Common ancestor class of all reference-counted objects.

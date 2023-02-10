@@ -16,7 +16,7 @@
 
 /**
  * @file        hal_base_driver.h
- * @brief       Generated HAL_BASE_DRIVER header.
+ * @brief       Generated Base Driver header.
  *
  * @addtogroup  HAL_BASE_DRIVER
  * @brief       Common driver base abstract class.

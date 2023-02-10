@@ -16,7 +16,7 @@
 
 /**
  * @file        hal_channels.h
- * @brief       Generated HAL_CHANNELS header.
+ * @brief       Generated I/O Channels header.
  *
  * @addtogroup  HAL_CHANNELS
  * @brief       Sequential data streams interface.

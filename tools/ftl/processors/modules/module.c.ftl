@@ -30,10 +30,11 @@
 [#-- Scanning all files to be generated.--]
 [#list instance.modules.module as module]
   [#-- Generating the source file.--]
-  [#assign basename   = module.@name[0]?trim /]
-  [#assign headername = basename + ".h" /]
-  [#assign sourcename = basename + ".c" /]
-  [#assign docgroup   = basename?upper_case /]
+  [#assign modulename        = cclasses.GetNodeName(module) /]
+  [#assign moduledescription = cclasses.GetNodeDescription(module) /]
+  [#assign headername        = modulename + ".h" /]
+  [#assign sourcename        = modulename + ".c" /]
+  [#assign docgroup          = modulename?upper_case /]
   [#-- Generating class header.--]
   [@pp.changeOutputFile name="../src/" + sourcename /]
   [@ccode.ResetState /]
@@ -44,7 +45,7 @@
 
 /**
 [@doxygen.EmitTagVerbatim indent="" tag="file" text=sourcename /]
-[@doxygen.EmitBrief "" "Generated " + docgroup + " source." /]
+[@doxygen.EmitBrief "" "Generated " + moduledescription + " source." /]
  *
 [@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=docgroup /]
  * @{

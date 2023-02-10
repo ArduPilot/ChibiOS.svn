@@ -16,7 +16,7 @@
 
 /**
  * @file        oop_base_interface.h
- * @brief       Generated OOP_BASE_INTERFACE header.
+ * @brief       Generated Base Interface header.
  *
  * @addtogroup  OOP_BASE_INTERFACE
  * @brief       Common interfaces ancestor.

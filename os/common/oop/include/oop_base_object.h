@@ -16,7 +16,7 @@
 
 /**
  * @file        oop_base_object.h
- * @brief       Generated OOP_BASE_OBJECT header.
+ * @brief       Generated Base Object header.
  *
  * @addtogroup  OOP_BASE_OBJECT
  * @brief       Common ancestor abstract class.

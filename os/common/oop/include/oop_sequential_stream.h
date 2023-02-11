@@ -73,7 +73,7 @@
  *              streams.
  *              This interface is meant to be implemented in classes requiring
  *              streaming capability.
- * @note        The interface name space is <tt>stm</tt>, access to an
+ * @note        The interface namespace is <tt>stm</tt>, access to an
  *              implemented interface is done using:
  *              <tt>&<objp>-><classnamespace>.stm</tt>.
  */

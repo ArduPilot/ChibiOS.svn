@@ -247,9 +247,9 @@ ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_al
 [@doxygen.EmitPreFromNode node=class /]
 [@doxygen.EmitPostFromNode node=class /]
 [@doxygen.EmitNoteFromNode node=class /]
-[@doxygen.EmitNote text="The class name space is <tt>" + classnamespace + "</tt>, access to " +
+[@doxygen.EmitNote text="The class namespace is <tt>" + classnamespace + "</tt>, access to " +
                         "class fields is done using: <tt><objp>->" + classnamespace + ".<fieldname></tt><br>" +
-                        "Note that fields of ancestor classes are in their own name space in order to " +
+                        "Note that fields of ancestor classes are in their own namespace in order to " +
                         "avoid field naming conflicts." /]
  */
 
@@ -490,7 +490,7 @@ CC_FORCE_INLINE
 [@doxygen.EmitPreFromNode node=if /]
 [@doxygen.EmitPostFromNode node=if /]
 [@doxygen.EmitNoteFromNode node=if /]
-[@doxygen.EmitNote text="The interface name space is <tt>" + ifnamespace + "</tt>, access to " +
+[@doxygen.EmitNote text="The interface namespace is <tt>" + ifnamespace + "</tt>, access to " +
                         "an implemented interface is done using: " +
                         "<tt>&<objp>-><classnamespace>." + ifnamespace + "</tt>"/]
  */

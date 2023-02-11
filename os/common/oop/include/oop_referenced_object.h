@@ -66,9 +66,9 @@ typedef unsigned int object_references_t;
  * @details     Base class for objects that implement a reference counter and
  *              are disposed when the number of references reaches zero. This
  *              class extends @p base_object_c class.
- * @note        The class name space is <tt>ro</tt>, access to class fields is
+ * @note        The class namespace is <tt>ro</tt>, access to class fields is
  *              done using: <tt><objp>->ro.<fieldname></tt><br>Note that fields
- *              of ancestor classes are in their own name space in order to
+ *              of ancestor classes are in their own namespace in order to
  *              avoid field naming conflicts.
  */
 

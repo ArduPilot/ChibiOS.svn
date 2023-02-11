@@ -101,7 +101,7 @@
  * @details     There are no methods in this interface. This interface is just
  *              meant to be the common ancestor of all interfaces used in
  *              ChibiOS.
- * @note        The interface name space is <tt>bi</tt>, access to an
+ * @note        The interface namespace is <tt>bi</tt>, access to an
  *              implemented interface is done using:
  *              <tt>&<objp>-><classnamespace>.bi</tt>.
  */

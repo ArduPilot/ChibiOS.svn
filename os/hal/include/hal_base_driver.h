@@ -104,9 +104,9 @@ typedef unsigned int driver_state_t;
  * @class       hal_base_driver_c
  * @extends     base_object_c
  *
- * @note        The class name space is <tt>drv</tt>, access to class fields is
+ * @note        The class namespace is <tt>drv</tt>, access to class fields is
  *              done using: <tt><objp>->drv.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own name space in order
+ *              fields of ancestor classes are in their own namespace in order
  *              to avoid field naming conflicts.
  */
 

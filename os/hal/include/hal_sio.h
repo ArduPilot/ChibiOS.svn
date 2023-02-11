@@ -523,9 +523,9 @@ struct hal_sio_config {
  * @implements  asynchronous_channel_i
  *
  * @brief       Class of a SIO (Serial I/O) driver.
- * @note        The class name space is <tt>sio</tt>, access to class fields is
+ * @note        The class namespace is <tt>sio</tt>, access to class fields is
  *              done using: <tt><objp>->sio.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own name space in order
+ *              fields of ancestor classes are in their own namespace in order
  *              to avoid field naming conflicts.
  */
 

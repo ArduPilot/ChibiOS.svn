@@ -176,7 +176,7 @@
  * @brief       Base I/O channel interface.
  * @details     This header defines an abstract interface useful to access
  *              generic I/O serial devices in a standardized way.
- * @note        The interface name space is <tt>chn</tt>, access to an
+ * @note        The interface namespace is <tt>chn</tt>, access to an
  *              implemented interface is done using:
  *              <tt>&<objp>-><classnamespace>.chn</tt>.
  */

@@ -63,6 +63,8 @@
  *                              structure.
  * @return                      A pointer to an object of type @p c
  *                              implementing the interface @p ifname.
+ *
+ * @api
  */
 #define oopGetInstance(c, ifname, ip)                                       \
   (c *)(((size_t)(ip)) - (size_t)offsetof(c, ifname))
@@ -76,6 +78,8 @@
  *                              initialized.
  * @param[in]     vmtp          VMT pointer to be assigned to the interface
  *                              structure.
+ *
+ * @api
  */
 #define oopInterfaceObjectInit(ip, vmtp)                                    \
   do {                                                                      \

@@ -45,6 +45,23 @@
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @brief       Returns a pointer to one of the implemented interfaces.
+ * @note        The interface pointer is returned as a <tt>void *</tt> in order
+ *              to be directly usable as any of the interface's ancestors
+ *              pointers.
+ *
+ * @param[in]     ip            Pointer to the class instance.
+ * @param         ifns          Implemented interface namespace.
+ * @param         cns           Implementing class namespace.
+ * @return                      A void pointer to the interface within the
+ *                              class instance.
+ *
+ * @api
+ */
+#define boGetIf(ip, ifns, cns)                                              \
+  (void *)(&(ip)->cns.ifns)
+
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/

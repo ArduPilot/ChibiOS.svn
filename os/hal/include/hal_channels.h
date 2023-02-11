@@ -233,7 +233,7 @@ struct asynchronous_channel {
 };
 
 /**
- * @name    Interface methods of @p asynchronous_channel_i
+ * @name        Interface methods of asynchronous_channel_i
  * @{
  */
 /**

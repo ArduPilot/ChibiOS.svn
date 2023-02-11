@@ -57,7 +57,7 @@
 /*===========================================================================*/
 
 /**
- * @name    Virtual methods implementations of referenced_object_c
+ * @name        Virtual methods implementations of referenced_object_c
  * @{
  */
 /**

@@ -248,7 +248,7 @@ void sioInit(void) {
 /*===========================================================================*/
 
 /**
- * @name    Virtual methods implementations of hal_sio_driver_c
+ * @name        Virtual methods implementations of hal_sio_driver_c
  * @{
  */
 /**
@@ -318,7 +318,7 @@ void __sio_dispose_impl(void *ip) {
 /** @} */
 
 /**
- * @name    Constructor and destructor of hal_sio_driver_c
+ * @name        Constructor and destructor of hal_sio_driver_c
  * @{
  */
 /**
@@ -357,7 +357,7 @@ void sioDispose(hal_sio_driver_c *self) {
 /** @} */
 
 /**
- * @name    Regular methods of hal_sio_driver_c
+ * @name        Regular methods of hal_sio_driver_c
  * @{
  */
 /**

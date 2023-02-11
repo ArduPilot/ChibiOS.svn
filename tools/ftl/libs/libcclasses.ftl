@@ -200,6 +200,30 @@ ${s}
 [/#macro]
 
 [#--
+  -- This macro generates interface access macros from an XML node.
+  --]
+[#macro GenerateClassInterfaceMacros node=[]]
+  [#if node.implements.*?size > 0]
+    [#local classnamespace = GetNodeNamespace(node)
+            classctype     = GetClassCType(node) /]
+/**
+[@doxygen.EmitTagVerbatim indent "memberof" classctype /]
+ *
+[@doxygen.EmitBrief "" "Access macro for " + classctype + " interfaces." /]
+ *
+[@doxygen.EmitParam "" "ip" "in" "Pointer to the class instance." /]
+[@doxygen.EmitParam "" "ifns" "" "Implemented interface namespace." /]
+[@doxygen.EmitReturn "" "A void pointer to the interface within the class instance." /]
+ *
+ * @api
+ */
+${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_align) + "\\"}
+  boGetIf(ip, ifns, ${classnamespace})
+
+  [/#if]
+[/#macro]
+
+[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassWrapper node=[]]
@@ -325,6 +349,7 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
   ${datadefine}
 };
 
+[@GenerateClassInterfaceMacros class /]
 [/#macro]
 
 [#--
@@ -337,7 +362,7 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
     [#local classnamespace = GetNodeNamespace(class)
             classctype     = GetClassCType(class) /]
 /**
- * @name    Virtual methods of ${classctype}
+[@doxygen.EmitTagVerbatim "" "name" "Virtual methods of " + classctype /]
  * @{
  */
     [#list class.methods.virtual.method as method]
@@ -544,7 +569,7 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
     --]
   [#if if.methods.method.*?size > 0]
 /**
- * @name    Interface methods of @p ${ifctype}
+[@doxygen.EmitTagVerbatim "" "name" "Interface methods of " + ifctype /]
  * @{
  */
   [#list if.methods.method as method]
@@ -618,7 +643,7 @@ CC_FORCE_INLINE
           ancestornamespace = GetNodeAncestorNamespace(class) /]
   [#assign generated = true /]
 /**
- * @name    Virtual methods implementations of ${classctype}
+[@doxygen.EmitTagVerbatim "" "name" "Virtual methods implementations of " + classctype /]
  * @{
  */
 /**
@@ -732,7 +757,7 @@ void __${classnamespace}_dispose_impl(void *ip) {
   [#if classtype == "regular"]
     [#assign generated = true /]
 /**
- * @name    Constructor and destructor of ${classctype}
+[@doxygen.EmitTagVerbatim "" "name" "Constructor and destructor of " + classctype /]
  * @{
  */
 /**
@@ -818,7 +843,7 @@ void ${classnamespace}Dispose(${classctype} *self) {
     [#local classctype = GetClassCType(class) /]
     [#assign generated = true /]
 /**
- * @name    Regular methods of ${classctype}
+[@doxygen.EmitTagVerbatim "" "name" "Regular methods of " + classctype /]
  * @{
  */
 [@GenerateClassRegularMethods class.methods.regular classctype /]

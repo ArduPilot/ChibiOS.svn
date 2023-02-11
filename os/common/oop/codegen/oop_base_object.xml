@@ -8,6 +8,20 @@
     <inclusions>
       <include style="regular">osal.h</include>
     </inclusions>
+    <macros>
+      <macro name="boGetIf">
+        <brief>Returns a pointer to one of the implemented interfaces.</brief>
+        <note><![CDATA[The interface pointer is returned as a <tt>void *</tt>
+          in order to be directly usable as any of the interface's ancestors
+          pointers.]]></note>
+        <param name="ip" dir="in">Pointer to the class instance.</param>
+        <param name="ifns">Implemented interface namespace.</param>
+        <param name="cns">Implementing class namespace.</param>
+        <return>A void pointer to the interface within the class instance.</return>
+        <api />
+        <implementation><![CDATA[(void *)(&(ip)->cns.ifns)]]></implementation>
+      </macro>
+    </macros>
     <classes>
       <class name="base_object" namespace="bo" descr="base object" type="abstract">
         <brief>Common ancestor abstract class.</brief>

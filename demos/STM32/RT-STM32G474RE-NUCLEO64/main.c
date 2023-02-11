@@ -40,6 +40,7 @@ static THD_FUNCTION(Thread1, arg) {
  */
 int main(void) {
   msg_t msg;
+  sequential_stream_i *stream;
 
   /*
    * System initializations.
@@ -52,9 +53,10 @@ int main(void) {
   chSysInit();
 
   /*
-   * Activates the Serial or SIO driver using the default configuration.
+   * Opening the SIO driver then getting a stream interface.
    */
   msg = drvOpen(&LPSIOD1);
+  stream = sioGetIf(&LPSIOD1, chn);
   if (msg != HAL_RET_SUCCESS) {
     chSysHalt("SIO failure");
   }
@@ -70,8 +72,8 @@ int main(void) {
    */
   while (true) {
    if (palReadLine(LINE_BUTTON)) {
-      test_execute((sequential_stream_i *)&LPSIOD1.sio.chn, &rt_test_suite);
-      test_execute((sequential_stream_i *)&LPSIOD1.sio.chn, &oslib_test_suite);
+      test_execute(stream, &rt_test_suite);
+      test_execute(stream, &oslib_test_suite);
     }
     chThdSleepMilliseconds(500);
   }

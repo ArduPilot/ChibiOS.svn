@@ -616,6 +616,21 @@ struct hal_sio_driver {
   __sio_data
 };
 
+/**
+ * @memberof    hal_sio_driver_c
+ *
+ * @brief       Access macro for hal_sio_driver_c interfaces.
+ *
+ * @param[in]     ip            Pointer to the class instance.
+ * @param         ifns          Implemented interface namespace.
+ * @return                      A void pointer to the interface within the
+ *                              class instance.
+ *
+ * @api
+ */
+#define sioGetIf(ip, ifns)                                                  \
+  boGetIf(ip, ifns, sio)
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/

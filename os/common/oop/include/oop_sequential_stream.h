@@ -128,7 +128,7 @@ struct sequential_stream {
 };
 
 /**
- * @name    Interface methods of @p sequential_stream_i
+ * @name        Interface methods of sequential_stream_i
  * @{
  */
 /**

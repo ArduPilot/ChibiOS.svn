@@ -34,6 +34,7 @@
         </param>
         <return>A pointer to an object of type @p c implementing the interface
           @p ifname.</return>
+        <api />
         <implementation><![CDATA[(c *)(((size_t)(ip)) - (size_t)offsetof(c, ifname))]]></implementation>
       </macro>
       <macro name="oopInterfaceObjectInit">
@@ -47,6 +48,7 @@
         <param name="vmtp" dir="in">VMT pointer to be assigned to the interface
           structure.
         </param>
+        <api />
         <implementation><![CDATA[
 do {
   (ip)->vmt = (vmtp);

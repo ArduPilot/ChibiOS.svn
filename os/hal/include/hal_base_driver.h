@@ -178,7 +178,7 @@ struct hal_base_driver {
 };
 
 /**
- * @name    Virtual methods of hal_base_driver_c
+ * @name        Virtual methods of hal_base_driver_c
  * @{
  */
 /**

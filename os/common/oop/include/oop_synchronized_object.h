@@ -15,119 +15,131 @@
 */
 
 /**
- * @file    oop_synchronized_object.h
- * @brief   Base class for objects supporting synchronization.
- * @details This header defines a base class for classes requiring a
- *          synchronization mechanism.
+ * @file        oop_synchronized_object.h
+ * @brief       Generated Synchronized Object header.
  *
- * @addtogroup OOP_SYNCHRONIZED_OBJECT
- * @details Base class for objects that require a synchronization mechanism.
- *          This class extends @p referenced_object_c class.
+ * @addtogroup  OOP_SYNCHRONIZED_OBJECT
+ * @brief       Common ancestor class of all reference-counted, synchronized
+ *              objects.
+ * @note        This is a generated file, do not edit directly.
  * @{
  */
-
+ 
 #ifndef OOP_SYNCHRONIZED_OBJECT_H
 #define OOP_SYNCHRONIZED_OBJECT_H
 
-#include "osal.h"
 #include "oop_referenced_object.h"
 
+/*===========================================================================*/
+/* Module constants.                                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module pre-compile time settings.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module macros.                                                            */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module class synchronized_object_c                                        */
+/*===========================================================================*/
+
 /**
- * @brief   Type of a synchronized object class.
+ * @class       synchronized_object_c
+ * @extends     referenced_object_c
+ *
+ * @brief       Common ancestor class of all reference-counted, synchronized
+ *              objects.
+ * @details     Base class for objects that require a synchronization
+ *              mechanism. This class extends @p referenced_object_c class.
+ * @note        The class namespace is <tt>so</tt>, access to class fields is
+ *              done using: <tt><objp>->so.<fieldname></tt><br>Note that fields
+ *              of ancestor classes are in their own namespace in order to
+ *              avoid field naming conflicts.
+ */
+
+/**
+ * @brief       Type of a synchronized object class.
  */
 typedef struct synchronized_object synchronized_object_c;
 
 /**
- * @brief   @p synchronized_object_c specific methods.
- * @note    This object defines no virtual methods.
+ * @brief       @p synchronized_object_c data as a structure.
  */
-#define __synchronized_object_methods                                       \
-  __referenced_object_methods
-
-/**
- * @brief   @p synchronized_object_c specific data.
- */
-#define __synchronized_object_data                                          \
-  __referenced_object_data                                                  \
+struct so_data {
+  /**
+   * @brief       Embedded synchronization mutex.
+   */
   mutex_t                                   mutex;
-
-/**
- * @brief   @p synchronized_object_c virtual methods table.
- */
-struct synchronized_object_vmt {
-  __synchronized_object_methods
 };
 
 /**
- * @brief   Structure representing a synchronized object class.
+ * @brief       @p synchronized_object_c methods.
+ */
+#define __so_methods                                                        \
+  __ro_methods                                                              \
+  /* No methods.*/
+
+/**
+ * @brief       @p synchronized_object_c data.
+ */
+#define __so_data                                                           \
+  __ro_data                                                                 \
+  struct so_data                            so;
+
+/**
+ * @brief       @p synchronized_object_c VMT initializer.
+ */
+#define __so_vmt_init(ns)                                                   \
+  __ro_vmt_init(ns)
+
+/**
+ * @brief       @p synchronized_object_c virtual methods table.
+ */
+struct synchronized_object_vmt {
+  __so_methods
+};
+
+/**
+ * @brief       Structure representing a synchronized object class.
  */
 struct synchronized_object {
   /**
-   * @brief   Virtual Methods Table.
+   * @brief       Virtual Methods Table.
    */
   const struct synchronized_object_vmt      *vmt;
-  __synchronized_object_data
+  __so_data
 };
 
-/**
- * @name    Methods implementations
- * @{
- */
-/**
- * @brief   Object creation implementation.
- *
- * @param[out] ip       Pointer to a @p synchronized_object_c structure to be
- *                      initialized.
- * @param[in] vmt       VMT pointer for the new object.
- * @return              A new reference to the object.
- */
-CC_FORCE_INLINE
-static inline void *__synchronized_object_objinit_impl(void *ip, const void *vmt) {
-  synchronized_object_c *objp = (synchronized_object_c *)ip;
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
 
-  __referenced_object_objinit_impl(objp, vmt);
-  osalMutexObjectInit(&objp->mutex);
-
-  return objp;
+#ifdef __cplusplus
+extern "C" {
+#endif
+  /* Methods of synchronized_object_c.*/
+  void soLock(void *ip);
+  void soUnlock(void *ip);
+  void *__so_objinit_impl(void *ip, const void *vmt);
+  void __so_dispose_impl(void *ip);
+#ifdef __cplusplus
 }
+#endif
 
-/**
- * @brief   Object finalization implementation.
- *
- * @param[in] ip        Pointer to a @p synchronized_object_c structure to be
- *                      disposed.
- */
-CC_FORCE_INLINE
-static inline void __synchronized_object_dispose_impl(void *ip) {
-
-  /* TODO add RT objects disposing when available.*/
-  __referenced_object_dispose_impl(ip);
-}
-/** @} */
-
-/**
- * @brief   Object lock.
- *
- * @param[in] ip        A reference to the object.
- */
-CC_FORCE_INLINE
-static inline void soLock(void *ip) {
-  synchronized_object_c *objp = (synchronized_object_c *)ip;
-
-  osalMutexLock(&objp->mutex);
-}
-
-/**
- * @brief   Object unlock.
- *
- * @param[in] ip        A reference to the object.
- */
-CC_FORCE_INLINE
-static inline void soUnlock(void *ip) {
-  synchronized_object_c *objp = (synchronized_object_c *)ip;
-
-  osalMutexUnlock(&objp->mutex);
-}
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
 
 #endif /* OOP_SYNCHRONIZED_OBJECT_H */
 

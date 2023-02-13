@@ -201,14 +201,21 @@
   </xs:simpleType>
   <xs:complexType name="methodsType">
     <xs:sequence>
-      <xs:element name="objinit" type="objinitMethodType"
-        maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="dispose" type="disposeMethodType"
-        maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="virtual" type="virtualMethodsType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="regular" type="regularMethodsType"
-        maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="objinit" type="objinitMethodType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="dispose" type="disposeMethodType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="virtual" type="virtualMethodsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="regular" type="regularMethodsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="inline" type="regularMethodsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="functionType">

@@ -146,6 +146,8 @@ if (--self->drv.opencnt == 0U) {
 
 osalSysUnlock();]]></implementation>
             </method>
+          </regular>
+          <inline>
             <method name="drvGetStateX" ctype="driver_state_t">
               <brief>Driver state get.</brief>
               <return>The driver state.</return>
@@ -178,7 +180,7 @@ osalSysUnlock();]]></implementation>
                 <implementation><![CDATA[osalMutexUnlock(&self->drv.mutex);]]></implementation>
               </method>
             </condition>
-          </regular>
+          </inline>
         </methods>
       </class>
     </classes>

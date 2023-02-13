@@ -186,6 +186,9 @@ ${s}
   [/#list]
 [/#macro]
 
+[#--
+  -- This macro generates a Doxygen list of implemented interfaces from an XML node.
+  --]
 [#macro GenerateClassImplementsTags node=[]]
   [#list node.* as this]
     [#if this?node_name == "ifref"]
@@ -221,6 +224,42 @@ ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_al
   boGetIf(ip, ifns, ${classnamespace})
 
   [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates regular methods from an XML node.
+  --]
+[#macro GenerateClassMethods methods=[] classctype="no-ctype" modifiers=[]]
+  [#list methods.* as node]
+    [#if node?node_name == "method"]
+      [#local method = node /]
+      [#local methodname     = GetNodeName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = method.implementation[0]!"" /]
+      [#assign generated = true /]
+[@doxygen.EmitFullCommentFromNode indent="" node=method
+                                  extraname="ip" extradir="both"
+                                  extratext="Pointer to a @p " + classctype + " instance."
+                                  memberof=classctype /]
+[@ccode.GeneratePrototype modifiers = modifiers
+                          params    = ["void *ip"]
+                          node=method /] {
+  ${classctype} *self = (${classctype} *)ip;
+[@ccode.EmitIndentedCCode indent=ccode.indentation
+                          ccode=methodimpl /]
+}
+    [#elseif node?node_name == "condition"]
+      [#local condition = node /]
+      [#local condcheck = (condition.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateClassMethods condition classctype modifiers /]
+#endif /* ${condcheck} */
+    [/#if]
+    [#if node?has_next]
+
+    [/#if]
+  [/#list]
 [/#macro]
 
 [#--
@@ -267,6 +306,66 @@ static inline void ${classnamespace}Dispose(${classctype} *self) {
 
 ${ccode.indentation}__${classnamespace}_dispose_impl(self);
 }
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates virtual methods as inline functions
+  -- from an XML node.
+  --]
+[#macro GenerateClassVirtualMethods node=[]]
+  [#local class = node /]
+  [#if class.methods.virtual.method?size > 0]
+    [#local classnamespace = GetNodeNamespace(class)
+            classctype     = GetClassCType(class) /]
+/**
+[@doxygen.EmitTagVerbatim "" "name" "Virtual methods of " + classctype /]
+ * @{
+ */
+    [#list class.methods.virtual.method as method]
+      [#local methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method) /]
+[@doxygen.EmitFullCommentFromNode indent="" node=method
+                                  extraname="ip" extradir="both"
+                                  extratext="Pointer to a @p " + classctype + " instance."
+                                  memberof=classctype /]
+CC_FORCE_INLINE
+[@ccode.GeneratePrototype modifiers = ["static", "inline"]
+                          params    = ["void *ip"]
+                          node=method /] {
+${ccode.indentation}${classctype} *self = (${classctype} *)ip;
+
+      [#local callname   = "self->vmt->" + classnamespace + "." + methodsname /]
+      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
+      [#if methodretctype == "void"]
+[@ccode.GenerateFunctionCall ccode.indentation "" callname callparams /]
+      [#else]
+[@ccode.GenerateFunctionCall ccode.indentation "return " callname callparams /]
+      [/#if]
+}
+      [#if method?has_next]
+
+      [/#if]
+    [/#list]
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates inline methods from an XML node.
+  --]
+[#macro GenerateClassInlineMethods class=[]]
+  [#if class.methods.inline.*?size > 0]
+    [#local classctype = GetClassCType(class) /]
+/**
+[@doxygen.EmitTagVerbatim "" "name" "Inline methods of " + classctype /]
+ * @{
+ */
+  [#local modifiers = ["CC_FORCE_INLINE", "static", "inline"] /]
+[@GenerateClassMethods class.methods.inline classctype modifiers /]
 /** @} */
 
   [/#if]
@@ -400,49 +499,8 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 
 [@GenerateClassInterfaceMacros class /]
 [@GenerateClassConstructorDestructor class /]
-[/#macro]
-
-[#--
-  -- This macro generates virtual methods as inline functions
-  -- from an XML node.
-  --]
-[#macro GenerateClassVirtualMethods node=[]]
-  [#local class = node /]
-  [#if class.methods.virtual.method?size > 0]
-    [#local classnamespace = GetNodeNamespace(class)
-            classctype     = GetClassCType(class) /]
-/**
-[@doxygen.EmitTagVerbatim "" "name" "Virtual methods of " + classctype /]
- * @{
- */
-    [#list class.methods.virtual.method as method]
-      [#local methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method) /]
-[@doxygen.EmitFullCommentFromNode indent="" node=method
-                                  extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + classctype + " instance."
-                                  memberof=classctype /]
-CC_FORCE_INLINE
-[@ccode.GeneratePrototype modifiers = ["static", "inline"]
-                          params    = ["void *ip"]
-                          node=method /] {
-${ccode.indentation}${classctype} *self = (${classctype} *)ip;
-
-      [#local callname   = "self->vmt->" + classnamespace + "." + methodsname /]
-      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
-      [#if methodretctype == "void"]
-[@ccode.GenerateFunctionCall ccode.indentation "" callname callparams /]
-      [#else]
-[@ccode.GenerateFunctionCall ccode.indentation "return " callname callparams /]
-      [/#if]
-}
-      [#if method?has_next]
-
-      [/#if]
-    [/#list]
-/** @} */
-
-  [/#if]
+[@GenerateClassVirtualMethods class /]
+[@GenerateClassInlineMethods class /]
 [/#macro]
 
 [#--
@@ -810,37 +868,17 @@ const struct ${classname}_vmt __${classnamespace}_vmt = {
 [#--
   -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateClassRegularMethods methods=[] classctype="no-ctype"]
-  [#list methods.* as node]
-    [#if node?node_name == "method"]
-      [#local method = node /]
-      [#local methodname     = GetNodeName(method)
-              methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method)
-              methodimpl     = method.implementation[0]!"" /]
-      [#assign generated = true /]
-[@doxygen.EmitFullCommentFromNode indent="" node=method
-                                  extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + classctype + " instance."
-                                  memberof=classctype /]
-[@ccode.GeneratePrototype modifiers = []
-                          params    = ["void *ip"]
-                          node=method /] {
-  ${classctype} *self = (${classctype} *)ip;
-[@ccode.EmitIndentedCCode indent=ccode.indentation
-                          ccode=methodimpl /]
-}
-    [#elseif node?node_name == "condition"]
-      [#local condition = node /]
-      [#local condcheck = (condition.@check[0]!"1")?trim /]
-#if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateClassRegularMethods condition classctype /]
-#endif /* ${condcheck} */
-    [/#if]
-    [#if node?has_next]
+[#macro GenerateClassRegularMethods class=[]]
+  [#if class.methods.regular.*?size > 0]
+    [#local classctype = GetClassCType(class) /]
+/**
+[@doxygen.EmitTagVerbatim "" "name" "Regular methods of " + classctype /]
+ * @{
+ */
+[@GenerateClassMethods class.methods.regular classctype /]
+/** @} */
 
-    [/#if]
-  [/#list]
+  [/#if]
 [/#macro]
 
 [#--
@@ -849,14 +887,5 @@ const struct ${classname}_vmt __${classnamespace}_vmt = {
 [#macro GenerateClassWrapperCode class=[]]
 [@GenerateClassVMT class /]
 [@GenerateClassMethodsImplementations class /]
-  [#if class.methods.regular.*?size > 0]
-    [#local classctype = GetClassCType(class) /]
-/**
-[@doxygen.EmitTagVerbatim "" "name" "Regular methods of " + classctype /]
- * @{
- */
-[@GenerateClassRegularMethods class.methods.regular classctype /]
-/** @} */
-
-  [/#if]
+[@GenerateClassRegularMethods class /]
 [/#macro]

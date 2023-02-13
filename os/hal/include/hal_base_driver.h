@@ -111,14 +111,6 @@ extern "C" {
   msg_t __drv_configure_impl(void *ip, const void *config);
   msg_t drvOpen(void *ip);
   void drvClose(void *ip);
-  driver_state_t drvGetStateX(void *ip);
-  void drvSetStateX(void *ip, driver_state_t state);
-  void * drvGetOwnerX(void *ip);
-  void drvSetOwnerX(void *ip, void *owner);
-#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
-  void drvLock(void *ip);
-  void drvUnlock(void *ip);
-#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 #ifdef __cplusplus
 }
 #endif
@@ -263,6 +255,95 @@ static inline msg_t drvConfigureX(void *ip, const void *config) {
 
   return self->vmt->drv.configure(ip, config);
 }
+/** @} */
+
+/**
+ * @name        Inline methods of hal_base_driver_c
+ * @{
+ */
+/**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
+ * @brief       Driver state get.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ * @return                      The driver state.
+ */
+CC_FORCE_INLINE static inline driver_state_t drvGetStateX(void *ip) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+  return self->drv.state;
+}
+
+/**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
+ * @brief       Driver state set.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ * @param         state         New driver state.
+ */
+CC_FORCE_INLINE static inline void drvSetStateX(void *ip, driver_state_t state) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+  self->drv.state = state;
+}
+
+/**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
+ * @brief       Driver owner get.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ * @return                      The driver owner.
+ */
+CC_FORCE_INLINE static inline void * drvGetOwnerX(void *ip) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+  return self->drv.owner;
+}
+
+/**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
+ * @brief       Driver owner set.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ * @param         owner         New driver owner.
+ */
+CC_FORCE_INLINE static inline void drvSetOwnerX(void *ip, void *owner) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+  self->drv.owner = owner;
+}
+
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+/**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
+ * @brief       Driver lock.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ */
+CC_FORCE_INLINE static inline void drvLock(void *ip) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+  osalMutexLock(&self->drv.mutex);
+}
+
+/**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
+ * @brief       Driver unlock.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ */
+CC_FORCE_INLINE static inline void drvUnlock(void *ip) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+  osalMutexUnlock(&self->drv.mutex);
+}
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 /** @} */
 
 #endif /* HAL_BASE_DRIVER_H */

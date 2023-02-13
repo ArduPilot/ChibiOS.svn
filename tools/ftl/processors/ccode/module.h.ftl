@@ -135,7 +135,6 @@ extern "C" {
 /*===========================================================================*/
 
 [@cclasses.GenerateClassWrapper class /]
-[@cclasses.GenerateClassVirtualMethods class /]
   [/#list]
   [#if module_condition?length > 0]
 #endif /* ${module_condition} */

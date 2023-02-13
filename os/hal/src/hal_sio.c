@@ -248,6 +248,14 @@ void sioInit(void) {
 /*===========================================================================*/
 
 /**
+ * @brief       VMT structure of SIO driver class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct hal_sio_driver_vmt __sio_vmt = {
+  __sio_vmt_init(sio)
+};
+
+/**
  * @name        Virtual methods implementations of hal_sio_driver_c
  * @{
  */
@@ -314,45 +322,6 @@ void __sio_dispose_impl(void *ip) {
 
   /* No finalization code.*/
   (void)self;
-}
-/** @} */
-
-/**
- * @name        Constructor and destructor of hal_sio_driver_c
- * @{
- */
-/**
- * @brief       VMT structure of SIO driver class.
- */
-static const struct hal_sio_driver_vmt sio_vmt = {
-  __sio_vmt_init(sio)
-};
-
-/**
- * @memberof    hal_sio_driver_c
- *
- * @brief       Default initialize function of @p hal_sio_driver_c.
- *
- * @param[out]    no-name       Pointer to a @p hal_sio_driver_c instance to be
- *                              initialized.
- * @return                      Pointer to the initialized object.
- */
-hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
-
-  return __sio_objinit_impl(self, &sio_vmt);
-}
-
-/**
- * @memberof    hal_sio_driver_c
- *
- * @brief       Default finalize function of @p hal_sio_driver_c.
- *
- * @param[in,out] no-name       Pointer to a @p hal_sio_driver_c instance to be
- *                              finalized.
- */
-void sioDispose(hal_sio_driver_c *self) {
-
-  __sio_dispose_impl(self);
 }
 /** @} */
 

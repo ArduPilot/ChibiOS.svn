@@ -224,6 +224,55 @@ ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_al
 [/#macro]
 
 [#--
+  -- This macro generates constructor and destructor from an XML node.
+  --]
+[#macro GenerateClassConstructorDestructor node=[]]
+  [#local classname         = GetNodeName(node)
+          classnamespace    = GetNodeNamespace(node)
+          classtype         = GetClassType(node)
+          classctype        = GetClassCType(node)
+          classdescr        = GetNodeDescription(node) /]
+  [#if classtype == "regular"]
+    [#assign generated = true /]
+/**
+[@doxygen.EmitTagVerbatim "" "name" "Constructor and destructor of " + classctype /]
+ * @{
+ */
+/**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ *
+[@doxygen.EmitBrief "" "Default initialize function of @p " + classctype + "." /]
+ *
+[@doxygen.EmitParam name=paramname dir="out"
+                    text="Pointer to a @p " + classctype + " instance to be initialized." /]
+[@doxygen.EmitReturn text="Pointer to the initialized object." /]
+ */
+CC_FORCE_INLINE
+static inline ${classctype} *${classnamespace}ObjectInit(${classctype} *self) {
+${ccode.indentation}extern const struct ${classname}_vmt __${classnamespace}_vmt;
+
+${ccode.indentation}return __${classnamespace}_objinit_impl(self, &__${classnamespace}_vmt);
+}
+
+/**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ *
+[@doxygen.EmitBrief "" "Default finalize function of @p " + classctype + "." /]
+ *
+[@doxygen.EmitParam name=paramname dir="both"
+                    text="Pointer to a @p " + classctype + " instance to be finalized." /]
+ */
+CC_FORCE_INLINE
+static inline void ${classnamespace}Dispose(${classctype} *self) {
+
+${ccode.indentation}__${classnamespace}_dispose_impl(self);
+}
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassWrapper node=[]]
@@ -350,6 +399,7 @@ ${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
 };
 
 [@GenerateClassInterfaceMacros class /]
+[@GenerateClassConstructorDestructor class /]
 [/#macro]
 
 [#--
@@ -376,13 +426,14 @@ CC_FORCE_INLINE
 [@ccode.GeneratePrototype modifiers = ["static", "inline"]
                           params    = ["void *ip"]
                           node=method /] {
-  ${classctype} *self = (${classctype} *)ip;
+${ccode.indentation}${classctype} *self = (${classctype} *)ip;
+
       [#local callname   = "self->vmt->" + classnamespace + "." + methodsname /]
       [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
       [#if methodretctype == "void"]
-[@ccode.GenerateFunctionCall "  " "" callname callparams /]
+[@ccode.GenerateFunctionCall ccode.indentation "" callname callparams /]
       [#else]
-[@ccode.GenerateFunctionCall "  " "return" callname callparams /]
+[@ccode.GenerateFunctionCall ccode.indentation "return " callname callparams /]
       [/#if]
 }
       [#if method?has_next]
@@ -391,20 +442,6 @@ CC_FORCE_INLINE
     [/#list]
 /** @} */
 
-  [/#if]
-[/#macro]
-
-[#--
-  -- This macro generates constructor and destructor prototypes from an XML node.
-  --]
-[#macro GenerateClassConstructorDestructorPrototypes node=[]]
-  [#local class = node /]
-  [#local classnamespace    = GetNodeNamespace(class)
-          classtype         = GetClassType(class)
-          classctype        = GetClassCType(class) /]
-  [#if classtype == "regular"]
-  ${classctype} *${classnamespace}ObjectInit(${classctype} *self);
-  void ${classnamespace}Dispose(${classctype} *self);
   [/#if]
 [/#macro]
 
@@ -462,9 +499,8 @@ CC_FORCE_INLINE
 [#macro GenerateClassMethodsPrototypes class=[]]
     [#local classctype = GetClassCType(class) /]
   /* Methods of ${classctype}.*/
-[@GenerateClassConstructorDestructorPrototypes class /]
-[@GenerateRegularMethodsPrototypes class.methods.regular /]
 [@GenerateVirtualMethodsPrototypes class /]
+[@GenerateRegularMethodsPrototypes class.methods.regular /]
 [/#macro]
 
 [#--
@@ -744,56 +780,25 @@ void __${classnamespace}_dispose_impl(void *ip) {
 
 [/#macro]
 
+
 [#--
   -- This macro generates constructor and destructor from an XML node.
   --]
-[#macro GenerateClassConstructorDestructor node=[]]
-  [#local class = node /]
-  [#local classname         = GetNodeName(class)
-          classnamespace    = GetNodeNamespace(class)
-          classtype         = GetClassType(class)
-          classctype        = GetClassCType(class)
-          classdescr        = GetNodeDescription(class) /]
+[#macro GenerateClassVMT node=[]]
+  [#local classname      = GetNodeName(node)
+          classnamespace = GetNodeNamespace(node)
+          classtype      = GetClassType(node)
+          classctype     = GetClassCType(node)
+          classdescr     = GetNodeDescription(node) /]
   [#if classtype == "regular"]
     [#assign generated = true /]
 /**
-[@doxygen.EmitTagVerbatim "" "name" "Constructor and destructor of " + classctype /]
- * @{
- */
-/**
 [@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
+[@doxygen.EmitNote "" "It is public because accessed by the inlined constructor." /]
  */
-static const struct ${classname}_vmt ${classnamespace}_vmt = {
+const struct ${classname}_vmt __${classnamespace}_vmt = {
   __${classnamespace}_vmt_init(${classnamespace})
 };
-
-/**
-[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
- *
-[@doxygen.EmitBrief "" "Default initialize function of @p " + classctype + "." /]
- *
-[@doxygen.EmitParam name=paramname dir="out"
-                    text="Pointer to a @p " + classctype + " instance to be initialized." /]
-[@doxygen.EmitReturn text="Pointer to the initialized object." /]
- */
-${classctype} *${classnamespace}ObjectInit(${classctype} *self) {
-
-  return __${classnamespace}_objinit_impl(self, &${classnamespace}_vmt);
-}
-
-/**
-[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
- *
-[@doxygen.EmitBrief "" "Default finalize function of @p " + classctype + "." /]
- *
-[@doxygen.EmitParam name=paramname dir="both"
-                    text="Pointer to a @p " + classctype + " instance to be finalized." /]
- */
-void ${classnamespace}Dispose(${classctype} *self) {
-
-  __${classnamespace}_dispose_impl(self);
-}
-/** @} */
 
   [/#if]
 [/#macro]
@@ -837,11 +842,10 @@ void ${classnamespace}Dispose(${classctype} *self) {
   -- This macro generates a class wrapper (.c part) from an XML node.
   --]
 [#macro GenerateClassWrapperCode class=[]]
+[@GenerateClassVMT class /]
 [@GenerateClassMethodsImplementations class /]
-[@GenerateClassConstructorDestructor class /]
   [#if class.methods.regular.*?size > 0]
     [#local classctype = GetClassCType(class) /]
-    [#assign generated = true /]
 /**
 [@doxygen.EmitTagVerbatim "" "name" "Regular methods of " + classctype /]
  * @{

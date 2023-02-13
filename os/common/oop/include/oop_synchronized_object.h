@@ -51,6 +51,26 @@
 /*===========================================================================*/
 
 /*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  /* Methods of synchronized_object_c.*/
+  void *__so_objinit_impl(void *ip, const void *vmt);
+  void __so_dispose_impl(void *ip);
+  void soLock(void *ip);
+  void soUnlock(void *ip);
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
+
+/*===========================================================================*/
 /* Module class synchronized_object_c                                        */
 /*===========================================================================*/
 
@@ -120,26 +140,6 @@ struct synchronized_object {
   const struct synchronized_object_vmt      *vmt;
   __so_data
 };
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-  /* Methods of synchronized_object_c.*/
-  void soLock(void *ip);
-  void soUnlock(void *ip);
-  void *__so_objinit_impl(void *ip, const void *vmt);
-  void __so_dispose_impl(void *ip);
-#ifdef __cplusplus
-}
-#endif
-
-/*===========================================================================*/
-/* Module inline functions.                                                  */
-/*===========================================================================*/
 
 #endif /* OOP_SYNCHRONIZED_OBJECT_H */
 

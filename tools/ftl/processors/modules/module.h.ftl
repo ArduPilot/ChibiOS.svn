@@ -98,23 +98,6 @@
 
 [#-- Generating types declarations.--]
 [@ccode.GenerateTypesFromNode node=module.public.types /]
-  [#-- Scanning all interfaces to be generated in this module.--]
-  [#list module.public.interfaces.interface as interface]
-/*===========================================================================*/
-/* Module interface ${cclasses.GetInterfaceCType(interface)?right_pad(57)}*/
-/*===========================================================================*/
-
-[@cclasses.GenerateInterfaceWrapper interface /]
-  [/#list]
-  [#-- Scanning all classes to be generated in this module.--]
-  [#list module.public.classes.class as class]
-/*===========================================================================*/
-/* Module class ${cclasses.GetClassCType(class)?right_pad(61)}*/
-/*===========================================================================*/
-
-[@cclasses.GenerateClassWrapper class /]
-[@cclasses.GenerateClassVirtualMethods class /]
-  [/#list]
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -137,6 +120,23 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
+  [#-- Scanning all interfaces to be generated in this module.--]
+  [#list module.public.interfaces.interface as interface]
+/*===========================================================================*/
+/* Module interface ${cclasses.GetInterfaceCType(interface)?right_pad(57)}*/
+/*===========================================================================*/
+
+[@cclasses.GenerateInterfaceWrapper interface /]
+  [/#list]
+  [#-- Scanning all classes to be generated in this module.--]
+  [#list module.public.classes.class as class]
+/*===========================================================================*/
+/* Module class ${cclasses.GetClassCType(class)?right_pad(61)}*/
+/*===========================================================================*/
+
+[@cclasses.GenerateClassWrapper class /]
+[@cclasses.GenerateClassVirtualMethods class /]
+  [/#list]
   [#if module_condition?length > 0]
 #endif /* ${module_condition} */
 

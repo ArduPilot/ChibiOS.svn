@@ -55,6 +55,26 @@
 typedef unsigned int object_references_t;
 
 /*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  /* Methods of referenced_object_c.*/
+  void *__ro_objinit_impl(void *ip, const void *vmt);
+  void __ro_dispose_impl(void *ip);
+  void * __ro_addref_impl(void *ip);
+  object_references_t __ro_release_impl(void *ip);
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
+
+/*===========================================================================*/
 /* Module class referenced_object_c                                          */
 /*===========================================================================*/
 
@@ -153,6 +173,7 @@ struct referenced_object {
 CC_FORCE_INLINE
 static inline void * roAddRef(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
+
   return self->vmt->ro.addref(ip);
 }
 
@@ -170,29 +191,10 @@ static inline void * roAddRef(void *ip) {
 CC_FORCE_INLINE
 static inline object_references_t roRelease(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
+
   return self->vmt->ro.release(ip);
 }
 /** @} */
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-  /* Methods of referenced_object_c.*/
-  void *__ro_objinit_impl(void *ip, const void *vmt);
-  void __ro_dispose_impl(void *ip);
-  void * __ro_addref_impl(void *ip);
-  object_references_t __ro_release_impl(void *ip);
-#ifdef __cplusplus
-}
-#endif
-
-/*===========================================================================*/
-/* Module inline functions.                                                  */
-/*===========================================================================*/
 
 #endif /* OOP_REFERENCED_OBJECT_H */
 

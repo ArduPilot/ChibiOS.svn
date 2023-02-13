@@ -97,6 +97,37 @@
 typedef unsigned int driver_state_t;
 
 /*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  /* Methods of hal_base_driver_c.*/
+  void *__drv_objinit_impl(void *ip, const void *vmt);
+  void __drv_dispose_impl(void *ip);
+  msg_t __drv_start_impl(void *ip);
+  void __drv_stop_impl(void *ip);
+  msg_t __drv_configure_impl(void *ip, const void *config);
+  msg_t drvOpen(void *ip);
+  void drvClose(void *ip);
+  driver_state_t drvGetStateX(void *ip);
+  void drvSetStateX(void *ip, driver_state_t state);
+  void * drvGetOwnerX(void *ip);
+  void drvSetOwnerX(void *ip, void *owner);
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+  void drvLock(void *ip);
+  void drvUnlock(void *ip);
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
+
+/*===========================================================================*/
 /* Module class hal_base_driver_c                                            */
 /*===========================================================================*/
 
@@ -191,8 +222,9 @@ struct hal_base_driver {
  * @return                      The operation status.
  */
 CC_FORCE_INLINE
-static inline msg_t __drv_start_protected(void *ip) {
+static inline msg_t __drv_start(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   return self->vmt->drv.start(ip);
 }
 
@@ -205,9 +237,10 @@ static inline msg_t __drv_start_protected(void *ip) {
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  */
 CC_FORCE_INLINE
-static inline void __drv_stop_protected(void *ip) {
+static inline void __drv_stop(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
-   self->vmt->drv.stop(ip);
+
+  self->vmt->drv.stop(ip);
 }
 
 /**
@@ -227,40 +260,10 @@ static inline void __drv_stop_protected(void *ip) {
 CC_FORCE_INLINE
 static inline msg_t drvConfigureX(void *ip, const void *config) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   return self->vmt->drv.configure(ip, config);
 }
 /** @} */
-
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-  /* Methods of hal_base_driver_c.*/
-  msg_t drvOpen(void *ip);
-  void drvClose(void *ip);
-  driver_state_t drvGetStateX(void *ip);
-  void drvSetStateX(void *ip, driver_state_t state);
-  void * drvGetOwnerX(void *ip);
-  void drvSetOwnerX(void *ip, void *owner);
-#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
-  void drvLock(void *ip);
-  void drvUnlock(void *ip);
-#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
-  void *__drv_objinit_impl(void *ip, const void *vmt);
-  void __drv_dispose_impl(void *ip);
-  msg_t __drv_start_impl(void *ip);
-  void __drv_stop_impl(void *ip);
-  msg_t __drv_configure_impl(void *ip, const void *config);
-#ifdef __cplusplus
-}
-#endif
-
-/*===========================================================================*/
-/* Module inline functions.                                                  */
-/*===========================================================================*/
 
 #endif /* HAL_BASE_DRIVER_H */
 

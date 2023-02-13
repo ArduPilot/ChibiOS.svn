@@ -137,7 +137,7 @@ msg_t drvOpen(void *ip) {
 
   if (self->drv.opencnt == 0U) {
     /* Physically starting the peripheral.*/
-    msg = __drv_start_protected(self);
+    msg = __drv_start(self);
     if (msg == HAL_RET_SUCCESS) {
       self->drv.opencnt++;
       self->drv.state = HAL_DRV_STATE_READY;
@@ -175,7 +175,7 @@ void drvClose(void *ip) {
 
   if (--self->drv.opencnt == 0U) {
     self->drv.state = HAL_DRV_STATE_STOP;
-    __drv_stop_protected(self);
+    __drv_stop(self);
   }
 
   osalSysUnlock();

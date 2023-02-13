@@ -67,12 +67,12 @@ self->drv.id      = 0U;
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <virtual>
-            <method name="__drv_start_protected" shortname="start"
+            <method name="__drv_start" shortname="start"
               ctype="msg_t">
               <brief>Low level driver start.</brief>
               <return>The operation status.</return>
             </method>
-            <method name="__drv_stop_protected" shortname="stop"
+            <method name="__drv_stop" shortname="stop"
               ctype="void">
               <brief>Low level driver stop.</brief>
             </method>
@@ -109,7 +109,7 @@ osalSysLock();
 
 if (self->drv.opencnt == 0U) {
   /* Physically starting the peripheral.*/
-  msg = __drv_start_protected(self);
+  msg = __drv_start(self);
   if (msg == HAL_RET_SUCCESS) {
     self->drv.opencnt++;
     self->drv.state = HAL_DRV_STATE_READY;
@@ -141,7 +141,7 @@ osalDbgAssert(self->drv.opencnt > 0U, "not opened");
 
 if (--self->drv.opencnt == 0U) {
   self->drv.state = HAL_DRV_STATE_STOP;
-  __drv_stop_protected(self);
+  __drv_stop(self);
 }
 
 osalSysUnlock();]]></implementation>

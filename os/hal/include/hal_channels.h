@@ -276,6 +276,7 @@ CC_FORCE_INLINE
 static inline size_t chnWriteTimeout(void *ip, const uint8_t *bp, size_t n,
                                      sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
+
   return self->vmt->chn.writet(ip, bp, n, timeout);
 }
 
@@ -303,6 +304,7 @@ CC_FORCE_INLINE
 static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
                                     sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
+
   return self->vmt->chn.readt(ip, bp, n, timeout);
 }
 
@@ -332,6 +334,7 @@ static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
 CC_FORCE_INLINE
 static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
+
   return self->vmt->chn.putt(ip, b, timeout);
 }
 
@@ -358,6 +361,7 @@ static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
 CC_FORCE_INLINE
 static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
+
   return self->vmt->chn.gett(ip, timeout);
 }
 
@@ -379,6 +383,7 @@ static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
 CC_FORCE_INLINE
 static inline msg_t chnControl(void *ip, unsigned int operation, void *arg) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
+
   return self->vmt->chn.ctl(ip, operation, arg);
 }
 /** @} */

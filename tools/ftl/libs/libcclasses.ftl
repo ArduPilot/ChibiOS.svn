@@ -161,7 +161,7 @@
   [#list methods.method as method]
     [#local methodsname    = GetMethodShortName(method)
             methodretctype = GetMethodCType(method) /]
-    [#local funcptr = "  " + methodretctype + " (*" + methodsname + ")(" +
+    [#local funcptr = ccode.indentation + methodretctype + " (*" + methodsname + ")(" +
                       ccode.MakeProtoParamsSequence([ipctype + "ip"] method)?join(", ") +
                       ");" /]
 ${funcptr}
@@ -323,7 +323,7 @@ struct ${methodsstruct} {
 [@doxygen.EmitBrief "" "@p " + classctype + " data as a structure." /]
  */
 struct ${datastruct} {
-[@ccode.GenerateStructureFields "  " class.fields /]
+[@ccode.GenerateStructureFields ccode.indentation class.fields /]
 };
 
   [/#if]
@@ -336,13 +336,13 @@ struct ${datastruct} {
 ${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
   [/#if]
   [#if class.methods.virtual?size > 0]
-[@ccode.GenerateVariableDeclaration indent="  "
+[@ccode.GenerateVariableDeclaration indent=ccode.indentation
                                     name=classnamespace
                                     ctype="struct " + methodsstruct /]
 
 
   [#else]
-  /* No methods.*/
+${ccode.indentation}/* No methods.*/
 
   [/#if]
 /**
@@ -354,13 +354,13 @@ ${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
 ${("  __" + ancestornamespace + "_data")?right_pad(76)}\
   [/#if]
   [#if class.fields.*?size > 0]
-[@ccode.GenerateVariableDeclaration indent="  "
+[@ccode.GenerateVariableDeclaration indent=ccode.indentation
                                     name=classnamespace
                                     ctype="struct " + datastruct /]
 
 
   [#else]
-  /* No data.*/
+${ccode.indentation}/* No data.*/
 
   [/#if]
 /**
@@ -376,7 +376,7 @@ ${("  __" + ancestornamespace + "_data")?right_pad(76)}\
 ${s}
 [@GenerateVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
   [#else]
-  /* No methods.*/
+${ccode.indentation}/* No methods.*/
   [/#if]
 
 /**
@@ -390,11 +390,11 @@ struct ${classname?lower_case}_vmt {
 [@doxygen.EmitBrief "" "Structure representing a " + classdescr + " class." /]
  */
 struct ${classname?lower_case} {
-  /**
-[@doxygen.EmitBrief "  " "Virtual Methods Table." /]
-   */
+${ccode.indentation}/**
+[@doxygen.EmitBrief ccode.indentation "Virtual Methods Table." /]
+${ccode.indentation} */
   [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N" /]
-${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
+${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   ${datadefine}
 };
 
@@ -455,7 +455,7 @@ ${ccode.indentation}${classctype} *self = (${classctype} *)ip;
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method) /]
-[@ccode.GeneratePrototype indent    = "  "
+[@ccode.GeneratePrototype indent    = ccode.indentation
                           modifiers = []
                           params    = ["void *ip"]
                           node=method /];
@@ -484,7 +484,7 @@ ${ccode.indentation}${classctype} *self = (${classctype} *)ip;
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
               methodimpl     = (method.implementation[0]!"")?trim /]
-[@ccode.GeneratePrototype indent    = "  "
+[@ccode.GeneratePrototype indent    = ccode.indentation
                           name      = "__" + classnamespace + "_" + methodsname + "_impl"
                           modifiers = []
                           params    = ["void *ip"]
@@ -498,7 +498,7 @@ ${ccode.indentation}${classctype} *self = (${classctype} *)ip;
   --]
 [#macro GenerateClassMethodsPrototypes class=[]]
     [#local classctype = GetClassCType(class) /]
-  /* Methods of ${classctype}.*/
+${ccode.indentation}/* Methods of ${classctype}.*/
 [@GenerateVirtualMethodsPrototypes class /]
 [@GenerateRegularMethodsPrototypes class.methods.regular /]
 [/#macro]
@@ -555,13 +555,13 @@ struct ${methodsstruct} {
 ${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
   [/#if]
   [#if if.methods.method?size > 0]
-[@ccode.GenerateVariableDeclaration indent="  "
+[@ccode.GenerateVariableDeclaration indent=ccode.indentation
                                     name=ifnamespace
                                     ctype="struct " + methodsstruct /]
 
 
   [#else]
-  /* No methods.*/
+${ccode.indentation}/* No methods.*/
 
   [/#if]
 /**
@@ -577,7 +577,7 @@ ${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
 ${s}
 [@GenerateVMTInitializers methods=node.methods namespace=ifnamespace /]
   [#else]
-  /* No methods.*/
+${ccode.indentation}/* No methods.*/
   [/#if]
 
   [#if (ancestornamespace?length > 0) || (node.methods.method?size > 0)]
@@ -592,11 +592,11 @@ struct ${ifname?lower_case}_vmt {
 [@doxygen.EmitBrief "" "Structure representing a " + ifdescr + "." /]
  */
 struct ${ifname?lower_case} {
-  /**
-[@doxygen.EmitBrief "  " "Virtual Methods Table." /]
-   */
+${ccode.indentation}/**
+[@doxygen.EmitBrief ccode.indentation "Virtual Methods Table." /]
+${ccode.indentation} */
   [#local vmtctype  = "const struct " + ifname?lower_case + "_vmt$I*$N" /]
-${ccode.MakeVariableDeclaration("  " "vmt" vmtctype)}
+${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 };
 
   [/#if]
@@ -620,13 +620,14 @@ CC_FORCE_INLINE
 [@ccode.GeneratePrototype modifiers = ["static", "inline"]
                           params    = ["void *ip"]
                           node=method /] {
-  ${ifctype} *self = (${ifctype} *)ip;
+${ccode.indentation}${ifctype} *self = (${ifctype} *)ip;
+
     [#local callname   = "self->vmt->" + ifnamespace + "." + methodsname /]
     [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
     [#if methodretctype == "void"]
-[@ccode.GenerateFunctionCall "  " "" callname callparams /]
+[@ccode.GenerateFunctionCall ccode.indentation "" callname callparams /]
     [#else]
-[@ccode.GenerateFunctionCall "  " "return" callname callparams /]
+[@ccode.GenerateFunctionCall ccode.indentation "return" callname callparams /]
     [/#if]
 }
     [#if method?has_next]
@@ -647,13 +648,13 @@ CC_FORCE_INLINE
       [#local ifname      = GetNodeName(this)
               ifnamespace = GetNodeNamespace(this)
               ifctype     = GetInterfaceCType(this) /]
-  /* Implementation of interface ${ifctype}.*/
-  {
-    static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
-      __chn_vmt_init(${classnamespace})
-    };
-    oopInterfaceObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
-  }
+${ccode.indentation}/* Implementation of interface ${ifctype}.*/
+${ccode.indentation}{
+${ccode.indentation}${ccode.indentation}static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
+${ccode.indentation}${ccode.indentation}${ccode.indentation}__chn_vmt_init(${classnamespace})
+${ccode.indentation}${ccode.indentation}};
+${ccode.indentation}${ccode.indentation}oopInterfaceObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
+${ccode.indentation}}
       [#if node?node_name != "condition"]
 
       [/#if]
@@ -699,12 +700,12 @@ void *__${classnamespace}_objinit_impl(void *ip, const void *vmt) {
   ${classctype} *self = (${classctype} *)ip;
 
   [#if ancestornamespace?length == 0]
-  /* This is a root class, initializing the VMT pointer here.*/
-  self->vmt = (struct base_object_vmt *)vmt;
+${ccode.indentation}/* This is a root class, initializing the VMT pointer here.*/
+${ccode.indentation}self->vmt = (struct base_object_vmt *)vmt;
 
   [#else]
-  /* Initialization of the ancestors-defined parts.*/
-  __${ancestornamespace}_objinit_impl(self, vmt);
+${ccode.indentation}/* Initialization of the ancestors-defined parts.*/
+${ccode.indentation}__${ancestornamespace}_objinit_impl(self, vmt);
 
   [/#if]
   [#if class.implements.*?size > 0]
@@ -712,13 +713,14 @@ void *__${classnamespace}_objinit_impl(void *ip, const void *vmt) {
   [/#if]
   [#if (class.methods.objinit[0].implementation[0])?? &&
        (class.methods.objinit[0].implementation[0]?trim?length > 0)]
-  /* Initialization code.*/
-[@ccode.EmitIndentedCCode indent="  " ccode=class.methods.objinit[0].implementation[0]?string /]
+${ccode.indentation}/* Initialization code.*/
+[@ccode.EmitIndentedCCode indent=ccode.indentation
+                          ccode=class.methods.objinit[0].implementation[0]?string /]
   [#else]
-  /* No initialization code.*/
+${ccode.indentation}/* No initialization code.*/
   [/#if]
 
-  return self;
+${ccode.indentation}return self;
 }
 
 /**
@@ -740,11 +742,12 @@ void __${classnamespace}_dispose_impl(void *ip) {
   [/#if]
   [#if (class.methods.dispose[0].implementation[0])?? &&
        (class.methods.dispose[0].implementation[0]?trim?length > 0)]
-  /* Finalization code.*/
-[@ccode.EmitIndentedCCode indent="  " ccode=class.methods.dispose[0].implementation[0]?string /]
+${ccode.indentation}/* Finalization code.*/
+[@ccode.EmitIndentedCCode indent=ccode.indentation
+                          ccode=class.methods.dispose[0].implementation[0]?string /]
   [#else]
-  /* No finalization code.*/
-  (void)self;
+${ccode.indentation}/* No finalization code.*/
+${ccode.indentation}(void)self;
   [/#if]
 }
   [#list class.methods.virtual.* as node]
@@ -771,7 +774,8 @@ void __${classnamespace}_dispose_impl(void *ip) {
                           params    = ["void *ip"]
                           node      = method /] {
   ${classctype} *self = (${classctype} *)ip;
-[@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
+[@ccode.EmitIndentedCCode indent=ccode.indentation
+                          ccode=methodimpl /]
 }
       [/#if]
     [/#if]
@@ -823,7 +827,8 @@ const struct ${classname}_vmt __${classnamespace}_vmt = {
                           params    = ["void *ip"]
                           node=method /] {
   ${classctype} *self = (${classctype} *)ip;
-[@ccode.EmitIndentedCCode indent="  " ccode=methodimpl /]
+[@ccode.EmitIndentedCCode indent=ccode.indentation
+                          ccode=methodimpl /]
 }
     [#elseif node?node_name == "condition"]
       [#local condition = node /]

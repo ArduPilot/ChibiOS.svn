@@ -72,7 +72,7 @@
   -- Emits a C function body code reformatting the indentation using the
   -- specified line prefix.
   --]
-[#macro EmitIndentedCCode indent="  " ccode=""]
+[#macro EmitIndentedCCode indent=indentation ccode=""]
   [#local lines = ccode?string?split("^", "rm") /]
   [#list lines as line]
     [#local s = line?chop_linebreak /]
@@ -363,7 +363,7 @@ ${s}
 [#--
   -- Generates a multi-line C macro from an XML node.
   --]
-[#macro GenerateMacroFromNode indent="  " node=[]]
+[#macro GenerateMacroFromNode indent=indentation node=[]]
   [#local macro  = node /]
   [#local name   = (macro.@name[0]!"no-name")?trim /]
   [#local params = MakeCallParamsSequence([], macro) /]
@@ -390,7 +390,7 @@ ${(indent + s + "")?right_pad(backslash_align) + "\\"}
 [#--
   -- Generates all macros from an XML node.
   --]
-[#macro GenerateMacrosFromNode indent="  " node=[]]
+[#macro GenerateMacrosFromNode indent=indentation node=[]]
   [#list node.* as this]
     [#if this?node_name == "macro"]
       [#if this.brief[0]?? && !this?is_first]
@@ -516,8 +516,8 @@ ${indent}};
       [#local field = node /]
       [#local fieldname  = (field.@name[0]!"no-name")?trim
               fieldctype = (field.@ctype[0]!"no-ctype")?trim
-              fieldstring = MakeVariableDeclaration("  " fieldname fieldctype) /]
-[@doxygen.EmitFullCommentFromNode indent="  " node=field /]
+              fieldstring = MakeVariableDeclaration(indentation fieldname fieldctype) /]
+[@doxygen.EmitFullCommentFromNode indent=indentation node=field /]
 ${fieldstring}
     [#elseif node?node_name == "condition"]
       [#local condition = node /]
@@ -538,7 +538,7 @@ ${fieldstring}
 [#macro GenerateFunctionFromNode modifiers=[] node=[]]
   [#local funcimpl = GetImplementation(node) /]
 [@GeneratePrototype modifiers=modifiers node=node /] {
-[@EmitIndentedCCode indent="  " ccode=funcimpl /]
+[@EmitIndentedCCode indent=indentation ccode=funcimpl /]
 }
 [/#macro]
 
@@ -593,7 +593,7 @@ ${fieldstring}
   -- Generates all function prototypes from an XML node.
   -- Prototypes are generated without spacing and without comments.
   --]
-[#macro GenerateFunctionPrototypesFromNode indent="  " modifiers=[] node=[]]
+[#macro GenerateFunctionPrototypesFromNode indent=indentation modifiers=[] node=[]]
   [#list node.* as this]
     [#if this?node_name == "function"]
 [@GeneratePrototype indent=indent modifiers=modifiers node=this /];

@@ -229,7 +229,7 @@ ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_al
 [#--
   -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateClassMethods methods=[] classctype="no-ctype" modifiers=[]]
+[#macro GenerateClassMethods methods=[] classctype="no-ctype" inline=false]
   [#list methods.* as node]
     [#if node?node_name == "method"]
       [#local method = node /]
@@ -242,6 +242,12 @@ ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_al
                                   extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + classctype + " instance."
                                   memberof=classctype /]
+      [#if inline]
+CC_FORCE_INLINE
+        [#local modifiers = ["static", "inline"] /]
+      [#else]
+        [#local modifiers = [] /]
+      [/#if]
 [@ccode.GeneratePrototype modifiers = modifiers
                           params    = ["void *ip"]
                           node=method /] {
@@ -253,7 +259,7 @@ ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_al
       [#local condition = node /]
       [#local condcheck = (condition.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateClassMethods condition classctype modifiers /]
+[@GenerateClassMethods condition classctype inline /]
 #endif /* ${condcheck} */
     [/#if]
     [#if node?has_next]
@@ -364,8 +370,7 @@ ${ccode.indentation}${classctype} *self = (${classctype} *)ip;
 [@doxygen.EmitTagVerbatim "" "name" "Inline methods of " + classctype /]
  * @{
  */
-  [#local modifiers = ["CC_FORCE_INLINE", "static", "inline"] /]
-[@GenerateClassMethods class.methods.inline classctype modifiers /]
+[@GenerateClassMethods class.methods.inline classctype true /]
 /** @} */
 
   [/#if]
@@ -875,7 +880,7 @@ const struct ${classname}_vmt __${classnamespace}_vmt = {
 [@doxygen.EmitTagVerbatim "" "name" "Regular methods of " + classctype /]
  * @{
  */
-[@GenerateClassMethods class.methods.regular classctype /]
+[@GenerateClassMethods class.methods.regular classctype false /]
 /** @} */
 
   [/#if]

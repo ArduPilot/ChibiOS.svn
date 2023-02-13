@@ -270,7 +270,8 @@ static inline msg_t drvConfigureX(void *ip, const void *config) {
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver state.
  */
-CC_FORCE_INLINE static inline driver_state_t drvGetStateX(void *ip) {
+CC_FORCE_INLINE
+static inline driver_state_t drvGetStateX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
   return self->drv.state;
 }
@@ -284,7 +285,8 @@ CC_FORCE_INLINE static inline driver_state_t drvGetStateX(void *ip) {
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @param         state         New driver state.
  */
-CC_FORCE_INLINE static inline void drvSetStateX(void *ip, driver_state_t state) {
+CC_FORCE_INLINE
+static inline void drvSetStateX(void *ip, driver_state_t state) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
   self->drv.state = state;
 }
@@ -298,7 +300,8 @@ CC_FORCE_INLINE static inline void drvSetStateX(void *ip, driver_state_t state) 
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver owner.
  */
-CC_FORCE_INLINE static inline void * drvGetOwnerX(void *ip) {
+CC_FORCE_INLINE
+static inline void * drvGetOwnerX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
   return self->drv.owner;
 }
@@ -312,7 +315,8 @@ CC_FORCE_INLINE static inline void * drvGetOwnerX(void *ip) {
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @param         owner         New driver owner.
  */
-CC_FORCE_INLINE static inline void drvSetOwnerX(void *ip, void *owner) {
+CC_FORCE_INLINE
+static inline void drvSetOwnerX(void *ip, void *owner) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
   self->drv.owner = owner;
 }
@@ -326,7 +330,8 @@ CC_FORCE_INLINE static inline void drvSetOwnerX(void *ip, void *owner) {
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  */
-CC_FORCE_INLINE static inline void drvLock(void *ip) {
+CC_FORCE_INLINE
+static inline void drvLock(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
   osalMutexLock(&self->drv.mutex);
 }
@@ -339,7 +344,8 @@ CC_FORCE_INLINE static inline void drvLock(void *ip) {
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  */
-CC_FORCE_INLINE static inline void drvUnlock(void *ip) {
+CC_FORCE_INLINE
+static inline void drvUnlock(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
   osalMutexUnlock(&self->drv.mutex);
 }

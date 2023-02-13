@@ -37,13 +37,27 @@
         <brief>Type of a driver state variable.</brief>
         <basetype ctype="unsigned int" />
       </typedef>
+      <condition check="HAL_USE_REGISTRY == TRUE">
+        <typedef name="hal_regent_t">
+          <brief>Type of a registry entry structure.</brief>
+          <basetype ctype="struct hal_regent" />
+        </typedef>
+        <struct name="hal_regent">
+          <brief>Structure representing a registry entry.</brief>
+          <fields>
+            <field name="next" ctype="hal_regent_t$I*">
+              <brief>Next entry in the drivers registry.</brief></field>
+            <field name="prev" ctype="hal_regent_t$I*">
+              <brief>Previous entry in the drivers registry.</brief></field>
+          </fields>
+        </struct>
+      </condition>
     </types>
     <classes>
       <class type="abstract" name="hal_base_driver" namespace="drv"
         ancestorname="base_object" ancestornamespace="bo"
         descr="HAL base driver">
-        <brief>
-        </brief>
+        <brief>Ancstor class of stateful HAL drivers.</brief>
         <fields>
           <field name="state" ctype="driver_state_t" />
           <field name="opencnt" ctype="unsigned int" />
@@ -184,6 +198,11 @@ osalSysUnlock();]]></implementation>
         </methods>
       </class>
     </classes>
+    <variables>
+      <condition>
+        <variable name="hal_registry" ctype="hal_regent_t">
+          <brief>List header for the HAL registry</brief></variable>
+      </condition></variables>
   </public>
   <private>
     <inclusions>

@@ -107,17 +107,22 @@
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="typesType">
-    <xs:sequence>
+    <xs:sequence maxOccurs="1" minOccurs="1">
       <xs:choice maxOccurs="unbounded" minOccurs="0">
         <xs:element name="typedef" type="typedefType" maxOccurs="1"
-          minOccurs="1"></xs:element>
+          minOccurs="1">
+        </xs:element>
         <xs:element name="struct" type="structType" maxOccurs="1"
-          minOccurs="1"></xs:element>
-        <xs:element name="union" type="unionType" maxOccurs="1"
-          minOccurs="1"></xs:element>
-        <xs:element name="verbatim" type="xs:string" maxOccurs="1"
-          minOccurs="1"></xs:element>
+          minOccurs="1">
+        </xs:element>
+        <xs:element name="union" type="unionType" maxOccurs="1" minOccurs="1"></xs:element>
+        <xs:element name="condition" type="conditionalTypesType" maxOccurs="1"
+          minOccurs="1">
+        </xs:element>
       </xs:choice>
+      <xs:element name="verbatim" type="xs:string" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="classesType">
@@ -736,11 +741,23 @@
     </xs:attribute>
     <xs:attribute name="namespace" type="xs:string"></xs:attribute>
   </xs:complexType>
-
   <xs:complexType name="conditionalIfrefType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
       <xs:element name="ifref" type="ifrefType" maxOccurs="1" minOccurs="1"></xs:element>
       <xs:element name="condition" type="conditionalIfrefType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+    </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="conditionalTypesType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="typedef" type="typedefType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="struct" type="structType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="union" type="unionType" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="condition" type="conditionalTypesType" maxOccurs="1"
         minOccurs="1">
       </xs:element>
     </xs:choice>

@@ -1,4 +1,4 @@
-sourceRoot: ../../../tools/ftl/processors/modules
+sourceRoot: ../../../tools/ftl/processors/ccode
 outputRoot: ..
 dataRoot: .
 

@@ -113,7 +113,7 @@ struct stm_methods {
  */
 #define __stm_methods                                                       \
   __bi_methods                                                              \
-  struct stm_methods                        stm;
+  struct stm_methods        stm;
 
 /**
  * @brief       @p sequential_stream_i VMT initializer.
@@ -139,7 +139,7 @@ struct sequential_stream {
   /**
    * @brief       Virtual Methods Table.
    */
-  const struct sequential_stream_vmt        *vmt;
+  const struct sequential_stream_vmt *vmt;
 };
 
 /**

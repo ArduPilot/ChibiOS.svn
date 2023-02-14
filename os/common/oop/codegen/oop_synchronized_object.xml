@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
+  name="oop_synchronized_object" descr="Synchronized Object">
+  <brief>Common ancestor class of all reference-counted, synchronized objects.</brief>
+  <note>This is a generated file, do not edit directly.</note>
+  <public>
+    <inclusions>
+      <include style="regular">oop_referenced_object.h</include>
+    </inclusions>
+    <classes>
+      <class type="abstract" name="synchronized_object" namespace="so"
+        ancestorname="referenced_object" ancestornamespace="ro"
+        descr="synchronized object">
+        <brief>Common ancestor class of all reference-counted, synchronized objects.</brief>
+        <details><![CDATA[Base class for objects that require a synchronization mechanism.
+          This class extends @p referenced_object_c class.]]></details>
+        <fields>
+          <field name="mutex" ctype="mutex_t">
+            <brief>Embedded synchronization mutex.</brief>
+          </field>
+        </fields>
+        <methods>
+          <objinit>
+            <implementation><![CDATA[osalMutexObjectInit(&self->mutex);]]></implementation>
+          </objinit>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
+          <regular>
+            <method name="soLock" ctype="void">
+              <brief>Object lock.</brief>
+              <implementation><![CDATA[
+
+osalMutexLock(&self->mutex);]]></implementation>
+            </method>
+            <method name="soUnlock" ctype="void">
+              <brief>Object unlock.</brief>
+              <implementation><![CDATA[
+
+osalMutexUnlock(&self->mutex);]]></implementation>
+            </method>
+          </regular>
+        </methods>
+      </class>
+    </classes>
+  </public>
+  <private>
+  </private>
+</module>

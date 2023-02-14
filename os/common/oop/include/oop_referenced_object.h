@@ -112,7 +112,7 @@ struct ro_data {
   /**
    * @brief       Number of references to the object.
    */
-  object_references_t                       references;
+  object_references_t       references;
 };
 
 /**
@@ -120,14 +120,14 @@ struct ro_data {
  */
 #define __ro_methods                                                        \
   __bo_methods                                                              \
-  struct ro_methods                         ro;
+  struct ro_methods         ro;
 
 /**
  * @brief       @p referenced_object_c data.
  */
 #define __ro_data                                                           \
   __bo_data                                                                 \
-  struct ro_data                            ro;
+  struct ro_data            ro;
 
 /**
  * @brief       @p referenced_object_c VMT initializer.
@@ -151,7 +151,7 @@ struct referenced_object {
   /**
    * @brief       Virtual Methods Table.
    */
-  const struct referenced_object_vmt        *vmt;
+  const struct referenced_object_vmt *vmt;
   __ro_data
 };
 

@@ -97,10 +97,11 @@ void *__so_objinit_impl(void *ip, const void *vmt) {
 void __so_dispose_impl(void *ip) {
   synchronized_object_c *self = (synchronized_object_c *)ip;
 
-  __ro_dispose_impl(self);
-
   /* No finalization code.*/
   (void)self;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __ro_dispose_impl(self);
 }
 /** @} */
 

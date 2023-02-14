@@ -100,7 +100,7 @@ struct so_data {
   /**
    * @brief       Embedded synchronization mutex.
    */
-  mutex_t                                   mutex;
+  mutex_t                   mutex;
 };
 
 /**
@@ -115,7 +115,7 @@ struct so_data {
  */
 #define __so_data                                                           \
   __ro_data                                                                 \
-  struct so_data                            so;
+  struct so_data            so;
 
 /**
  * @brief       @p synchronized_object_c VMT initializer.
@@ -137,7 +137,7 @@ struct synchronized_object {
   /**
    * @brief       Virtual Methods Table.
    */
-  const struct synchronized_object_vmt      *vmt;
+  const struct synchronized_object_vmt *vmt;
   __so_data
 };
 

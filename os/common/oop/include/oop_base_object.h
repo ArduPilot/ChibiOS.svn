@@ -138,7 +138,7 @@ struct base_object {
   /**
    * @brief       Virtual Methods Table.
    */
-  const struct base_object_vmt              *vmt;
+  const struct base_object_vmt *vmt;
   __bo_data
 };
 

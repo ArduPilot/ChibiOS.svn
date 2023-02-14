@@ -97,10 +97,11 @@ void *__ro_objinit_impl(void *ip, const void *vmt) {
 void __ro_dispose_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  __bo_dispose_impl(self);
-
   /* No finalization code.*/
   (void)self;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __bo_dispose_impl(self);
 }
 
 /**

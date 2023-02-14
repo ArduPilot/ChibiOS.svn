@@ -120,7 +120,7 @@
         type="conditionalTypesType" maxOccurs="1" minOccurs="1">
       </xs:element>
       <xs:element name="verbatim" type="xs:string"
-        maxOccurs="1" minOccurs="0">
+        maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
   </xs:complexType>
@@ -753,16 +753,19 @@
   </xs:complexType>
   <xs:complexType name="conditionalTypesType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="typedef" type="typedefType"
+      <xs:element name="typedef" type="typedefType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="struct" type="structType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="union" type="unionType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="condition" type="conditionalTypesType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="struct" type="structType"
-        maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="union" type="unionType" maxOccurs="1"
-        minOccurs="1"></xs:element>
-      <xs:element name="condition"
-        type="conditionalTypesType" maxOccurs="1" minOccurs="1">
-      </xs:element>
+      <xs:element name="verbatim" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>

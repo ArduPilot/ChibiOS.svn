@@ -65,7 +65,7 @@
  * @note        Disabling this option saves both code and data space.
  */
 #if !defined(HAL_USE_REGISTRY) || defined(__DOXYGEN__)
-#define HAL_USE_REGISTRY                    FALSE
+#define HAL_USE_REGISTRY                    TRUE
 #endif
 /** @} */
 
@@ -136,6 +136,8 @@ extern "C" {
   msg_t __drv_configure_impl(void *ip, const void *config);
   msg_t drvOpen(void *ip);
   void drvClose(void *ip);
+  /* Regular functions.*/
+  void drvInit(void);
 #ifdef __cplusplus
 }
 #endif
@@ -183,6 +185,10 @@ struct drv_data {
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
   mutex_t                   mutex;
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+  unsigned int              id;
+  hal_regent_t              regent;
+#endif /* HAL_USE_REGISTRY == TRUE */
 };
 
 /**

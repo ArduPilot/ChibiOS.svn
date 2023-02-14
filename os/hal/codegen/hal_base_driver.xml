@@ -24,7 +24,7 @@
         <note>Disabling this option saves both code and data space.</note>
         <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
       </config>
-      <config name="HAL_USE_REGISTRY" default="FALSE">
+      <config name="HAL_USE_REGISTRY" default="TRUE">
         <brief>Enables the HAL registry for drivers.</brief>
         <note>Disabling this option saves both code and data space.</note>
         <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
@@ -65,6 +65,10 @@
           <condition check="HAL_USE_MUTUAL_EXCLUSION == TRUE">
             <field name="mutex" ctype="mutex_t" />
           </condition>
+          <condition check="HAL_USE_REGISTRY == TRUE">
+            <field name="id" ctype="unsigned int" />
+            <field name="regent" ctype="hal_regent_t" />
+          </condition>
         </fields>
         <methods>
           <objinit>
@@ -74,11 +78,15 @@ self->drv.opencnt = 0U;
 self->drv.owner   = NULL;
 osalMutexObjectInit(&self->drv.mutex);
 #if HAL_USE_REGISTRY == TRUE
+drv_reg_insert(self);
 self->drv.id      = 0U;
 #endif]]></implementation>
           </objinit>
           <dispose>
-            <implementation><![CDATA[ ]]></implementation>
+            <implementation><![CDATA[
+#if HAL_USE_REGISTRY == TRUE
+drv_reg_remove(self);
+#endif]]></implementation>
           </dispose>
           <virtual>
             <method name="__drv_start" shortname="start"
@@ -204,10 +212,46 @@ osalSysUnlock();]]></implementation>
           <brief>List header for the HAL registry</brief></variable>
       </condition>
     </variables>
+    <functions>
+      <function name="drvInit" ctype="void">
+        <brief>Drivers manager initialization.</brief>
+        <init />
+        <implementation><![CDATA[
+
+#if HAL_USE_REGISTRY == TRUE
+/* Registry list initialization.*/
+hal_registry.next = &hal_registry;
+hal_registry.prev = &hal_registry;
+#endif
+]]></implementation>
+      </function></functions>
   </public>
   <private>
     <inclusions>
       <include style="regular">hal.h</include>
     </inclusions>
+    <functions>
+      <condition check="HAL_USE_REGISTRY == TRUE">
+        <function name="drv_reg_insert" ctype="void">
+          <brief>Driver insertion in the HAL registry.</brief>
+          <param name="drvp" ctype="hal_base_driver_c *" dir="both">Pointer to the @p hal_base_driver_c instance to be inserted.</param>
+          <implementation><![CDATA[
+
+drvp->drv.regent.next       = &hal_registry;
+drvp->drv.regent.prev       = hal_registry.prev;
+drvp->drv.regent.prev->next = &drvp->drv.regent;
+hal_registry.prev           = &drvp->drv.regent;]]></implementation>
+        </function>
+        <function name="drv_reg_remove" ctype="void">
+          <brief>Driver removal from the HAL registry.</brief>
+          <param name="drvp" ctype="hal_base_driver_c *" dir="both">Pointer to the @p hal_base_driver_c instance to be inserted.</param>
+          <implementation><![CDATA[
+
+drvp->drv.regent.prev->next = drvp->drv.regent.next;
+drvp->drv.regent.next->prev = drvp->drv.regent.prev;
+]]></implementation>
+        </function>
+      </condition>
+    </functions>
   </private>
 </module>

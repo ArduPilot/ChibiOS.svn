@@ -55,9 +55,51 @@ hal_regent_t                hal_registry;
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief       Driver insertion in the HAL registry.
+ *
+ * @param[in,out] drvp          Pointer to the @p hal_base_driver_c instance to
+ *                              be inserted.
+ */
+static void drv_reg_insert(hal_base_driver_c *drvp) {
+
+  drvp->drv.regent.next       = &hal_registry;
+  drvp->drv.regent.prev       = hal_registry.prev;
+  drvp->drv.regent.prev->next = &drvp->drv.regent;
+  hal_registry.prev           = &drvp->drv.regent;
+}
+
+/**
+ * @brief       Driver removal from the HAL registry.
+ *
+ * @param[in,out] drvp          Pointer to the @p hal_base_driver_c instance to
+ *                              be inserted.
+ */
+static void drv_reg_remove(hal_base_driver_c *drvp) {
+
+  drvp->drv.regent.prev->next = drvp->drv.regent.next;
+  drvp->drv.regent.next->prev = drvp->drv.regent.prev;
+}
+#endif /* HAL_USE_REGISTRY == TRUE */
+
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
+
+/**
+ * @brief       Drivers manager initialization.
+ *
+ * @init
+ */
+void drvInit(void) {
+
+#if HAL_USE_REGISTRY == TRUE
+  /* Registry list initialization.*/
+  hal_registry.next = &hal_registry;
+  hal_registry.prev = &hal_registry;
+#endif
+}
 
 /*===========================================================================*/
 /* Module class "hal_base_driver_c" methods.                                 */
@@ -91,6 +133,7 @@ void *__drv_objinit_impl(void *ip, const void *vmt) {
   self->drv.owner   = NULL;
   osalMutexObjectInit(&self->drv.mutex);
 #if HAL_USE_REGISTRY == TRUE
+  drv_reg_insert(self);
   self->drv.id      = 0U;
 #endif
 
@@ -110,10 +153,13 @@ void *__drv_objinit_impl(void *ip, const void *vmt) {
 void __drv_dispose_impl(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  __bo_dispose_impl(self);
+  /* Finalization code.*/
+#if HAL_USE_REGISTRY == TRUE
+  drv_reg_remove(self);
+#endif
 
-  /* No finalization code.*/
-  (void)self;
+  /* Finalization of the ancestors-defined parts.*/
+  __bo_dispose_impl(self);
 }
 /** @} */
 

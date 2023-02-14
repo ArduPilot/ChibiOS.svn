@@ -318,10 +318,11 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
 void __sio_dispose_impl(void *ip) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
 
-  __drv_dispose_impl(self);
-
   /* No finalization code.*/
   (void)self;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __drv_dispose_impl(self);
 }
 /** @} */
 

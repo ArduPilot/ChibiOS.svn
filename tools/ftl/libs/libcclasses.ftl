@@ -799,10 +799,6 @@ ${ccode.indentation}return self;
 void __${classnamespace}_dispose_impl(void *ip) {
   ${classctype} *self = (${classctype} *)ip;
 
-  [#if ancestornamespace?length > 0]
-  __${ancestornamespace}_dispose_impl(self);
-
-  [/#if]
   [#if (class.methods.dispose[0].implementation[0])?? &&
        (class.methods.dispose[0].implementation[0]?trim?length > 0)]
 ${ccode.indentation}/* Finalization code.*/
@@ -811,6 +807,11 @@ ${ccode.indentation}/* Finalization code.*/
   [#else]
 ${ccode.indentation}/* No finalization code.*/
 ${ccode.indentation}(void)self;
+  [/#if]
+  [#if ancestornamespace?length > 0]
+
+  /* Finalization of the ancestors-defined parts.*/
+  __${ancestornamespace}_dispose_impl(self);
   [/#if]
 }
   [#list class.methods.virtual.* as node]

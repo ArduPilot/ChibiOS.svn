@@ -58,6 +58,9 @@ void halInit(void) {
   /* Initializes the OS Abstraction Layer.*/
   osalInit();
 
+  /* Initialization of the centralized drivers manager.*/
+  drvInit();
+
   /* Platform low level initializations.*/
   hal_lld_init();
 

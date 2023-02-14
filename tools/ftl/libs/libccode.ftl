@@ -674,11 +674,11 @@ ${fieldstring}
     [#if this?node_name == "function"]
 [@GeneratePrototype indent=indent modifiers=modifiers node=this /];
     [#elseif this?node_name == "group"]
-[@GeneratePrototype indent=indent modifiers=modifiers node=this /];
+[@GenerateFunctionPrototypesFromNode indent=indent modifiers=modifiers node=this /]
     [#elseif this?node_name == "condition"]
       [#local condcheck = (this.@check[0]!"1")?trim /]
 #if ${condcheck}
-[@GeneratePrototype indent=indent modifiers=modifiers node=this /];
+[@GenerateFunctionPrototypesFromNode indent=indent modifiers=modifiers node=this /]
 #endif
     [#elseif this?node_name == "elseif"]
       [#local condcheck = (this.@check[0]!"")?trim /]

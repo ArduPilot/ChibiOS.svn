@@ -101,6 +101,42 @@ void drvInit(void) {
 #endif
 }
 
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief       Return the first driver in the HAL registry.
+ *
+ * @return                      A pointer to the first driver object.
+ * @retval NULL                 If the registry is empty.
+ */
+hal_base_driver_c * drvRegGetFirst(void) {
+  hal_regent_t *rep;
+
+  rep = hal_registry.next;
+  if (rep == &hal_registry) {
+    return NULL;
+  }
+
+  return oopGetInstance(hal_base_driver_c, drv.regent, rep);
+}
+
+/**
+ * @brief       Return the next driver in the HAL registry.
+ *
+ * @return                      A pointer to the next driver object.
+ * @retval NULL                 If there is no next driver.
+ */
+hal_base_driver_c * drvRegGetNext(hal_base_driver_c *drvp) {
+  hal_regent_t *rep;
+
+  rep = drvp->drv.regent.next;
+  if (rep == &hal_registry) {
+    return NULL;
+  }
+
+  return oopGetInstance(hal_base_driver_c, drv.regent, rep);
+}
+#endif /* HAL_USE_REGISTRY == TRUE */
+
 /*===========================================================================*/
 /* Module class "hal_base_driver_c" methods.                                 */
 /*===========================================================================*/
@@ -133,8 +169,9 @@ void *__drv_objinit_impl(void *ip, const void *vmt) {
   self->drv.owner   = NULL;
   osalMutexObjectInit(&self->drv.mutex);
 #if HAL_USE_REGISTRY == TRUE
-  drv_reg_insert(self);
   self->drv.id      = 0U;
+  self->drv.name    = "unk";
+  drv_reg_insert(self);
 #endif
 
   return self;

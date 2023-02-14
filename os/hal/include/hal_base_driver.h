@@ -91,6 +91,8 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+typedef struct hal_base_driver hal_base_driver_c;
+
 /**
  * @brief       Type of a driver state variable.
  */
@@ -138,6 +140,10 @@ extern "C" {
   void drvClose(void *ip);
   /* Regular functions.*/
   void drvInit(void);
+#if HAL_USE_REGISTRY == TRUE
+  hal_base_driver_c * drvRegGetFirst(void);
+  hal_base_driver_c * drvRegGetNext(hal_base_driver_c *drvp);
+#endif
 #ifdef __cplusplus
 }
 #endif
@@ -187,6 +193,7 @@ struct drv_data {
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 #if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
   unsigned int              id;
+  const char                *name;
   hal_regent_t              regent;
 #endif /* HAL_USE_REGISTRY == TRUE */
 };
@@ -305,6 +312,7 @@ static inline msg_t drvConfigureX(void *ip, const void *config) {
 CC_FORCE_INLINE
 static inline driver_state_t drvGetStateX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   return self->drv.state;
 }
 
@@ -320,6 +328,7 @@ static inline driver_state_t drvGetStateX(void *ip) {
 CC_FORCE_INLINE
 static inline void drvSetStateX(void *ip, driver_state_t state) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   self->drv.state = state;
 }
 
@@ -335,6 +344,7 @@ static inline void drvSetStateX(void *ip, driver_state_t state) {
 CC_FORCE_INLINE
 static inline void * drvGetOwnerX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   return self->drv.owner;
 }
 
@@ -350,7 +360,50 @@ static inline void * drvGetOwnerX(void *ip) {
 CC_FORCE_INLINE
 static inline void drvSetOwnerX(void *ip, void *owner) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   self->drv.owner = owner;
+}
+
+/**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
+ * @brief       Driver name get.
+ * @note        Returns "unk" if registry is disabled.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ * @return                      The driver name.
+ */
+CC_FORCE_INLINE
+static inline const char * drvGeNameX(void *ip) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
+#if HAL_USE_REGISTRY == TRUE
+  return self->drv.name;
+#else
+  return "unk";
+#endif
+}
+
+/**
+ * @memberof    hal_base_driver_c
+ * @public
+ *
+ * @brief       Driver name set.
+ * @note        Does nothing if registry is disabled.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ * @param         name          New driver name.
+ */
+CC_FORCE_INLINE
+static inline void drvSetNameX(void *ip, const char *name) {
+  hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
+#if HAL_USE_REGISTRY == TRUE
+  self->drv.name = name;
+#else
+  (void)name;
+#endif
 }
 
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
@@ -365,6 +418,7 @@ static inline void drvSetOwnerX(void *ip, void *owner) {
 CC_FORCE_INLINE
 static inline void drvLock(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   osalMutexLock(&self->drv.mutex);
 }
 
@@ -379,6 +433,7 @@ static inline void drvLock(void *ip) {
 CC_FORCE_INLINE
 static inline void drvUnlock(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   osalMutexUnlock(&self->drv.mutex);
 }
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */

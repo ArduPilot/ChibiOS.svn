@@ -141,8 +141,9 @@ extern "C" {
   /* Regular functions.*/
   void drvInit(void);
 #if HAL_USE_REGISTRY == TRUE
-  hal_base_driver_c * drvRegGetFirst(void);
-  hal_base_driver_c * drvRegGetNext(hal_base_driver_c *drvp);
+  hal_base_driver_c * drvRegGetFirstX(void);
+  hal_base_driver_c * drvRegGetNextX(hal_base_driver_c *drvp);
+  hal_base_driver_c * drvOpenByName(const char *name, msg_t *msgp);
 #endif
 #ifdef __cplusplus
 }
@@ -251,6 +252,8 @@ struct hal_base_driver {
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The operation status.
+ *
+ * @notapi
  */
 CC_FORCE_INLINE
 static inline msg_t __drv_start(void *ip) {
@@ -266,6 +269,8 @@ static inline msg_t __drv_start(void *ip) {
  * @brief       Low level driver stop.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ *
+ * @notapi
  */
 CC_FORCE_INLINE
 static inline void __drv_stop(void *ip) {
@@ -286,7 +291,9 @@ static inline void __drv_stop(void *ip) {
  *              driver implementation and current state.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
- * @param         config        New driver configuration.
+ * @param[in]     config        New driver configuration.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline msg_t drvConfigureX(void *ip, const void *config) {
@@ -308,6 +315,8 @@ static inline msg_t drvConfigureX(void *ip, const void *config) {
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver state.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline driver_state_t drvGetStateX(void *ip) {
@@ -323,7 +332,9 @@ static inline driver_state_t drvGetStateX(void *ip) {
  * @brief       Driver state set.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
- * @param         state         New driver state.
+ * @param[in]     state         New driver state.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline void drvSetStateX(void *ip, driver_state_t state) {
@@ -340,6 +351,8 @@ static inline void drvSetStateX(void *ip, driver_state_t state) {
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver owner.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline void * drvGetOwnerX(void *ip) {
@@ -355,7 +368,9 @@ static inline void * drvGetOwnerX(void *ip) {
  * @brief       Driver owner set.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
- * @param         owner         New driver owner.
+ * @param[in]     owner         New driver owner.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline void drvSetOwnerX(void *ip, void *owner) {
@@ -373,9 +388,11 @@ static inline void drvSetOwnerX(void *ip, void *owner) {
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The driver name.
+ *
+ * @api
  */
 CC_FORCE_INLINE
-static inline const char * drvGeNameX(void *ip) {
+static inline const char * drvGetNameX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
 #if HAL_USE_REGISTRY == TRUE
@@ -393,7 +410,9 @@ static inline const char * drvGeNameX(void *ip) {
  * @note        Does nothing if registry is disabled.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
- * @param         name          New driver name.
+ * @param[in]     name          New driver name.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline void drvSetNameX(void *ip, const char *name) {
@@ -414,6 +433,8 @@ static inline void drvSetNameX(void *ip, const char *name) {
  * @brief       Driver lock.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline void drvLock(void *ip) {
@@ -429,6 +450,8 @@ static inline void drvLock(void *ip) {
  * @brief       Driver unlock.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline void drvUnlock(void *ip) {

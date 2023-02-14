@@ -22,6 +22,7 @@
  * @{
  */
 
+#include <string.h>
 #include "hal.h"
 
 /*===========================================================================*/
@@ -58,6 +59,7 @@ hal_regent_t                hal_registry;
 #if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
 /**
  * @brief       Driver insertion in the HAL registry.
+ * @note        This function is only available when HAL registry is enabled.
  *
  * @param[in,out] drvp          Pointer to the @p hal_base_driver_c instance to
  *                              be inserted.
@@ -107,8 +109,10 @@ void drvInit(void) {
  *
  * @return                      A pointer to the first driver object.
  * @retval NULL                 If the registry is empty.
+ *
+ * @api
  */
-hal_base_driver_c * drvRegGetFirst(void) {
+hal_base_driver_c * drvRegGetFirstX(void) {
   hal_regent_t *rep;
 
   rep = hal_registry.next;
@@ -121,11 +125,15 @@ hal_base_driver_c * drvRegGetFirst(void) {
 
 /**
  * @brief       Return the next driver in the HAL registry.
+ * @note        This function is only available when HAL registry is enabled.
  *
+ * @param[in]     drvp          Previously found driver.
  * @return                      A pointer to the next driver object.
  * @retval NULL                 If there is no next driver.
+ *
+ * @api
  */
-hal_base_driver_c * drvRegGetNext(hal_base_driver_c *drvp) {
+hal_base_driver_c * drvRegGetNextX(hal_base_driver_c *drvp) {
   hal_regent_t *rep;
 
   rep = drvp->drv.regent.next;
@@ -134,6 +142,51 @@ hal_base_driver_c * drvRegGetNext(hal_base_driver_c *drvp) {
   }
 
   return oopGetInstance(hal_base_driver_c, drv.regent, rep);
+}
+
+/**
+ * @brief       Driver open by name.
+ * @details     Returns a reference to the driver, on the 1st open the
+ *              peripheral is physically initialized. An
+ *              implementation-dependent default configuration is used for
+ *              initialization.
+ * @note        This function is only available when HAL registry is enabled.
+ *
+ * @param[in]     name          Driver name.
+ * @param[out]    msgp          Pointer to store the error code or @p NULL.
+ *                              Note that in case of driver not found the
+ *                              returned code is @p HAL_RET_SUCCESS.
+ * @return                      A reference to the driver.
+ * @retval NULL                 If an error occurred.
+ *
+ * @api
+ */
+hal_base_driver_c * drvOpenByName(const char *name, msg_t *msgp) {
+  msg_t msg = HAL_RET_SUCCESS;
+  hal_base_driver_c *drvp;
+
+  osalSysLock();
+
+  drvp = drvRegGetFirstX();
+  while (drvp != NULL) {
+    if (strcmp(drvGetNameX(drvp), name) ==0) {
+
+      msg = drvOpen(drvp);
+      if (msg != HAL_RET_SUCCESS) {
+        drvp = NULL;
+      }
+      break;
+    }
+    drvp = drvRegGetNextX(drvp);
+  }
+
+  if (msgp != NULL) {
+    *msgp = msg;
+  }
+
+  osalSysUnlock();
+
+  return drvp;
 }
 #endif /* HAL_USE_REGISTRY == TRUE */
 
@@ -216,6 +269,8 @@ void __drv_dispose_impl(void *ip) {
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The operation status.
+ *
+ * @api
  */
 msg_t drvOpen(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
@@ -254,6 +309,8 @@ msg_t drvOpen(void *ip) {
  *              then the peripheral is physically uninitialized.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
+ *
+ * @api
  */
 void drvClose(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;

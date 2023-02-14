@@ -39,7 +39,6 @@ static THD_FUNCTION(Thread1, arg) {
  * Application entry point.
  */
 int main(void) {
-  msg_t msg;
   sequential_stream_i *stream;
 
   /*
@@ -55,11 +54,10 @@ int main(void) {
   /*
    * Opening the SIO driver then getting a stream interface.
    */
-  msg = drvOpen(&LPSIOD1);
-  stream = sioGetIf(&LPSIOD1, chn);
-  if (msg != HAL_RET_SUCCESS) {
+  if (drvOpen(&LPSIOD1) != HAL_RET_SUCCESS) {
     chSysHalt("SIO failure");
   }
+  stream = sioGetIf(&LPSIOD1, chn);
 
   /*
    * Creates the blinker thread.

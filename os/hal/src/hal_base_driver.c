@@ -36,6 +36,13 @@
 /* Module exported variables.                                                */
 /*===========================================================================*/
 
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief       List header for the HAL registry.
+ */
+hal_regent_t                hal_registry;
+#endif /* HAL_USE_REGISTRY == TRUE */
+
 /*===========================================================================*/
 /* Module local types.                                                       */
 /*===========================================================================*/

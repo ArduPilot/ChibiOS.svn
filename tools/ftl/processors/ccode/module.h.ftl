@@ -102,6 +102,7 @@
 /* External declarations.                                                    */
 /*===========================================================================*/
 
+[@ccode.GenerateVariablesExternFromNode "" module.public.variables /]
 #ifdef __cplusplus
 extern "C" {
 #endif

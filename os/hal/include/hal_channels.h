@@ -217,7 +217,7 @@ struct chn_methods {
  */
 #define __chn_methods                                                       \
   __stm_methods                                                             \
-  struct chn_methods                        chn;
+  struct chn_methods        chn;
 
 /**
  * @brief       @p asynchronous_channel_i VMT initializer.
@@ -244,7 +244,7 @@ struct asynchronous_channel {
   /**
    * @brief       Virtual Methods Table.
    */
-  const struct asynchronous_channel_vmt     *vmt;
+  const struct asynchronous_channel_vmt *vmt;
 };
 
 /**

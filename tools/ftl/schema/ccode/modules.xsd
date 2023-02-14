@@ -6,11 +6,11 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="public" type="publicType" maxOccurs="1"
-            minOccurs="1">
+          <xs:element name="public" type="publicType"
+            maxOccurs="1" minOccurs="1">
           </xs:element>
-          <xs:element name="private" type="privateType" maxOccurs="1"
-            minOccurs="1">
+          <xs:element name="private" type="privateType"
+            maxOccurs="1" minOccurs="1">
           </xs:element>
         </xs:sequence>
         <xs:attribute name="check" type="xs:string"></xs:attribute>
@@ -34,17 +34,17 @@
       <xs:element name="definitions" type="definitionsType"
         maxOccurs="1" minOccurs="0">
       </xs:element>
-      <xs:element name="macros" type="macrosType" maxOccurs="1"
-        minOccurs="0">
+      <xs:element name="macros" type="macrosType"
+        maxOccurs="1" minOccurs="0">
       </xs:element>
       <xs:element name="types" type="typesType" maxOccurs="1"
         minOccurs="0">
       </xs:element>
-      <xs:element name="variables" type="xs:string" maxOccurs="1"
-        minOccurs="0">
+      <xs:element name="variables" type="xs:string"
+        maxOccurs="1" minOccurs="0">
       </xs:element>
-      <xs:element name="functions" type="functionsType" maxOccurs="1"
-        minOccurs="0">
+      <xs:element name="functions" type="functionsType"
+        maxOccurs="1" minOccurs="0">
       </xs:element>
     </xs:sequence>
   </xs:complexType>
@@ -52,25 +52,25 @@
     <xs:sequence>
       <xs:element name="inclusions" type="inclusionsType"
         maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="definitions_early" type="definitionsType"
-        maxOccurs="1" minOccurs="0">
+      <xs:element name="definitions_early"
+        type="definitionsType" maxOccurs="1" minOccurs="0">
       </xs:element>
-      <xs:element name="configs" type="configsType" maxOccurs="1"
-        minOccurs="0"></xs:element>
-      <xs:element name="definitions_late" type="definitionsType"
+      <xs:element name="configs" type="configsType"
         maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="macros" type="macrosType" maxOccurs="1"
-        minOccurs="0"></xs:element>
+      <xs:element name="definitions_late"
+        type="definitionsType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="macros" type="macrosType"
+        maxOccurs="1" minOccurs="0"></xs:element>
       <xs:element name="types" type="typesType" maxOccurs="1"
         minOccurs="0"></xs:element>
       <xs:element name="interfaces" type="interfacesType"
         maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="classes" type="classesType" maxOccurs="1"
-        minOccurs="0"></xs:element>
-      <xs:element name="variables" type="variablesType" maxOccurs="1"
-        minOccurs="0"></xs:element>
-      <xs:element name="functions" type="functionsType" maxOccurs="1"
-        minOccurs="0"></xs:element>
+      <xs:element name="classes" type="classesType"
+        maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="variables" type="variablesType"
+        maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="functions" type="functionsType"
+        maxOccurs="1" minOccurs="0"></xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="configsType">
@@ -87,60 +87,59 @@
   </xs:complexType>
   <xs:complexType name="definitionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="define" type="defineType" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="define" type="defineType"
+        maxOccurs="1" minOccurs="1"></xs:element>
       <xs:element name="group" type="groupedDefinitionsType"
         maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalDefinitionsType"
-        maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="condition"
+        type="conditionalDefinitionsType" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="macrosType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="macro" type="macroType" maxOccurs="1"
         minOccurs="1"></xs:element>
-      <xs:element name="group" type="groupedMacrosType" maxOccurs="1"
-        minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalMacrosType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="group" type="groupedMacrosType"
+        maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="condition"
+        type="conditionalMacrosType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="typesType">
-    <xs:sequence maxOccurs="1" minOccurs="1">
-      <xs:choice maxOccurs="unbounded" minOccurs="0">
-        <xs:element name="typedef" type="typedefType" maxOccurs="1"
-          minOccurs="1">
-        </xs:element>
-        <xs:element name="struct" type="structType" maxOccurs="1"
-          minOccurs="1">
-        </xs:element>
-        <xs:element name="union" type="unionType" maxOccurs="1" minOccurs="1"></xs:element>
-        <xs:element name="condition" type="conditionalTypesType" maxOccurs="1"
-          minOccurs="1">
-        </xs:element>
-      </xs:choice>
-      <xs:element name="verbatim" type="xs:string" maxOccurs="1"
-        minOccurs="0">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="typedef" type="typedefType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
-    </xs:sequence>
+      <xs:element name="struct" type="structType"
+        maxOccurs="1" minOccurs="1">
+      </xs:element>
+      <xs:element name="union" type="unionType" maxOccurs="1"
+        minOccurs="1"></xs:element>
+      <xs:element name="condition"
+        type="conditionalTypesType" maxOccurs="1" minOccurs="1">
+      </xs:element>
+      <xs:element name="verbatim" type="xs:string"
+        maxOccurs="1" minOccurs="0">
+      </xs:element>
+    </xs:choice>
   </xs:complexType>
   <xs:complexType name="classesType">
     <xs:sequence>
-      <xs:element name="class" type="classType" maxOccurs="unbounded"
-        minOccurs="0"></xs:element>
+      <xs:element name="class" type="classType"
+        maxOccurs="unbounded" minOccurs="0"></xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="functionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="function" type="functionType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="function" type="functionType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
       <xs:element name="group" type="groupedFunctionsType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="condition" type="conditionalFunctionsType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalFunctionsType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
   </xs:complexType>
@@ -148,14 +147,14 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-                    <xs:element name="implements" type="implementsType"
-                      maxOccurs="1" minOccurs="0">
-                    </xs:element>
-                    <xs:element name="fields" type="fieldsType" maxOccurs="1"
-            minOccurs="1">
+          <xs:element name="implements" type="implementsType"
+            maxOccurs="1" minOccurs="0">
           </xs:element>
-          <xs:element name="methods" type="methodsType" maxOccurs="1"
-            minOccurs="1">
+          <xs:element name="fields" type="fieldsType"
+            maxOccurs="1" minOccurs="1">
+          </xs:element>
+          <xs:element name="methods" type="methodsType"
+            maxOccurs="1" minOccurs="1">
           </xs:element>
         </xs:sequence>
         <xs:attribute name="type" type="classTypeType"></xs:attribute>
@@ -191,11 +190,11 @@
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="field" type="fieldType" maxOccurs="1"
         minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalFieldsType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalFieldsType" maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="verbatim" type="xs:string" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="verbatim" type="xs:string"
+        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
   </xs:complexType>
   <xs:simpleType name="classTypeType">
@@ -206,20 +205,20 @@
   </xs:simpleType>
   <xs:complexType name="methodsType">
     <xs:sequence>
-      <xs:element name="objinit" type="objinitMethodType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="objinit" type="objinitMethodType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="dispose" type="disposeMethodType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="dispose" type="disposeMethodType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="virtual" type="virtualMethodsType" maxOccurs="1"
-        minOccurs="0">
+      <xs:element name="virtual" type="virtualMethodsType"
+        maxOccurs="1" minOccurs="0">
       </xs:element>
-      <xs:element name="regular" type="regularMethodsType" maxOccurs="1"
-        minOccurs="0">
+      <xs:element name="regular" type="regularMethodsType"
+        maxOccurs="1" minOccurs="0">
       </xs:element>
-      <xs:element name="inline" type="regularMethodsType" maxOccurs="1"
-        minOccurs="0">
+      <xs:element name="inline" type="regularMethodsType"
+        maxOccurs="1" minOccurs="0">
       </xs:element>
     </xs:sequence>
   </xs:complexType>
@@ -241,35 +240,35 @@
           <xs:element name="param" type="paramType"
             maxOccurs="unbounded" minOccurs="0">
           </xs:element>
-          <xs:element name="return" type="richTextType" maxOccurs="1"
-            minOccurs="0">
+          <xs:element name="return" type="richTextType"
+            maxOccurs="1" minOccurs="0">
           </xs:element>
           <xs:element name="retval" type="retvalType"
             maxOccurs="unbounded" minOccurs="0">
           </xs:element>
           <xs:choice maxOccurs="1" minOccurs="0">
-            <xs:element name="init" type="xs:string" maxOccurs="1"
-              minOccurs="1">
+            <xs:element name="init" type="xs:string"
+              maxOccurs="1" minOccurs="1">
             </xs:element>
-            <xs:element name="objinit" type="xs:string" maxOccurs="1"
-              minOccurs="1">
+            <xs:element name="objinit" type="xs:string"
+              maxOccurs="1" minOccurs="1">
             </xs:element>
-            <xs:element name="dispose" type="xs:string" maxOccurs="1"
-              minOccurs="1"></xs:element>
-            <xs:element name="api" type="xs:string" maxOccurs="1"
-              minOccurs="1">
+            <xs:element name="dispose" type="xs:string"
+              maxOccurs="1" minOccurs="1"></xs:element>
+            <xs:element name="api" type="xs:string"
+              maxOccurs="1" minOccurs="1">
             </xs:element>
-            <xs:element name="notapi" type="xs:string" maxOccurs="1"
-              minOccurs="1">
+            <xs:element name="notapi" type="xs:string"
+              maxOccurs="1" minOccurs="1">
             </xs:element>
-            <xs:element name="iclass" type="xs:string" maxOccurs="1"
-              minOccurs="1">
+            <xs:element name="iclass" type="xs:string"
+              maxOccurs="1" minOccurs="1">
             </xs:element>
-            <xs:element name="sclass" type="xs:string" maxOccurs="1"
-              minOccurs="1">
+            <xs:element name="sclass" type="xs:string"
+              maxOccurs="1" minOccurs="1">
             </xs:element>
-            <xs:element name="xclass" type="xs:string" maxOccurs="1"
-              minOccurs="1">
+            <xs:element name="xclass" type="xs:string"
+              maxOccurs="1" minOccurs="1">
             </xs:element>
           </xs:choice>
         </xs:sequence>
@@ -291,8 +290,8 @@
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="br" type="xs:string" maxOccurs="1"
         minOccurs="1"></xs:element>
-      <xs:element name="verbatim" type="xs:string" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="verbatim" type="xs:string"
+        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
     <xs:attribute name="name">
       <xs:simpleType>
@@ -360,12 +359,12 @@
   </xs:complexType>
   <xs:complexType name="groupedDefinitionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="define" type="defineType" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="define" type="defineType"
+        maxOccurs="1" minOccurs="1"></xs:element>
       <xs:element name="group" type="groupedDefinitionsType"
         maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalDefinitionsType"
-        maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="condition"
+        type="conditionalDefinitionsType" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
     <xs:attribute name="description" type="xs:string"></xs:attribute>
   </xs:complexType>
@@ -421,8 +420,8 @@
   <xs:complexType name="functtypeType"></xs:complexType>
   <xs:complexType name="structtypeType">
     <xs:sequence>
-      <xs:element name="fields" type="fieldsType" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="fields" type="fieldsType"
+        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:sequence>
     <xs:attribute name="name">
       <xs:simpleType>
@@ -438,16 +437,16 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="fields" type="fieldsType" maxOccurs="1"
-            minOccurs="1"></xs:element>
+          <xs:element name="fields" type="fieldsType"
+            maxOccurs="1" minOccurs="1"></xs:element>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
   <xs:complexType name="uniontypeType">
     <xs:sequence>
-      <xs:element name="fields" type="fieldsType" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="fields" type="fieldsType"
+        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:sequence>
     <xs:attribute name="name">
       <xs:simpleType>
@@ -462,16 +461,16 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="fields" type="fieldsType" maxOccurs="1"
-            minOccurs="1"></xs:element>
+          <xs:element name="fields" type="fieldsType"
+            maxOccurs="1" minOccurs="1"></xs:element>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
   <xs:complexType name="instanceType">
     <xs:sequence>
-      <xs:element name="modules" type="modulesType" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="modules" type="modulesType"
+        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:element name="instance" type="instanceType"></xs:element>
@@ -485,11 +484,11 @@
     <xs:choice maxOccurs="unbounded" minOccurs="1">
       <xs:element name="field" type="fieldType" maxOccurs="1"
         minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalFieldsType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalFieldsType" maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="verbatim" type="xs:string" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="verbatim" type="xs:string"
+        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
@@ -520,12 +519,12 @@
   </xs:complexType>
   <xs:complexType name="conditionalDefinitionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="define" type="defineType" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="define" type="defineType"
+        maxOccurs="1" minOccurs="1"></xs:element>
       <xs:element name="group" type="groupedDefinitionsType"
         maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalDefinitionsType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalDefinitionsType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
@@ -539,28 +538,28 @@
   </xs:complexType>
   <xs:complexType name="conditionalFunctionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="function" type="functionType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="function" type="functionType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
       <xs:element name="group" type="groupedFunctionsType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="condition" type="conditionalFunctionsType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalFunctionsType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="variablesType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="variable" type="variableType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="variable" type="variableType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
       <xs:element name="group" type="groupedVariablesType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="condition" type="conditionalVariablesType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalVariablesType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
   </xs:complexType>
@@ -573,14 +572,14 @@
   </xs:complexType>
   <xs:complexType name="conditionalVariablesType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="variable" type="variableType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="variable" type="variableType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
       <xs:element name="group" type="groupedVariablesType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="condition" type="conditionalVariablesType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalVariablesType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
@@ -596,10 +595,10 @@
     <xs:choice maxOccurs="unbounded" minOccurs="1">
       <xs:element name="macro" type="macroType" maxOccurs="1"
         minOccurs="1"></xs:element>
-      <xs:element name="group" type="groupedMacrosType" maxOccurs="1"
-        minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalMacrosType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="group" type="groupedMacrosType"
+        maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="condition"
+        type="conditionalMacrosType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="description" type="xs:string"></xs:attribute>
@@ -609,14 +608,14 @@
       <xs:element name="macro" type="macroType" maxOccurs="1"
         minOccurs="1">
       </xs:element>
-      <xs:element name="group" type="groupedMacrosType" maxOccurs="1"
-        minOccurs="1">
-      </xs:element>
-      <xs:element name="condition" type="conditionalMacrosType"
+      <xs:element name="group" type="groupedMacrosType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="elseif" type="elseifType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalMacrosType" maxOccurs="1" minOccurs="1">
+      </xs:element>
+      <xs:element name="elseif" type="elseifType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
@@ -626,28 +625,28 @@
   </xs:complexType>
   <xs:complexType name="groupedFunctionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="function" type="functionType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="function" type="functionType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
       <xs:element name="group" type="groupedFunctionsType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="condition" type="conditionalFunctionsType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalFunctionsType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="description" type="xs:string"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="groupedVariablesType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="variable" type="variableType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="variable" type="variableType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
       <xs:element name="group" type="groupedVariablesType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="condition" type="conditionalVariablesType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="condition"
+        type="conditionalVariablesType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="description" type="xs:string"></xs:attribute>
@@ -657,11 +656,11 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="consts" type="xs:string" maxOccurs="1"
-            minOccurs="1">
-          </xs:element>
-          <xs:element name="methods" type="interfaceMethodsType"
+          <xs:element name="consts" type="xs:string"
             maxOccurs="1" minOccurs="1">
+          </xs:element>
+          <xs:element name="methods"
+            type="interfaceMethodsType" maxOccurs="1" minOccurs="1">
           </xs:element>
         </xs:sequence>
         <xs:attribute name="namespace">
@@ -724,9 +723,10 @@
   </xs:simpleType>
   <xs:complexType name="implementsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="ifref" type="ifrefType" maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalIfrefType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="ifref" type="ifrefType" maxOccurs="1"
+        minOccurs="1"></xs:element>
+      <xs:element name="condition"
+        type="conditionalIfrefType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
   </xs:complexType>
@@ -743,22 +743,25 @@
   </xs:complexType>
   <xs:complexType name="conditionalIfrefType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="ifref" type="ifrefType" maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalIfrefType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="ifref" type="ifrefType" maxOccurs="1"
+        minOccurs="1"></xs:element>
+      <xs:element name="condition"
+        type="conditionalIfrefType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="conditionalTypesType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="typedef" type="typedefType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="typedef" type="typedefType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="struct" type="structType" maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="union" type="unionType" maxOccurs="1" minOccurs="1"></xs:element>
-      <xs:element name="condition" type="conditionalTypesType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="struct" type="structType"
+        maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="union" type="unionType" maxOccurs="1"
+        minOccurs="1"></xs:element>
+      <xs:element name="condition"
+        type="conditionalTypesType" maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>

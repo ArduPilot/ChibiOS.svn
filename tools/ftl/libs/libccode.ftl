@@ -28,7 +28,7 @@
   -->
 [#assign indentation = "  " /]
 [#assign tab = 2 /]
-[#assign fields_align = 44 /]
+[#assign fields_align = 28 /]
 [#assign define_value_align = 44 /]
 [#assign initializers_align = 44 /]
 [#assign backslash_align = 76 /]
@@ -483,25 +483,100 @@ ${indent}};
 [/#macro]
 
 [#--
-  -- Generates all type definitions from an XML node.
+  -- Generates type definitions from an XML node.
   --]
 [#macro GenerateTypesFromNode indent="" node=[]]
   [#list node.* as this]
     [#if this?node_name == "typedef"]
 [@doxygen.EmitFullCommentFromNode indent this /]
 [@GenerateTypedefFromNode node=this /]
-
     [#elseif this?node_name == "struct"]
 [@doxygen.EmitFullCommentFromNode indent this /]
 [@GenerateStructFromNode indent this /]
-
     [#elseif this?node_name == "union"]
 [@doxygen.EmitFullCommentFromNode indent this /]
 [@GenerateUnionFromNode indent this /]
-
     [#elseif this?node_name == "verbatim"]
       [#local ccode = (this[0]!"")?trim /]
 [@EmitIndentedCCode indent ccode /]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateTypesFromNode "" this /]
+#endif /* ${condcheck} */
+    [/#if]
+    [#if this?has_next || (node?node_name != "condition")]
+
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates a variable definition from an XML node.
+  -- @note Processes the $N token in the ctype.
+  --]
+[#macro GenerateVariableFromNode indent="" node=[] static=false]
+  [#local varname   = GetName(node)
+          varctype  = GetCType(node)
+          varstring = MakeVariableDeclaration(indent varname varctype) /]
+          [#if static]
+            [#local varstring = indent + "static " + varstring /]
+          [#else]
+            [#local varstring = indent + varstring /]
+          [/#if]
+[@doxygen.EmitFullCommentFromNode indent node /]
+${varstring}
+[/#macro]
+
+[#--
+  -- Generates variable definitions from an XML node.
+  --]
+[#macro GenerateVariablesFromNode indent="" node=[] static=false]
+  [#list node.* as this]
+    [#if this?node_name == "variable"]
+      [#assign generated = true /]
+[@GenerateVariableFromNode indent this static /]
+      [#if (node?node_name != "group") && (node?node_name != "condition")]
+
+      [/#if]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateVariablesFromNode indent this static /]
+#endif /* ${condcheck} */
+      [#if (node?node_name != "group") && (node?node_name != "condition")]
+
+      [/#if]
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates a variable extern definition from an XML node.
+  -- @note Processes the $N token in the ctype.
+  --]
+[#macro GenerateVariableExternFromNode indent="" node=[] ]
+  [#local varname   = GetName(node)
+          varctype  = GetCType(node)
+          varstring = MakeVariableDeclaration(indent+"extern " varname varctype) /]
+${varstring}
+[/#macro]
+
+[#--
+  -- Generates variable extern definitions from an XML node.
+  --]
+[#macro GenerateVariablesExternFromNode indent="" node=[]]
+  [#list node.* as this]
+    [#if this?node_name == "variable"]
+      [#assign generated = true /]
+[@GenerateVariableExternFromNode indent this /]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateVariablesExternFromNode indent this /]
+#endif /* ${condcheck} */
+    [/#if]
+    [#if this?is_last && (node?node_name != "condition")]
 
     [/#if]
   [/#list]
@@ -548,6 +623,7 @@ ${fieldstring}
 [#macro GenerateFunctionsFromNode modifiers=[] node=[]]
   [#list node.* as this]
     [#if this?node_name == "function"]
+      [#assign generated = true /]
       [#if !this?is_first]
 
       [/#if]

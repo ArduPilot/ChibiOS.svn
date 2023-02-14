@@ -199,10 +199,11 @@ osalSysUnlock();]]></implementation>
       </class>
     </classes>
     <variables>
-      <condition>
+      <condition check="HAL_USE_REGISTRY == TRUE">
         <variable name="hal_registry" ctype="hal_regent_t">
           <brief>List header for the HAL registry</brief></variable>
-      </condition></variables>
+      </condition>
+    </variables>
   </public>
   <private>
     <inclusions>

@@ -574,34 +574,34 @@ struct sio_data {
   /**
    * @brief       Channel interface.
    */
-  asynchronous_channel_i                    chn;
+  asynchronous_channel_i    chn;
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
   /**
    * @brief       Enabled event flags.
    */
-  sioevents_t                               enabled;
+  sioevents_t               enabled;
   /**
    * @brief       Events callback.
    * @note        Can be @p NULL.
    */
-  siocb_t                                   cb;
+  siocb_t                   cb;
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
   /**
    * @brief       Synchronization point for RX.
    */
-  thread_reference_t                        sync_rx;
+  thread_reference_t        sync_rx;
   /**
    * @brief       Synchronization point for RX idle.
    */
-  thread_reference_t                        sync_rxidle;
+  thread_reference_t        sync_rxidle;
   /**
    * @brief       Synchronization point for TX.
    */
-  thread_reference_t                        sync_tx;
+  thread_reference_t        sync_tx;
   /**
    * @brief       Synchronization point for TX-end.
    */
-  thread_reference_t                        sync_txend;
+  thread_reference_t        sync_txend;
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 #if defined(SIO_DRIVER_EXT_FIELS)
   SIO_DRIVER_EXT_FIELDS
@@ -622,7 +622,7 @@ struct sio_data {
  */
 #define __sio_data                                                          \
   __drv_data                                                                \
-  struct sio_data                           sio;
+  struct sio_data           sio;
 
 /**
  * @brief       @p hal_sio_driver_c VMT initializer.
@@ -644,7 +644,7 @@ struct hal_sio_driver {
   /**
    * @brief       Virtual Methods Table.
    */
-  const struct hal_sio_driver_vmt           *vmt;
+  const struct hal_sio_driver_vmt *vmt;
   __sio_data
 };
 

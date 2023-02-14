@@ -96,9 +96,34 @@
  */
 typedef unsigned int driver_state_t;
 
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+/**
+ * @brief       Type of a registry entry structure.
+ */
+typedef struct hal_regent hal_regent_t;
+
+/**
+ * @brief       Structure representing a registry entry.
+ */
+struct hal_regent {
+  /**
+   * @brief       Next entry in the drivers registry.
+   */
+  hal_regent_t              *next;
+  /**
+   * @brief       Previous entry in the drivers registry.
+   */
+  hal_regent_t              *prev;
+};
+#endif /* HAL_USE_REGISTRY == TRUE */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
+
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+extern hal_regent_t         hal_registry;
+#endif /* HAL_USE_REGISTRY == TRUE */
 
 #ifdef __cplusplus
 extern "C" {
@@ -127,7 +152,7 @@ extern "C" {
  * @class       hal_base_driver_c
  * @extends     base_object_c
  *
- * @brief       Class of a generic HAL driver.
+ * @brief       Ancstor class of stateful HAL drivers.
  * @note        The class namespace is <tt>drv</tt>, access to class fields is
  *              done using: <tt><objp>->drv.<fieldname></tt><br>Note that
  *              fields of ancestor classes are in their own namespace in order
@@ -152,11 +177,11 @@ struct drv_methods {
  * @brief       @p hal_base_driver_c data as a structure.
  */
 struct drv_data {
-  driver_state_t                            state;
-  unsigned int                              opencnt;
-  void                                      *owner;
+  driver_state_t            state;
+  unsigned int              opencnt;
+  void                      *owner;
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
-  mutex_t                                   mutex;
+  mutex_t                   mutex;
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 };
 
@@ -165,14 +190,14 @@ struct drv_data {
  */
 #define __drv_methods                                                       \
   __bo_methods                                                              \
-  struct drv_methods                        drv;
+  struct drv_methods        drv;
 
 /**
  * @brief       @p hal_base_driver_c data.
  */
 #define __drv_data                                                          \
   __bo_data                                                                 \
-  struct drv_data                           drv;
+  struct drv_data           drv;
 
 /**
  * @brief       @p hal_base_driver_c VMT initializer.
@@ -197,7 +222,7 @@ struct hal_base_driver {
   /**
    * @brief       Virtual Methods Table.
    */
-  const struct hal_base_driver_vmt          *vmt;
+  const struct hal_base_driver_vmt *vmt;
   __drv_data
 };
 

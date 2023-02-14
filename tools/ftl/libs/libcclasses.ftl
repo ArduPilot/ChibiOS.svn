@@ -377,6 +377,64 @@ ${ccode.indentation}${classctype} *self = (${classctype} *)ip;
 [/#macro]
 
 [#--
+  -- This macro generates regular method prototypes from an XML node.
+  --]
+[#macro GenerateClassRegularMethodsPrototypes methods=[]]
+  [#list methods.* as node]
+    [#if node?node_name == "method"]
+      [#local method = node /]
+      [#local methodname     = GetNodeName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method) /]
+[@ccode.GeneratePrototype indent    = ccode.indentation
+                          modifiers = []
+                          params    = ["void *ip"]
+                          node=method /];
+    [#elseif node?node_name == "condition"]
+      [#local condition = node /]
+      [#local condcheck = (condition.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateClassRegularMethodsPrototypes condition /]
+#endif /* ${condcheck} */
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates regular method prototypes from an XML node.
+  --]
+[#macro GenerateClassVirtualMethodsPrototypes class=[]]
+  [#local classname        = GetNodeName(class)
+          classnamespace   = GetNodeNamespace(class) /]
+  void *__${classnamespace}_objinit_impl(void *ip, const void *vmt);
+  void __${classnamespace}_dispose_impl(void *ip);
+  [#list class.methods.virtual.* as node]
+    [#if node?node_name == "method"]
+      [#local method=node /]
+      [#local methodname     = GetNodeName(method)
+              methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method)
+              methodimpl     = (method.implementation[0]!"")?trim /]
+[@ccode.GeneratePrototype indent    = ccode.indentation
+                          name      = "__" + classnamespace + "_" + methodsname + "_impl"
+                          modifiers = []
+                          params    = ["void *ip"]
+                          node      = method /];
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates regular method prototypes from a class XML node.
+  --]
+[#macro GenerateClassMethodsPrototypes class=[]]
+    [#local classctype = GetClassCType(class) /]
+${ccode.indentation}/* Methods of ${classctype}.*/
+[@GenerateClassVirtualMethodsPrototypes class /]
+[@GenerateClassRegularMethodsPrototypes class.methods.regular /]
+[/#macro]
+
+[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassWrapper node=[]]
@@ -506,64 +564,6 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@GenerateClassConstructorDestructor class /]
 [@GenerateClassVirtualMethods class /]
 [@GenerateClassInlineMethods class /]
-[/#macro]
-
-[#--
-  -- This macro generates regular method prototypes from an XML node.
-  --]
-[#macro GenerateRegularMethodsPrototypes methods=[]]
-  [#list methods.* as node]
-    [#if node?node_name == "method"]
-      [#local method = node /]
-      [#local methodname     = GetNodeName(method)
-              methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method) /]
-[@ccode.GeneratePrototype indent    = ccode.indentation
-                          modifiers = []
-                          params    = ["void *ip"]
-                          node=method /];
-    [#elseif node?node_name == "condition"]
-      [#local condition = node /]
-      [#local condcheck = (condition.@check[0]!"1")?trim /]
-#if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateRegularMethodsPrototypes condition /]
-#endif /* ${condcheck} */
-    [/#if]
-  [/#list]
-[/#macro]
-
-[#--
-  -- This macro generates regular method prototypes from an XML node.
-  --]
-[#macro GenerateVirtualMethodsPrototypes class=[]]
-  [#local classname        = GetNodeName(class)
-          classnamespace   = GetNodeNamespace(class) /]
-  void *__${classnamespace}_objinit_impl(void *ip, const void *vmt);
-  void __${classnamespace}_dispose_impl(void *ip);
-  [#list class.methods.virtual.* as node]
-    [#if node?node_name == "method"]
-      [#local method=node /]
-      [#local methodname     = GetNodeName(method)
-              methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method)
-              methodimpl     = (method.implementation[0]!"")?trim /]
-[@ccode.GeneratePrototype indent    = ccode.indentation
-                          name      = "__" + classnamespace + "_" + methodsname + "_impl"
-                          modifiers = []
-                          params    = ["void *ip"]
-                          node      = method /];
-    [/#if]
-  [/#list]
-[/#macro]
-
-[#--
-  -- This macro generates regular method prototypes from a class XML node.
-  --]
-[#macro GenerateClassMethodsPrototypes class=[]]
-    [#local classctype = GetClassCType(class) /]
-${ccode.indentation}/* Methods of ${classctype}.*/
-[@GenerateVirtualMethodsPrototypes class /]
-[@GenerateRegularMethodsPrototypes class.methods.regular /]
 [/#macro]
 
 [#--

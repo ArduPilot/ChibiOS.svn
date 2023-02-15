@@ -67,13 +67,13 @@
  * @brief   @p vfs_overlay_dir_node_c specific methods.
  */
 #define __vfs_overlay_dir_node_methods                                      \
-  __vfs_directory_node_methods
+  __vfsdir_methods
 
 /**
  * @brief   @p vfs_overlay_dir_node_c specific data.
  */
 #define __vfs_overlay_dir_node_data                                         \
-  __vfs_directory_node_data                                                 \
+  __vfsdir_data                                                             \
   unsigned                          index;                                  \
   /* Root node of the overlaid driver or NULL.*/                            \
   vfs_directory_node_c              *overlaid_root;                         \
@@ -100,13 +100,13 @@ typedef struct vfs_overlay_dir_node {
  * @brief   @p vfs_overlay_driver_c specific methods.
  */
 #define __vfs_overlay_driver_methods                                        \
-  __vfs_driver_methods
+  __vfsdrv_methods
 
 /**
  * @brief   @p vfs_overlay_driver_c specific data.
  */
 #define __vfs_overlay_driver_data                                           \
-  __vfs_driver_data                                                         \
+  __vfsdrv_data                                                         \
   /* Driver to be overlaid or NULL.*/                                       \
   vfs_driver_c                      *overlaid_drv;                          \
   /* Path prefix for the overlaid driver or NULL.*/                         \

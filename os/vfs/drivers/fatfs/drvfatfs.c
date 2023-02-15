@@ -47,13 +47,13 @@
  * @brief   @p vfs_fatfs_dir_node_c specific methods.
  */
 #define __vfs_fatfs_dir_node_methods                                        \
-  __vfs_directory_node_methods
+  __vfsdir_methods
 
 /**
  * @brief   @p vfs_fatfs_dir_node_c specific data.
  */
 #define __vfs_fatfs_dir_node_data                                           \
-  __vfs_directory_node_data                                                 \
+  __vfsdir_data                                                             \
   DIR                           dir;
 
 /**
@@ -78,13 +78,13 @@ typedef struct vfs_fatfs_dir_node {
  * @brief   @p vfs_fatfs_file_node_c specific methods.
  */
 #define __vfs_fatfs_file_node_methods                                       \
-  __vfs_file_node_methods
+  __vfsfile_methods
 
 /**
  * @brief   @p vfs_fatfs_file_node_c specific data.
  */
 #define __vfs_fatfs_file_node_data                                          \
-  __vfs_file_node_data                                                      \
+  __vfsfile_data                                                            \
   FIL                           file;                                       \
   BaseSequentialStream          stream;
 
@@ -126,15 +126,15 @@ msg_t drv_mkdir(void *instance, const char *path, vfs_mode_t mode);
 msg_t drv_rmdir(void *instance, const char *path);
 
 static const struct vfs_fatfs_driver_vmt driver_vmt = {
-  .set_cwd          = drv_set_cwd,
-  .get_cwd          = drv_get_cwd,
-  .stat             = drv_stat,
-  .open_dir         = drv_open_dir,
-  .open_file        = drv_open_file,
-  .unlink           = drv_unlink,
-  .rename           = drv_rename,
-  .mkdir            = drv_mkdir,
-  .rmdir            = drv_rmdir
+  .vfsdrv.set_cwd           = drv_set_cwd,
+  .vfsdrv.get_cwd           = drv_get_cwd,
+  .vfsdrv.stat              = drv_stat,
+  .vfsdrv.open_dir          = drv_open_dir,
+  .vfsdrv.open_file         = drv_open_file,
+  .vfsdrv.unlink            = drv_unlink,
+  .vfsdrv.rename            = drv_rename,
+  .vfsdrv.mkdir             = drv_mkdir,
+  .vfsdrv.rmdir             = drv_rmdir
 };
 
 static void *node_dir_addref(void *instance);
@@ -144,11 +144,11 @@ static msg_t node_dir_first(void *instance, vfs_direntry_info_t *dip);
 static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip);
 
 static const struct vfs_fatfs_dir_node_vmt dir_node_vmt = {
-  .addref           = node_dir_addref,
-  .release          = node_dir_release,
-  .node_stat        = node_dir_stat,
-  .dir_first        = node_dir_first,
-  .dir_next         = node_dir_next
+  .ro.addref                = node_dir_addref,
+  .ro.release               = node_dir_release,
+  .vfsnode.node_stat        = node_dir_stat,
+  .vfsdir.dir_first         = node_dir_first,
+  .vfsdir.dir_next          = node_dir_next
 };
 
 static void *node_file_addref(void *instance);
@@ -163,14 +163,14 @@ static msg_t node_file_setpos(void *instance,
 static vfs_offset_t node_file_getpos(void *instance);
 
 static const struct vfs_fatfs_file_node_vmt file_node_vmt = {
-  .addref           = node_file_addref,
-  .release          = node_file_release,
-  .node_stat        = node_file_stat,
-  .file_get_stream  = node_file_get_stream,
-  .file_read        = node_file_read,
-  .file_write       = node_file_write,
-  .file_setpos      = node_file_setpos,
-  .file_getpos      = node_file_getpos
+  .ro.addref                = node_file_addref,
+  .ro.release               = node_file_release,
+  .vfsnode.node_stat        = node_file_stat,
+  .vfsfile.file_get_stream  = node_file_get_stream,
+  .vfsfile.file_read        = node_file_read,
+  .vfsfile.file_write       = node_file_write,
+  .vfsfile.file_setpos      = node_file_setpos,
+  .vfsfile.file_getpos      = node_file_getpos
 };
 
 static size_t file_stream_write(void *instance, const uint8_t *bp, size_t n);
@@ -412,9 +412,9 @@ static msg_t drv_open_dir(void *instance,
       if (res == FR_OK) {
 
         /* Node object initialization.*/
-        __referenced_object_objinit_impl(ffdnp, &dir_node_vmt);
-        ffdnp->driver   = (vfs_driver_c *)drvp;
-        ffdnp->mode     = translate_mode(ffdnp->dir.obj.attr);
+        __ro_objinit_impl(ffdnp, &dir_node_vmt);
+        ffdnp->vfsnode.driver   = (vfs_driver_c *)drvp;
+        ffdnp->vfsnode.mode     = translate_mode(ffdnp->dir.obj.attr);
 
         *vdnpp = (vfs_directory_node_c *)ffdnp;
         ret = CH_RET_SUCCESS;
@@ -460,9 +460,9 @@ static msg_t drv_open_file(void *instance,
       if (res == FR_OK) {
 
         /* Node object initialization.*/
-        __referenced_object_objinit_impl(fffnp, &file_node_vmt);
-        fffnp->driver     = (vfs_driver_c *)drvp;
-        fffnp->mode       = translate_mode(fffnp->file.obj.attr);
+        __ro_objinit_impl(fffnp, &file_node_vmt);
+        fffnp->vfsnode.driver     = (vfs_driver_c *)drvp;
+        fffnp->vfsnode.mode       = translate_mode(fffnp->file.obj.attr);
         fffnp->stream.vmt = &file_stream_vmt;
 
         *vfnpp = (vfs_file_node_c *)fffnp;
@@ -516,7 +516,7 @@ msg_t drv_rmdir(void *instance, const char *path) {
 
 static void *node_dir_addref(void *instance) {
 
-  return __referenced_object_addref_impl(instance);
+  return __ro_addref_impl(instance);
 }
 
 static unsigned node_dir_release(void *instance) {
@@ -524,7 +524,7 @@ static unsigned node_dir_release(void *instance) {
   unsigned references;
 
   chSysLock();
-  references = __referenced_object_release_impl(instance);
+  references = __ro_release_impl(instance);
   chSysUnlock();
   if (references == 0U) {
 
@@ -537,7 +537,7 @@ static unsigned node_dir_release(void *instance) {
 static msg_t node_dir_stat(void *instance, vfs_stat_t *sp) {
   vfs_fatfs_dir_node_c *ffdnp = (vfs_fatfs_dir_node_c *)instance;
 
-  sp->mode = ffdnp->mode;
+  sp->mode = ffdnp->vfsnode.mode;
   sp->size = (vfs_offset_t)0;
 
   return CH_RET_SUCCESS;
@@ -601,7 +601,7 @@ static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip) {
 
 static void *node_file_addref(void *instance) {
 
-  return __referenced_object_addref_impl(instance);
+  return __ro_addref_impl(instance);
 }
 
 static unsigned node_file_release(void *instance) {
@@ -609,7 +609,7 @@ static unsigned node_file_release(void *instance) {
   unsigned references;
 
   chSysLock();
-  references = __referenced_object_release_impl(instance);
+  references = __ro_release_impl(instance);
   chSysUnlock();
   if (references == 0U) {
 
@@ -622,7 +622,7 @@ static unsigned node_file_release(void *instance) {
 static msg_t node_file_stat(void *instance, vfs_stat_t *sp) {
   vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)instance;
 
-  sp->mode = fffnp->mode;
+  sp->mode = fffnp->vfsnode.mode;
   sp->size = (vfs_offset_t)fffnp->file.obj.objsize;
 
   return CH_RET_SUCCESS;
@@ -758,7 +758,7 @@ static size_t file_stream_write(void *instance, const uint8_t *bp, size_t n) {
                                                 (BaseSequentialStream *)instance);
   msg_t msg;
 
-  msg = fffnp->vmt->file_write((void *)fffnp, bp, n);
+  msg = vfsFileWrite((void *)fffnp, bp, n);
   if (CH_RET_IS_ERROR(msg)) {
 
     return (size_t)0;
@@ -772,7 +772,7 @@ static size_t file_stream_read(void *instance, uint8_t *bp, size_t n) {
                                                 (BaseSequentialStream *)instance);
   msg_t msg;
 
-  msg = fffnp->vmt->file_read((void *)fffnp, bp, n);
+  msg = vfsFileRead((void *)fffnp, bp, n);
   if (CH_RET_IS_ERROR(msg)) {
 
     return (size_t)0;
@@ -786,7 +786,7 @@ static msg_t file_stream_put(void *instance, uint8_t b) {
                                                 (BaseSequentialStream *)instance);
   msg_t msg;
 
-  msg = fffnp->vmt->file_write((void *)fffnp, &b, (size_t)1);
+  msg = vfsFileWrite((void *)fffnp, &b, (size_t)1);
   if (CH_RET_IS_ERROR(msg)) {
 
     return STM_TIMEOUT;
@@ -801,7 +801,7 @@ static msg_t file_stream_get(void *instance) {
   msg_t msg;
   uint8_t b;
 
-  msg = fffnp->vmt->file_read((void *)fffnp, &b, (size_t)1);
+  msg = vfsFileRead((void *)fffnp, &b, (size_t)1);
   if (CH_RET_IS_ERROR(msg)) {
 
     return STM_TIMEOUT;
@@ -857,7 +857,7 @@ void __drv_fatfs_init(void) {
  */
 vfs_driver_c *drvFatFSObjectInit(vfs_fatfs_driver_c *vffdp) {
 
-  __base_object_objinit_impl(vffdp, &driver_vmt);
+  __bo_objinit_impl(vffdp, &driver_vmt);
 
   return (vfs_driver_c *)vffdp;
 }

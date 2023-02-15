@@ -58,15 +58,15 @@ static msg_t drv_mkdir(void *instance,const char *path, vfs_mode_t mode);
 static msg_t drv_rmdir(void *instance, const char *path);
 
 static const struct vfs_overlay_driver_vmt driver_vmt = {
-  .set_cwd          = drv_set_cwd,
-  .get_cwd          = drv_get_cwd,
-  .stat             = drv_stat,
-  .open_dir         = drv_open_dir,
-  .open_file        = drv_open_file,
-  .unlink           = drv_unlink,
-  .rename           = drv_rename,
-  .mkdir            = drv_mkdir,
-  .rmdir            = drv_rmdir
+  .vfsdrv.set_cwd           = drv_set_cwd,
+  .vfsdrv.get_cwd           = drv_get_cwd,
+  .vfsdrv.stat              = drv_stat,
+  .vfsdrv.open_dir          = drv_open_dir,
+  .vfsdrv.open_file         = drv_open_file,
+  .vfsdrv.unlink            = drv_unlink,
+  .vfsdrv.rename            = drv_rename,
+  .vfsdrv.mkdir             = drv_mkdir,
+  .vfsdrv.rmdir             = drv_rmdir
 };
 
 static void *node_dir_addref(void *instance);
@@ -75,10 +75,10 @@ static msg_t node_dir_first(void *instance, vfs_direntry_info_t *dip);
 static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip);
 
 static const struct vfs_overlay_dir_node_vmt dir_node_vmt = {
-  .addref           = node_dir_addref,
-  .release          = node_dir_release,
-  .dir_first        = node_dir_first,
-  .dir_next         = node_dir_next
+  .ro.addref                = node_dir_addref,
+  .ro.release               = node_dir_release,
+  .vfsdir.dir_first         = node_dir_first,
+  .vfsdir.dir_next          = node_dir_next
 };
 
 /**
@@ -197,18 +197,18 @@ static msg_t open_absolute_dir(vfs_overlay_driver_c *drvp,
       if (odnp != NULL) {
 
         /* Node object initialization.*/
-        __referenced_object_objinit_impl(odnp, &dir_node_vmt);
-        odnp->driver        = (vfs_driver_c *)drvp;
-        odnp->mode          = VFS_MODE_S_IFDIR | VFS_MODE_S_IRUSR;
-        odnp->index         = 0U;
-        odnp->overlaid_root = NULL;
+        __ro_objinit_impl(odnp, &dir_node_vmt);
+        odnp->vfsnode.driver    = (vfs_driver_c *)drvp;
+        odnp->vfsnode.mode      = VFS_MODE_S_IFDIR | VFS_MODE_S_IRUSR;
+        odnp->index             = 0U;
+        odnp->overlaid_root     = NULL;
 
         /* Trying to obtain a root node from the overlaid driver, it
            could fail, in that case the pointer stays at NULL.*/
         if (drvp->overlaid_drv != NULL) {
-          (void) drvp->overlaid_drv->vmt->open_dir((void *)drvp->overlaid_drv,
-                                                   drvp->path_prefix == NULL ? "/" : drvp->path_prefix,
-                                                   &odnp->overlaid_root);
+          (void) vfsDrvOpenDirectory((void *)drvp->overlaid_drv,
+                                     drvp->path_prefix == NULL ? "/" : drvp->path_prefix,
+                                     &odnp->overlaid_root);
         }
         *vdnpp = (vfs_directory_node_c *)odnp;
 
@@ -227,9 +227,9 @@ static msg_t open_absolute_dir(vfs_overlay_driver_c *drvp,
       ret = match_driver(drvp, &scanpath, &dp);
       if (!CH_RET_IS_ERROR(ret)) {
         /* Delegating node creation to a registered driver.*/
-        ret = dp->vmt->open_dir((void *)dp,
-                                *scanpath == '\0' ? "/" : scanpath,
-                                vdnpp);
+        ret = vfsDrvOpenDirectory((void *)dp,
+                                  *scanpath == '\0' ? "/" : scanpath,
+                                  vdnpp);
       }
       else {
         size_t path_offset;
@@ -252,9 +252,7 @@ static msg_t open_absolute_dir(vfs_overlay_driver_c *drvp,
           }
 
           /* Passing the combined path to the overlaid driver.*/
-          ret = drvp->overlaid_drv->vmt->open_dir((void *)drvp->overlaid_drv,
-                                                  path,
-                                                  vdnpp);
+          ret = vfsDrvOpenDirectory((void *)drvp->overlaid_drv, path, vdnpp);
           CH_BREAK_ON_ERROR(ret);
 
           ret = (msg_t)path_offset;
@@ -293,9 +291,8 @@ static msg_t open_absolute_file(vfs_overlay_driver_c *drvp,
       if (!CH_RET_IS_ERROR(ret)) {
         /* Delegating node creation to a registered driver, making sure it
            does not receive an empty path.*/
-        ret = dp->vmt->open_file((void *)dp,
-                                 *scanpath == '\0' ? "/" : scanpath,
-                                 oflag, vfnpp);
+        ret = vfsDrvOpenFile((void *)dp, *scanpath == '\0' ? "/" : scanpath,
+                             oflag, vfnpp);
       }
       else {
         /* Is there an overlaid driver? if so we need to pass request
@@ -313,10 +310,7 @@ static msg_t open_absolute_file(vfs_overlay_driver_c *drvp,
           }
 
           /* Passing the combined path to the overlaid driver.*/
-          ret = drvp->overlaid_drv->vmt->open_file((void *)drvp->overlaid_drv,
-                                                   path,
-                                                   oflag,
-                                                   vfnpp);
+          ret = vfsDrvOpenFile((void *)drvp->overlaid_drv, path, oflag, vfnpp);
         }
       }
     }
@@ -345,7 +339,7 @@ static msg_t drv_set_cwd(void *instance, const char *path) {
        combined path. Note, it can modify the path in the buffer.*/
     ret = open_absolute_dir(drvp, shbuf->path.buf1, &vdnp);
     CH_BREAK_ON_ERROR(ret);
-    vdnp->vmt->release((void *)vdnp);
+    roRelease((void *)vdnp);
     path_offset = (size_t)ret;
 
     /* One-time allocation of the CWD buffer, this memory is allocated, once,
@@ -406,7 +400,7 @@ static msg_t drv_stat(void *instance, const char *path, vfs_stat_t *sp) {
       ret = match_driver(drvp, &scanpath, &dp);
       if (!CH_RET_IS_ERROR(ret)) {
         /* Delegating directory creation to a registered driver.*/
-        ret = dp->vmt->stat((void *)dp, scanpath, sp);
+        ret = vfsDrvStat((void *)dp, scanpath, sp);
         break;
       }
     }
@@ -426,8 +420,7 @@ static msg_t drv_stat(void *instance, const char *path, vfs_stat_t *sp) {
       }
 
       /* Passing the combined path to the overlaid driver.*/
-      ret = drvp->overlaid_drv->vmt->stat((void *)drvp->overlaid_drv,
-                                          shbuf->path.buf1, sp);
+      ret = vfsDrvStat((void *)drvp->overlaid_drv, shbuf->path.buf1, sp);
     }
     else {
       ret = CH_RET_ENOENT;
@@ -555,12 +548,12 @@ msg_t drv_unlink(void *instance, const char *path) {
       ret = match_driver(drvp, &scanpath, &dp);
       if (!CH_RET_IS_ERROR(ret)) {
         /* Delegating file deletion to a registered driver.*/
-        ret = dp->vmt->unlink((void *)dp, scanpath);
+        ret = vfsDrvUnlink((void *)dp, scanpath);
       }
       else {
         /* Passing the request to the overlaid driver, if any.*/
         ret = drv_overlaid_path_call(drvp, shbuf->path.buf1,
-                                     drvp->overlaid_drv->vmt->unlink);
+                                     drvp->overlaid_drv->vmt->vfsdrv.unlink);
       }
     }
   } while (false);
@@ -604,7 +597,7 @@ msg_t drv_rename(void *instance, const char *oldpath, const char *newpath) {
           the same driver, we cannot do a rename across drivers.*/
       if (olddp == newdp) {
         /* Delegating node renaming to the registered driver.*/
-        ret = olddp->vmt->rename((void *)olddp, op, np);
+        ret = vfsDrvRename((void *)olddp, op, np);
       }
       else {
         /* Mixed, not allowing it.*/
@@ -633,9 +626,7 @@ msg_t drv_rename(void *instance, const char *oldpath, const char *newpath) {
         }
 
         /* Passing the combined path to the overlaid driver.*/
-        ret = drvp->overlaid_drv->vmt->rename((void *)drvp->overlaid_drv,
-                                              shbuf->path.buf1,
-                                              shbuf->path.buf2);
+        ret = vfsDrvRename((void *)drvp->overlaid_drv, shbuf->path.buf1, shbuf->path.buf2);
       }
     }
     else {
@@ -679,7 +670,7 @@ msg_t drv_mkdir(void *instance, const char *path, vfs_mode_t mode) {
       ret = match_driver(drvp, &scanpath, &dp);
       if (!CH_RET_IS_ERROR(ret)) {
         /* Delegating directory creation to a registered driver.*/
-        ret = dp->vmt->mkdir((void *)dp, scanpath, mode);
+        ret = vfsDrvMkdir((void *)dp, scanpath, mode);
       }
       else {
         /* Is there an overlaid driver? if so we need to pass request
@@ -697,8 +688,7 @@ msg_t drv_mkdir(void *instance, const char *path, vfs_mode_t mode) {
           }
 
           /* Passing the combined path to the overlaid driver.*/
-          ret = drvp->overlaid_drv->vmt->mkdir((void *)drvp->overlaid_drv,
-                                               shbuf->path.buf1, mode);
+          ret = vfsDrvMkdir((void *)drvp->overlaid_drv, shbuf->path.buf1, mode);
         }
         else {
           ret = CH_RET_ENOENT;
@@ -742,12 +732,12 @@ msg_t drv_rmdir(void *instance, const char *path) {
       ret = match_driver(drvp, &scanpath, &dp);
       if (!CH_RET_IS_ERROR(ret)) {
         /* Delegating directory deletion to a registered driver.*/
-        ret = dp->vmt->rmdir((void *)dp, scanpath);
+        ret = vfsDrvRmdir((void *)dp, scanpath);
       }
       else {
         /* Passing the request to the overlaid driver, if any.*/
         ret = drv_overlaid_path_call(drvp, shbuf->path.buf1,
-                                     drvp->overlaid_drv->vmt->rmdir);
+                                     drvp->overlaid_drv->vmt->vfsdrv.rmdir);
       }
     }
   } while (false);
@@ -760,7 +750,7 @@ msg_t drv_rmdir(void *instance, const char *path) {
 
 static void *node_dir_addref(void *instance) {
 
-  return __referenced_object_addref_impl(instance);
+  return __ro_addref_impl(instance);
 }
 
 static unsigned node_dir_release(void *instance) {
@@ -768,12 +758,12 @@ static unsigned node_dir_release(void *instance) {
   unsigned references;
 
   chSysLock();
-  references = __referenced_object_release_impl(instance);
+  references = __ro_release_impl(instance);
   chSysUnlock();
   if (references == 0U) {
 
     if (odnp->overlaid_root != NULL) {
-      odnp->overlaid_root->vmt->release((void *)odnp->overlaid_root);
+      roRelease((void *)odnp->overlaid_root);
     }
 
     chPoolFree(&vfs_overlay_driver_static.dir_nodes_pool, (void *)odnp);
@@ -792,7 +782,7 @@ static msg_t node_dir_first(void *instance, vfs_direntry_info_t *dip) {
 
 static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip) {
   vfs_overlay_dir_node_c *odnp = (vfs_overlay_dir_node_c *)instance;
-  vfs_overlay_driver_c *drvp = (vfs_overlay_driver_c *)odnp->driver;
+  vfs_overlay_driver_c *drvp = (vfs_overlay_driver_c *)odnp->vfsnode.driver;
 
   if (odnp->index < drvp->next_driver) {
     dip->mode   = VFS_MODE_S_IFDIR | VFS_MODE_S_IRUSR;
@@ -808,13 +798,11 @@ static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip) {
 
       odnp->index++;
 
-      return odnp->overlaid_root->vmt->dir_first((void *)odnp->overlaid_root,
-                                                 dip);
+      return vfsDirReadFirst((void *)odnp->overlaid_root, dip);
     }
     if (odnp->index > drvp->next_driver) {
 
-      return odnp->overlaid_root->vmt->dir_next((void *)odnp->overlaid_root,
-                                                dip);
+      return vfsDirReadNext((void *)odnp->overlaid_root, dip);
     }
   }
 
@@ -858,7 +846,7 @@ vfs_driver_c *drvOverlayObjectInit(vfs_overlay_driver_c *vodp,
                                    vfs_driver_c *overlaid_drv,
                                    const char *path_prefix) {
 
-  __base_object_objinit_impl(vodp, &driver_vmt);
+  __bo_objinit_impl(vodp, &driver_vmt);
   vodp->overlaid_drv = overlaid_drv;
   vodp->path_prefix  = path_prefix;
   vodp->path_cwd     = NULL;

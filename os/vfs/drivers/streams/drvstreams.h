@@ -81,13 +81,13 @@ typedef struct drv_streams_element {
  * @brief   @p vfs_streams_dir_node_c specific methods.
  */
 #define __vfs_streams_dir_node_methods                                      \
-  __vfs_directory_node_methods
+  __vfsdir_methods
 
 /**
  * @brief   @p vfs_streams_dir_node_c specific data.
  */
 #define __vfs_streams_dir_node_data                                         \
-  __vfs_directory_node_data                                                 \
+  __vfsdir_data                                                             \
   unsigned                              index;
 
 /**
@@ -112,13 +112,13 @@ typedef struct vfs_streams_dir_node {
  * @brief   @p vfs_streams_file_node_c specific methods.
  */
 #define __vfs_streams_file_node_methods                                     \
-  __vfs_file_node_methods
+  __vfsfile_methods
 
 /**
  * @brief   @p vfs_streams_file_node_c specific data.
  */
 #define __vfs_streams_file_node_data                                        \
-  __vfs_file_node_data                                                      \
+  __vfsfile_data                                                            \
   BaseSequentialStream                  *stream;
 
 /**
@@ -143,13 +143,13 @@ typedef struct vfs_streams_file_node {
  * @brief   @p vfs_streams_driver_c specific methods.
  */
 #define __vfs_streams_driver_methods                                        \
-  __vfs_driver_methods
+  __vfsdrv_methods
 
 /**
  * @brief   @p vfs_streams_driver_c specific data.
  */
 #define __vfs_streams_driver_data                                           \
-  __vfs_driver_data                                                         \
+  __vfsdrv_data                                                         \
   const drv_streams_element_t    *streams;
 
 /**

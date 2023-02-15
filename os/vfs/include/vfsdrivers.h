@@ -1,30 +1,29 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
 
-    This file is part of ChibiOS.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation version 3 of the License.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
 
 /**
- * @file    vfs/include/vfsdrivers.h
- * @brief   VFS drivers header file.
+ * @file        vfsdrivers.h
+ * @brief       Generated VFS Drivers header.
+ * @note        This is a generated file, do not edit directly.
  *
- * @addtogroup VFS_DRIVERS
+ * @addtogroup  VFSDRIVERS
+ * @brief       Common ancestor class of all reference-counted objects.
  * @{
  */
-
+ 
 #ifndef VFSDRIVERS_H
 #define VFSDRIVERS_H
 
@@ -38,16 +37,15 @@
  * @name    File open flags compatible with Posix
  * @{
  */
-#define VO_SUPPORTED_FLAGS_MASK     (O_ACCMODE | O_APPEND | O_CREAT |       \
-                                     O_TRUNC | O_EXCL)
-#define VO_ACCMODE                  O_ACCMODE
-#define VO_RDONLY                   O_RDONLY
-#define VO_WRONLY                   O_WRONLY
-#define VO_RDWR                     O_RDWR
-#define VO_APPEND                   O_APPEND
-#define VO_CREAT                    O_CREAT
-#define VO_TRUNC                    O_TRUNC
-#define VO_EXCL                     O_EXCL
+#define VO_SUPPORTED_FLAGS_MASK             (O_ACCMODE | O_APPEND | O_CREAT | O_TRUNC | O_EXCL)
+#define VO_ACCMODE                          O_ACCMODE
+#define VO_RDONLY                           O_RDONLY
+#define VO_WRONLY                           O_WRONLY
+#define VO_RDWR                             O_RDWR
+#define VO_APPEND                           O_APPEND
+#define VO_CREAT                            O_CREAT
+#define VO_TRUNC                            O_TRUNC
+#define VO_EXCL                             O_EXCL
 /** @} */
 
 /*===========================================================================*/
@@ -59,57 +57,11 @@
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Module data structures and types.                                         */
-/*===========================================================================*/
-
-/**
- * @brief   @p vfs_driver_c specific methods.
- */
-#define __vfs_driver_methods                                                \
-  __base_object_methods                                                     \
-  msg_t (*set_cwd)(void *instance, const char *path);                       \
-  msg_t (*get_cwd)(void *instance, char *buf, size_t size);                 \
-  msg_t (*stat)(void *instance,                                             \
-                const char *path,                                           \
-                vfs_stat_t *sp);                                            \
-  msg_t (*open_dir)(void *instance,                                         \
-                    const char *path,                                       \
-                    vfs_directory_node_c **vdnpp);                          \
-  msg_t (*open_file)(void *instance,                                        \
-                     const char *path,                                      \
-                     int flags,                                             \
-                     vfs_file_node_c **vfnpp);                              \
-  msg_t (*unlink)(void *instance, const char *path);                        \
-  msg_t (*rename)(void *instance, const char *oldpath, const char *newpath);\
-  msg_t (*mkdir)(void *instance, const char *path, vfs_mode_t mode);        \
-  msg_t (*rmdir)(void *instance, const char *path);
-
-/**
- * @brief   @p vfs_driver_c specific data.
- */
-#define __vfs_driver_data                                                   \
-  __base_object_data
-
-/**
- * @brief   @p vfs_driver_c virtual methods table.
- */
-struct vfs_driver_vmt {
-  __vfs_driver_methods
-};
-
-/**
- * @brief   Type of a VFS driver class.
- */
-typedef struct vfs_driver {
-  /**
-   * @brief   Virtual Methods Table.
-   */
-  const struct vfs_driver_vmt   *vmt;
-  __vfs_driver_data
-} vfs_driver_c;
-
-/*===========================================================================*/
 /* Module macros.                                                            */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module data structures and types.                                         */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -119,19 +71,24 @@ typedef struct vfs_driver {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  msg_t vfsDrvOpen(vfs_driver_c *drvp,
-                   const char *path,
-                   int flags,
+  /* Methods of vfs_driver_c.*/
+  void *__vfsdrv_objinit_impl(void *ip, const void *vmt);
+  void __vfsdrv_dispose_impl(void *ip);
+  msg_t __vfsdrv_set_cwd_impl(void *ip, const char *path);
+  msg_t __vfsdrv_get_cwd_impl(void *ip, char *buf, size_t size);
+  msg_t __vfsdrv_stat_impl(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t __vfsdrv_open_dir_impl(void *ip, const char *path,
+                               vfs_directory_node_c **vdnpp);
+  msg_t __vfsdrv_open_file_impl(void *ip, const char *path, int flags,
+                                vfs_file_node_c **vfnpp);
+  msg_t __vfsdrv_unlink_impl(void *ip, const char *path);
+  msg_t __vfsdrv_rename_impl(void *ip, const char *oldpath,
+                             const char *newpath);
+  msg_t __vfsdrv_mkdir_impl(void *ip, const char *path, vfs_mode_t mode);
+  msg_t __vfsdrv_rmdir_impl(void *ip, const char *path);
+  /* Regular functions.*/
+  msg_t vfsDrvOpen(vfs_driver_c *drvp, const char *path, int flags,
                    vfs_node_c **vnpp);
-  msg_t drv_stat_unimpl(void *instance, vfs_stat_t *sp);
-  msg_t drv_unlink_unimpl(void *instance, const char *path);
-  msg_t drv_rename_unimpl(void *instance,
-                          const char *oldpath,
-                          const char *newpath);
-  msg_t drv_mkdir_unimpl(void *instance,
-                         const char *path,
-                         vfs_mode_t mode);
-  msg_t drv_rmdir_unimpl(void *instance, const char *path);
 #ifdef __cplusplus
 }
 #endif
@@ -140,155 +97,277 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
+/*===========================================================================*/
+/* Module class vfs_driver_c                                                 */
+/*===========================================================================*/
+
 /**
- * @brief   Changes the current VFS directory.
+ * @class       vfs_driver_c
+ * @extends     base_object_c
  *
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[in] path      Path of the new current directory.
- * @return              The operation result.
+ * @brief       Common ancestor class of all VFS driver classes.
+ * @details     Base class for objects that implement a Posix-like file system
+ *              interface.
+ * @note        The class namespace is <tt>vfsdrv</tt>, access to class fields
+ *              is done using: <tt><objp>->vfsdrv.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own namespace in order
+ *              to avoid field naming conflicts.
+ */
+
+/**
+ * @brief       Type of a VFS driver class.
+ */
+typedef struct vfs_driver vfs_driver_c;
+
+/**
+ * @brief       @p vfs_driver_c methods as a structure.
+ */
+struct vfsdrv_methods {
+  msg_t (*set_cwd)(void *ip, const char *path);
+  msg_t (*get_cwd)(void *ip, char *buf, size_t size);
+  msg_t (*stat)(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t (*open_dir)(void *ip, const char *path, vfs_directory_node_c **vdnpp);
+  msg_t (*open_file)(void *ip, const char *path, int flags, vfs_file_node_c **vfnpp);
+  msg_t (*unlink)(void *ip, const char *path);
+  msg_t (*rename)(void *ip, const char *oldpath, const char *newpath);
+  msg_t (*mkdir)(void *ip, const char *path, vfs_mode_t mode);
+  msg_t (*rmdir)(void *ip, const char *path);
+};
+
+/**
+ * @brief       @p vfs_driver_c methods.
+ */
+#define __vfsdrv_methods                                                    \
+  __bo_methods                                                              \
+  struct vfsdrv_methods     vfsdrv;
+
+/**
+ * @brief       @p vfs_driver_c data.
+ */
+#define __vfsdrv_data                                                       \
+  __bo_data                                                                 \
+  /* No data.*/
+
+/**
+ * @brief       @p vfs_driver_c VMT initializer.
+ */
+#define __vfsdrv_vmt_init(ns)                                               \
+  __bo_vmt_init(ns)                                                         \
+  .vfsdrv.set_cwd                           = __##ns##_set_cwd_impl,        \
+  .vfsdrv.get_cwd                           = __##ns##_get_cwd_impl,        \
+  .vfsdrv.stat                              = __##ns##_stat_impl,           \
+  .vfsdrv.open_dir                          = __##ns##_open_dir_impl,       \
+  .vfsdrv.open_file                         = __##ns##_open_file_impl,      \
+  .vfsdrv.unlink                            = __##ns##_unlink_impl,         \
+  .vfsdrv.rename                            = __##ns##_rename_impl,         \
+  .vfsdrv.mkdir                             = __##ns##_mkdir_impl,          \
+  .vfsdrv.rmdir                             = __##ns##_rmdir_impl,
+
+/**
+ * @brief       @p vfs_driver_c virtual methods table.
+ */
+struct vfs_driver_vmt {
+  __vfsdrv_methods
+};
+
+/**
+ * @brief       Structure representing a VFS driver class.
+ */
+struct vfs_driver {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_driver_vmt *vmt;
+  __vfsdrv_data
+};
+
+/**
+ * @name        Virtual methods of vfs_driver_c
+ * @{
+ */
+/**
+ * @memberof    vfs_driver_c
+ * @public
+ *
+ * @brief       Changes the current VFS directory.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[in]     path          Path of the new current directory.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvChangeCurrentDirectory(vfs_driver_c *drvp,
-                                                 const char *path) {
+CC_FORCE_INLINE
+static inline msg_t vfsDrvChangeCurrentDirectory(void *ip, const char *path) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->set_cwd(drvp, path);
+  return self->vmt->vfsdrv.set_cwd(ip, path);
 }
 
 /**
- * @brief   Returns the current VFS directory.
+ * @memberof    vfs_driver_c
+ * @public
  *
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[out] buf      Buffer for the path string.
- * @param[in] size      Size of the buffer.
- * @return              The operation result.
+ * @brief       Returns the current VFS directory.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[out]    buf           Buffer for the path string.
+ * @param[in]     size          Size of the buffer.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvGetCurrentDirectory(vfs_driver_c *drvp,
-                                              char *buf, size_t size) {
+CC_FORCE_INLINE
+static inline msg_t vfsDrvGetCurrentDirectory(void *ip, char *buf, size_t size) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->get_cwd(drvp, buf, size);
+  return self->vmt->vfsdrv.get_cwd(ip, buf, size);
 }
 
 /**
- * @brief   Returns file or directory information.
- *.
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[in] path      Absolute path of the node to be examined.
- * @param[out] sp       Pointer to a @p vfs_stat_t structure.
- * @return              The operation result.
+ * @memberof    vfs_driver_c
+ * @public
+ *
+ * @brief       Returns file or directory information.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[in]     path          Absolute path of the node to be examined.
+ * @param[out]    sp            Pointer to a @p vfs_stat_t structure.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvStat(vfs_driver_c *drvp,
-                               const char *path,
-                               vfs_stat_t *sp) {
+CC_FORCE_INLINE
+static inline msg_t vfsDrvStat(void *ip, const char *path, vfs_stat_t *sp) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->stat(drvp, path, sp);
+  return self->vmt->vfsdrv.stat(ip, path, sp);
 }
 
 /**
- * @brief   Opens a VFS directory.
+ * @memberof    vfs_driver_c
+ * @public
  *
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[in] path      Absolute path of the directory to be opened.
- * @param[out] vdnpp    Pointer to the pointer to the instantiated.
- *                      @p vfs_directory_node_c object
- * @return              The operation result.
+ * @brief       Opens a VFS directory.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[in]     path          Absolute path of the directory to be opened.
+ * @param[out]    vdnpp         Pointer to the pointer to the instantiated @p
+ *                              vfs_directory_node_c object.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvOpenDirectory(vfs_driver_c *drvp,
-                                        const char *path,
+CC_FORCE_INLINE
+static inline msg_t vfsDrvOpenDirectory(void *ip, const char *path,
                                         vfs_directory_node_c **vdnpp) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->open_dir(drvp, path, vdnpp);
+  return self->vmt->vfsdrv.open_dir(ip, path, vdnpp);
 }
 
 /**
- * @brief   Opens a VFS file.
+ * @memberof    vfs_driver_c
+ * @public
  *
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[in] path      Path of the file to be opened.
- * @param[in] flags     File open flags.
- * @param[out] vdnpp    Pointer to the pointer to the instantiated
- *                      @p vfs_file_node_c object.
- * @return              The operation result.
+ * @brief       Opens a VFS file.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[in]     path          Absolute path of the directory to be opened.
+ * @param[in]     flags         File open flags.
+ * @param[out]    vfnpp         Pointer to the pointer to the instantiated @p
+ *                              vfs_file_node_c object.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvOpenFile(vfs_driver_c *drvp,
-                                   const char *path,
-                                   int flags,
+CC_FORCE_INLINE
+static inline msg_t vfsDrvOpenFile(void *ip, const char *path, int flags,
                                    vfs_file_node_c **vfnpp) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->open_file(drvp, path, flags, vfnpp);
+  return self->vmt->vfsdrv.open_file(ip, path, flags, vfnpp);
 }
 
 /**
- * @brief   Unlinks and possibly deletes a file.
+ * @memberof    vfs_driver_c
+ * @public
  *
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[in] path      Path of the file to be unlinked.
- * @return              The operation result.
+ * @brief       Unlinks and possibly deletes a file.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[in]     path          Path of the file to be unlinked.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvUnlink(vfs_driver_c *drvp,
-                                 const char *path) {
+CC_FORCE_INLINE
+static inline msg_t vfsDrvUnlink(void *ip, const char *path) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->unlink(drvp, path);
+  return self->vmt->vfsdrv.unlink(ip, path);
 }
 
 /**
- * @brief   Renames a file or directory.
+ * @memberof    vfs_driver_c
+ * @public
  *
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[in] oldpath   Path of the file to be renamed.
- * @param[in] oldpath   New path of the renamed file.
- * @return              The operation result.
+ * @brief       Renames a file or directory.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[in]     oldpath       Path of the node to be renamed.
+ * @param[in]     newpath       New path of the renamed node.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvRename(vfs_driver_c *drvp,
-                                 const char *oldpath,
+CC_FORCE_INLINE
+static inline msg_t vfsDrvRename(void *ip, const char *oldpath,
                                  const char *newpath) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->rename(drvp, oldpath, newpath);
+  return self->vmt->vfsdrv.rename(ip, oldpath, newpath);
 }
 
 /**
- * @brief   Creates a directory.
+ * @memberof    vfs_driver_c
+ * @public
  *
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[in] path      Path of the directory to be created.
- * @param[in]           Mode flags for the directory.
- * @return              The operation result.
+ * @brief       Creates a directory.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[in]     path          Path of the directory to be created.
+ * @param[in]     mode          Mode flags for the directory.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvMkdir(vfs_driver_c *drvp,
-                                const char *path,
-                                vfs_mode_t mode) {
+CC_FORCE_INLINE
+static inline msg_t vfsDrvMkdir(void *ip, const char *path, vfs_mode_t mode) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->mkdir(drvp, path, mode);
+  return self->vmt->vfsdrv.mkdir(ip, path, mode);
 }
 
 /**
- * @brief   Removes a directory.
+ * @memberof    vfs_driver_c
+ * @public
  *
- * @param[in] drvp      Pointer to the @p vfs_driver_c object.
- * @param[in] path      Path of the directory to be removed.
- * @return              The operation result.
+ * @brief       Removes a directory.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_driver_c instance.
+ * @param[in]     path          Path of the directory to be removed.
+ * @return                      The operation result.
  *
  * @api
  */
-static inline msg_t vfsDrvRmdir(vfs_driver_c *drvp,
-                                const char *path) {
+CC_FORCE_INLINE
+static inline msg_t vfsDrvRmdir(void *ip, const char *path) {
+  vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return drvp->vmt->rmdir(drvp, path);
+  return self->vmt->vfsdrv.rmdir(ip, path);
 }
+/** @} */
 
 #endif /* VFSDRIVERS_H */
 

@@ -71,13 +71,13 @@
  * @brief   @p vfs_fatfs_driver_c specific methods.
  */
 #define __vfs_fatfs_driver_methods                                          \
-  __vfs_driver_methods
+  __vfsdrv_methods
 
 /**
  * @brief   @p vfs_fatfs_driver_c specific data.
  */
 #define __vfs_fatfs_driver_data                                             \
-  __vfs_driver_data
+  __vfsdrv_data
 
 /**
  * @brief   @p vfs_fatfs_driver_c virtual methods table.

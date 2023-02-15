@@ -5,7 +5,6 @@
   <brief>Common driver base abstract class.</brief>
   <details><![CDATA[This abstract class is the common ancestor of all HAL
     stateful HAL drivers.]]></details>
-  <note>This is a generated file, do not edit directly.</note>
   <public>
     <definitions_early>
       <group description="Common driver states">

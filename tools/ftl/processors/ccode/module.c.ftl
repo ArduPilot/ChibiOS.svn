@@ -46,6 +46,7 @@
 /**
 [@doxygen.EmitTagVerbatim indent="" tag="file" text=sourcename /]
 [@doxygen.EmitBrief "" "Generated " + moduledescription + " source." /]
+[@doxygen.EmitNote text="This is a generated file, do not edit directly." /]
  *
 [@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=docgroup /]
  * @{

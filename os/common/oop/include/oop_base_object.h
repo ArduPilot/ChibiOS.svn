@@ -17,10 +17,10 @@
 /**
  * @file        oop_base_object.h
  * @brief       Generated Base Object header.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  OOP_BASE_OBJECT
  * @brief       Common ancestor abstract class.
- * @note        This is a generated file, do not edit directly.
  * @{
  */
  

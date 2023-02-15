@@ -17,10 +17,10 @@
 /**
  * @file        oop_base_interface.h
  * @brief       Generated Base Interface header.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  OOP_BASE_INTERFACE
  * @brief       Common interfaces ancestor.
- * @note        This is a generated file, do not edit directly.
  * @{
  */
  

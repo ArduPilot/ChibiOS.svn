@@ -17,10 +17,10 @@
 /**
  * @file        oop_referenced_object.h
  * @brief       Generated Referenced Object header.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  OOP_REFERENCED_OBJECT
  * @brief       Common ancestor class of all reference-counted objects.
- * @note        This is a generated file, do not edit directly.
  * @{
  */
  

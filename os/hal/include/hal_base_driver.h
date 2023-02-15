@@ -17,12 +17,12 @@
 /**
  * @file        hal_base_driver.h
  * @brief       Generated Base Driver header.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  HAL_BASE_DRIVER
  * @brief       Common driver base abstract class.
  * @details     This abstract class is the common ancestor of all HAL stateful
  *              HAL drivers.
- * @note        This is a generated file, do not edit directly.
  * @{
  */
  

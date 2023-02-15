@@ -17,10 +17,10 @@
 /**
  * @file        hal_sio.h
  * @brief       Generated SIO Driver header.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  HAL_SIO
  * @brief       SIO Driver macros and structures.
- * @note        This is a generated file, do not edit directly.
  * @{
  */
  

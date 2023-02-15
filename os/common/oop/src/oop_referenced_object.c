@@ -17,6 +17,7 @@
 /**
  * @file        oop_referenced_object.c
  * @brief       Generated Referenced Object source.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  OOP_REFERENCED_OBJECT
  * @{

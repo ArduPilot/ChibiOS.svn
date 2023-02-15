@@ -17,6 +17,7 @@
 /**
  * @file        oop_base_object.c
  * @brief       Generated Base Object source.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  OOP_BASE_OBJECT
  * @{

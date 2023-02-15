@@ -17,12 +17,10 @@
 /**
  * @file        oop_sequential_stream.h
  * @brief       Generated Sequential Stream Interface header.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  OOP_SEQUENTIAL_STREAM
  * @brief       Sequential data streams interface.
- * @note        This class is compatible with legacy HAL @p
- *              BaseSequentialStream.
- * @note        This is a generated file, do not edit directly.
  * @{
  */
  

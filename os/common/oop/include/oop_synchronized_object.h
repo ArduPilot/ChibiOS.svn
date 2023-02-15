@@ -17,11 +17,11 @@
 /**
  * @file        oop_synchronized_object.h
  * @brief       Generated Synchronized Object header.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  OOP_SYNCHRONIZED_OBJECT
  * @brief       Common ancestor class of all reference-counted, synchronized
  *              objects.
- * @note        This is a generated file, do not edit directly.
  * @{
  */
  

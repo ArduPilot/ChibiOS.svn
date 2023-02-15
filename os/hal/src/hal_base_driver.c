@@ -17,6 +17,7 @@
 /**
  * @file        hal_base_driver.c
  * @brief       Generated Base Driver source.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  HAL_BASE_DRIVER
  * @{

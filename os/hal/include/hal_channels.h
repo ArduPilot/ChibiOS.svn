@@ -17,10 +17,10 @@
 /**
  * @file        hal_channels.h
  * @brief       Generated I/O Channels header.
+ * @note        This is a generated file, do not edit directly.
  *
  * @addtogroup  HAL_CHANNELS
  * @brief       Sequential data streams interface.
- * @note        This is a generated file, do not edit directly.
  * @{
  */
  

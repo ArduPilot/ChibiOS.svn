@@ -2,9 +2,9 @@
 <!DOCTYPE doc [
   <!ENTITY oop_base_object SYSTEM "oop_base_object.xml">
   <!ENTITY oop_base_interface SYSTEM "oop_base_interface.xml">
-  <!ENTITY oop_base_referenced_object SYSTEM "oop_referenced_object.xml">
+  <!ENTITY oop_referenced_object SYSTEM "oop_referenced_object.xml">
   <!ENTITY oop_synchronized_object SYSTEM "oop_synchronized_object.xml">
-  <!ENTITY oop_base_sequential_stream SYSTEM "oop_sequential_stream.xml">
+  <!ENTITY oop_sequential_stream SYSTEM "oop_sequential_stream.xml">
 ]>
 <!-- Class/interfaces definitions -->
 <instance
@@ -13,8 +13,8 @@
   <modules>
     &oop_base_object;
     &oop_base_interface;
-    &oop_base_referenced_object;
+    &oop_referenced_object;
     &oop_synchronized_object;
-    &oop_base_sequential_stream;
+    &oop_sequential_stream;
   </modules>
 </instance>

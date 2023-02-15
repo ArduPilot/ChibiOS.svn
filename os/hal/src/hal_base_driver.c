@@ -315,6 +315,7 @@ msg_t drvOpen(void *ip) {
  */
 void drvClose(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
+
   osalDbgCheck(self != NULL);
 
   osalSysLock();

@@ -414,12 +414,14 @@ ${ccode.indentation}${classctype} *self = (${classctype} *)ip;
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
-              methodimpl     = (method.implementation[0]!"")?trim /]
+              methodimpl     = method.implementation[0]!"" /]
+      [#if methodimpl?length > 0]
 [@ccode.GeneratePrototype indent    = ccode.indentation
                           name      = "__" + classnamespace + "_" + methodsname + "_impl"
                           modifiers = []
                           params    = ["void *ip"]
                           node      = method /];
+      [/#if]
     [/#if]
   [/#list]
 [/#macro]
@@ -820,7 +822,7 @@ ${ccode.indentation}(void)self;
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
-              methodimpl     = (method.implementation[0]!"")?trim /]
+              methodimpl     = method.implementation[0]!"" /]
       [#if methodimpl?length > 0]
 
 /**

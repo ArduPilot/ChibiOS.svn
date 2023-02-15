@@ -133,9 +133,6 @@ extern "C" {
   /* Methods of hal_base_driver_c.*/
   void *__drv_objinit_impl(void *ip, const void *vmt);
   void __drv_dispose_impl(void *ip);
-  msg_t __drv_start_impl(void *ip);
-  void __drv_stop_impl(void *ip);
-  msg_t __drv_configure_impl(void *ip, const void *config);
   msg_t drvOpen(void *ip);
   void drvClose(void *ip);
   /* Regular functions.*/

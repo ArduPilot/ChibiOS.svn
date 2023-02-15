@@ -167,6 +167,7 @@ return msg;]]></implementation>
               </details>
               <api />
               <implementation><![CDATA[
+
 osalDbgCheck(self != NULL);
 
 osalSysLock();

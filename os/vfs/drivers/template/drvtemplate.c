@@ -92,6 +92,11 @@ static void * __tmpldir_addref_impl(void *ip) {
   return __ro_addref_impl(ip);
 }
 
+static msg_t __tmpldir_node_stat_impl(void *ip, vfs_stat_t *sp) {
+
+  return __vfsnode_node_stat_impl(ip, sp);
+}
+
 static object_references_t __tmpldir_release_impl(void *ip) {
 
   return __ro_release_impl(ip);
@@ -154,11 +159,6 @@ static msg_t __tmpldrv_set_cwd_impl(void *ip, const char *path) {
   return __vfsdrv_set_cwd_impl(ip, path);
 }
 
-static msg_t __tmpldir_node_stat_impl(void *ip, vfs_stat_t *sp) {
-
-  return __vfsnode_node_stat_impl(ip, sp);
-}
-
 static msg_t __tmpldrv_get_cwd_impl(void *ip, char *buf, size_t size) {
 
   return __vfsdrv_get_cwd_impl(ip, buf, size);
@@ -200,6 +200,43 @@ static msg_t __tmpldrv_mkdir_impl(void *ip, const char *path, vfs_mode_t mode) {
 static msg_t __tmpldrv_rmdir_impl(void *ip, const char *path) {
 
   return __vfsdrv_rmdir_impl(ip, path);
+}
+
+static size_t __tmplfile_write_impl(void *ip, const uint8_t *buf, size_t size) {
+  vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+
+  (void)self;
+  (void)buf;
+  (void)size;
+
+  return (size_t)0;
+}
+
+static size_t __tmplfile_read_impl(void *ip, uint8_t *buf, size_t size) {
+  vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+
+  (void)self;
+  (void)buf;
+  (void)size;
+
+  return (size_t)0;
+}
+
+static msg_t __tmplfile_put_impl(void *ip, uint8_t b) {
+  vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+
+  (void)self;
+  (void)b;
+
+  return MSG_OK;
+}
+
+static msg_t __tmplfile_get_impl(void *ip) {
+  vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+
+  (void)self;
+
+  return (msg_t)0;
 }
 
 /*===========================================================================*/
@@ -323,6 +360,14 @@ void *__tmplfile_objinit_impl(void *ip, const void *vmt) {
 
   /* Initialization of the ancestors-defined parts.*/
   __vfsfile_objinit_impl(self, vmt);
+
+  /* Implementation of interface sequential_stream_i.*/
+  {
+    static const struct sequential_stream_vmt tmplfile_stm_vmt = {
+      __stm_vmt_init(tmplfile)
+    };
+    oopInterfaceObjectInit(&self->tmplfile.stm, &tmplfile_stm_vmt);
+  }
 
   /* No initialization code.*/
 

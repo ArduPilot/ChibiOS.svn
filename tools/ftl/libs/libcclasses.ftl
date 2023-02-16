@@ -716,7 +716,7 @@ ${ccode.indentation}${ifctype} *self = (${ifctype} *)ip;
 ${ccode.indentation}/* Implementation of interface ${ifctype}.*/
 ${ccode.indentation}{
 ${ccode.indentation}${ccode.indentation}static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
-${ccode.indentation}${ccode.indentation}${ccode.indentation}__chn_vmt_init(${classnamespace})
+${ccode.indentation}${ccode.indentation}${ccode.indentation}__${ifnamespace}_vmt_init(${classnamespace})
 ${ccode.indentation}${ccode.indentation}};
 ${ccode.indentation}${ccode.indentation}oopInterfaceObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
 ${ccode.indentation}}

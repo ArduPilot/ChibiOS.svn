@@ -26,6 +26,8 @@
 #ifndef DRVTEMPLATE_H
 #define DRVTEMPLATE_H
 
+#include "oop_sequential_stream.h"
+
 #if (VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE) || defined (__DOXYGEN__)
 
 /*===========================================================================*/
@@ -202,6 +204,7 @@ static inline void tmpldirDispose(vfs_template_dir_node_c *self) {
 /**
  * @class       vfs_template_file_node_c
  * @extends     vfs_file_node_c
+ * @implements  sequential_stream_i
  *
  * @note        The class namespace is <tt>tmplfile</tt>, access to class
  *              fields is done using:
@@ -216,6 +219,16 @@ static inline void tmpldirDispose(vfs_template_dir_node_c *self) {
 typedef struct vfs_template_file_node vfs_template_file_node_c;
 
 /**
+ * @brief       @p vfs_template_file_node_c data as a structure.
+ */
+struct tmplfile_data {
+  /**
+   * @brief       Stream interface for this file.
+   */
+  sequential_stream_i       stm;
+};
+
+/**
  * @brief       @p vfs_template_file_node_c methods.
  */
 #define __tmplfile_methods                                                  \
@@ -227,7 +240,7 @@ typedef struct vfs_template_file_node vfs_template_file_node_c;
  */
 #define __tmplfile_data                                                     \
   __vfsfile_data                                                            \
-  /* No data.*/
+  struct tmplfile_data      tmplfile;
 
 /**
  * @brief       @p vfs_template_file_node_c VMT initializer.
@@ -252,6 +265,21 @@ struct vfs_template_file_node {
   const struct vfs_template_file_node_vmt *vmt;
   __tmplfile_data
 };
+
+/**
+ * @memberof    vfs_template_file_node_c
+ *
+ * @brief       Access macro for vfs_template_file_node_c interfaces.
+ *
+ * @param[in]     ip            Pointer to the class instance.
+ * @param         ifns          Implemented interface namespace.
+ * @return                      A void pointer to the interface within the
+ *                              class instance.
+ *
+ * @api
+ */
+#define tmplfileGetIf(ip, ifns)                                             \
+  boGetIf(ip, ifns, tmplfile)
 
 /**
  * @name        Constructor and destructor of vfs_template_file_node_c

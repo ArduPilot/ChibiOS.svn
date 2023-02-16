@@ -6,6 +6,8 @@
   check="VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE" sourcepath="drivers/template"
   headerpath="drivers/template">
   <public>
+    <inclusions>
+      <include style="regular">oop_sequential_stream.h</include></inclusions>
     <configs>
       <config name="DRV_CFG_TEMPLATE_DIR_NODES_NUM" default="1">
         <brief>Number of directory nodes pre-allocated in the pool.</brief>
@@ -33,7 +35,14 @@
       <class type="regular" name="vfs_template_file_node"
         namespace="tmplfile" ancestorname="vfs_file_node" ancestornamespace="vfsfile"
         descr="VFS template file node">
-        <fields></fields>
+        <implements>
+          <ifref name="sequential_stream" namespace="stm" />
+        </implements>
+        <fields>
+          <field name="stm" ctype="sequential_stream_i">
+            <brief>Stream interface for this file.</brief>
+          </field>
+        </fields>
         <methods>
           <objinit>
             <implementation><![CDATA[]]></implementation>
@@ -122,6 +131,13 @@ chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
 
 return __ro_addref_impl(ip);]]></implementation>
       </function>
+      <function name="__tmpldir_node_stat_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="sp" ctype="vfs_stat_t *" />
+        <implementation><![CDATA[
+
+return __vfsnode_node_stat_impl(ip, sp);]]></implementation>
+      </function>
       <function name="__tmpldir_release_impl" ctype="object_references_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
@@ -204,13 +220,6 @@ return __vfsfile_file_get_stream_impl(ip);]]></implementation>
 
 return __vfsdrv_set_cwd_impl(ip, path);]]></implementation>
       </function>
-      <function name="__tmpldir_node_stat_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="sp" ctype="vfs_stat_t *" />
-        <implementation><![CDATA[
-
-return __vfsnode_node_stat_impl(ip, sp);]]></implementation>
-      </function>
       <function name="__tmpldrv_get_cwd_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="buf" ctype="char *" />
@@ -273,6 +282,52 @@ return __vfsdrv_mkdir_impl(ip, path, mode);]]></implementation>
         <implementation><![CDATA[
 
 return __vfsdrv_rmdir_impl(ip, path);]]></implementation>
+      </function>
+      <function name="__tmplfile_write_impl" ctype="size_t">
+        <param name="ip" ctype="void *" />
+        <param name="buf" ctype="const uint8_t *" />
+        <param name="size" ctype="size_t" />
+        <implementation><![CDATA[
+vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+
+(void)self;
+(void)buf;
+(void)size;
+
+return (size_t)0;]]></implementation>
+      </function>
+      <function name="__tmplfile_read_impl" ctype="size_t">
+        <param name="ip" ctype="void *" />
+        <param name="buf" ctype="uint8_t *" />
+        <param name="size" ctype="size_t" />
+        <implementation><![CDATA[
+vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+
+(void)self;
+(void)buf;
+(void)size;
+
+return (size_t)0;]]></implementation>
+      </function>
+      <function name="__tmplfile_put_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="b" ctype="uint8_t" />
+        <implementation><![CDATA[
+vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+
+(void)self;
+(void)b;
+
+return MSG_OK;]]></implementation>
+      </function>
+      <function name="__tmplfile_get_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+
+(void)self;
+
+return (msg_t)0;]]></implementation>
       </function>
     </functions>
   </private>

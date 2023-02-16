@@ -112,9 +112,17 @@
           <virtual>
             <method name="vfsNodeStat" shortname="node_stat" ctype="msg_t">
               <brief>Returns information about the node.</brief>
-              <param name="fsp" ctype="vfs_stat_t *" dir="out">Pointer to a @p vfs_stat_t structure.</param>
+              <param name="sp" ctype="vfs_stat_t *" dir="out">
+                Pointer to a @p vfs_stat_t structure.
+              </param>
               <return>The operation result.</return>
               <api />
+              <implementation><![CDATA[
+
+sp->mode = self->vfsnode.mode;
+sp->size = (vfs_offset_t)0;
+
+return CH_RET_SUCCESS;]]></implementation>
             </method>
           </virtual>
         </methods>
@@ -139,6 +147,12 @@
                 to a @p vfs_direntry_info_t structure.</param>
               <return>The operation result.</return>
               <api />
+              <implementation>
+
+(void)self;
+(void)dip;
+
+return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
             <method name="vfsDirReadNext" shortname="dir_next" ctype="msg_t">
               <brief>Next directory entry.</brief>
@@ -146,6 +160,12 @@
                 to a @p vfs_direntry_info_t structure.</param>
               <return>The operation result.</return>
               <api />
+              <implementation>
+
+(void)self;
+(void)dip;
+
+return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
           </virtual>
         </methods>
@@ -170,6 +190,13 @@
               <param name="n" ctype="size_t" dir="in">Maximum amount of data to be transferred.</param>
               <return>The transferred number of bytes or an error.</return>
               <api />
+              <implementation>
+
+(void)self;
+(void)buf;
+(void)n;
+
+return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
             <method name="vfsFileWrite" shortname="file_write" ctype="ssize_t">
               <brief>File node read.</brief>
@@ -177,6 +204,13 @@
               <param name="n" ctype="size_t" dir="in">Maximum amount of data to be transferred.</param>
               <return>The transferred number of bytes or an error.</return>
               <api />
+              <implementation>
+
+(void)self;
+(void)buf;
+(void)n;
+
+return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
             <method name="vfsFileSetPosition" shortname="file_setpos" ctype="msg_t">
               <brief>Changes the current file position.</brief>
@@ -184,16 +218,33 @@
               <param name="whence" ctype="vfs_seekmode_t" dir="in">Seek mode to be used.</param>
               <return>The operation result.</return>
               <api />
+              <implementation>
+
+(void)self;
+(void)offset;
+(void)whence;
+
+return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
             <method name="vfsFileGetPosition" shortname="file_getpos" ctype="vfs_offset_t">
               <brief>Returns the current file position.</brief>
               <return>The current file position.</return>
               <api />
+              <implementation>
+
+(void)self;
+
+return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
             <method name="vfsFileGetStream" shortname="file_get_stream" ctype="BaseSequentialStream *">
               <brief>Returns the inner HAL stream associated to the file.</brief>
               <return>Pointer to the HAL stream interface.</return>
               <api />
+              <implementation>
+
+(void)self;
+
+return NULL;<![CDATA[]]></implementation>
             </method>
           </virtual>
         </methods>

@@ -2,7 +2,7 @@
 <!-- C module definition -->
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="drvtemplate_test" descr="VFS Template Driver"
+  name="drvtemplate" descr="VFS Template Driver"
   check="VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE" sourcepath="drivers/template"
   headerpath="drivers/template">
   <public>
@@ -18,7 +18,7 @@
     </configs>
     <classes>
       <class type="regular" name="vfs_template_dir_node"
-        namespace="tmpldir" ancestorname="vfs_node" ancestornamespace="vfsnode"
+        namespace="tmpldir" ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
         descr="VFS template directory node">
         <fields></fields>
         <methods>
@@ -31,7 +31,7 @@
         </methods>
       </class>
       <class type="regular" name="vfs_template_file_node"
-        namespace="tmplfile" ancestorname="vfs_node" ancestornamespace="vfsnode"
+        namespace="tmplfile" ancestorname="vfs_file_node" ancestornamespace="vfsfile"
         descr="VFS template file node">
         <fields></fields>
         <methods>
@@ -58,5 +58,169 @@
       </class>
     </classes>
   </public>
-  <private></private>
+  <private>
+    <inclusions>
+      <include style="regular">vfs.h</include>
+    </inclusions>
+    <functions>
+      <function name="__tmpldir_addref_impl" ctype="void *">
+        <param name="ip" ctype="void *"/>
+        <implementation><![CDATA[
+
+return __ro_addref_impl(ip);]]></implementation>
+      </function>
+      <function name="__tmpldir_release_impl" ctype="object_references_t">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+
+return __ro_release_impl(ip);]]></implementation>
+      </function>
+      <function name="__tmpldir_dir_first_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="dip" ctype="vfs_direntry_info_t *" />
+        <implementation><![CDATA[
+
+return __vfsdir_dir_first_impl(ip, dip);]]></implementation>
+      </function>
+      <function name="__tmpldir_dir_next_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="dip" ctype="vfs_direntry_info_t *" />
+        <implementation><![CDATA[
+
+return __vfsdir_dir_next_impl(ip, dip);]]></implementation>
+      </function>
+      <function name="__tmplfile_addref_impl" ctype="void *">
+        <param name="ip" ctype="void *"/>
+        <implementation><![CDATA[
+
+return __ro_addref_impl(ip);]]></implementation>
+      </function>
+      <function name="__tmplfile_release_impl" ctype="object_references_t">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+
+return __ro_release_impl(ip);]]></implementation>
+      </function>
+      <function name="__tmplfile_node_stat_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="sp" ctype="vfs_stat_t *" />
+        <implementation><![CDATA[
+
+return __vfsnode_node_stat_impl(ip, sp);]]></implementation>
+      </function>
+      <function name="__tmplfile_file_read_impl" ctype="ssize_t">
+        <param name="ip" ctype="void *" />
+        <param name="buf" ctype="uint8_t *" />
+        <param name="size" ctype="size_t" />
+        <implementation><![CDATA[
+
+return __vfsfile_file_read_impl(ip, buf, size);]]></implementation>
+      </function>
+      <function name="__tmplfile_file_write_impl" ctype="ssize_t">
+        <param name="ip" ctype="void *" />
+        <param name="buf" ctype="const uint8_t *" />
+        <param name="size" ctype="size_t" />
+        <implementation><![CDATA[
+
+return __vfsfile_file_write_impl(ip, buf, size);]]></implementation>
+      </function>
+      <function name="__tmplfile_file_setpos_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="offset" ctype="vfs_offset_t" />
+        <param name="whence" ctype="vfs_seekmode_t" />
+        <implementation><![CDATA[
+
+return __vfsfile_file_setpos_impl(ip, offset, whence);]]></implementation>
+      </function>
+      <function name="__tmplfile_file_getpos_impl" ctype="vfs_offset_t">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+
+return __vfsfile_file_getpos_impl(ip);]]></implementation>
+      </function>
+      <function name="__tmplfile_file_get_stream_impl" ctype="BaseSequentialStream *">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+
+return __vfsfile_file_get_stream_impl(ip);]]></implementation>
+      </function>
+      <function name="__tmpldrv_set_cwd_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="path" ctype="const char *" />
+        <implementation><![CDATA[
+
+return __vfsdrv_set_cwd_impl(ip, path);]]></implementation>
+      </function>
+      <function name="__tmpldir_node_stat_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="sp" ctype="vfs_stat_t *" />
+        <implementation><![CDATA[
+
+return __vfsnode_node_stat_impl(ip, sp);]]></implementation>
+      </function>
+      <function name="__tmpldrv_get_cwd_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="buf" ctype="char *" />
+        <param name="size" ctype="size_t" />
+        <implementation><![CDATA[
+
+return __vfsdrv_get_cwd_impl(ip, buf, size);]]></implementation>
+      </function>
+      <function name="__tmpldrv_stat_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="path" ctype="const char *" />
+        <param name="sp" ctype="vfs_stat_t *" />
+        <implementation><![CDATA[
+
+return __vfsdrv_stat_impl(ip, path, sp);]]></implementation>
+      </function>
+      <function name="__tmpldrv_open_dir_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="path" ctype="const char *" />
+        <param name="vdnpp" ctype="vfs_directory_node_c **" />
+        <implementation><![CDATA[
+
+return __vfsdrv_open_dir_impl(ip, path, vdnpp);]]></implementation>
+      </function>
+      <function name="__tmpldrv_open_file_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="path" ctype="const char *" />
+        <param name="flags" ctype="int" />
+        <param name="vfnpp" ctype="vfs_file_node_c **" />
+        <implementation><![CDATA[
+
+return __vfsdrv_open_file_impl(ip, path, flags, vfnpp);]]></implementation>
+      </function>
+      <function name="__tmpldrv_unlink_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="path" ctype="const char *" />
+        <implementation><![CDATA[
+
+return __vfsdrv_unlink_impl(ip, path);]]></implementation>
+      </function>
+      <function name="__tmpldrv_rename_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="oldpath" ctype="const char *" />
+        <param name="newpath" ctype="const char *" />
+        <implementation><![CDATA[
+
+return __vfsdrv_rename_impl(ip, oldpath, newpath);]]></implementation>
+      </function>
+      <function name="__tmpldrv_mkdir_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="path" ctype="const char *" />
+        <param name="mode" ctype="vfs_mode_t" />
+        <implementation><![CDATA[
+
+return __vfsdrv_mkdir_impl(ip, path, mode);]]></implementation>
+      </function>
+      <function name="__tmpldrv_rmdir_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="path" ctype="const char *" />
+        <implementation><![CDATA[
+
+return __vfsdrv_rmdir_impl(ip, path);]]></implementation>
+      </function>
+    </functions>
+  </private>
 </module>

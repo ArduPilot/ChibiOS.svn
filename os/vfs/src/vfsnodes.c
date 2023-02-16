@@ -103,6 +103,23 @@ void __vfsnode_dispose_impl(void *ip) {
   /* Finalization of the ancestors-defined parts.*/
   __ro_dispose_impl(self);
 }
+
+/**
+ * @brief       Implementation of method @p vfsNodeStat().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_node_c instance.
+ * @param[out]    sp            Pointer to a @p vfs_stat_t structure.
+ * @return                      The operation result.
+ */
+msg_t __vfsnode_node_stat_impl(void *ip, vfs_stat_t *sp) {
+  vfs_node_c *self = (vfs_node_c *)ip;
+
+  sp->mode = self->vfsnode.mode;
+  sp->size = (vfs_offset_t)0;
+
+  return CH_RET_SUCCESS;
+}
 /** @} */
 
 /*===========================================================================*/
@@ -155,6 +172,40 @@ void __vfsdir_dispose_impl(void *ip) {
   /* Finalization of the ancestors-defined parts.*/
   __vfsnode_dispose_impl(self);
 }
+
+/**
+ * @brief       Implementation of method @p vfsDirReadFirst().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_directory_node_c instance.
+ * @param[out]    dip           Pointer to a @p vfs_direntry_info_t structure.
+ * @return                      The operation result.
+ */
+msg_t __vfsdir_dir_first_impl(void *ip, vfs_direntry_info_t *dip) {
+  vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
+
+  (void)self;
+  (void)dip;
+
+  return CH_RET_ENOSYS;
+}
+
+/**
+ * @brief       Implementation of method @p vfsDirReadNext().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_directory_node_c instance.
+ * @param[out]    dip           Pointer to a @p vfs_direntry_info_t structure.
+ * @return                      The operation result.
+ */
+msg_t __vfsdir_dir_next_impl(void *ip, vfs_direntry_info_t *dip) {
+  vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
+
+  (void)self;
+  (void)dip;
+
+  return CH_RET_ENOSYS;
+}
 /** @} */
 
 /*===========================================================================*/
@@ -206,6 +257,94 @@ void __vfsfile_dispose_impl(void *ip) {
 
   /* Finalization of the ancestors-defined parts.*/
   __vfsnode_dispose_impl(self);
+}
+
+/**
+ * @brief       Implementation of method @p vfsFileRead().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_file_node_c instance.
+ * @param[out]    buf           Pointer to the data buffer.
+ * @param[in]     n             Maximum amount of data to be transferred.
+ * @return                      The transferred number of bytes or an error.
+ */
+ssize_t __vfsfile_file_read_impl(void *ip, uint8_t *buf, size_t n) {
+  vfs_file_node_c *self = (vfs_file_node_c *)ip;
+
+  (void)self;
+  (void)buf;
+  (void)n;
+
+  return CH_RET_ENOSYS;
+}
+
+/**
+ * @brief       Implementation of method @p vfsFileWrite().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_file_node_c instance.
+ * @param[in]     buf           Pointer to the data buffer.
+ * @param[in]     n             Maximum amount of data to be transferred.
+ * @return                      The transferred number of bytes or an error.
+ */
+ssize_t __vfsfile_file_write_impl(void *ip, const uint8_t *buf, size_t n) {
+  vfs_file_node_c *self = (vfs_file_node_c *)ip;
+
+  (void)self;
+  (void)buf;
+  (void)n;
+
+  return CH_RET_ENOSYS;
+}
+
+/**
+ * @brief       Implementation of method @p vfsFileSetPosition().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_file_node_c instance.
+ * @param[in]     offset        Offset to be applied.
+ * @param[in]     whence        Seek mode to be used.
+ * @return                      The operation result.
+ */
+msg_t __vfsfile_file_setpos_impl(void *ip, vfs_offset_t offset,
+                                 vfs_seekmode_t whence) {
+  vfs_file_node_c *self = (vfs_file_node_c *)ip;
+
+  (void)self;
+  (void)offset;
+  (void)whence;
+
+  return CH_RET_ENOSYS;
+}
+
+/**
+ * @brief       Implementation of method @p vfsFileGetPosition().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_file_node_c instance.
+ * @return                      The current file position.
+ */
+vfs_offset_t __vfsfile_file_getpos_impl(void *ip) {
+  vfs_file_node_c *self = (vfs_file_node_c *)ip;
+
+  (void)self;
+
+  return CH_RET_ENOSYS;
+}
+
+/**
+ * @brief       Implementation of method @p vfsFileGetStream().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_file_node_c instance.
+ * @return                      Pointer to the HAL stream interface.
+ */
+BaseSequentialStream * __vfsfile_file_get_stream_impl(void *ip) {
+  vfs_file_node_c *self = (vfs_file_node_c *)ip;
+
+  (void)self;
+
+  return NULL;
 }
 /** @} */
 

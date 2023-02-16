@@ -157,12 +157,21 @@ extern "C" {
   /* Methods of vfs_node_c.*/
   void *__vfsnode_objinit_impl(void *ip, const void *vmt);
   void __vfsnode_dispose_impl(void *ip);
+  msg_t __vfsnode_node_stat_impl(void *ip, vfs_stat_t *sp);
   /* Methods of vfs_directory_node_c.*/
   void *__vfsdir_objinit_impl(void *ip, const void *vmt);
   void __vfsdir_dispose_impl(void *ip);
+  msg_t __vfsdir_dir_first_impl(void *ip, vfs_direntry_info_t *dip);
+  msg_t __vfsdir_dir_next_impl(void *ip, vfs_direntry_info_t *dip);
   /* Methods of vfs_file_node_c.*/
   void *__vfsfile_objinit_impl(void *ip, const void *vmt);
   void __vfsfile_dispose_impl(void *ip);
+  ssize_t __vfsfile_file_read_impl(void *ip, uint8_t *buf, size_t n);
+  ssize_t __vfsfile_file_write_impl(void *ip, const uint8_t *buf, size_t n);
+  msg_t __vfsfile_file_setpos_impl(void *ip, vfs_offset_t offset,
+                                   vfs_seekmode_t whence);
+  vfs_offset_t __vfsfile_file_getpos_impl(void *ip);
+  BaseSequentialStream * __vfsfile_file_get_stream_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif
@@ -195,7 +204,7 @@ typedef struct vfs_node vfs_node_c;
  * @brief       @p vfs_node_c methods as a structure.
  */
 struct vfsnode_methods {
-  msg_t (*node_stat)(void *ip, vfs_stat_t *fsp);
+  msg_t (*node_stat)(void *ip, vfs_stat_t *sp);
 };
 
 /**
@@ -262,16 +271,16 @@ struct vfs_node {
  * @brief       Returns information about the node.
  *
  * @param[in,out] ip            Pointer to a @p vfs_node_c instance.
- * @param[out]    fsp           Pointer to a @p vfs_stat_t structure.
+ * @param[out]    sp            Pointer to a @p vfs_stat_t structure.
  * @return                      The operation result.
  *
  * @api
  */
 CC_FORCE_INLINE
-static inline msg_t vfsNodeStat(void *ip, vfs_stat_t *fsp) {
+static inline msg_t vfsNodeStat(void *ip, vfs_stat_t *sp) {
   vfs_node_c *self = (vfs_node_c *)ip;
 
-  return self->vmt->vfsnode.node_stat(ip, fsp);
+  return self->vmt->vfsnode.node_stat(ip, sp);
 }
 /** @} */
 

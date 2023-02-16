@@ -55,7 +55,7 @@ ch_test_context_t chtest;
 #if (TEST_CFG_CHIBIOS_SUPPORT == TRUE) || defined(__DOXYGEN__)
 static int test_stream_putchar(int c) {
 
-  stmPut(chtest.stream, (uint8_t)c);
+  streamPut(chtest.stream, (uint8_t)c);
 
   return c;
 }
@@ -294,7 +294,7 @@ bool test_execute_putchar(test_putchar_t putfunc,
 /**
  * @brief   Test execution with stream output.
  *
- * @param[in] stream    pointer to a @p base_sequential_stream_i interface
+ * @param[in] stream    pointer to a @p BaseSequentialStream interface
  *                      for test output
  * @param[in] tsp       test suite to execute
  * @return              A failure boolean.
@@ -303,7 +303,7 @@ bool test_execute_putchar(test_putchar_t putfunc,
  *
  * @api
  */
-bool test_execute_stream(sequential_stream_i *stream,
+bool test_execute_stream(BaseSequentialStream *stream,
                          const testsuite_t *tsp) {
 
   /* Output initialization using streams.*/

@@ -101,10 +101,10 @@ include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32g4xx.m
 # Common files.
 include $(CHIBIOS)/os/common/oop/oop.mk
 # HAL-OSAL files (optional).
-include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/hal/ports/STM32/STM32G4xx/platform.mk
-include $(CHIBIOS)/os/hal/boards/ST_NUCLEO64_G474RE/board.mk
-include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
+include $(CHIBIOS)/os/xhal/hal.mk
+include $(CHIBIOS)/os/xhal/ports/STM32/STM32G4xx/platform.mk
+include $(CHIBIOS)/os/xhal/boards/ST_NUCLEO64_G474RE/board.mk
+include $(CHIBIOS)/os/xhal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/common/ports/ARMv7-M-ALT/compilers/GCC/mk/port.mk

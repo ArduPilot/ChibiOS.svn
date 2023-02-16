@@ -57,15 +57,15 @@ static msg_t drv_open_file(void *instance,
                            vfs_file_node_c **vfnpp);
 
 static const struct vfs_streams_driver_vmt driver_vmt = {
-  .set_cwd          = drv_set_cwd,
-  .get_cwd          = drv_get_cwd,
-  .stat             = drv_stat,
-  .open_dir         = drv_open_dir,
-  .open_file        = drv_open_file,
-  .unlink           = drv_unlink_unimpl,
-  .rename           = drv_rename_unimpl,
-  .mkdir            = drv_mkdir_unimpl,
-  .rmdir            = drv_rmdir_unimpl
+  .vfsdrv.set_cwd           = drv_set_cwd,
+  .vfsdrv.get_cwd           = drv_get_cwd,
+  .vfsdrv.stat              = drv_stat,
+  .vfsdrv.open_dir          = drv_open_dir,
+  .vfsdrv.open_file         = drv_open_file,
+  .vfsdrv.unlink            = __vfsdrv_unlink_impl,
+  .vfsdrv.rename            = __vfsdrv_rename_impl,
+  .vfsdrv.mkdir             = __vfsdrv_mkdir_impl,
+  .vfsdrv.rmdir             = __vfsdrv_rmdir_impl
 };
 
 static void *node_dir_addref(void *instance);
@@ -75,11 +75,11 @@ static msg_t node_dir_first(void *instance, vfs_direntry_info_t *dip);
 static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip);
 
 static const struct vfs_streams_dir_node_vmt dir_node_vmt = {
-  .addref           = node_dir_addref,
-  .release          = node_dir_release,
-  .node_stat        = node_dir_getstat,
-  .dir_first        = node_dir_first,
-  .dir_next         = node_dir_next
+  .ro.addref                = node_dir_addref,
+  .ro.release               = node_dir_release,
+  .vfsnode.node_stat        = node_dir_getstat,
+  .vfsdir.dir_first         = node_dir_first,
+  .vfsdir.dir_next          = node_dir_next
 };
 
 static void *node_file_addref(void *instance);
@@ -94,14 +94,14 @@ static msg_t node_file_setpos(void *instance,
 static vfs_offset_t node_file_getpos(void *instance);
 
 static const struct vfs_streams_file_node_vmt file_node_vmt = {
-  .addref           = node_file_addref,
-  .release          = node_file_release,
-  .node_stat        = node_file_getstat,
-  .file_get_stream  = node_file_get_stream,
-  .file_read        = node_file_read,
-  .file_write       = node_file_write,
-  .file_setpos      = node_file_setpos,
-  .file_getpos      = node_file_getpos
+  .ro.addref                = node_file_addref,
+  .ro.release               = node_file_release,
+  .vfsnode.node_stat        = node_file_getstat,
+  .vfsfile.file_get_stream  = node_file_get_stream,
+  .vfsfile.file_read        = node_file_read,
+  .vfsfile.file_write       = node_file_write,
+  .vfsfile.file_setpos      = node_file_setpos,
+  .vfsfile.file_getpos      = node_file_getpos
 };
 
 /**
@@ -196,9 +196,9 @@ static msg_t drv_open_dir(void *instance,
     if (sdnp != NULL) {
 
       /* Node object initialization.*/
-      __referenced_object_objinit_impl(sdnp, &dir_node_vmt);
-      sdnp->driver  = (vfs_driver_c *)drvp;
-      sdnp->mode    = VFS_MODE_S_IFDIR | VFS_MODE_S_IRUSR;
+      __ro_objinit_impl(sdnp, &dir_node_vmt);
+      sdnp->vfsnode.driver  = (vfs_driver_c *)drvp;
+      sdnp->vfsnode.mode    = VFS_MODE_S_IFDIR | VFS_MODE_S_IRUSR;
       sdnp->index   = 0U;
 
       *vdnpp = (vfs_directory_node_c *)sdnp;
@@ -250,9 +250,9 @@ static msg_t drv_open_file(void *instance,
         if (sfnp != NULL) {
 
           /* Node object initialization.*/
-          __referenced_object_objinit_impl(sfnp, &file_node_vmt);
-          sfnp->driver  = (vfs_driver_c *)drvp;
-          sfnp->mode    = VFS_MODE_S_IFIFO | VFS_MODE_S_IRUSR | VFS_MODE_S_IWUSR;
+          __ro_objinit_impl(sfnp, &file_node_vmt);
+          sfnp->vfsnode.driver  = (vfs_driver_c *)drvp;
+          sfnp->vfsnode.mode    = VFS_MODE_S_IFIFO | VFS_MODE_S_IRUSR | VFS_MODE_S_IWUSR;
           sfnp->stream  = dsep->stream;
 
           *vfnpp = (vfs_file_node_c *)sfnp;
@@ -274,7 +274,7 @@ static msg_t drv_open_file(void *instance,
 
 static void *node_dir_addref(void *instance) {
 
-  return __referenced_object_addref_impl(instance);
+  return __ro_addref_impl(instance);
 }
 
 static unsigned node_dir_release(void *instance) {
@@ -282,7 +282,7 @@ static unsigned node_dir_release(void *instance) {
   unsigned references;
 
   chSysLock();
-  references = __referenced_object_release_impl(instance);
+  references = __ro_release_impl(instance);
   chSysUnlock();
   if (references == 0U) {
 
@@ -295,7 +295,7 @@ static unsigned node_dir_release(void *instance) {
 static msg_t node_dir_getstat(void *instance, vfs_stat_t *sp) {
   vfs_node_c *np = (vfs_node_c *)instance;
 
-  sp->mode = np->mode;
+  sp->mode = np->vfsnode.mode;
   sp->size = (vfs_offset_t)0;
 
   return CH_RET_SUCCESS;
@@ -311,7 +311,7 @@ static msg_t node_dir_first(void *instance, vfs_direntry_info_t *dip) {
 
 static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip) {
   vfs_streams_dir_node_c *sdnp = (vfs_streams_dir_node_c *)instance;
-  vfs_streams_driver_c *vsdp = (vfs_streams_driver_c *)sdnp->driver;
+  vfs_streams_driver_c *vsdp = (vfs_streams_driver_c *)sdnp->vfsnode.driver;
 
   if (vsdp->streams[sdnp->index].name != NULL) {
 
@@ -329,7 +329,7 @@ static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip) {
 
 static void *node_file_addref(void *instance) {
 
-  return __referenced_object_addref_impl(instance);
+  return __ro_addref_impl(instance);
 }
 
 static unsigned node_file_release(void *instance) {
@@ -337,7 +337,7 @@ static unsigned node_file_release(void *instance) {
   unsigned references;
 
   chSysLock();
-  references = __referenced_object_release_impl(instance);
+  references = __ro_release_impl(instance);
   chSysUnlock();
   if (references == 0U) {
 
@@ -350,7 +350,7 @@ static unsigned node_file_release(void *instance) {
 static msg_t node_file_getstat(void *instance, vfs_stat_t *sp) {
   vfs_node_c *np = (vfs_node_c *)instance;
 
-  sp->mode = np->mode;
+  sp->mode = np->vfsnode.mode;
   sp->size = (vfs_offset_t)0;
 
   return CH_RET_SUCCESS;
@@ -432,7 +432,7 @@ void __drv_streams_init(void) {
 vfs_driver_c *drvStreamsObjectInit(vfs_streams_driver_c *vsdp,
                                    const drv_streams_element_t *streams) {
 
-  __base_object_objinit_impl(vsdp, &driver_vmt);
+  __bo_objinit_impl(vsdp, &driver_vmt);
   vsdp->streams  = streams;
 
   return (vfs_driver_c *)vsdp;

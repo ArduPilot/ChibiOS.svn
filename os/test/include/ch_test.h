@@ -160,7 +160,7 @@ typedef struct {
   /**
    * @brief   Current output stream.
    */
-  sequential_stream_i                       *stream;
+  BaseSequentialStream                      *stream;
 #endif
 } ch_test_context_t;
 
@@ -315,7 +315,7 @@ extern "C" {
   bool test_execute_putchar(test_putchar_t putfunc,
                             const testsuite_t *tsp);
 #if TEST_CFG_CHIBIOS_SUPPORT == TRUE
-  bool test_execute_stream(sequential_stream_i *stream,
+  bool test_execute_stream(BaseSequentialStream *stream,
                            const testsuite_t *tsp);
 #endif
 #ifdef __cplusplus
@@ -331,7 +331,7 @@ extern "C" {
  * @brief   Test execution thread function.
  * @note    This is a legacy version.
  *
- * @param[in] stream    pointer to a @p base_sequential_stream_i interface
+ * @param[in] stream    pointer to a @p BaseSequentialStream interface
  *                      for test output
  * @param[in] tsp       test suite to execute
  * @return              A failure boolean.
@@ -340,7 +340,7 @@ extern "C" {
  *
  * @api
  */
-static inline msg_t test_execute(sequential_stream_i *stream,
+static inline msg_t test_execute(BaseSequentialStream *stream,
                                  const testsuite_t *tsp) {
 
   return (msg_t)test_execute_stream(stream, tsp);

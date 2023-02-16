@@ -57,11 +57,64 @@
         </methods>
       </class>
     </classes>
+    <functions>
+      <function name="__drv_template_init" ctype="void">
+        <brief>Module initialization.</brief>
+        <init />
+        <implementation><![CDATA[
+
+/* Initializing pools.*/
+chPoolObjectInit(&vfs_template_driver_static.dir_nodes_pool,
+                 sizeof (vfs_template_dir_node_c),
+                 chCoreAllocAlignedI);
+chPoolObjectInit(&vfs_template_driver_static.file_nodes_pool,
+                 sizeof (vfs_template_file_node_c),
+                 chCoreAllocAlignedI);
+
+/* Preloading pools.*/
+chPoolLoadArray(&vfs_template_driver_static.dir_nodes_pool,
+                &vfs_template_driver_static.dir_nodes[0],
+                DRV_CFG_TEMPLATE_DIR_NODES_NUM);
+chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
+                &vfs_template_driver_static.file_nodes[0],
+                DRV_CFG_TEMPLATE_FILE_NODES_NUM);]]></implementation>
+      </function>
+    </functions>
   </public>
   <private>
     <inclusions>
       <include style="regular">vfs.h</include>
     </inclusions>
+    <types>
+      <struct name="vfs_template_driver_static_struct">
+        <brief>Structure representing the global state of @p vfs_template_driver_c.</brief>
+        <fields>
+          <field name="fs_nodes_pool" ctype="memory_pool_t">
+            <brief>Pool of file system objects.</brief>
+          </field>
+          <field name="info_nodes_pool" ctype="memory_pool_t">
+            <brief>Pool of file info objects.</brief>
+          </field>
+          <field name="dir_nodes_pool" ctype="memory_pool_t">
+            <brief>Pool of file directory nodes.</brief>
+          </field>
+          <field name="file_nodes_pool" ctype="memory_pool_t">
+            <brief>Pool of file nodes.</brief>
+          </field>
+          <field name="dir_nodes" ctype="vfs_template_dir_node_c$I$N[DRV_CFG_TEMPLATE_DIR_NODES_NUM]">
+            <brief>Pool of file nodes.</brief>
+          </field>
+          <field name="file_nodes" ctype="vfs_template_file_node_c$I$N[DRV_CFG_TEMPLATE_DIR_NODES_NUM]">
+            <brief>Pool of file nodes.</brief>
+          </field>
+        </fields>
+      </struct>
+    </types>
+    <variables>
+      <variable name="vfs_template_driver_static" ctype="struct vfs_template_driver_static_struct">
+        <brief>Global state of @p vfs_template_driver_c</brief>
+      </variable>
+    </variables>
     <functions>
       <function name="__tmpldir_addref_impl" ctype="void *">
         <param name="ip" ctype="void *"/>

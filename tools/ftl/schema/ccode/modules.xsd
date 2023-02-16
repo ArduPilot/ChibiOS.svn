@@ -54,8 +54,8 @@
       <xs:element name="types" type="typesType" maxOccurs="1"
         minOccurs="0">
       </xs:element>
-      <xs:element name="variables" type="xs:string"
-        maxOccurs="1" minOccurs="0">
+      <xs:element name="variables" type="variablesType" maxOccurs="1"
+        minOccurs="0">
       </xs:element>
       <xs:element name="functions" type="functionsType"
         maxOccurs="1" minOccurs="0">

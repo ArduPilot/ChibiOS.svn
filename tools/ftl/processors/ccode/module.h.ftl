@@ -24,18 +24,17 @@
 [#import "/@ftllibs/libccode.ftl" as ccode /]
 [#import "/@ftllibs/libcclasses.ftl" as cclasses /]
 [@pp.dropOutputFile /]
-[@pp.changeOutputFile name="classgen/tmp.txt" /]
-[@pp.dropOutputFile /]
 [#assign instance = xml.instance /]
 [#-- Scanning all files to be generated.--]
 [#list instance.modules.module as module]
   [#-- Generating the header file.--]
   [#assign modulename        = cclasses.GetNodeName(module) /]
   [#assign moduledescription = cclasses.GetNodeDescription(module) /]
-  [#assign headername        = modulename + ".h" /]
-  [#assign docgroup          = modulename?upper_case /]
+  [#assign modulesheaderpath = (module.@headerpath[0]!"include")?trim?ensure_ends_with("/") /]
+  [#assign moduleheadername  = modulename + ".h" /]
+  [#assign moduledocgroup    = modulename?upper_case /]
   [#-- Generating class header.--]
-  [@pp.changeOutputFile name="../include/" + headername /]
+  [@pp.changeOutputFile name=pp.home?trim?ensure_ends_with("/") + modulesheaderpath + moduleheadername /]
   [@ccode.ResetState /]
   [@cclasses.ResetState /]
 /*
@@ -43,19 +42,19 @@
 */
 
 /**
-[@doxygen.EmitTagVerbatim indent="" tag="file" text=headername /]
+[@doxygen.EmitTagVerbatim indent="" tag="file" text=moduleheadername /]
 [@doxygen.EmitBrief "" "Generated " + moduledescription + " header." /]
 [@doxygen.EmitNote text="This is a generated file, do not edit directly." /]
  *
-[@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=docgroup /]
+[@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=moduledocgroup /]
 [@doxygen.EmitBriefFromNode node=module /]
 [@doxygen.EmitDetailsFromNode node=module /]
 [@doxygen.EmitNoteFromNode node=module /]
  * @{
  */
  
-#ifndef ${docgroup}_H
-#define ${docgroup}_H
+#ifndef ${moduledocgroup}_H
+#define ${moduledocgroup}_H
 
   [#-- Generating inclusions.--]
   [#if (module.public.inclusions[0])??]
@@ -142,7 +141,7 @@ extern "C" {
 #endif /* ${module_condition} */
 
   [/#if]
-#endif /* ${docgroup}_H */
+#endif /* ${moduledocgroup}_H */
 
 /** @} */
 [/#list]

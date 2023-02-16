@@ -24,19 +24,18 @@
 [#import "/@ftllibs/libccode.ftl" as ccode /]
 [#import "/@ftllibs/libcclasses.ftl" as cclasses /]
 [@pp.dropOutputFile /]
-[@pp.changeOutputFile name="classgen/tmp.txt" /]
-[@pp.dropOutputFile /]
 [#assign instance = xml.instance /]
 [#-- Scanning all files to be generated.--]
 [#list instance.modules.module as module]
   [#-- Generating the source file.--]
   [#assign modulename        = cclasses.GetNodeName(module) /]
   [#assign moduledescription = cclasses.GetNodeDescription(module) /]
-  [#assign headername        = modulename + ".h" /]
-  [#assign sourcename        = modulename + ".c" /]
-  [#assign docgroup          = modulename?upper_case /]
+  [#assign moduleheadername  = modulename + ".h" /]
+  [#assign modulesourcename  = modulename + ".c" /]
+  [#assign modulesourcepath  = (module.@sourcepath[0]!"src")?trim?ensure_ends_with("/") /]
+  [#assign moduledocgroup    = modulename?upper_case /]
   [#-- Generating class header.--]
-  [@pp.changeOutputFile name="../src/" + sourcename /]
+  [@pp.changeOutputFile name=pp.home?trim?ensure_ends_with("/") + modulesourcepath + modulesourcename /]
   [@ccode.ResetState /]
   [@cclasses.ResetState /]
 /*
@@ -44,11 +43,11 @@
 */
 
 /**
-[@doxygen.EmitTagVerbatim indent="" tag="file" text=sourcename /]
+[@doxygen.EmitTagVerbatim indent="" tag="file" text=modulesourcename /]
 [@doxygen.EmitBrief "" "Generated " + moduledescription + " source." /]
 [@doxygen.EmitNote text="This is a generated file, do not edit directly." /]
  *
-[@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=docgroup /]
+[@doxygen.EmitTagVerbatim indent="" tag="addtogroup" text=moduledocgroup /]
  * @{
  */
 
@@ -56,7 +55,7 @@
   [#if (module.private.inclusions[0])??]
 [@ccode.GenerateInclusionsFromNode module.private.inclusions /]
   [#else]
-#include "${headername}"
+#include "${moduleheadername}"
 
   [/#if]
   [#-- Handling of conditional modules.--]

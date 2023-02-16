@@ -6,11 +6,11 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="public" type="publicType"
-            maxOccurs="1" minOccurs="1">
+          <xs:element name="public" type="publicType" maxOccurs="1"
+            minOccurs="1">
           </xs:element>
-          <xs:element name="private" type="privateType"
-            maxOccurs="1" minOccurs="1">
+          <xs:element name="private" type="privateType" maxOccurs="1"
+            minOccurs="1">
           </xs:element>
         </xs:sequence>
         <xs:attribute name="check" type="xs:string"></xs:attribute>
@@ -18,6 +18,20 @@
           <xs:simpleType>
             <xs:restriction base="xs:string">
               <xs:minLength value="1"></xs:minLength>
+              <xs:whiteSpace value="collapse"></xs:whiteSpace>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="sourcepath">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:whiteSpace value="collapse"></xs:whiteSpace>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="headerpath">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
               <xs:whiteSpace value="collapse"></xs:whiteSpace>
             </xs:restriction>
           </xs:simpleType>

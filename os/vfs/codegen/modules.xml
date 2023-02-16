@@ -2,6 +2,7 @@
 <!DOCTYPE doc [
   <!ENTITY vfs_drivers SYSTEM "vfs_drivers.xml">
   <!ENTITY vfs_nodes SYSTEM "vfs_nodes.xml">
+  <!ENTITY vfs_driver_template SYSTEM "vfs_driver_template.xml">
 ]>
 <!-- Class/interfaces definitions -->
 <instance
@@ -10,5 +11,6 @@
   <modules>
     &vfs_drivers;
     &vfs_nodes;
+    &vfs_driver_template;
   </modules>
 </instance>

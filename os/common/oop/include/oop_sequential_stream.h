@@ -42,6 +42,18 @@
 #define STM_RESET                           MSG_RESET
 /** @} */
 
+#if (defined(OOP_USE_LEGACY)) || defined (__DOXYGEN__)
+/**
+ * @name    Legacy interface method names
+ * @{
+ */
+#define streamWrite                         stmWrite
+#define streamRead                          stmRead
+#define streamPut                           stmPut
+#define streamGet                           stmGet
+/** @} */
+#endif /* defined(OOP_USE_LEGACY) */
+
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -57,6 +69,13 @@
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/
+
+#if (defined(OOP_USE_LEGACY)) || defined (__DOXYGEN__)
+/**
+ * @brief       For compatibility with legacy @p BaseSequentialStream.
+ */
+typedef base_interface_i BaseSequentialStream;
+#endif /* defined(OOP_USE_LEGACY) */
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -118,10 +137,10 @@ struct stm_methods {
  */
 #define __stm_vmt_init(ns)                                                  \
   __bi_vmt_init(ns)                                                         \
-  .stm.write                                = __##ns##_write_impl,          \
-  .stm.read                                 = __##ns##_read_impl,           \
-  .stm.put                                  = __##ns##_put_impl,            \
-  .stm.get                                  = __##ns##_get_impl,
+  .stm.write                                = __##ns##_stm_write_impl,      \
+  .stm.read                                 = __##ns##_stm_read_impl,       \
+  .stm.put                                  = __##ns##_stm_put_impl,        \
+  .stm.get                                  = __##ns##_stm_get_impl,
 
 /**
  * @brief       @p sequential_stream_i virtual methods table.

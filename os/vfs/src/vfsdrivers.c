@@ -142,7 +142,7 @@ void __vfsdrv_dispose_impl(void *ip) {
  * @param[in]     path          Path of the new current directory.
  * @return                      The operation result.
  */
-msg_t __vfsdrv_set_cwd_impl(void *ip, const char *path) {
+msg_t __vfsdrv_setcwd_impl(void *ip, const char *path) {
   vfs_driver_c *self = (vfs_driver_c *)ip;
 
   (void)self;
@@ -160,7 +160,7 @@ msg_t __vfsdrv_set_cwd_impl(void *ip, const char *path) {
  * @param[in]     size          Size of the buffer.
  * @return                      The operation result.
  */
-msg_t __vfsdrv_get_cwd_impl(void *ip, char *buf, size_t size) {
+msg_t __vfsdrv_getcwd_impl(void *ip, char *buf, size_t size) {
   vfs_driver_c *self = (vfs_driver_c *)ip;
 
   (void)self;
@@ -199,8 +199,8 @@ msg_t __vfsdrv_stat_impl(void *ip, const char *path, vfs_stat_t *sp) {
  *                              vfs_directory_node_c object.
  * @return                      The operation result.
  */
-msg_t __vfsdrv_open_dir_impl(void *ip, const char *path,
-                             vfs_directory_node_c **vdnpp) {
+msg_t __vfsdrv_opendir_impl(void *ip, const char *path,
+                            vfs_directory_node_c **vdnpp) {
   vfs_driver_c *self = (vfs_driver_c *)ip;
 
   (void)self;
@@ -221,8 +221,8 @@ msg_t __vfsdrv_open_dir_impl(void *ip, const char *path,
  *                              vfs_file_node_c object.
  * @return                      The operation result.
  */
-msg_t __vfsdrv_open_file_impl(void *ip, const char *path, int flags,
-                              vfs_file_node_c **vfnpp) {
+msg_t __vfsdrv_openfile_impl(void *ip, const char *path, int flags,
+                             vfs_file_node_c **vfnpp) {
   vfs_driver_c *self = (vfs_driver_c *)ip;
 
   (void)self;

@@ -800,7 +800,7 @@ sio_lld_init();]]></implementation>
       <include style="regular">hal.h</include>
     </inclusions>
     <functions>
-      <function name="__sio_start_impl" ctype="msg_t">
+      <function name="__sio_drv_start_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
@@ -819,7 +819,7 @@ if (msg == HAL_RET_SUCCESS) {
 
 return msg;]]></implementation>
       </function>
-      <function name="__sio_stop_impl" ctype="void">
+      <function name="__sio_drv_stop_impl" ctype="void">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
@@ -837,7 +837,7 @@ osalThreadResumeI(&siop->sio.sync_txend, MSG_RESET);
 osalOsRescheduleS();
 #endif]]></implementation>
       </function>
-      <function name="__sio_configure_impl" ctype="msg_t">
+      <function name="__sio_drv_configure_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="config" ctype="const void *" />
         <implementation><![CDATA[
@@ -894,7 +894,7 @@ while (i < n) {
 }
 return i;]]></implementation>
         </function>
-        <function name="__sio_write_impl" ctype="size_t">
+        <function name="__sio_stm_write_impl" ctype="size_t">
           <param name="ip" ctype="void *" />
           <param name="bp" ctype="const uint8_t *" />
           <param name="n" ctype="size_t" />
@@ -903,7 +903,7 @@ hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
 return sio_sync_write(siop, bp, n, TIME_INFINITE);]]></implementation>
         </function>
-        <function name="__sio_read_impl" ctype="size_t">
+        <function name="__sio_stm_read_impl" ctype="size_t">
           <param name="ip" ctype="void *" />
           <param name="bp" ctype="uint8_t *" />
           <param name="n" ctype="size_t" />
@@ -912,7 +912,7 @@ hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
 return sio_sync_read(siop, bp, n, TIME_INFINITE);]]></implementation>
         </function>
-        <function name="__sio_put_impl" ctype="msg_t">
+        <function name="__sio_stm_put_impl" ctype="msg_t">
           <param name="ip" ctype="void *" />
           <param name="b" ctype="uint8_t" />
           <implementation><![CDATA[
@@ -927,7 +927,7 @@ if (msg != MSG_OK) {
 sioPutX(siop, b);
 return MSG_OK;]]></implementation>
         </function>
-        <function name="__sio_get_impl" ctype="msg_t">
+        <function name="__sio_stm_get_impl" ctype="msg_t">
           <param name="ip" ctype="void *" />
           <implementation><![CDATA[
 hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
@@ -940,7 +940,7 @@ if (msg != MSG_OK) {
 
 return sioGetX(siop);]]></implementation>
         </function>
-        <function name="__sio_writet_impl" ctype="size_t">
+        <function name="__sio_chn_writet_impl" ctype="size_t">
           <param name="ip" ctype="void *" />
           <param name="bp" ctype="const uint8_t *" />
           <param name="n" ctype="size_t" />
@@ -950,7 +950,7 @@ hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
 return sio_sync_write(siop, bp, n, timeout);]]></implementation>
         </function>
-        <function name="__sio_readt_impl" ctype="size_t">
+        <function name="__sio_chn_readt_impl" ctype="size_t">
           <param name="ip" ctype="void *" />
           <param name="bp" ctype="uint8_t *" />
           <param name="n" ctype="size_t" />
@@ -960,7 +960,7 @@ hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
 return sio_sync_read(siop, bp, n, timeout);]]></implementation>
         </function>
-        <function name="__sio_putt_impl" ctype="msg_t">
+        <function name="__sio_chn_putt_impl" ctype="msg_t">
           <param name="ip" ctype="void *" />
           <param name="b" ctype="uint8_t" />
           <param name="timeout" ctype="sysinterval_t" />
@@ -976,7 +976,7 @@ if (msg != MSG_OK) {
 sioPutX(siop, b);
 return MSG_OK;]]></implementation>
         </function>
-        <function name="__sio_gett_impl" ctype="msg_t">
+        <function name="__sio_chn_gett_impl" ctype="msg_t">
           <param name="ip" ctype="void *" />
           <param name="timeout" ctype="sysinterval_t" />
           <implementation><![CDATA[
@@ -990,7 +990,7 @@ if (msg != MSG_OK) {
 
 return sioGetX(siop);]]></implementation>
         </function>
-        <function name="__sio_ctl_impl" ctype="msg_t">
+        <function name="__sio_chn_ctl_impl" ctype="msg_t">
           <param name="ip" ctype="void *" />
           <param name="operation" ctype="unsigned int" />
           <param name="arg" ctype="void *" />

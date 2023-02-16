@@ -13,7 +13,23 @@
         <define name="STM_TIMEOUT" value="MSG_TIMEOUT" />
         <define name="STM_RESET" value="MSG_RESET" />
       </group>
+      <condition check="defined(OOP_USE_LEGACY)">
+        <group description="Legacy interface method names">
+          <define name="streamWrite" value="stmWrite" />
+          <define name="streamRead" value="stmRead" />
+          <define name="streamPut" value="stmPut" />
+          <define name="streamGet" value="stmGet" />
+      </group>
+      </condition>
     </definitions_early>
+    <types>
+      <condition check="defined(OOP_USE_LEGACY)">
+        <typedef name="BaseSequentialStream">
+          <brief>For compatibility with legacy @p BaseSequentialStream.</brief>
+          <basetype ctype="base_interface_i" />
+        </typedef>
+      </condition>
+    </types>
     <interfaces>
       <interface name="sequential_stream" namespace="stm"
         ancestorname="base_interface" ancestornamespace="bi"

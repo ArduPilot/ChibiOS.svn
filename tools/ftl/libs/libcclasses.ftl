@@ -177,7 +177,7 @@ ${funcptr}
       [#local method = node /]
       [#local methodsname    = GetMethodShortName(method) /]
       [#local s = ("  ." + namespace + "." + methodsname)?right_pad(ccode.initializers_align) +
-                  ("= __##ns##_" + methodsname + "_impl,") /]
+                  ("= __##ns##_" + namespace + "_" + methodsname + "_impl,") /]
       [#if node?has_next]
         [#local s = (s + " ")?right_pad(ccode.backslash_align) + "\\" /]
       [/#if]

@@ -110,7 +110,7 @@
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <virtual>
-            <method name="vfsNodeStat" shortname="node_stat" ctype="msg_t">
+            <method name="vfsNodeStat" shortname="stat" ctype="msg_t">
               <brief>Returns information about the node.</brief>
               <param name="sp" ctype="vfs_stat_t *" dir="out">
                 Pointer to a @p vfs_stat_t structure.
@@ -141,7 +141,7 @@ return CH_RET_SUCCESS;]]></implementation>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <virtual>
-            <method name="vfsDirReadFirst" shortname="dir_first" ctype="msg_t">
+            <method name="vfsDirReadFirst" shortname="first" ctype="msg_t">
               <brief>First directory entry.</brief>
               <param name="dip" ctype="vfs_direntry_info_t *" dir="out">Pointer
                 to a @p vfs_direntry_info_t structure.</param>
@@ -154,7 +154,7 @@ return CH_RET_SUCCESS;]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsDirReadNext" shortname="dir_next" ctype="msg_t">
+            <method name="vfsDirReadNext" shortname="next" ctype="msg_t">
               <brief>Next directory entry.</brief>
               <param name="dip" ctype="vfs_direntry_info_t *" dir="out">Pointer
                 to a @p vfs_direntry_info_t structure.</param>
@@ -184,7 +184,7 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <virtual>
-            <method name="vfsFileRead" shortname="file_read" ctype="ssize_t">
+            <method name="vfsFileRead" shortname="read" ctype="ssize_t">
               <brief>File node read.</brief>
               <param name="buf" ctype="uint8_t *" dir="out">Pointer to the data buffer.</param>
               <param name="n" ctype="size_t" dir="in">Maximum amount of data to be transferred.</param>
@@ -198,7 +198,7 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsFileWrite" shortname="file_write" ctype="ssize_t">
+            <method name="vfsFileWrite" shortname="write" ctype="ssize_t">
               <brief>File node read.</brief>
               <param name="buf" ctype="const uint8_t *" dir="in">Pointer to the data buffer.</param>
               <param name="n" ctype="size_t" dir="in">Maximum amount of data to be transferred.</param>
@@ -212,7 +212,7 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsFileSetPosition" shortname="file_setpos" ctype="msg_t">
+            <method name="vfsFileSetPosition" shortname="setpos" ctype="msg_t">
               <brief>Changes the current file position.</brief>
               <param name="offset" ctype="vfs_offset_t" dir="in">Offset to be applied.</param>
               <param name="whence" ctype="vfs_seekmode_t" dir="in">Seek mode to be used.</param>
@@ -226,7 +226,7 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsFileGetPosition" shortname="file_getpos" ctype="vfs_offset_t">
+            <method name="vfsFileGetPosition" shortname="getpos" ctype="vfs_offset_t">
               <brief>Returns the current file position.</brief>
               <return>The current file position.</return>
               <api />
@@ -236,7 +236,7 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsFileGetStream" shortname="file_get_stream" ctype="BaseSequentialStream *">
+            <method name="vfsFileGetStream" shortname="getstream" ctype="BaseSequentialStream *">
               <brief>Returns the inner HAL stream associated to the file.</brief>
               <return>Pointer to the HAL stream interface.</return>
               <api />

@@ -215,9 +215,9 @@ struct drv_data {
  */
 #define __drv_vmt_init(ns)                                                  \
   __bo_vmt_init(ns)                                                         \
-  .drv.start                                = __##ns##_start_impl,          \
-  .drv.stop                                 = __##ns##_stop_impl,           \
-  .drv.configure                            = __##ns##_configure_impl,
+  .drv.start                                = __##ns##_drv_start_impl,      \
+  .drv.stop                                 = __##ns##_drv_stop_impl,       \
+  .drv.configure                            = __##ns##_drv_configure_impl,
 
 /**
  * @brief       @p hal_base_driver_c virtual methods table.

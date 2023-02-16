@@ -157,21 +157,21 @@ extern "C" {
   /* Methods of vfs_node_c.*/
   void *__vfsnode_objinit_impl(void *ip, const void *vmt);
   void __vfsnode_dispose_impl(void *ip);
-  msg_t __vfsnode_node_stat_impl(void *ip, vfs_stat_t *sp);
+  msg_t __vfsnode_stat_impl(void *ip, vfs_stat_t *sp);
   /* Methods of vfs_directory_node_c.*/
   void *__vfsdir_objinit_impl(void *ip, const void *vmt);
   void __vfsdir_dispose_impl(void *ip);
-  msg_t __vfsdir_dir_first_impl(void *ip, vfs_direntry_info_t *dip);
-  msg_t __vfsdir_dir_next_impl(void *ip, vfs_direntry_info_t *dip);
+  msg_t __vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip);
+  msg_t __vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip);
   /* Methods of vfs_file_node_c.*/
   void *__vfsfile_objinit_impl(void *ip, const void *vmt);
   void __vfsfile_dispose_impl(void *ip);
-  ssize_t __vfsfile_file_read_impl(void *ip, uint8_t *buf, size_t n);
-  ssize_t __vfsfile_file_write_impl(void *ip, const uint8_t *buf, size_t n);
-  msg_t __vfsfile_file_setpos_impl(void *ip, vfs_offset_t offset,
-                                   vfs_seekmode_t whence);
-  vfs_offset_t __vfsfile_file_getpos_impl(void *ip);
-  BaseSequentialStream * __vfsfile_file_get_stream_impl(void *ip);
+  ssize_t __vfsfile_read_impl(void *ip, uint8_t *buf, size_t n);
+  ssize_t __vfsfile_write_impl(void *ip, const uint8_t *buf, size_t n);
+  msg_t __vfsfile_setpos_impl(void *ip, vfs_offset_t offset,
+                              vfs_seekmode_t whence);
+  vfs_offset_t __vfsfile_getpos_impl(void *ip);
+  BaseSequentialStream * __vfsfile_getstream_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif
@@ -204,7 +204,7 @@ typedef struct vfs_node vfs_node_c;
  * @brief       @p vfs_node_c methods as a structure.
  */
 struct vfsnode_methods {
-  msg_t (*node_stat)(void *ip, vfs_stat_t *sp);
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
 };
 
 /**
@@ -240,7 +240,7 @@ struct vfsnode_data {
  */
 #define __vfsnode_vmt_init(ns)                                              \
   __ro_vmt_init(ns)                                                         \
-  .vfsnode.node_stat                        = __##ns##_node_stat_impl,
+  .vfsnode.stat                             = __##ns##_vfsnode_stat_impl,
 
 /**
  * @brief       @p vfs_node_c virtual methods table.
@@ -280,7 +280,7 @@ CC_FORCE_INLINE
 static inline msg_t vfsNodeStat(void *ip, vfs_stat_t *sp) {
   vfs_node_c *self = (vfs_node_c *)ip;
 
-  return self->vmt->vfsnode.node_stat(ip, sp);
+  return self->vmt->vfsnode.stat(ip, sp);
 }
 /** @} */
 
@@ -308,8 +308,8 @@ typedef struct vfs_directory_node vfs_directory_node_c;
  * @brief       @p vfs_directory_node_c methods as a structure.
  */
 struct vfsdir_methods {
-  msg_t (*dir_first)(void *ip, vfs_direntry_info_t *dip);
-  msg_t (*dir_next)(void *ip, vfs_direntry_info_t *dip);
+  msg_t (*first)(void *ip, vfs_direntry_info_t *dip);
+  msg_t (*next)(void *ip, vfs_direntry_info_t *dip);
 };
 
 /**
@@ -331,8 +331,8 @@ struct vfsdir_methods {
  */
 #define __vfsdir_vmt_init(ns)                                               \
   __vfsnode_vmt_init(ns)                                                    \
-  .vfsdir.dir_first                         = __##ns##_dir_first_impl,      \
-  .vfsdir.dir_next                          = __##ns##_dir_next_impl,
+  .vfsdir.first                             = __##ns##_vfsdir_first_impl,   \
+  .vfsdir.next                              = __##ns##_vfsdir_next_impl,
 
 /**
  * @brief       @p vfs_directory_node_c virtual methods table.
@@ -372,7 +372,7 @@ CC_FORCE_INLINE
 static inline msg_t vfsDirReadFirst(void *ip, vfs_direntry_info_t *dip) {
   vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
 
-  return self->vmt->vfsdir.dir_first(ip, dip);
+  return self->vmt->vfsdir.first(ip, dip);
 }
 
 /**
@@ -391,7 +391,7 @@ CC_FORCE_INLINE
 static inline msg_t vfsDirReadNext(void *ip, vfs_direntry_info_t *dip) {
   vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
 
-  return self->vmt->vfsdir.dir_next(ip, dip);
+  return self->vmt->vfsdir.next(ip, dip);
 }
 /** @} */
 
@@ -419,11 +419,11 @@ typedef struct vfs_file_node vfs_file_node_c;
  * @brief       @p vfs_file_node_c methods as a structure.
  */
 struct vfsfile_methods {
-  ssize_t (*file_read)(void *ip, uint8_t *buf, size_t n);
-  ssize_t (*file_write)(void *ip, const uint8_t *buf, size_t n);
-  msg_t (*file_setpos)(void *ip, vfs_offset_t offset, vfs_seekmode_t whence);
-  vfs_offset_t (*file_getpos)(void *ip);
-  BaseSequentialStream * (*file_get_stream)(void *ip);
+  ssize_t (*read)(void *ip, uint8_t *buf, size_t n);
+  ssize_t (*write)(void *ip, const uint8_t *buf, size_t n);
+  msg_t (*setpos)(void *ip, vfs_offset_t offset, vfs_seekmode_t whence);
+  vfs_offset_t (*getpos)(void *ip);
+  BaseSequentialStream * (*getstream)(void *ip);
 };
 
 /**
@@ -445,11 +445,11 @@ struct vfsfile_methods {
  */
 #define __vfsfile_vmt_init(ns)                                              \
   __vfsnode_vmt_init(ns)                                                    \
-  .vfsfile.file_read                        = __##ns##_file_read_impl,      \
-  .vfsfile.file_write                       = __##ns##_file_write_impl,     \
-  .vfsfile.file_setpos                      = __##ns##_file_setpos_impl,    \
-  .vfsfile.file_getpos                      = __##ns##_file_getpos_impl,    \
-  .vfsfile.file_get_stream                  = __##ns##_file_get_stream_impl,
+  .vfsfile.read                             = __##ns##_vfsfile_read_impl,   \
+  .vfsfile.write                            = __##ns##_vfsfile_write_impl,  \
+  .vfsfile.setpos                           = __##ns##_vfsfile_setpos_impl, \
+  .vfsfile.getpos                           = __##ns##_vfsfile_getpos_impl, \
+  .vfsfile.getstream                        = __##ns##_vfsfile_getstream_impl,
 
 /**
  * @brief       @p vfs_file_node_c virtual methods table.
@@ -490,7 +490,7 @@ CC_FORCE_INLINE
 static inline ssize_t vfsFileRead(void *ip, uint8_t *buf, size_t n) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.file_read(ip, buf, n);
+  return self->vmt->vfsfile.read(ip, buf, n);
 }
 
 /**
@@ -510,7 +510,7 @@ CC_FORCE_INLINE
 static inline ssize_t vfsFileWrite(void *ip, const uint8_t *buf, size_t n) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.file_write(ip, buf, n);
+  return self->vmt->vfsfile.write(ip, buf, n);
 }
 
 /**
@@ -531,7 +531,7 @@ static inline msg_t vfsFileSetPosition(void *ip, vfs_offset_t offset,
                                        vfs_seekmode_t whence) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.file_setpos(ip, offset, whence);
+  return self->vmt->vfsfile.setpos(ip, offset, whence);
 }
 
 /**
@@ -549,7 +549,7 @@ CC_FORCE_INLINE
 static inline vfs_offset_t vfsFileGetPosition(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.file_getpos(ip);
+  return self->vmt->vfsfile.getpos(ip);
 }
 
 /**
@@ -567,7 +567,7 @@ CC_FORCE_INLINE
 static inline BaseSequentialStream * vfsFileGetStream(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.file_get_stream(ip);
+  return self->vmt->vfsfile.getstream(ip);
 }
 /** @} */
 

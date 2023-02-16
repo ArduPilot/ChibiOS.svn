@@ -57,11 +57,11 @@ static msg_t drv_open_file(void *instance,
                            vfs_file_node_c **vfnpp);
 
 static const struct vfs_streams_driver_vmt driver_vmt = {
-  .vfsdrv.set_cwd           = drv_set_cwd,
-  .vfsdrv.get_cwd           = drv_get_cwd,
+  .vfsdrv.setcwd            = drv_set_cwd,
+  .vfsdrv.getcwd            = drv_get_cwd,
   .vfsdrv.stat              = drv_stat,
-  .vfsdrv.open_dir          = drv_open_dir,
-  .vfsdrv.open_file         = drv_open_file,
+  .vfsdrv.opendir           = drv_open_dir,
+  .vfsdrv.openfile          = drv_open_file,
   .vfsdrv.unlink            = __vfsdrv_unlink_impl,
   .vfsdrv.rename            = __vfsdrv_rename_impl,
   .vfsdrv.mkdir             = __vfsdrv_mkdir_impl,
@@ -77,9 +77,9 @@ static msg_t node_dir_next(void *instance, vfs_direntry_info_t *dip);
 static const struct vfs_streams_dir_node_vmt dir_node_vmt = {
   .ro.addref                = node_dir_addref,
   .ro.release               = node_dir_release,
-  .vfsnode.node_stat        = node_dir_getstat,
-  .vfsdir.dir_first         = node_dir_first,
-  .vfsdir.dir_next          = node_dir_next
+  .vfsnode.stat             = node_dir_getstat,
+  .vfsdir.first             = node_dir_first,
+  .vfsdir.next              = node_dir_next
 };
 
 static void *node_file_addref(void *instance);
@@ -96,12 +96,12 @@ static vfs_offset_t node_file_getpos(void *instance);
 static const struct vfs_streams_file_node_vmt file_node_vmt = {
   .ro.addref                = node_file_addref,
   .ro.release               = node_file_release,
-  .vfsnode.node_stat        = node_file_getstat,
-  .vfsfile.file_get_stream  = node_file_get_stream,
-  .vfsfile.file_read        = node_file_read,
-  .vfsfile.file_write       = node_file_write,
-  .vfsfile.file_setpos      = node_file_setpos,
-  .vfsfile.file_getpos      = node_file_getpos
+  .vfsnode.stat             = node_file_getstat,
+  .vfsfile.getstream        = node_file_get_stream,
+  .vfsfile.read             = node_file_read,
+  .vfsfile.write            = node_file_write,
+  .vfsfile.setpos           = node_file_setpos,
+  .vfsfile.getpos           = node_file_getpos
 };
 
 /**

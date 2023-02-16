@@ -224,11 +224,11 @@ struct chn_methods {
  */
 #define __chn_vmt_init(ns)                                                  \
   __stm_vmt_init(ns)                                                        \
-  .chn.writet                               = __##ns##_writet_impl,         \
-  .chn.readt                                = __##ns##_readt_impl,          \
-  .chn.putt                                 = __##ns##_putt_impl,           \
-  .chn.gett                                 = __##ns##_gett_impl,           \
-  .chn.ctl                                  = __##ns##_ctl_impl,
+  .chn.writet                               = __##ns##_chn_writet_impl,     \
+  .chn.readt                                = __##ns##_chn_readt_impl,      \
+  .chn.putt                                 = __##ns##_chn_putt_impl,       \
+  .chn.gett                                 = __##ns##_chn_gett_impl,       \
+  .chn.ctl                                  = __##ns##_chn_ctl_impl,
 
 /**
  * @brief       @p asynchronous_channel_i virtual methods table.

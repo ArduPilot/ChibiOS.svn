@@ -74,13 +74,13 @@ extern "C" {
   /* Methods of vfs_driver_c.*/
   void *__vfsdrv_objinit_impl(void *ip, const void *vmt);
   void __vfsdrv_dispose_impl(void *ip);
-  msg_t __vfsdrv_set_cwd_impl(void *ip, const char *path);
-  msg_t __vfsdrv_get_cwd_impl(void *ip, char *buf, size_t size);
+  msg_t __vfsdrv_setcwd_impl(void *ip, const char *path);
+  msg_t __vfsdrv_getcwd_impl(void *ip, char *buf, size_t size);
   msg_t __vfsdrv_stat_impl(void *ip, const char *path, vfs_stat_t *sp);
-  msg_t __vfsdrv_open_dir_impl(void *ip, const char *path,
-                               vfs_directory_node_c **vdnpp);
-  msg_t __vfsdrv_open_file_impl(void *ip, const char *path, int flags,
-                                vfs_file_node_c **vfnpp);
+  msg_t __vfsdrv_opendir_impl(void *ip, const char *path,
+                              vfs_directory_node_c **vdnpp);
+  msg_t __vfsdrv_openfile_impl(void *ip, const char *path, int flags,
+                               vfs_file_node_c **vfnpp);
   msg_t __vfsdrv_unlink_impl(void *ip, const char *path);
   msg_t __vfsdrv_rename_impl(void *ip, const char *oldpath,
                              const char *newpath);
@@ -123,11 +123,11 @@ typedef struct vfs_driver vfs_driver_c;
  * @brief       @p vfs_driver_c methods as a structure.
  */
 struct vfsdrv_methods {
-  msg_t (*set_cwd)(void *ip, const char *path);
-  msg_t (*get_cwd)(void *ip, char *buf, size_t size);
+  msg_t (*setcwd)(void *ip, const char *path);
+  msg_t (*getcwd)(void *ip, char *buf, size_t size);
   msg_t (*stat)(void *ip, const char *path, vfs_stat_t *sp);
-  msg_t (*open_dir)(void *ip, const char *path, vfs_directory_node_c **vdnpp);
-  msg_t (*open_file)(void *ip, const char *path, int flags, vfs_file_node_c **vfnpp);
+  msg_t (*opendir)(void *ip, const char *path, vfs_directory_node_c **vdnpp);
+  msg_t (*openfile)(void *ip, const char *path, int flags, vfs_file_node_c **vfnpp);
   msg_t (*unlink)(void *ip, const char *path);
   msg_t (*rename)(void *ip, const char *oldpath, const char *newpath);
   msg_t (*mkdir)(void *ip, const char *path, vfs_mode_t mode);
@@ -153,15 +153,15 @@ struct vfsdrv_methods {
  */
 #define __vfsdrv_vmt_init(ns)                                               \
   __bo_vmt_init(ns)                                                         \
-  .vfsdrv.set_cwd                           = __##ns##_set_cwd_impl,        \
-  .vfsdrv.get_cwd                           = __##ns##_get_cwd_impl,        \
-  .vfsdrv.stat                              = __##ns##_stat_impl,           \
-  .vfsdrv.open_dir                          = __##ns##_open_dir_impl,       \
-  .vfsdrv.open_file                         = __##ns##_open_file_impl,      \
-  .vfsdrv.unlink                            = __##ns##_unlink_impl,         \
-  .vfsdrv.rename                            = __##ns##_rename_impl,         \
-  .vfsdrv.mkdir                             = __##ns##_mkdir_impl,          \
-  .vfsdrv.rmdir                             = __##ns##_rmdir_impl,
+  .vfsdrv.setcwd                            = __##ns##_vfsdrv_setcwd_impl,  \
+  .vfsdrv.getcwd                            = __##ns##_vfsdrv_getcwd_impl,  \
+  .vfsdrv.stat                              = __##ns##_vfsdrv_stat_impl,    \
+  .vfsdrv.opendir                           = __##ns##_vfsdrv_opendir_impl, \
+  .vfsdrv.openfile                          = __##ns##_vfsdrv_openfile_impl, \
+  .vfsdrv.unlink                            = __##ns##_vfsdrv_unlink_impl,  \
+  .vfsdrv.rename                            = __##ns##_vfsdrv_rename_impl,  \
+  .vfsdrv.mkdir                             = __##ns##_vfsdrv_mkdir_impl,   \
+  .vfsdrv.rmdir                             = __##ns##_vfsdrv_rmdir_impl,
 
 /**
  * @brief       @p vfs_driver_c virtual methods table.
@@ -201,7 +201,7 @@ CC_FORCE_INLINE
 static inline msg_t vfsDrvChangeCurrentDirectory(void *ip, const char *path) {
   vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return self->vmt->vfsdrv.set_cwd(ip, path);
+  return self->vmt->vfsdrv.setcwd(ip, path);
 }
 
 /**
@@ -221,7 +221,7 @@ CC_FORCE_INLINE
 static inline msg_t vfsDrvGetCurrentDirectory(void *ip, char *buf, size_t size) {
   vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return self->vmt->vfsdrv.get_cwd(ip, buf, size);
+  return self->vmt->vfsdrv.getcwd(ip, buf, size);
 }
 
 /**
@@ -263,7 +263,7 @@ static inline msg_t vfsDrvOpenDirectory(void *ip, const char *path,
                                         vfs_directory_node_c **vdnpp) {
   vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return self->vmt->vfsdrv.open_dir(ip, path, vdnpp);
+  return self->vmt->vfsdrv.opendir(ip, path, vdnpp);
 }
 
 /**
@@ -286,7 +286,7 @@ static inline msg_t vfsDrvOpenFile(void *ip, const char *path, int flags,
                                    vfs_file_node_c **vfnpp) {
   vfs_driver_c *self = (vfs_driver_c *)ip;
 
-  return self->vmt->vfsdrv.open_file(ip, path, flags, vfnpp);
+  return self->vmt->vfsdrv.openfile(ip, path, flags, vfnpp);
 }
 
 /**

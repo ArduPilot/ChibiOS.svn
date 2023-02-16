@@ -35,7 +35,7 @@
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <virtual>
-            <method name="vfsDrvChangeCurrentDirectory" shortname="set_cwd" ctype="msg_t">
+            <method name="vfsDrvChangeCurrentDirectory" shortname="setcwd" ctype="msg_t">
               <brief>Changes the current VFS directory.</brief>
               <param name="path" ctype="const char *" dir="in">Path of the new current directory.</param>
               <return>The operation result.</return>
@@ -47,7 +47,7 @@
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsDrvGetCurrentDirectory" shortname="get_cwd" ctype="msg_t">
+            <method name="vfsDrvGetCurrentDirectory" shortname="getcwd" ctype="msg_t">
               <brief>Returns the current VFS directory.</brief>
               <param name="buf" ctype="char *" dir="out">Buffer for the path string.</param>
               <param name="size" ctype="size_t" dir="in">Size of the buffer</param>
@@ -75,7 +75,7 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsDrvOpenDirectory" shortname="open_dir" ctype="msg_t">
+            <method name="vfsDrvOpenDirectory" shortname="opendir" ctype="msg_t">
               <brief>Opens a VFS directory.</brief>
               <param name="path" ctype="const char *" dir="in">Absolute path of
                 the directory to be opened.</param>
@@ -91,7 +91,7 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsDrvOpenFile" shortname="open_file" ctype="msg_t">
+            <method name="vfsDrvOpenFile" shortname="openfile" ctype="msg_t">
               <brief>Opens a VFS file.</brief>
               <param name="path" ctype="const char *" dir="in">Absolute path of
                 the directory to be opened.</param>

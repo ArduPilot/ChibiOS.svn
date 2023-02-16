@@ -134,8 +134,8 @@ struct ro_data {
  */
 #define __ro_vmt_init(ns)                                                   \
   __bo_vmt_init(ns)                                                         \
-  .ro.addref                                = __##ns##_addref_impl,         \
-  .ro.release                               = __##ns##_release_impl,
+  .ro.addref                                = __##ns##_ro_addref_impl,      \
+  .ro.release                               = __##ns##_ro_release_impl,
 
 /**
  * @brief       @p referenced_object_c virtual methods table.

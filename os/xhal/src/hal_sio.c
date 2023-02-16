@@ -51,7 +51,7 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-static msg_t __sio_start_impl(void *ip) {
+static msg_t __sio_drv_start_impl(void *ip) {
   hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
   msg_t msg;
 
@@ -69,7 +69,7 @@ static msg_t __sio_start_impl(void *ip) {
   return msg;
 }
 
-static void __sio_stop_impl(void *ip) {
+static void __sio_drv_stop_impl(void *ip) {
   hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
 
   sio_lld_stop(siop);
@@ -86,7 +86,7 @@ static void __sio_stop_impl(void *ip) {
 #endif
 }
 
-static msg_t __sio_configure_impl(void *ip, const void *config) {
+static msg_t __sio_drv_configure_impl(void *ip, const void *config) {
   hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
 
   return sio_lld_configure(siop, (const hal_sio_config_t *)config);
@@ -135,19 +135,19 @@ static size_t sio_sync_read(hal_sio_driver_c *siop, uint8_t *bp, size_t n,
   return i;
 }
 
-static size_t __sio_write_impl(void *ip, const uint8_t *bp, size_t n) {
+static size_t __sio_stm_write_impl(void *ip, const uint8_t *bp, size_t n) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
   return sio_sync_write(siop, bp, n, TIME_INFINITE);
 }
 
-static size_t __sio_read_impl(void *ip, uint8_t *bp, size_t n) {
+static size_t __sio_stm_read_impl(void *ip, uint8_t *bp, size_t n) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
   return sio_sync_read(siop, bp, n, TIME_INFINITE);
 }
 
-static msg_t __sio_put_impl(void *ip, uint8_t b) {
+static msg_t __sio_stm_put_impl(void *ip, uint8_t b) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
   msg_t msg;
 
@@ -160,7 +160,7 @@ static msg_t __sio_put_impl(void *ip, uint8_t b) {
   return MSG_OK;
 }
 
-static msg_t __sio_get_impl(void *ip) {
+static msg_t __sio_stm_get_impl(void *ip) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
   msg_t msg;
 
@@ -172,21 +172,21 @@ static msg_t __sio_get_impl(void *ip) {
   return sioGetX(siop);
 }
 
-static size_t __sio_writet_impl(void *ip, const uint8_t *bp, size_t n,
-                                sysinterval_t timeout) {
+static size_t __sio_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
+                                    sysinterval_t timeout) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
   return sio_sync_write(siop, bp, n, timeout);
 }
 
-static size_t __sio_readt_impl(void *ip, uint8_t *bp, size_t n,
-                               sysinterval_t timeout) {
+static size_t __sio_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
+                                   sysinterval_t timeout) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
   return sio_sync_read(siop, bp, n, timeout);
 }
 
-static msg_t __sio_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
+static msg_t __sio_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
   msg_t msg;
 
@@ -199,7 +199,7 @@ static msg_t __sio_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
   return MSG_OK;
 }
 
-static msg_t __sio_gett_impl(void *ip, sysinterval_t timeout) {
+static msg_t __sio_chn_gett_impl(void *ip, sysinterval_t timeout) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
   msg_t msg;
 
@@ -211,7 +211,7 @@ static msg_t __sio_gett_impl(void *ip, sysinterval_t timeout) {
   return sioGetX(siop);
 }
 
-static msg_t __sio_ctl_impl(void *ip, unsigned int operation, void *arg) {
+static msg_t __sio_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
   hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
 
   switch (operation) {

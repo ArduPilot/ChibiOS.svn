@@ -112,7 +112,7 @@ void __vfsnode_dispose_impl(void *ip) {
  * @param[out]    sp            Pointer to a @p vfs_stat_t structure.
  * @return                      The operation result.
  */
-msg_t __vfsnode_node_stat_impl(void *ip, vfs_stat_t *sp) {
+msg_t __vfsnode_stat_impl(void *ip, vfs_stat_t *sp) {
   vfs_node_c *self = (vfs_node_c *)ip;
 
   sp->mode = self->vfsnode.mode;
@@ -181,7 +181,7 @@ void __vfsdir_dispose_impl(void *ip) {
  * @param[out]    dip           Pointer to a @p vfs_direntry_info_t structure.
  * @return                      The operation result.
  */
-msg_t __vfsdir_dir_first_impl(void *ip, vfs_direntry_info_t *dip) {
+msg_t __vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
   vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
 
   (void)self;
@@ -198,7 +198,7 @@ msg_t __vfsdir_dir_first_impl(void *ip, vfs_direntry_info_t *dip) {
  * @param[out]    dip           Pointer to a @p vfs_direntry_info_t structure.
  * @return                      The operation result.
  */
-msg_t __vfsdir_dir_next_impl(void *ip, vfs_direntry_info_t *dip) {
+msg_t __vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
   vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
 
   (void)self;
@@ -268,7 +268,7 @@ void __vfsfile_dispose_impl(void *ip) {
  * @param[in]     n             Maximum amount of data to be transferred.
  * @return                      The transferred number of bytes or an error.
  */
-ssize_t __vfsfile_file_read_impl(void *ip, uint8_t *buf, size_t n) {
+ssize_t __vfsfile_read_impl(void *ip, uint8_t *buf, size_t n) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
   (void)self;
@@ -287,7 +287,7 @@ ssize_t __vfsfile_file_read_impl(void *ip, uint8_t *buf, size_t n) {
  * @param[in]     n             Maximum amount of data to be transferred.
  * @return                      The transferred number of bytes or an error.
  */
-ssize_t __vfsfile_file_write_impl(void *ip, const uint8_t *buf, size_t n) {
+ssize_t __vfsfile_write_impl(void *ip, const uint8_t *buf, size_t n) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
   (void)self;
@@ -306,8 +306,8 @@ ssize_t __vfsfile_file_write_impl(void *ip, const uint8_t *buf, size_t n) {
  * @param[in]     whence        Seek mode to be used.
  * @return                      The operation result.
  */
-msg_t __vfsfile_file_setpos_impl(void *ip, vfs_offset_t offset,
-                                 vfs_seekmode_t whence) {
+msg_t __vfsfile_setpos_impl(void *ip, vfs_offset_t offset,
+                            vfs_seekmode_t whence) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
   (void)self;
@@ -324,7 +324,7 @@ msg_t __vfsfile_file_setpos_impl(void *ip, vfs_offset_t offset,
  * @param[in,out] ip            Pointer to a @p vfs_file_node_c instance.
  * @return                      The current file position.
  */
-vfs_offset_t __vfsfile_file_getpos_impl(void *ip) {
+vfs_offset_t __vfsfile_getpos_impl(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
   (void)self;
@@ -339,7 +339,7 @@ vfs_offset_t __vfsfile_file_getpos_impl(void *ip) {
  * @param[in,out] ip            Pointer to a @p vfs_file_node_c instance.
  * @return                      Pointer to the HAL stream interface.
  */
-BaseSequentialStream * __vfsfile_file_get_stream_impl(void *ip) {
+BaseSequentialStream * __vfsfile_getstream_impl(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
   (void)self;

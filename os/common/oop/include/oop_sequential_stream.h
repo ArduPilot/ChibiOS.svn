@@ -105,6 +105,8 @@ extern "C" {
  *              streams.
  *              This interface is meant to be implemented in classes requiring
  *              streaming capability.
+ * @note        This interface is meant to be compatible with legacy HAL @p
+ *              BaseSequentialStream interface.
  * @note        The interface namespace is <tt>stm</tt>, access to an
  *              implemented interface is done using:
  *              <tt>&<objp>-><classnamespace>.stm</tt>.
@@ -134,9 +136,12 @@ struct stm_methods {
 
 /**
  * @brief       @p sequential_stream_i VMT initializer.
+ *
+ * @param         ns            Namespace of the implementing class.
+ * @param[in]     off           VMT offset to be stored.
  */
-#define __stm_vmt_init(ns)                                                  \
-  __bi_vmt_init(ns)                                                         \
+#define __stm_vmt_init(ns, off)                                             \
+  __bi_vmt_init(ns, off)                                                    \
   .stm.write                                = __##ns##_stm_write_impl,      \
   .stm.read                                 = __##ns##_stm_read_impl,       \
   .stm.put                                  = __##ns##_stm_put_impl,        \

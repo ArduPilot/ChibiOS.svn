@@ -298,7 +298,7 @@ if (rep == &hal_registry) {
   return NULL;
 }
 
-return oopGetInstance(hal_base_driver_c, drv.regent, rep);]]></implementation>
+return oopGetOwner(hal_base_driver_c, drv.regent, rep);]]></implementation>
         </function>
         <function name="drvRegGetNextX"
           ctype="hal_base_driver_c *">
@@ -317,7 +317,7 @@ if (rep == &hal_registry) {
   return NULL;
 }
 
-return oopGetInstance(hal_base_driver_c, drv.regent, rep);]]></implementation>
+return oopGetOwner(hal_base_driver_c, drv.regent, rep);]]></implementation>
         </function>
         <function name="drvOpenByName" ctype="hal_base_driver_c *">
           <brief>Driver open by name.</brief>

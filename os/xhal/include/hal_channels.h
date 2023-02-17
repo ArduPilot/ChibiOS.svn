@@ -221,9 +221,12 @@ struct chn_methods {
 
 /**
  * @brief       @p asynchronous_channel_i VMT initializer.
+ *
+ * @param         ns            Namespace of the implementing class.
+ * @param[in]     off           VMT offset to be stored.
  */
-#define __chn_vmt_init(ns)                                                  \
-  __stm_vmt_init(ns)                                                        \
+#define __chn_vmt_init(ns, off)                                             \
+  __stm_vmt_init(ns, off)                                                   \
   .chn.writet                               = __##ns##_chn_writet_impl,     \
   .chn.readt                                = __##ns##_chn_readt_impl,      \
   .chn.putt                                 = __##ns##_chn_putt_impl,       \

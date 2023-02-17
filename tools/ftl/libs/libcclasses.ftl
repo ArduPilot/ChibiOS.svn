@@ -615,9 +615,10 @@ struct ${methodsstruct} {
 [@doxygen.EmitBrief "" "@p " + ifctype + " methods." /]
  */
   [#local methodsdefine = "__" + ifnamespace + "_methods" /]
-#define ${methodsdefine?right_pad(68) + "\\"}
+${("#define " + methodsdefine)?right_pad(ccode.backslash_align) + "\\"}
   [#if ancestornamespace?length > 0]
-${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
+${(ccode.indentation + "__" + ancestornamespace +
+                       "_methods")?right_pad(ccode.backslash_align) + "\\"}
   [/#if]
   [#if if.methods.method?size > 0]
 [@ccode.GenerateVariableDeclaration indent=ccode.indentation
@@ -626,26 +627,30 @@ ${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
 
 
   [#else]
-${ccode.indentation}/* No methods.*/
+${(ccode.indentation + "/* Memory offset between this interface structure and begin of")}
+${(ccode.indentation + "   the implementing class structure.*/")?right_pad(ccode.backslash_align) + "\\"}
+${(ccode.indentation + "size_t instance_offset;")}
 
   [/#if]
 /**
 [@doxygen.EmitBrief "" "@p " + ifctype + " VMT initializer." /]
+ *
+[@doxygen.EmitParam "" "ns" "" "Namespace of the implementing class." /]
+[@doxygen.EmitParam "" "off" "in" "VMT offset to be stored." /]
  */
-  [#local vmtinitsdefine = "__" + ifnamespace + "_vmt_init(ns)" /]
+  [#local vmtinitsdefine = "__" + ifnamespace + "_vmt_init(ns, off)" /]
 #define ${vmtinitsdefine?right_pad(68) + "\\"}
   [#if ancestornamespace?length > 0]
-    [#local s = "  __" + ancestornamespace + "_vmt_init(ns)" /]
+    [#local s = "  __" + ancestornamespace + "_vmt_init(ns, off)" /]
     [#if node.methods?size > 0]
       [#local s = (s + " ")?right_pad(76) + "\\" /]
     [/#if]
 ${s}
 [@GenerateVMTInitializers methods=node.methods namespace=ifnamespace /]
   [#else]
-${ccode.indentation}/* No methods.*/
+${(ccode.indentation + ".instance_offset")?right_pad(ccode.initializers_align) + "= off,"}
   [/#if]
 
-  [#if (ancestornamespace?length > 0) || (node.methods.method?size > 0)]
 /**
 [@doxygen.EmitBrief "" "@p " + ifctype + " virtual methods table." /]
  */
@@ -664,7 +669,6 @@ ${ccode.indentation} */
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 };
 
-  [/#if]
   [#--
     -- Generation of methods-access functions.
     --]
@@ -716,9 +720,9 @@ ${ccode.indentation}${ifctype} *self = (${ifctype} *)ip;
 ${ccode.indentation}/* Implementation of interface ${ifctype}.*/
 ${ccode.indentation}{
 ${ccode.indentation}${ccode.indentation}static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
-${ccode.indentation}${ccode.indentation}${ccode.indentation}__${ifnamespace}_vmt_init(${classnamespace})
+${ccode.indentation}${ccode.indentation}${ccode.indentation}__${ifnamespace}_vmt_init(${classnamespace}, 0)
 ${ccode.indentation}${ccode.indentation}};
-${ccode.indentation}${ccode.indentation}oopInterfaceObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
+${ccode.indentation}${ccode.indentation}oopIfObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
 ${ccode.indentation}}
       [#if node?node_name != "condition"]
 

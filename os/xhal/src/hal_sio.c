@@ -136,19 +136,19 @@ static size_t sio_sync_read(hal_sio_driver_c *siop, uint8_t *bp, size_t n,
 }
 
 static size_t __sio_stm_write_impl(void *ip, const uint8_t *bp, size_t n) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
   return sio_sync_write(siop, bp, n, TIME_INFINITE);
 }
 
 static size_t __sio_stm_read_impl(void *ip, uint8_t *bp, size_t n) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
   return sio_sync_read(siop, bp, n, TIME_INFINITE);
 }
 
 static msg_t __sio_stm_put_impl(void *ip, uint8_t b) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
   msg_t msg;
 
   msg = sioSynchronizeTX(siop, TIME_INFINITE);
@@ -161,7 +161,7 @@ static msg_t __sio_stm_put_impl(void *ip, uint8_t b) {
 }
 
 static msg_t __sio_stm_get_impl(void *ip) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
   msg_t msg;
 
   msg = sioSynchronizeRX(siop, TIME_INFINITE);
@@ -174,20 +174,20 @@ static msg_t __sio_stm_get_impl(void *ip) {
 
 static size_t __sio_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
                                     sysinterval_t timeout) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
   return sio_sync_write(siop, bp, n, timeout);
 }
 
 static size_t __sio_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
                                    sysinterval_t timeout) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
   return sio_sync_read(siop, bp, n, timeout);
 }
 
 static msg_t __sio_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
   msg_t msg;
 
   msg = sioSynchronizeTX(siop, timeout);
@@ -200,7 +200,7 @@ static msg_t __sio_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
 }
 
 static msg_t __sio_chn_gett_impl(void *ip, sysinterval_t timeout) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
   msg_t msg;
 
   msg = sioSynchronizeRX(siop, timeout);
@@ -212,7 +212,7 @@ static msg_t __sio_chn_gett_impl(void *ip, sysinterval_t timeout) {
 }
 
 static msg_t __sio_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
-  hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
   switch (operation) {
   case CHN_CTL_NOP:
@@ -282,9 +282,9 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
   /* Implementation of interface asynchronous_channel_i.*/
   {
     static const struct asynchronous_channel_vmt sio_chn_vmt = {
-      __chn_vmt_init(sio)
+      __chn_vmt_init(sio, 0)
     };
-    oopInterfaceObjectInit(&self->sio.chn, &sio_chn_vmt);
+    oopIfObjectInit(&self->sio.chn, &sio_chn_vmt);
   }
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
 

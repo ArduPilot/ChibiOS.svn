@@ -36,12 +36,14 @@
         descr="sequential stream interface">
         <brief>Sequential data streams interface.</brief>
         <details>
-          This module define an interface for generic sequential data
-          streams.
+          <![CDATA[This module define an interface for generic sequential data
+                   streams.]]>
           <br />
-          This interface is meant to be implemented in classes requiring
-          streaming capability.
+          <![CDATA[This interface is meant to be implemented in classes
+                   requiring streaming capability.]]>
         </details>
+        <note><![CDATA[This interface is meant to be compatible with legacy HAL
+                       @p BaseSequentialStream interface.]]></note>
         <consts>
         </consts>
         <methods>

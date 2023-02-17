@@ -8,6 +8,17 @@
       <include style="regular">osal.h</include>
     </inclusions>
     <macros>
+      <macro name="oopGetOwner">
+        <brief>Returns an object pointer starting from a pointer to a class
+          member.</brief>
+        <param name="c">Class type name.</param>
+        <param name="m">Class member field name.</param>
+        <param name="p" dir="in">Class member field pointer.</param>
+        <return>A pointer to an object of type @p c containing the field @p
+          m.</return>
+        <api />
+        <implementation><![CDATA[(c *)(((size_t)(p)) - (size_t)offsetof(c, m))]]></implementation>
+      </macro>
       <macro name="boGetIf">
         <brief>Returns a pointer to one of the implemented interfaces.</brief>
         <note><![CDATA[The interface pointer is returned as a <tt>void *</tt>
@@ -16,13 +27,15 @@
         <param name="ip" dir="in">Pointer to the class instance.</param>
         <param name="ifns">Implemented interface namespace.</param>
         <param name="cns">Implementing class namespace.</param>
-        <return>A void pointer to the interface within the class instance.</return>
+        <return>A void pointer to the interface within the class instance.
+        </return>
         <api />
         <implementation><![CDATA[(void *)(&(ip)->cns.ifns)]]></implementation>
       </macro>
     </macros>
     <classes>
-      <class name="base_object" namespace="bo" descr="base object" type="abstract">
+      <class name="base_object" namespace="bo" descr="base object"
+        type="abstract">
         <brief>Common ancestor abstract class.</brief>
         <details><![CDATA[This abstract class is the common ancestor of all
           classes used in ChibiOS. This class just defines the position of

@@ -46,6 +46,21 @@
 /*===========================================================================*/
 
 /**
+ * @brief       Returns an object pointer starting from a pointer to a class
+ *              member.
+ *
+ * @param         c             Class type name.
+ * @param         m             Class member field name.
+ * @param[in]     p             Class member field pointer.
+ * @return                      A pointer to an object of type @p c containing
+ *                              the field @p m.
+ *
+ * @api
+ */
+#define oopGetOwner(c, m, p)                                                \
+  (c *)(((size_t)(p)) - (size_t)offsetof(c, m))
+
+/**
  * @brief       Returns a pointer to one of the implemented interfaces.
  * @note        The interface pointer is returned as a <tt>void *</tt> in order
  *              to be directly usable as any of the interface's ancestors

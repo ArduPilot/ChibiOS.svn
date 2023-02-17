@@ -11,32 +11,19 @@
       <include style="regular">ccportab.h</include>
     </inclusions>
     <macros>
-      <macro name="oopGetInstance">
-        <brief>Returns an object pointer starting from an interface
-          pointer.</brief>
-        <details>
-          Because multiple inheritance, an object can implement multiple
-          interfaces.
-          <br />
-          This macro returns the pointer to the base object starting
-          from a
-          pointer to any of its composing classes or interfaces.
-          This is done by
-          using the @p offsetof() macro in @p stdlib.h.
-        </details>
-        <param name="c">Class type implementing the interface.</param>
-        <param name="ifname">Name of the interface field within the class
-          structure.
-        </param>
+      <macro name="oopIfGetOwner">
+        <brief>Returns an object pointer starting by an interface pointer.</brief>
+        <details><![CDATA[A pointer to an object of class type @p c is returned
+                 starting from a pointer to any of the interfaces implemented
+                 by the class.]]></details>
+        <param name="c">Class type name.</param>
         <param name="ip" dir="in">Pointer to the interface field within the
-          class structure.
-        </param>
-        <return>A pointer to an object of type @p c implementing the interface
-          @p ifname.</return>
+          class structure.</param>
+        <return>A pointer to an object of type @p c.</return>
         <api />
-        <implementation><![CDATA[(c *)(((size_t)(ip)) - (size_t)offsetof(c, ifname))]]></implementation>
+        <implementation><![CDATA[(c *)(((size_t)(ip)) - ((base_interface_i *)(ip))->vmt->instance_offset)]]></implementation>
       </macro>
-      <macro name="oopInterfaceObjectInit">
+      <macro name="oopIfObjectInit">
         <brief>Initialization of an interface structure.</brief>
         <details>An interface structure contains only a VMT pointer and
           no data,

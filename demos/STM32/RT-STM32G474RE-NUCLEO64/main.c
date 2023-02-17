@@ -39,7 +39,7 @@ static THD_FUNCTION(Thread1, arg) {
  * Application entry point.
  */
 int main(void) {
-  sequential_stream_i *stream;
+  BaseSequentialStream *stream;
 
   /*
    * System initializations.

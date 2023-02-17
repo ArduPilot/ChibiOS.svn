@@ -899,7 +899,7 @@ return i;]]></implementation>
           <param name="bp" ctype="const uint8_t *" />
           <param name="n" ctype="size_t" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
 return sio_sync_write(siop, bp, n, TIME_INFINITE);]]></implementation>
         </function>
@@ -908,7 +908,7 @@ return sio_sync_write(siop, bp, n, TIME_INFINITE);]]></implementation>
           <param name="bp" ctype="uint8_t *" />
           <param name="n" ctype="size_t" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
 return sio_sync_read(siop, bp, n, TIME_INFINITE);]]></implementation>
         </function>
@@ -916,7 +916,7 @@ return sio_sync_read(siop, bp, n, TIME_INFINITE);]]></implementation>
           <param name="ip" ctype="void *" />
           <param name="b" ctype="uint8_t" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 msg_t msg;
 
 msg = sioSynchronizeTX(siop, TIME_INFINITE);
@@ -930,7 +930,7 @@ return MSG_OK;]]></implementation>
         <function name="__sio_stm_get_impl" ctype="msg_t">
           <param name="ip" ctype="void *" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 msg_t msg;
 
 msg = sioSynchronizeRX(siop, TIME_INFINITE);
@@ -946,7 +946,7 @@ return sioGetX(siop);]]></implementation>
           <param name="n" ctype="size_t" />
           <param name="timeout" ctype="sysinterval_t" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
 return sio_sync_write(siop, bp, n, timeout);]]></implementation>
         </function>
@@ -956,7 +956,7 @@ return sio_sync_write(siop, bp, n, timeout);]]></implementation>
           <param name="n" ctype="size_t" />
           <param name="timeout" ctype="sysinterval_t" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
 return sio_sync_read(siop, bp, n, timeout);]]></implementation>
         </function>
@@ -965,7 +965,7 @@ return sio_sync_read(siop, bp, n, timeout);]]></implementation>
           <param name="b" ctype="uint8_t" />
           <param name="timeout" ctype="sysinterval_t" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 msg_t msg;
 
 msg = sioSynchronizeTX(siop, timeout);
@@ -980,7 +980,7 @@ return MSG_OK;]]></implementation>
           <param name="ip" ctype="void *" />
           <param name="timeout" ctype="sysinterval_t" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 msg_t msg;
 
 msg = sioSynchronizeRX(siop, timeout);
@@ -995,7 +995,7 @@ return sioGetX(siop);]]></implementation>
           <param name="operation" ctype="unsigned int" />
           <param name="arg" ctype="void *" />
           <implementation><![CDATA[
-hal_sio_driver_c *siop = oopGetInstance(hal_sio_driver_c, sio.chn, ip);
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
 switch (operation) {
 case CHN_CTL_NOP:

@@ -49,25 +49,20 @@
 /*===========================================================================*/
 
 /**
- * @brief       Returns an object pointer starting from an interface pointer.
- * @details     Because multiple inheritance, an object can implement multiple
- *              interfaces.
- *              This macro returns the pointer to the base object starting from
- *              a pointer to any of its composing classes or interfaces. This
- *              is done by using the @p offsetof() macro in @p stdlib.h.
+ * @brief       Returns an object pointer starting by an interface pointer.
+ * @details     A pointer to an object of class type @p c is returned starting
+ *              from a pointer to any of the interfaces implemented by the
+ *              class.
  *
- * @param         c             Class type implementing the interface.
- * @param         ifname        Name of the interface field within the class
- *                              structure.
+ * @param         c             Class type name.
  * @param[in]     ip            Pointer to the interface field within the class
  *                              structure.
- * @return                      A pointer to an object of type @p c
- *                              implementing the interface @p ifname.
+ * @return                      A pointer to an object of type @p c.
  *
  * @api
  */
-#define oopGetInstance(c, ifname, ip)                                       \
-  (c *)(((size_t)(ip)) - (size_t)offsetof(c, ifname))
+#define oopIfGetOwner(c, ip)                                                \
+  (c *)(((size_t)(ip)) - ((base_interface_i *)(ip))->vmt->instance_offset)
 
 /**
  * @brief       Initialization of an interface structure.
@@ -81,7 +76,7 @@
  *
  * @api
  */
-#define oopInterfaceObjectInit(ip, vmtp)                                    \
+#define oopIfObjectInit(ip, vmtp)                                           \
   do {                                                                      \
     (ip)->vmt = (vmtp);                                                     \
   } while (false)
@@ -130,13 +125,35 @@ typedef struct base_interface base_interface_i;
  * @brief       @p base_interface_i methods.
  */
 #define __bi_methods                                                        \
-  /* No methods.*/
+  /* Memory offset between this interface structure and begin of
+     the implementing class structure.*/                                    \
+  size_t instance_offset;
 
 /**
  * @brief       @p base_interface_i VMT initializer.
+ *
+ * @param         ns            Namespace of the implementing class.
+ * @param[in]     off           VMT offset to be stored.
  */
-#define __bi_vmt_init(ns)                                                   \
-  /* No methods.*/
+#define __bi_vmt_init(ns, off)                                              \
+  .instance_offset                          = off,
+
+/**
+ * @brief       @p base_interface_i virtual methods table.
+ */
+struct base_interface_vmt {
+  __bi_methods
+};
+
+/**
+ * @brief       Structure representing a base interface.
+ */
+struct base_interface {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct base_interface_vmt *vmt;
+};
 
 #endif /* OOP_BASE_INTERFACE_H */
 

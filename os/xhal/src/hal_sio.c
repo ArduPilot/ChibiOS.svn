@@ -282,7 +282,7 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
   /* Implementation of interface asynchronous_channel_i.*/
   {
     static const struct asynchronous_channel_vmt sio_chn_vmt = {
-      __chn_vmt_init(sio, 0)
+      __chn_vmt_init(sio, offsetof(hal_sio_driver_c, sio.chn))
     };
     oopIfObjectInit(&self->sio.chn, &sio_chn_vmt);
   }

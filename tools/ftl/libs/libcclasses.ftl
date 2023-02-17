@@ -711,7 +711,7 @@ ${ccode.indentation}${ifctype} *self = (${ifctype} *)ip;
 [#--
   -- This macro generates class method implementations from an XML node.
   --]
-[#macro GenerateClassInterfacesInitialization node=[] classnamespace="no-namespace"]
+[#macro GenerateClassInterfacesInitialization node=[] classctype="no-ctype" classnamespace="no-namespace"]
   [#list node.* as this]
     [#if this?node_name == "ifref"]
       [#local ifname      = GetNodeName(this)
@@ -720,7 +720,7 @@ ${ccode.indentation}${ifctype} *self = (${ifctype} *)ip;
 ${ccode.indentation}/* Implementation of interface ${ifctype}.*/
 ${ccode.indentation}{
 ${ccode.indentation}${ccode.indentation}static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
-${ccode.indentation}${ccode.indentation}${ccode.indentation}__${ifnamespace}_vmt_init(${classnamespace}, 0)
+${ccode.indentation}${ccode.indentation}${ccode.indentation}__${ifnamespace}_vmt_init(${classnamespace}, offsetof(${classctype}, ${classnamespace}.${ifnamespace}))
 ${ccode.indentation}${ccode.indentation}};
 ${ccode.indentation}${ccode.indentation}oopIfObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
 ${ccode.indentation}}
@@ -730,7 +730,7 @@ ${ccode.indentation}}
     [#elseif this?node_name == "condition"]
       [#local condcheck = (this.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateClassInterfacesInitialization this classnamespace /]
+[@GenerateClassInterfacesInitialization this classctype classnamespace /]
 #endif /* ${condcheck} */
 
     [/#if]
@@ -778,7 +778,7 @@ ${ccode.indentation}__${ancestornamespace}_objinit_impl(self, vmt);
 
   [/#if]
   [#if class.implements.*?size > 0]
-[@GenerateClassInterfacesInitialization class.implements classnamespace /]
+[@GenerateClassInterfacesInitialization class.implements classctype classnamespace /]
   [/#if]
   [#if (class.methods.objinit[0].implementation[0])?? &&
        (class.methods.objinit[0].implementation[0]?trim?length > 0)]

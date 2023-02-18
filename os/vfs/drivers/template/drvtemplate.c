@@ -207,7 +207,7 @@ static msg_t __tmpldrv_vfsdrv_rmdir_impl(void *ip, const char *path) {
 
 static size_t __tmplfile_stm_write_impl(void *ip, const uint8_t *buf,
                                         size_t size) {
-  vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+  vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
 
   (void)self;
   (void)buf;
@@ -217,7 +217,7 @@ static size_t __tmplfile_stm_write_impl(void *ip, const uint8_t *buf,
 }
 
 static size_t __tmplfile_stm_read_impl(void *ip, uint8_t *buf, size_t size) {
-  vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+  vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
 
   (void)self;
   (void)buf;
@@ -227,7 +227,7 @@ static size_t __tmplfile_stm_read_impl(void *ip, uint8_t *buf, size_t size) {
 }
 
 static msg_t __tmplfile_stm_put_impl(void *ip, uint8_t b) {
-  vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+  vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
 
   (void)self;
   (void)b;
@@ -236,7 +236,7 @@ static msg_t __tmplfile_stm_put_impl(void *ip, uint8_t b) {
 }
 
 static msg_t __tmplfile_stm_get_impl(void *ip) {
-  vfs_template_file_node_c *self = oopGetInstance(vfs_template_file_node_c, tmplfile.stm, ip);
+  vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
 
   (void)self;
 
@@ -368,9 +368,9 @@ void *__tmplfile_objinit_impl(void *ip, const void *vmt) {
   /* Implementation of interface sequential_stream_i.*/
   {
     static const struct sequential_stream_vmt tmplfile_stm_vmt = {
-      __stm_vmt_init(tmplfile)
+      __stm_vmt_init(tmplfile, offsetof(vfs_template_file_node_c, tmplfile.stm))
     };
-    oopInterfaceObjectInit(&self->tmplfile.stm, &tmplfile_stm_vmt);
+    oopIfObjectInit(&self->tmplfile.stm, &tmplfile_stm_vmt);
   }
 
   /* No initialization code.*/

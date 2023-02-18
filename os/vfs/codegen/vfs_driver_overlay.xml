@@ -2,26 +2,26 @@
 <!-- C module definition -->
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="drvtemplate" descr="VFS Template Driver"
-  check="VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE" sourcepath="drivers/template"
-  headerpath="drivers/template">
+  name="drvoverlay_test" descr="VFS Template Driver"
+  check="VFS_CFG_ENABLE_DRV_OVERLAY == TRUE" sourcepath="drivers/overlay"
+  headerpath="drivers/overlay">
   <public>
     <inclusions>
       <include style="regular">oop_sequential_stream.h</include></inclusions>
     <configs>
-      <config name="DRV_CFG_TEMPLATE_DIR_NODES_NUM" default="1">
+      <config name="DRV_CFG_OVERLAY_DIR_NODES_NUM" default="1">
         <brief>Number of directory nodes pre-allocated in the pool.</brief>
         <assert invalid="$N &lt; 1" />
       </config>
-      <config name="DRV_CFG_TEMPLATE_FILE_NODES_NUM" default="1">
+      <config name="DRV_CFG_OVERLAY_FILE_NODES_NUM" default="1">
         <brief>Number of file nodes pre-allocated in the pool.</brief>
         <assert invalid="$N &lt; 1" />
       </config>
     </configs>
     <classes>
-      <class type="regular" name="vfs_template_dir_node"
-        namespace="tmpldir" ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
-        descr="VFS template directory node">
+      <class type="regular" name="vfs_overlay_dir_node"
+        namespace="ovldir" ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
+        descr="VFS overlay directory node">
         <fields></fields>
         <methods>
           <objinit>
@@ -32,9 +32,9 @@
           </dispose>
         </methods>
       </class>
-      <class type="regular" name="vfs_template_file_node"
-        namespace="tmplfile" ancestorname="vfs_file_node" ancestornamespace="vfsfile"
-        descr="VFS template file node">
+      <class type="regular" name="vfs_overlay_file_node"
+        namespace="ovlfile" ancestorname="vfs_file_node" ancestornamespace="vfsfile"
+        descr="VFS overlay file node">
         <implements>
           <ifref name="sequential_stream" namespace="stm" />
         </implements>
@@ -52,9 +52,9 @@
           </dispose>
         </methods>
       </class>
-      <class type="regular" name="vfs_template_driver" namespace="tmpldrv"
+      <class type="regular" name="vfs_overlay_driver" namespace="ovldrv"
         ancestorname="vfs_driver" ancestornamespace="vfsdrv"
-        descr="VFS template driver">
+        descr="VFS overlay driver">
         <fields></fields>
         <methods>
           <objinit>
@@ -67,26 +67,26 @@
       </class>
     </classes>
     <functions>
-      <function name="__drv_template_init" ctype="void">
+      <function name="__drv_overlay_init" ctype="void">
         <brief>Module initialization.</brief>
         <init />
         <implementation><![CDATA[
 
 /* Initializing pools.*/
-chPoolObjectInit(&vfs_template_driver_static.dir_nodes_pool,
-                 sizeof (vfs_template_dir_node_c),
+chPoolObjectInit(&vfs_overlay_driver_static.dir_nodes_pool,
+                 sizeof (vfs_overlay_dir_node_c),
                  chCoreAllocAlignedI);
-chPoolObjectInit(&vfs_template_driver_static.file_nodes_pool,
-                 sizeof (vfs_template_file_node_c),
+chPoolObjectInit(&vfs_overlay_driver_static.file_nodes_pool,
+                 sizeof (vfs_overlay_file_node_c),
                  chCoreAllocAlignedI);
 
 /* Preloading pools.*/
-chPoolLoadArray(&vfs_template_driver_static.dir_nodes_pool,
-                &vfs_template_driver_static.dir_nodes[0],
-                DRV_CFG_TEMPLATE_DIR_NODES_NUM);
-chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
-                &vfs_template_driver_static.file_nodes[0],
-                DRV_CFG_TEMPLATE_FILE_NODES_NUM);]]></implementation>
+chPoolLoadArray(&vfs_overlay_driver_static.dir_nodes_pool,
+                &vfs_overlay_driver_static.dir_nodes[0],
+                DRV_CFG_OVERLAY_DIR_NODES_NUM);
+chPoolLoadArray(&vfs_overlay_driver_static.file_nodes_pool,
+                &vfs_overlay_driver_static.file_nodes[0],
+                DRV_CFG_OVERLAY_FILE_NODES_NUM);]]></implementation>
       </function>
     </functions>
   </public>
@@ -95,8 +95,8 @@ chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
       <include style="regular">vfs.h</include>
     </inclusions>
     <types>
-      <struct name="vfs_template_driver_static_struct">
-        <brief>Structure representing the global state of @p vfs_template_driver_c.</brief>
+      <struct name="vfs_overlay_driver_static_struct">
+        <brief>Structure representing the global state of @p vfs_overlay_driver_c.</brief>
         <fields>
           <field name="fs_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of file system objects.</brief>
@@ -110,74 +110,74 @@ chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
           <field name="file_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of file nodes.</brief>
           </field>
-          <field name="dir_nodes" ctype="vfs_template_dir_node_c$I$N[DRV_CFG_TEMPLATE_DIR_NODES_NUM]">
+          <field name="dir_nodes" ctype="vfs_overlay_dir_node_c$I$N[DRV_CFG_OVERLAY_DIR_NODES_NUM]">
             <brief>Pool of file nodes.</brief>
           </field>
-          <field name="file_nodes" ctype="vfs_template_file_node_c$I$N[DRV_CFG_TEMPLATE_DIR_NODES_NUM]">
+          <field name="file_nodes" ctype="vfs_overlay_file_node_c$I$N[DRV_CFG_OVERLAY_DIR_NODES_NUM]">
             <brief>Pool of file nodes.</brief>
           </field>
         </fields>
       </struct>
     </types>
     <variables>
-      <variable name="vfs_template_driver_static" ctype="struct vfs_template_driver_static_struct">
-        <brief>Global state of @p vfs_template_driver_c</brief>
+      <variable name="vfs_overlay_driver_static" ctype="struct vfs_overlay_driver_static_struct">
+        <brief>Global state of @p vfs_overlay_driver_c</brief>
       </variable>
     </variables>
     <functions>
-      <function name="__tmpldir_ro_addref_impl" ctype="void *">
+      <function name="__ovldir_ro_addref_impl" ctype="void *">
         <param name="ip" ctype="void *"/>
         <implementation><![CDATA[
 
 return __ro_addref_impl(ip);]]></implementation>
       </function>
-      <function name="__tmpldir_ro_release_impl" ctype="object_references_t">
+      <function name="__ovldir_ro_release_impl" ctype="object_references_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
 return __ro_release_impl(ip);]]></implementation>
       </function>
-      <function name="__tmpldir_vfsnode_stat_impl" ctype="msg_t">
+      <function name="__ovldir_vfsnode_stat_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="sp" ctype="vfs_stat_t *" />
         <implementation><![CDATA[
 
 return __vfsnode_stat_impl(ip, sp);]]></implementation>
       </function>
-      <function name="__tmpldir_vfsdir_first_impl" ctype="msg_t">
+      <function name="__ovldir_vfsdir_first_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="dip" ctype="vfs_direntry_info_t *" />
         <implementation><![CDATA[
 
 return __vfsdir_first_impl(ip, dip);]]></implementation>
       </function>
-      <function name="__tmpldir_vfsdir_next_impl" ctype="msg_t">
+      <function name="__ovldir_vfsdir_next_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="dip" ctype="vfs_direntry_info_t *" />
         <implementation><![CDATA[
 
 return __vfsdir_next_impl(ip, dip);]]></implementation>
       </function>
-      <function name="__tmplfile_ro_addref_impl" ctype="void *">
+      <function name="__ovlfile_ro_addref_impl" ctype="void *">
         <param name="ip" ctype="void *"/>
         <implementation><![CDATA[
 
 return __ro_addref_impl(ip);]]></implementation>
       </function>
-      <function name="__tmplfile_ro_release_impl" ctype="object_references_t">
+      <function name="__ovlfile_ro_release_impl" ctype="object_references_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
 return __ro_release_impl(ip);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsnode_stat_impl" ctype="msg_t">
+      <function name="__ovlfile_vfsnode_stat_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="sp" ctype="vfs_stat_t *" />
         <implementation><![CDATA[
 
 return __vfsnode_stat_impl(ip, sp);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsfile_read_impl" ctype="ssize_t">
+      <function name="__ovlfile_vfsfile_read_impl" ctype="ssize_t">
         <param name="ip" ctype="void *" />
         <param name="buf" ctype="uint8_t *" />
         <param name="size" ctype="size_t" />
@@ -185,7 +185,7 @@ return __vfsnode_stat_impl(ip, sp);]]></implementation>
 
 return __vfsfile_read_impl(ip, buf, size);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsfile_write_impl" ctype="ssize_t">
+      <function name="__ovlfile_vfsfile_write_impl" ctype="ssize_t">
         <param name="ip" ctype="void *" />
         <param name="buf" ctype="const uint8_t *" />
         <param name="size" ctype="size_t" />
@@ -193,7 +193,7 @@ return __vfsfile_read_impl(ip, buf, size);]]></implementation>
 
 return __vfsfile_write_impl(ip, buf, size);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsfile_setpos_impl" ctype="msg_t">
+      <function name="__ovlfile_vfsfile_setpos_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="offset" ctype="vfs_offset_t" />
         <param name="whence" ctype="vfs_seekmode_t" />
@@ -201,26 +201,26 @@ return __vfsfile_write_impl(ip, buf, size);]]></implementation>
 
 return __vfsfile_setpos_impl(ip, offset, whence);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsfile_getpos_impl" ctype="vfs_offset_t">
+      <function name="__ovlfile_vfsfile_getpos_impl" ctype="vfs_offset_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
 return __vfsfile_getpos_impl(ip);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsfile_getstream_impl" ctype="BaseSequentialStream *">
+      <function name="__ovlfile_vfsfile_getstream_impl" ctype="BaseSequentialStream *">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
 return __vfsfile_getstream_impl(ip);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_setcwd_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_setcwd_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="path" ctype="const char *" />
         <implementation><![CDATA[
 
 return __vfsdrv_setcwd_impl(ip, path);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_getcwd_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_getcwd_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="buf" ctype="char *" />
         <param name="size" ctype="size_t" />
@@ -228,7 +228,7 @@ return __vfsdrv_setcwd_impl(ip, path);]]></implementation>
 
 return __vfsdrv_getcwd_impl(ip, buf, size);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_stat_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_stat_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="path" ctype="const char *" />
         <param name="sp" ctype="vfs_stat_t *" />
@@ -236,7 +236,7 @@ return __vfsdrv_getcwd_impl(ip, buf, size);]]></implementation>
 
 return __vfsdrv_stat_impl(ip, path, sp);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_opendir_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_opendir_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="path" ctype="const char *" />
         <param name="vdnpp" ctype="vfs_directory_node_c **" />
@@ -244,7 +244,7 @@ return __vfsdrv_stat_impl(ip, path, sp);]]></implementation>
 
 return __vfsdrv_opendir_impl(ip, path, vdnpp);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_openfile_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_openfile_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="path" ctype="const char *" />
         <param name="flags" ctype="int" />
@@ -253,14 +253,14 @@ return __vfsdrv_opendir_impl(ip, path, vdnpp);]]></implementation>
 
 return __vfsdrv_openfile_impl(ip, path, flags, vfnpp);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_unlink_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_unlink_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="path" ctype="const char *" />
         <implementation><![CDATA[
 
 return __vfsdrv_unlink_impl(ip, path);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_rename_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_rename_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="oldpath" ctype="const char *" />
         <param name="newpath" ctype="const char *" />
@@ -268,7 +268,7 @@ return __vfsdrv_unlink_impl(ip, path);]]></implementation>
 
 return __vfsdrv_rename_impl(ip, oldpath, newpath);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_mkdir_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_mkdir_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="path" ctype="const char *" />
         <param name="mode" ctype="vfs_mode_t" />
@@ -276,19 +276,19 @@ return __vfsdrv_rename_impl(ip, oldpath, newpath);]]></implementation>
 
 return __vfsdrv_mkdir_impl(ip, path, mode);]]></implementation>
       </function>
-      <function name="__tmpldrv_vfsdrv_rmdir_impl" ctype="msg_t">
+      <function name="__ovldrv_vfsdrv_rmdir_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="path" ctype="const char *" />
         <implementation><![CDATA[
 
 return __vfsdrv_rmdir_impl(ip, path);]]></implementation>
       </function>
-      <function name="__tmplfile_stm_write_impl" ctype="size_t">
+      <function name="__ovlfile_stm_write_impl" ctype="size_t">
         <param name="ip" ctype="void *" />
         <param name="buf" ctype="const uint8_t *" />
         <param name="size" ctype="size_t" />
         <implementation><![CDATA[
-vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
+vfs_overlay_file_node_c *self = oopGetInstance(vfs_overlay_file_node_c, ovlfile.stm, ip);
 
 (void)self;
 (void)buf;
@@ -296,12 +296,12 @@ vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
 
 return (size_t)0;]]></implementation>
       </function>
-      <function name="__tmplfile_stm_read_impl" ctype="size_t">
+      <function name="__ovlfile_stm_read_impl" ctype="size_t">
         <param name="ip" ctype="void *" />
         <param name="buf" ctype="uint8_t *" />
         <param name="size" ctype="size_t" />
         <implementation><![CDATA[
-vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
+vfs_overlay_file_node_c *self = oopGetInstance(vfs_overlay_file_node_c, ovlfile.stm, ip);
 
 (void)self;
 (void)buf;
@@ -309,21 +309,21 @@ vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
 
 return (size_t)0;]]></implementation>
       </function>
-      <function name="__tmplfile_stm_put_impl" ctype="msg_t">
+      <function name="__ovlfile_stm_put_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <param name="b" ctype="uint8_t" />
         <implementation><![CDATA[
-vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
+vfs_overlay_file_node_c *self = oopGetInstance(vfs_overlay_file_node_c, ovlfile.stm, ip);
 
 (void)self;
 (void)b;
 
 return MSG_OK;]]></implementation>
       </function>
-      <function name="__tmplfile_stm_get_impl" ctype="msg_t">
+      <function name="__ovlfile_stm_get_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
-vfs_template_file_node_c *self = oopIfGetOwner(vfs_template_file_node_c, ip);
+vfs_overlay_file_node_c *self = oopGetInstance(vfs_overlay_file_node_c, ovlfile.stm, ip);
 
 (void)self;
 

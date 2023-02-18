@@ -3,6 +3,7 @@
   <!ENTITY vfs_drivers SYSTEM "vfs_drivers.xml">
   <!ENTITY vfs_nodes SYSTEM "vfs_nodes.xml">
   <!ENTITY vfs_driver_template SYSTEM "vfs_driver_template.xml">
+  <!ENTITY vfs_driver_overlay SYSTEM "vfs_driver_overlay.xml">
 ]>
 <!-- Class/interfaces definitions -->
 <instance
@@ -12,5 +13,6 @@
     &vfs_drivers;
     &vfs_nodes;
     &vfs_driver_template;
+    &vfs_driver_overlay;
   </modules>
 </instance>

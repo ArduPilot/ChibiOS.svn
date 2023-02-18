@@ -80,7 +80,7 @@ void *__ro_objinit_impl(void *ip, const void *vmt) {
   __bo_objinit_impl(self, vmt);
 
   /* Initialization code.*/
-  self->ro.references = (object_references_t)0;
+  self->ro.references = (object_references_t)1;
 
   return self;
 }

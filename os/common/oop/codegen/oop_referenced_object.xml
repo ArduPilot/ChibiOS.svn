@@ -28,7 +28,7 @@
         </fields>
         <methods>
           <objinit>
-            <implementation><![CDATA[self->ro.references = (object_references_t)0;]]></implementation>
+            <implementation><![CDATA[self->ro.references = (object_references_t)1;]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>

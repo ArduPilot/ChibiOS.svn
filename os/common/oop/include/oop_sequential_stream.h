@@ -77,6 +77,78 @@
 typedef base_interface_i BaseSequentialStream;
 #endif /* defined(OOP_USE_LEGACY) */
 
+/**
+ * @interface   sequential_stream_i
+ * @extends     base_interface_i
+ *
+ * @brief       Sequential data streams interface.
+ * @details     This module define an interface for generic sequential data
+ *              streams.
+ *              This interface is meant to be implemented in classes requiring
+ *              streaming capability.
+ * @note        This interface is meant to be compatible with legacy HAL @p
+ *              BaseSequentialStream interface.
+ * @note        The interface namespace is <tt>stm</tt>, access to an
+ *              implemented interface is done using:
+ *              <tt>&<objp>-><classnamespace>.stm</tt>.
+ *
+ * @name        Interface @p sequential_stream_i structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a sequential stream interface.
+ */
+typedef struct sequential_stream sequential_stream_i;
+
+/**
+ * @brief       Interface @p sequential_stream_i methods as a structure.
+ */
+struct stm_methods {
+  size_t (*write)(void *ip, const uint8_t *bp, size_t n);
+  size_t (*read)(void *ip, uint8_t *bp, size_t n);
+  msg_t (*put)(void *ip, uint8_t b);
+  msg_t (*get)(void *ip);
+};
+
+/**
+ * @brief       Interface @p sequential_stream_i methods.
+ */
+#define __stm_methods                                                       \
+  __bi_methods                                                              \
+  struct stm_methods        stm;
+
+/**
+ * @brief       Interface @p sequential_stream_i VMT initializer.
+ *
+ * @param         ns            Namespace of the implementing class.
+ * @param[in]     off           VMT offset to be stored.
+ */
+#define __stm_vmt_init(ns, off)                                             \
+  __bi_vmt_init(ns, off)                                                    \
+  .stm.write                                = __##ns##_stm_write_impl,      \
+  .stm.read                                 = __##ns##_stm_read_impl,       \
+  .stm.put                                  = __##ns##_stm_put_impl,        \
+  .stm.get                                  = __##ns##_stm_get_impl,
+
+/**
+ * @brief       Interface @p sequential_stream_i virtual methods table.
+ */
+struct sequential_stream_vmt {
+  __stm_methods
+};
+
+/**
+ * @brief       Structure representing a sequential stream.
+ */
+struct sequential_stream {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct sequential_stream_vmt *vmt;
+};
+/** @} */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -92,80 +164,8 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-/*===========================================================================*/
-/* Module interface sequential_stream_i                                      */
-/*===========================================================================*/
-
 /**
- * @interface   sequential_stream_i
- * @extends     base_interface_i
- *
- * @brief       Sequential data streams interface.
- * @details     This module define an interface for generic sequential data
- *              streams.
- *              This interface is meant to be implemented in classes requiring
- *              streaming capability.
- * @note        This interface is meant to be compatible with legacy HAL @p
- *              BaseSequentialStream interface.
- * @note        The interface namespace is <tt>stm</tt>, access to an
- *              implemented interface is done using:
- *              <tt>&<objp>-><classnamespace>.stm</tt>.
- */
-
-/**
- * @brief       Type of a sequential stream interface interface.
- */
-typedef struct sequential_stream sequential_stream_i;
-
-/**
- * @brief       @p sequential_stream_i methods as a structure.
- */
-struct stm_methods {
-  size_t (*write)(void *ip, const uint8_t *bp, size_t n);
-  size_t (*read)(void *ip, uint8_t *bp, size_t n);
-  msg_t (*put)(void *ip, uint8_t b);
-  msg_t (*get)(void *ip);
-};
-
-/**
- * @brief       @p sequential_stream_i methods.
- */
-#define __stm_methods                                                       \
-  __bi_methods                                                              \
-  struct stm_methods        stm;
-
-/**
- * @brief       @p sequential_stream_i VMT initializer.
- *
- * @param         ns            Namespace of the implementing class.
- * @param[in]     off           VMT offset to be stored.
- */
-#define __stm_vmt_init(ns, off)                                             \
-  __bi_vmt_init(ns, off)                                                    \
-  .stm.write                                = __##ns##_stm_write_impl,      \
-  .stm.read                                 = __##ns##_stm_read_impl,       \
-  .stm.put                                  = __##ns##_stm_put_impl,        \
-  .stm.get                                  = __##ns##_stm_get_impl,
-
-/**
- * @brief       @p sequential_stream_i virtual methods table.
- */
-struct sequential_stream_vmt {
-  __stm_methods
-};
-
-/**
- * @brief       Structure representing a sequential stream interface.
- */
-struct sequential_stream {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct sequential_stream_vmt *vmt;
-};
-
-/**
- * @name        Interface methods of sequential_stream_i
+ * @name        Virtual methods of sequential_stream_i
  * @{
  */
 /**
@@ -175,8 +175,7 @@ struct sequential_stream {
  * @brief       Sequential Stream write.
  * @details     This function writes data from a buffer to a stream.
  *
- * @param[in,out] ip            Pointer to a @p sequential_stream_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p sequential_stream_i instance.
  * @param[in]     bp            Pointer to the data buffer.
  * @param[in]     n             The maximum amount of data to be transferred.
  * @return                      The number of bytes transferred. The returned
@@ -197,8 +196,7 @@ static inline size_t stmWrite(void *ip, const uint8_t *bp, size_t n) {
  * @brief       Sequential Stream read.
  * @details     This function reads data from a stream into a buffer.
  *
- * @param[in,out] ip            Pointer to a @p sequential_stream_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p sequential_stream_i instance.
  * @param[out]    bp            Pointer to the data buffer.
  * @param[in]     n             The maximum amount of data to be transferred.
  * @return                      The number of bytes transferred. The returned
@@ -220,8 +218,7 @@ static inline size_t stmRead(void *ip, uint8_t *bp, size_t n) {
  * @details     This function writes a byte value to a stream. If the stream is
  *              not ready to accept data then the calling thread is suspended.
  *
- * @param[in,out] ip            Pointer to a @p sequential_stream_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p sequential_stream_i instance.
  * @param[in]     b             The byte value to be written to the stream.
  * @return                      The operation status.
  */
@@ -240,8 +237,7 @@ static inline msg_t stmPut(void *ip, uint8_t b) {
  * @details     This function reads a byte value from a stream. If the data is
  *              not available then the calling thread is suspended.
  *
- * @param[in,out] ip            Pointer to a @p sequential_stream_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p sequential_stream_i instance.
  * @return                      A byte value from the stream.
  */
 CC_FORCE_INLINE

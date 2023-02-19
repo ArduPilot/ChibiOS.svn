@@ -187,6 +187,46 @@ ${s}
 [/#macro]
 
 [#--
+  -- This macro generates virtual methods as inline functions
+  -- from an XML node.
+  --]
+[#macro GenerateVirtualMethods methods=[] ctype="no-ctype" namespace="no-namespace"]
+  [#if methods.method?size > 0]
+/**
+[@doxygen.EmitTagVerbatim "" "name" "Virtual methods of " + ctype /]
+ * @{
+ */
+    [#list methods.method as method]
+      [#local methodsname    = GetMethodShortName(method)
+              methodretctype = GetMethodCType(method) /]
+[@doxygen.EmitFullCommentFromNode indent="" node=method
+                                  extraname="ip" extradir="both"
+                                  extratext="Pointer to a @p " + ctype + " instance."
+                                  memberof=ctype /]
+CC_FORCE_INLINE
+[@ccode.GeneratePrototype modifiers = ["static", "inline"]
+                          params    = ["void *ip"]
+                          node=method /] {
+${ccode.indentation}${ctype} *self = (${ctype} *)ip;
+
+      [#local callname   = "self->vmt->" + namespace + "." + methodsname /]
+      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
+      [#if methodretctype == "void"]
+[@ccode.GenerateFunctionCall ccode.indentation "" callname callparams /]
+      [#else]
+[@ccode.GenerateFunctionCall ccode.indentation "return " callname callparams /]
+      [/#if]
+}
+      [#if method?has_next]
+
+      [/#if]
+    [/#list]
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
   -- This macro generates a Doxygen list of implemented interfaces from an XML node.
   --]
 [#macro GenerateClassImplementsTags node=[]]
@@ -209,6 +249,7 @@ ${s}
   [#if node.implements.*?size > 0]
     [#local classnamespace = GetNodeNamespace(node)
             classctype     = GetClassCType(node) /]
+
 /**
 [@doxygen.EmitTagVerbatim indent "memberof" classctype /]
  *
@@ -222,7 +263,6 @@ ${s}
  */
 ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_align) + "\\"}
   boGetIf(ip, ifns, ${classnamespace})
-
   [/#if]
 [/#macro]
 
@@ -286,7 +326,7 @@ CC_FORCE_INLINE
 /**
 [@doxygen.EmitTagVerbatim "" "memberof" classctype /]
  *
-[@doxygen.EmitBrief "" "Default initialize function of @p " + classctype + "." /]
+[@doxygen.EmitBrief "" "Default initialization function of @p " + classctype + "." /]
  *
 [@doxygen.EmitParam name=paramname dir="out"
                     text="Pointer to a @p " + classctype + " instance to be initialized." /]
@@ -302,7 +342,7 @@ ${ccode.indentation}return __${classnamespace}_objinit_impl(self, &__${classname
 /**
 [@doxygen.EmitTagVerbatim "" "memberof" classctype /]
  *
-[@doxygen.EmitBrief "" "Default finalize function of @p " + classctype + "." /]
+[@doxygen.EmitBrief "" "Default finalization function of @p " + classctype + "." /]
  *
 [@doxygen.EmitParam name=paramname dir="both"
                     text="Pointer to a @p " + classctype + " instance to be finalized." /]
@@ -318,46 +358,15 @@ ${ccode.indentation}__${classnamespace}_dispose_impl(self);
 [/#macro]
 
 [#--
-  -- This macro generates virtual methods as inline functions
+  -- This macro generates class virtual methods as inline functions
   -- from an XML node.
   --]
-[#macro GenerateClassVirtualMethods node=[]]
-  [#local class = node /]
-  [#if class.methods.virtual.method?size > 0]
-    [#local classnamespace = GetNodeNamespace(class)
-            classctype     = GetClassCType(class) /]
-/**
-[@doxygen.EmitTagVerbatim "" "name" "Virtual methods of " + classctype /]
- * @{
- */
-    [#list class.methods.virtual.method as method]
-      [#local methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method) /]
-[@doxygen.EmitFullCommentFromNode indent="" node=method
-                                  extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + classctype + " instance."
-                                  memberof=classctype /]
-CC_FORCE_INLINE
-[@ccode.GeneratePrototype modifiers = ["static", "inline"]
-                          params    = ["void *ip"]
-                          node=method /] {
-${ccode.indentation}${classctype} *self = (${classctype} *)ip;
-
-      [#local callname   = "self->vmt->" + classnamespace + "." + methodsname /]
-      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
-      [#if methodretctype == "void"]
-[@ccode.GenerateFunctionCall ccode.indentation "" callname callparams /]
-      [#else]
-[@ccode.GenerateFunctionCall ccode.indentation "return " callname callparams /]
-      [/#if]
-}
-      [#if method?has_next]
-
-      [/#if]
-    [/#list]
-/** @} */
-
-  [/#if]
+[#macro GenerateClassVirtualMethods class=[]]
+  [#local classnamespace = GetNodeNamespace(class)
+          classctype     = GetClassCType(class) /]
+[@GenerateVirtualMethods methods=class.methods.virtual
+                         ctype=classctype
+                         namespace=classnamespace /]
 [/#macro]
 
 [#--
@@ -464,6 +473,9 @@ ${ccode.indentation}/* Methods of ${classctype}.*/
                         "class fields is done using: <tt><objp>->" + classnamespace + ".<fieldname></tt><br>" +
                         "Note that fields of ancestor classes are in their own namespace in order to " +
                         "avoid field naming conflicts." /]
+ *
+[@doxygen.EmitTagVerbatim indent="" tag="name" text="Class @p " + classctype + " structures"/]
+ * @{
  */
 
 /**
@@ -474,7 +486,7 @@ typedef struct ${classname} ${classctype};
   [#local methodsstruct = classnamespace + "_methods" /]
   [#if node.methods.virtual?size > 0]
 /**
-[@doxygen.EmitBrief "" "@p " + classctype + " methods as a structure." /]
+[@doxygen.EmitBrief "" "Class @p " + classctype + " methods as a structure." /]
  */
 struct ${methodsstruct} {
 [@GenerateVMTPointers class.methods.virtual /]
@@ -484,7 +496,7 @@ struct ${methodsstruct} {
   [#local datastruct = classnamespace + "_data" /]
   [#if class.fields.*?size > 0]
 /**
-[@doxygen.EmitBrief "" "@p " + classctype + " data as a structure." /]
+[@doxygen.EmitBrief "" "Class @p " + classctype + " data as a structure." /]
  */
 struct ${datastruct} {
 [@ccode.GenerateStructureFields ccode.indentation class.fields /]
@@ -492,7 +504,7 @@ struct ${datastruct} {
 
   [/#if]
 /**
-[@doxygen.EmitBrief "" "@p " + classctype + " methods." /]
+[@doxygen.EmitBrief "" "Class @p " + classctype + " methods." /]
  */
   [#local methodsdefine = "__" + classnamespace + "_methods" /]
 #define ${methodsdefine?right_pad(68) + "\\"}
@@ -510,7 +522,7 @@ ${ccode.indentation}/* No methods.*/
 
   [/#if]
 /**
-[@doxygen.EmitBrief "" "@p " + classctype + " data." /]
+[@doxygen.EmitBrief "" "Class @p " + classctype + " data." /]
  */
   [#local datadefine = "__" + classnamespace + "_data" /]
 #define ${datadefine?right_pad(68) + "\\"}
@@ -528,7 +540,7 @@ ${ccode.indentation}/* No data.*/
 
   [/#if]
 /**
-[@doxygen.EmitBrief "" "@p " + classctype + " VMT initializer." /]
+[@doxygen.EmitBrief "" "Class @p " + classctype + " VMT initializer." /]
  */
   [#local vmtinitsdefine = "__" + classnamespace + "_vmt_init(ns)" /]
 #define ${vmtinitsdefine?right_pad(68) + "\\"}
@@ -544,7 +556,7 @@ ${ccode.indentation}/* No methods.*/
   [/#if]
 
 /**
-[@doxygen.EmitBrief "" "@p " + classctype + " virtual methods table." /]
+[@doxygen.EmitBrief "" "Class @p " + classctype + " virtual methods table." /]
  */
 struct ${classname?lower_case}_vmt {
   ${methodsdefine}
@@ -561,11 +573,20 @@ ${ccode.indentation} */
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   ${datadefine}
 };
-
 [@GenerateClassInterfaceMacros class /]
-[@GenerateClassConstructorDestructor class /]
-[@GenerateClassVirtualMethods class /]
-[@GenerateClassInlineMethods class /]
+/** @} */
+[/#macro]
+
+[#--
+  -- This macro generates interface virtual methods as inline functions
+  -- from an XML node.
+  --]
+[#macro GenerateInterfaceVirtualMethods if=[]]
+  [#local ifnamespace = GetNodeNamespace(if)
+          ifctype     = GetInterfaceCType(if) /]
+[@GenerateVirtualMethods methods=if.methods
+                         ctype=ifctype
+                         namespace=ifnamespace /]
 [/#macro]
 
 [#--
@@ -594,6 +615,9 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@doxygen.EmitNote text="The interface namespace is <tt>" + ifnamespace + "</tt>, access to " +
                         "an implemented interface is done using: " +
                         "<tt>&<objp>-><classnamespace>." + ifnamespace + "</tt>"/]
+ *
+[@doxygen.EmitTagVerbatim indent="" tag="name" text="Interface @p " + ifctype + " structures"/]
+ * @{
  */
 
 /**
@@ -604,7 +628,7 @@ typedef struct ${ifname} ${ifctype};
   [#local methodsstruct = ifnamespace + "_methods" /]
   [#if node.methods.method?size > 0]
 /**
-[@doxygen.EmitBrief "" "@p " + ifctype + " methods as a structure." /]
+[@doxygen.EmitBrief "" "Interface @p " + ifctype + " methods as a structure." /]
  */
 struct ${methodsstruct} {
 [@GenerateVMTPointers methods=if.methods /]
@@ -612,7 +636,7 @@ struct ${methodsstruct} {
 
   [/#if]
 /**
-[@doxygen.EmitBrief "" "@p " + ifctype + " methods." /]
+[@doxygen.EmitBrief "" "Interface @p " + ifctype + " methods." /]
  */
   [#local methodsdefine = "__" + ifnamespace + "_methods" /]
 ${("#define " + methodsdefine)?right_pad(ccode.backslash_align) + "\\"}
@@ -633,7 +657,7 @@ ${(ccode.indentation + "size_t instance_offset;")}
 
   [/#if]
 /**
-[@doxygen.EmitBrief "" "@p " + ifctype + " VMT initializer." /]
+[@doxygen.EmitBrief "" "Interface @p " + ifctype + " VMT initializer." /]
  *
 [@doxygen.EmitParam "" "ns" "" "Namespace of the implementing class." /]
 [@doxygen.EmitParam "" "off" "in" "VMT offset to be stored." /]
@@ -652,7 +676,7 @@ ${(ccode.indentation + ".instance_offset")?right_pad(ccode.initializers_align) +
   [/#if]
 
 /**
-[@doxygen.EmitBrief "" "@p " + ifctype + " virtual methods table." /]
+[@doxygen.EmitBrief "" "Interface @p " + ifctype + " virtual methods table." /]
  */
 struct ${ifname?lower_case}_vmt {
   ${methodsdefine}
@@ -668,44 +692,7 @@ ${ccode.indentation} */
   [#local vmtctype  = "const struct " + ifname?lower_case + "_vmt$I*$N" /]
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 };
-
-  [#--
-    -- Generation of methods-access functions.
-    --]
-  [#if if.methods.method.*?size > 0]
-/**
-[@doxygen.EmitTagVerbatim "" "name" "Interface methods of " + ifctype /]
- * @{
- */
-  [#list if.methods.method as method]
-    [#local methodsname    = GetMethodShortName(method)
-            methodretctype = GetMethodCType(method) /]
-[@doxygen.EmitFullCommentFromNode indent="" node=method
-                                  extraname="ip" extradir="both"
-                                  extratext="Pointer to a @p " + ifctype +
-                                            ", or derived, interface."
-                                  memberof=ifctype /]
-CC_FORCE_INLINE
-[@ccode.GeneratePrototype modifiers = ["static", "inline"]
-                          params    = ["void *ip"]
-                          node=method /] {
-${ccode.indentation}${ifctype} *self = (${ifctype} *)ip;
-
-    [#local callname   = "self->vmt->" + ifnamespace + "." + methodsname /]
-    [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
-    [#if methodretctype == "void"]
-[@ccode.GenerateFunctionCall ccode.indentation "" callname callparams /]
-    [#else]
-[@ccode.GenerateFunctionCall ccode.indentation "return" callname callparams /]
-    [/#if]
-}
-    [#if method?has_next]
-
-    [/#if]
-  [/#list]
 /** @} */
-
-  [/#if]
 [/#macro]
 
 [#--

@@ -12,8 +12,6 @@
         <brief>Type of a references counter.</brief>
         <basetype ctype="unsigned int" />
       </typedef>
-    </types>
-    <classes>
       <class type="abstract" name="referenced_object" namespace="ro"
         ancestorname="base_object" ancestornamespace="bo"
         descr="referenced object">
@@ -64,7 +62,7 @@ return self->ro.references;]]></implementation>
           </virtual>
         </methods>
       </class>
-    </classes>
+    </types>
   </public>
   <private>
   </private>

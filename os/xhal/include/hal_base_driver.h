@@ -119,6 +119,93 @@ struct hal_regent {
 };
 #endif /* HAL_USE_REGISTRY == TRUE */
 
+/**
+ * @class       hal_base_driver_c
+ * @extends     base_object_c
+ *
+ * @brief       Ancstor class of stateful HAL drivers.
+ * @note        The class namespace is <tt>drv</tt>, access to class fields is
+ *              done using: <tt><objp>->drv.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own namespace in order
+ *              to avoid field naming conflicts.
+ *
+ * @name        Class @p hal_base_driver_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a HAL base driver class.
+ */
+typedef struct hal_base_driver hal_base_driver_c;
+
+/**
+ * @brief       Class @p hal_base_driver_c methods as a structure.
+ */
+struct drv_methods {
+  msg_t (*start)(void *ip);
+  void (*stop)(void *ip);
+  msg_t (*configure)(void *ip, const void *config);
+};
+
+/**
+ * @brief       Class @p hal_base_driver_c data as a structure.
+ */
+struct drv_data {
+  driver_state_t            state;
+  unsigned int              opencnt;
+  void                      *owner;
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+  mutex_t                   mutex;
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+  unsigned int              id;
+  const char                *name;
+  hal_regent_t              regent;
+#endif /* HAL_USE_REGISTRY == TRUE */
+};
+
+/**
+ * @brief       Class @p hal_base_driver_c methods.
+ */
+#define __drv_methods                                                       \
+  __bo_methods                                                              \
+  struct drv_methods        drv;
+
+/**
+ * @brief       Class @p hal_base_driver_c data.
+ */
+#define __drv_data                                                          \
+  __bo_data                                                                 \
+  struct drv_data           drv;
+
+/**
+ * @brief       Class @p hal_base_driver_c VMT initializer.
+ */
+#define __drv_vmt_init(ns)                                                  \
+  __bo_vmt_init(ns)                                                         \
+  .drv.start                                = __##ns##_drv_start_impl,      \
+  .drv.stop                                 = __##ns##_drv_stop_impl,       \
+  .drv.configure                            = __##ns##_drv_configure_impl,
+
+/**
+ * @brief       Class @p hal_base_driver_c virtual methods table.
+ */
+struct hal_base_driver_vmt {
+  __drv_methods
+};
+
+/**
+ * @brief       Structure representing a HAL base driver class.
+ */
+struct hal_base_driver {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct hal_base_driver_vmt *vmt;
+  __drv_data
+};
+/** @} */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -149,93 +236,6 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
-
-/*===========================================================================*/
-/* Module class hal_base_driver_c                                            */
-/*===========================================================================*/
-
-/**
- * @class       hal_base_driver_c
- * @extends     base_object_c
- *
- * @brief       Ancstor class of stateful HAL drivers.
- * @note        The class namespace is <tt>drv</tt>, access to class fields is
- *              done using: <tt><objp>->drv.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
- */
-
-/**
- * @brief       Type of a HAL base driver class.
- */
-typedef struct hal_base_driver hal_base_driver_c;
-
-/**
- * @brief       @p hal_base_driver_c methods as a structure.
- */
-struct drv_methods {
-  msg_t (*start)(void *ip);
-  void (*stop)(void *ip);
-  msg_t (*configure)(void *ip, const void *config);
-};
-
-/**
- * @brief       @p hal_base_driver_c data as a structure.
- */
-struct drv_data {
-  driver_state_t            state;
-  unsigned int              opencnt;
-  void                      *owner;
-#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
-  mutex_t                   mutex;
-#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
-#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
-  unsigned int              id;
-  const char                *name;
-  hal_regent_t              regent;
-#endif /* HAL_USE_REGISTRY == TRUE */
-};
-
-/**
- * @brief       @p hal_base_driver_c methods.
- */
-#define __drv_methods                                                       \
-  __bo_methods                                                              \
-  struct drv_methods        drv;
-
-/**
- * @brief       @p hal_base_driver_c data.
- */
-#define __drv_data                                                          \
-  __bo_data                                                                 \
-  struct drv_data           drv;
-
-/**
- * @brief       @p hal_base_driver_c VMT initializer.
- */
-#define __drv_vmt_init(ns)                                                  \
-  __bo_vmt_init(ns)                                                         \
-  .drv.start                                = __##ns##_drv_start_impl,      \
-  .drv.stop                                 = __##ns##_drv_stop_impl,       \
-  .drv.configure                            = __##ns##_drv_configure_impl,
-
-/**
- * @brief       @p hal_base_driver_c virtual methods table.
- */
-struct hal_base_driver_vmt {
-  __drv_methods
-};
-
-/**
- * @brief       Structure representing a HAL base driver class.
- */
-struct hal_base_driver {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct hal_base_driver_vmt *vmt;
-  __drv_data
-};
 
 /**
  * @name        Virtual methods of hal_base_driver_c

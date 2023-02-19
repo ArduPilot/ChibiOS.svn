@@ -33,7 +33,7 @@
         <implementation><![CDATA[(void *)(&(ip)->cns.ifns)]]></implementation>
       </macro>
     </macros>
-    <classes>
+    <types>
       <class name="base_object" namespace="bo" descr="base object"
         type="abstract">
         <brief>Common ancestor abstract class.</brief>
@@ -51,7 +51,7 @@
           </dispose>
         </methods>
       </class>
-    </classes>
+    </types>
   </public>
   <private>
   </private>

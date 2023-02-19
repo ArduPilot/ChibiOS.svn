@@ -19,7 +19,7 @@
         <define name="VO_TRUNC" value="O_TRUNC" />
         <define name="VO_EXCL" value="O_EXCL" />
       </group></definitions_early>
-    <classes>
+    <types>
       <class type="abstract" name="vfs_driver" namespace="vfsdrv"
         ancestorname="base_object" ancestornamespace="bo"
         descr="VFS driver">
@@ -164,7 +164,7 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
           </virtual>
         </methods>
       </class>
-    </classes>
+    </types>
     <functions>
       <function name="vfsDrvOpen" ctype="msg_t">
         <brief>Opens a VFS file or directory.</brief>

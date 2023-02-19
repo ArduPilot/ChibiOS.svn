@@ -29,11 +29,9 @@
           <basetype ctype="base_interface_i" />
         </typedef>
       </condition>
-    </types>
-    <interfaces>
       <interface name="sequential_stream" namespace="stm"
         ancestorname="base_interface" ancestornamespace="bi"
-        descr="sequential stream interface">
+        descr="sequential stream">
         <brief>Sequential data streams interface.</brief>
         <details>
           <![CDATA[This module define an interface for generic sequential data
@@ -97,7 +95,7 @@
           </method>
         </methods>
       </interface>
-    </interfaces>
+    </types>
   </public>
   <private>
   </private>

@@ -165,6 +165,76 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+/**
+ * @interface   asynchronous_channel_i
+ * @extends     sequential_stream_i
+ *
+ * @brief       Base I/O channel interface.
+ * @details     This header defines an abstract interface useful to access
+ *              generic I/O serial devices in a standardized way.
+ * @note        The interface namespace is <tt>chn</tt>, access to an
+ *              implemented interface is done using:
+ *              <tt>&<objp>-><classnamespace>.chn</tt>.
+ *
+ * @name        Interface @p asynchronous_channel_i structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a base I/O channel interface.
+ */
+typedef struct asynchronous_channel asynchronous_channel_i;
+
+/**
+ * @brief       Interface @p asynchronous_channel_i methods as a structure.
+ */
+struct chn_methods {
+  size_t (*writet)(void *ip, const uint8_t *bp, size_t n, sysinterval_t timeout);
+  size_t (*readt)(void *ip, uint8_t *bp, size_t n, sysinterval_t timeout);
+  msg_t (*putt)(void *ip, uint8_t b, sysinterval_t timeout);
+  msg_t (*gett)(void *ip, sysinterval_t timeout);
+  msg_t (*ctl)(void *ip, unsigned int operation, void *arg);
+};
+
+/**
+ * @brief       Interface @p asynchronous_channel_i methods.
+ */
+#define __chn_methods                                                       \
+  __stm_methods                                                             \
+  struct chn_methods        chn;
+
+/**
+ * @brief       Interface @p asynchronous_channel_i VMT initializer.
+ *
+ * @param         ns            Namespace of the implementing class.
+ * @param[in]     off           VMT offset to be stored.
+ */
+#define __chn_vmt_init(ns, off)                                             \
+  __stm_vmt_init(ns, off)                                                   \
+  .chn.writet                               = __##ns##_chn_writet_impl,     \
+  .chn.readt                                = __##ns##_chn_readt_impl,      \
+  .chn.putt                                 = __##ns##_chn_putt_impl,       \
+  .chn.gett                                 = __##ns##_chn_gett_impl,       \
+  .chn.ctl                                  = __##ns##_chn_ctl_impl,
+
+/**
+ * @brief       Interface @p asynchronous_channel_i virtual methods table.
+ */
+struct asynchronous_channel_vmt {
+  __chn_methods
+};
+
+/**
+ * @brief       Structure representing a base I/O channel.
+ */
+struct asynchronous_channel {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct asynchronous_channel_vmt *vmt;
+};
+/** @} */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -180,78 +250,8 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-/*===========================================================================*/
-/* Module interface asynchronous_channel_i                                   */
-/*===========================================================================*/
-
 /**
- * @interface   asynchronous_channel_i
- * @extends     sequential_stream_i
- *
- * @brief       Base I/O channel interface.
- * @details     This header defines an abstract interface useful to access
- *              generic I/O serial devices in a standardized way.
- * @note        The interface namespace is <tt>chn</tt>, access to an
- *              implemented interface is done using:
- *              <tt>&<objp>-><classnamespace>.chn</tt>.
- */
-
-/**
- * @brief       Type of a base I/O channel interface.
- */
-typedef struct asynchronous_channel asynchronous_channel_i;
-
-/**
- * @brief       @p asynchronous_channel_i methods as a structure.
- */
-struct chn_methods {
-  size_t (*writet)(void *ip, const uint8_t *bp, size_t n, sysinterval_t timeout);
-  size_t (*readt)(void *ip, uint8_t *bp, size_t n, sysinterval_t timeout);
-  msg_t (*putt)(void *ip, uint8_t b, sysinterval_t timeout);
-  msg_t (*gett)(void *ip, sysinterval_t timeout);
-  msg_t (*ctl)(void *ip, unsigned int operation, void *arg);
-};
-
-/**
- * @brief       @p asynchronous_channel_i methods.
- */
-#define __chn_methods                                                       \
-  __stm_methods                                                             \
-  struct chn_methods        chn;
-
-/**
- * @brief       @p asynchronous_channel_i VMT initializer.
- *
- * @param         ns            Namespace of the implementing class.
- * @param[in]     off           VMT offset to be stored.
- */
-#define __chn_vmt_init(ns, off)                                             \
-  __stm_vmt_init(ns, off)                                                   \
-  .chn.writet                               = __##ns##_chn_writet_impl,     \
-  .chn.readt                                = __##ns##_chn_readt_impl,      \
-  .chn.putt                                 = __##ns##_chn_putt_impl,       \
-  .chn.gett                                 = __##ns##_chn_gett_impl,       \
-  .chn.ctl                                  = __##ns##_chn_ctl_impl,
-
-/**
- * @brief       @p asynchronous_channel_i virtual methods table.
- */
-struct asynchronous_channel_vmt {
-  __chn_methods
-};
-
-/**
- * @brief       Structure representing a base I/O channel.
- */
-struct asynchronous_channel {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct asynchronous_channel_vmt *vmt;
-};
-
-/**
- * @name        Interface methods of asynchronous_channel_i
+ * @name        Virtual methods of asynchronous_channel_i
  * @{
  */
 /**
@@ -263,8 +263,8 @@ struct asynchronous_channel {
  *              channel is not ready to accept data then the calling thread is
  *              suspended.
  *
- * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p asynchronous_channel_i
+ *                              instance.
  * @param[in]     bp            Pointer to the data buffer.
  * @param[in]     n             The maximum amount of data to be transferred.
  * @param[in]     timeout       The number of ticks before the operation
@@ -291,8 +291,8 @@ static inline size_t chnWriteTimeout(void *ip, const uint8_t *bp, size_t n,
  * @details     The function reads data from a channel into a buffer. If the
  *              data is not available then the calling thread is suspended.
  *
- * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p asynchronous_channel_i
+ *                              instance.
  * @param[in]     bp            Pointer to the data buffer.
  * @param[in]     n             The maximum amount of data to be transferred.
  * @param[in]     timeout       The number of ticks before the operation
@@ -320,8 +320,8 @@ static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
  *              is not ready to accept data then the calling thread is
  *              suspended.
  *
- * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p asynchronous_channel_i
+ *                              instance.
  * @param[in]     b             The byte value to be written to the channel.
  * @param[in]     timeout       The number of ticks before the operation
  *                              timeouts, the following special values are
@@ -349,8 +349,8 @@ static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
  * @details     This function reads a byte value from a channel. If the data is
  *              not available then the calling thread is suspended.
  *
- * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p asynchronous_channel_i
+ *                              instance.
  * @param[in]     timeout       The number of ticks before the operation
  *                              timeouts, the following special values are
  *                              allowed:
@@ -374,8 +374,8 @@ static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
  *
  * @brief       Control operation on a channel.
  *
- * @param[in,out] ip            Pointer to a @p asynchronous_channel_i, or
- *                              derived, interface.
+ * @param[in,out] ip            Pointer to a @p asynchronous_channel_i
+ *                              instance.
  * @param[in]     operation     Control operation code
  * @param[in,out] arg           Operation argument
  * @return                      The operation status.

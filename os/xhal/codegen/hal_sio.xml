@@ -433,8 +433,6 @@ SIO_CONFIG_EXT_FIELDS]]></verbatim>
           </condition>
         </fields>
       </struct>
-    </types>
-    <classes>
       <class type="regular" name="hal_sio_driver" namespace="sio"
         ancestorname="hal_base_driver" ancestornamespace="drv"
         descr="SIO driver">
@@ -781,7 +779,7 @@ return msg;]]></implementation>
           </regular>
         </methods>
       </class>
-    </classes>
+    </types>
     <functions>
       <function name="sioInit">
         <brief>SIO Driver initialization.</brief>

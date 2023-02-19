@@ -64,6 +64,90 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+/**
+ * @class       vfs_driver_c
+ * @extends     base_object_c
+ *
+ * @brief       Common ancestor class of all VFS driver classes.
+ * @details     Base class for objects that implement a Posix-like file system
+ *              interface.
+ * @note        The class namespace is <tt>vfsdrv</tt>, access to class fields
+ *              is done using: <tt><objp>->vfsdrv.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own namespace in order
+ *              to avoid field naming conflicts.
+ *
+ * @name        Class @p vfs_driver_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a VFS driver class.
+ */
+typedef struct vfs_driver vfs_driver_c;
+
+/**
+ * @brief       Class @p vfs_driver_c methods as a structure.
+ */
+struct vfsdrv_methods {
+  msg_t (*setcwd)(void *ip, const char *path);
+  msg_t (*getcwd)(void *ip, char *buf, size_t size);
+  msg_t (*stat)(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t (*opendir)(void *ip, const char *path, vfs_directory_node_c **vdnpp);
+  msg_t (*openfile)(void *ip, const char *path, int flags, vfs_file_node_c **vfnpp);
+  msg_t (*unlink)(void *ip, const char *path);
+  msg_t (*rename)(void *ip, const char *oldpath, const char *newpath);
+  msg_t (*mkdir)(void *ip, const char *path, vfs_mode_t mode);
+  msg_t (*rmdir)(void *ip, const char *path);
+};
+
+/**
+ * @brief       Class @p vfs_driver_c methods.
+ */
+#define __vfsdrv_methods                                                    \
+  __bo_methods                                                              \
+  struct vfsdrv_methods     vfsdrv;
+
+/**
+ * @brief       Class @p vfs_driver_c data.
+ */
+#define __vfsdrv_data                                                       \
+  __bo_data                                                                 \
+  /* No data.*/
+
+/**
+ * @brief       Class @p vfs_driver_c VMT initializer.
+ */
+#define __vfsdrv_vmt_init(ns)                                               \
+  __bo_vmt_init(ns)                                                         \
+  .vfsdrv.setcwd                            = __##ns##_vfsdrv_setcwd_impl,  \
+  .vfsdrv.getcwd                            = __##ns##_vfsdrv_getcwd_impl,  \
+  .vfsdrv.stat                              = __##ns##_vfsdrv_stat_impl,    \
+  .vfsdrv.opendir                           = __##ns##_vfsdrv_opendir_impl, \
+  .vfsdrv.openfile                          = __##ns##_vfsdrv_openfile_impl, \
+  .vfsdrv.unlink                            = __##ns##_vfsdrv_unlink_impl,  \
+  .vfsdrv.rename                            = __##ns##_vfsdrv_rename_impl,  \
+  .vfsdrv.mkdir                             = __##ns##_vfsdrv_mkdir_impl,   \
+  .vfsdrv.rmdir                             = __##ns##_vfsdrv_rmdir_impl,
+
+/**
+ * @brief       Class @p vfs_driver_c virtual methods table.
+ */
+struct vfs_driver_vmt {
+  __vfsdrv_methods
+};
+
+/**
+ * @brief       Structure representing a VFS driver class.
+ */
+struct vfs_driver {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_driver_vmt *vmt;
+  __vfsdrv_data
+};
+/** @} */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -96,90 +180,6 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
-
-/*===========================================================================*/
-/* Module class vfs_driver_c                                                 */
-/*===========================================================================*/
-
-/**
- * @class       vfs_driver_c
- * @extends     base_object_c
- *
- * @brief       Common ancestor class of all VFS driver classes.
- * @details     Base class for objects that implement a Posix-like file system
- *              interface.
- * @note        The class namespace is <tt>vfsdrv</tt>, access to class fields
- *              is done using: <tt><objp>->vfsdrv.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
- */
-
-/**
- * @brief       Type of a VFS driver class.
- */
-typedef struct vfs_driver vfs_driver_c;
-
-/**
- * @brief       @p vfs_driver_c methods as a structure.
- */
-struct vfsdrv_methods {
-  msg_t (*setcwd)(void *ip, const char *path);
-  msg_t (*getcwd)(void *ip, char *buf, size_t size);
-  msg_t (*stat)(void *ip, const char *path, vfs_stat_t *sp);
-  msg_t (*opendir)(void *ip, const char *path, vfs_directory_node_c **vdnpp);
-  msg_t (*openfile)(void *ip, const char *path, int flags, vfs_file_node_c **vfnpp);
-  msg_t (*unlink)(void *ip, const char *path);
-  msg_t (*rename)(void *ip, const char *oldpath, const char *newpath);
-  msg_t (*mkdir)(void *ip, const char *path, vfs_mode_t mode);
-  msg_t (*rmdir)(void *ip, const char *path);
-};
-
-/**
- * @brief       @p vfs_driver_c methods.
- */
-#define __vfsdrv_methods                                                    \
-  __bo_methods                                                              \
-  struct vfsdrv_methods     vfsdrv;
-
-/**
- * @brief       @p vfs_driver_c data.
- */
-#define __vfsdrv_data                                                       \
-  __bo_data                                                                 \
-  /* No data.*/
-
-/**
- * @brief       @p vfs_driver_c VMT initializer.
- */
-#define __vfsdrv_vmt_init(ns)                                               \
-  __bo_vmt_init(ns)                                                         \
-  .vfsdrv.setcwd                            = __##ns##_vfsdrv_setcwd_impl,  \
-  .vfsdrv.getcwd                            = __##ns##_vfsdrv_getcwd_impl,  \
-  .vfsdrv.stat                              = __##ns##_vfsdrv_stat_impl,    \
-  .vfsdrv.opendir                           = __##ns##_vfsdrv_opendir_impl, \
-  .vfsdrv.openfile                          = __##ns##_vfsdrv_openfile_impl, \
-  .vfsdrv.unlink                            = __##ns##_vfsdrv_unlink_impl,  \
-  .vfsdrv.rename                            = __##ns##_vfsdrv_rename_impl,  \
-  .vfsdrv.mkdir                             = __##ns##_vfsdrv_mkdir_impl,   \
-  .vfsdrv.rmdir                             = __##ns##_vfsdrv_rmdir_impl,
-
-/**
- * @brief       @p vfs_driver_c virtual methods table.
- */
-struct vfs_driver_vmt {
-  __vfsdrv_methods
-};
-
-/**
- * @brief       Structure representing a VFS driver class.
- */
-struct vfs_driver {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct vfs_driver_vmt *vmt;
-  __vfsdrv_data
-};
 
 /**
  * @name        Virtual methods of vfs_driver_c

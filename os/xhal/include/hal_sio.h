@@ -513,42 +513,6 @@ struct hal_sio_config {
 #endif /* defined(SIO_CONFIG_EXT_FIELS) */
 };
 
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-  /* Methods of hal_sio_driver_c.*/
-  void *__sio_objinit_impl(void *ip, const void *vmt);
-  void __sio_dispose_impl(void *ip);
-  void sioWriteEnableFlags(void *ip, sioevents_t mask);
-  void sioSetEnableFlags(void *ip, sioevents_t mask);
-  void sioClearEnableFlags(void *ip, sioevents_t mask);
-  sioevents_t sioGetAndClearErrors(void *ip);
-  sioevents_t sioGetAndClearEvents(void *ip);
-  sioevents_t sioGetEvents(void *ip);
-#if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
-  msg_t sioSynchronizeRX(void *ip, sysinterval_t timeout);
-  msg_t sioSynchronizeRXIdle(void *ip, sysinterval_t timeout);
-  msg_t sioSynchronizeTX(void *ip, sysinterval_t timeout);
-  msg_t sioSynchronizeTXEnd(void *ip, sysinterval_t timeout);
-#endif /* SIO_USE_SYNCHRONIZATION == TRUE */
-  /* Regular functions.*/
-  void sioInit(void);
-#ifdef __cplusplus
-}
-#endif
-
-/*===========================================================================*/
-/* Module inline functions.                                                  */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Module class hal_sio_driver_c                                             */
-/*===========================================================================*/
-
 /**
  * @class       hal_sio_driver_c
  * @extends     hal_base_driver_c
@@ -559,6 +523,9 @@ extern "C" {
  *              done using: <tt><objp>->sio.<fieldname></tt><br>Note that
  *              fields of ancestor classes are in their own namespace in order
  *              to avoid field naming conflicts.
+ *
+ * @name        Class @p hal_sio_driver_c structures
+ * @{
  */
 
 /**
@@ -567,7 +534,7 @@ extern "C" {
 typedef struct hal_sio_driver hal_sio_driver_c;
 
 /**
- * @brief       @p hal_sio_driver_c data as a structure.
+ * @brief       Class @p hal_sio_driver_c data as a structure.
  */
 struct sio_data {
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
@@ -611,27 +578,27 @@ struct sio_data {
 };
 
 /**
- * @brief       @p hal_sio_driver_c methods.
+ * @brief       Class @p hal_sio_driver_c methods.
  */
 #define __sio_methods                                                       \
   __drv_methods                                                             \
   /* No methods.*/
 
 /**
- * @brief       @p hal_sio_driver_c data.
+ * @brief       Class @p hal_sio_driver_c data.
  */
 #define __sio_data                                                          \
   __drv_data                                                                \
   struct sio_data           sio;
 
 /**
- * @brief       @p hal_sio_driver_c VMT initializer.
+ * @brief       Class @p hal_sio_driver_c VMT initializer.
  */
 #define __sio_vmt_init(ns)                                                  \
   __drv_vmt_init(ns)
 
 /**
- * @brief       @p hal_sio_driver_c virtual methods table.
+ * @brief       Class @p hal_sio_driver_c virtual methods table.
  */
 struct hal_sio_driver_vmt {
   __sio_methods
@@ -662,6 +629,39 @@ struct hal_sio_driver {
  */
 #define sioGetIf(ip, ifns)                                                  \
   boGetIf(ip, ifns, sio)
+/** @} */
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  /* Methods of hal_sio_driver_c.*/
+  void *__sio_objinit_impl(void *ip, const void *vmt);
+  void __sio_dispose_impl(void *ip);
+  void sioWriteEnableFlags(void *ip, sioevents_t mask);
+  void sioSetEnableFlags(void *ip, sioevents_t mask);
+  void sioClearEnableFlags(void *ip, sioevents_t mask);
+  sioevents_t sioGetAndClearErrors(void *ip);
+  sioevents_t sioGetAndClearEvents(void *ip);
+  sioevents_t sioGetEvents(void *ip);
+#if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
+  msg_t sioSynchronizeRX(void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeRXIdle(void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeTX(void *ip, sysinterval_t timeout);
+  msg_t sioSynchronizeTXEnd(void *ip, sysinterval_t timeout);
+#endif /* SIO_USE_SYNCHRONIZATION == TRUE */
+  /* Regular functions.*/
+  void sioInit(void);
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
 
 /**
  * @name        Constructor and destructor of hal_sio_driver_c
@@ -670,7 +670,7 @@ struct hal_sio_driver {
 /**
  * @memberof    hal_sio_driver_c
  *
- * @brief       Default initialize function of @p hal_sio_driver_c.
+ * @brief       Default initialization function of @p hal_sio_driver_c.
  *
  * @param[out]    no-name       Pointer to a @p hal_sio_driver_c instance to be
  *                              initialized.
@@ -686,7 +686,7 @@ static inline hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
 /**
  * @memberof    hal_sio_driver_c
  *
- * @brief       Default finalize function of @p hal_sio_driver_c.
+ * @brief       Default finalization function of @p hal_sio_driver_c.
  *
  * @param[in,out] no-name       Pointer to a @p hal_sio_driver_c instance to be
  *                              finalized.

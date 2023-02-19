@@ -103,7 +103,7 @@
 
 [@ccode.GenerateFunctionsFromNode node=module.public.functions /]
   [#-- Scanning all classes code to be generated in this module.--]
-  [#list module.public.classes.class as class]
+  [#list module.public.types.class as class]
 /*===========================================================================*/
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
 /*===========================================================================*/

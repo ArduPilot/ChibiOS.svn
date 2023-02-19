@@ -103,7 +103,7 @@
         </macro>
       </group>
     </macros>
-    <interfaces>
+    <types>
       <interface name="asynchronous_channel" namespace="chn"
         ancestorname="sequential_stream" ancestornamespace="stm"
         descr="base I/O channel">
@@ -208,7 +208,7 @@
           </method>
         </methods>
       </interface>
-    </interfaces>
+    </types>
   </public>
   <private>
   </private>

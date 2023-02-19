@@ -77,10 +77,6 @@
         maxOccurs="1" minOccurs="0"></xs:element>
       <xs:element name="types" type="typesType" maxOccurs="1"
         minOccurs="0"></xs:element>
-      <xs:element name="interfaces" type="interfacesType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="classes" type="classesType"
-        maxOccurs="1" minOccurs="0"></xs:element>
       <xs:element name="variables" type="variablesType"
         maxOccurs="1" minOccurs="0"></xs:element>
       <xs:element name="functions" type="functionsType"
@@ -122,19 +118,20 @@
   </xs:complexType>
   <xs:complexType name="typesType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="typedef" type="typedefType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="typedef" type="typedefType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
-      <xs:element name="struct" type="structType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="struct" type="structType" maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="union" type="unionType" maxOccurs="1"
-        minOccurs="1"></xs:element>
-      <xs:element name="condition"
-        type="conditionalTypesType" maxOccurs="1" minOccurs="1">
+      <xs:element name="union" type="unionType" maxOccurs="1" minOccurs="1"></xs:element>
+            <xs:element name="interface" type="interfaceType" maxOccurs="1" minOccurs="1">
       </xs:element>
-      <xs:element name="verbatim" type="xs:string"
-        maxOccurs="1" minOccurs="1">
+            <xs:element name="class" type="classType" maxOccurs="1" minOccurs="1"></xs:element>
+            <xs:element name="condition" type="conditionalTypesType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="verbatim" type="xs:string" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
     </xs:choice>
   </xs:complexType>

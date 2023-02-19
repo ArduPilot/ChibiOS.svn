@@ -50,6 +50,77 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+/**
+ * @class       synchronized_object_c
+ * @extends     referenced_object_c
+ *
+ * @brief       Common ancestor class of all reference-counted, synchronized
+ *              objects.
+ * @details     Base class for objects that require a synchronization
+ *              mechanism. This class extends @p referenced_object_c class.
+ * @note        The class namespace is <tt>so</tt>, access to class fields is
+ *              done using: <tt><objp>->so.<fieldname></tt><br>Note that fields
+ *              of ancestor classes are in their own namespace in order to
+ *              avoid field naming conflicts.
+ *
+ * @name        Class @p synchronized_object_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a synchronized object class.
+ */
+typedef struct synchronized_object synchronized_object_c;
+
+/**
+ * @brief       Class @p synchronized_object_c data as a structure.
+ */
+struct so_data {
+  /**
+   * @brief       Embedded synchronization mutex.
+   */
+  mutex_t                   mutex;
+};
+
+/**
+ * @brief       Class @p synchronized_object_c methods.
+ */
+#define __so_methods                                                        \
+  __ro_methods                                                              \
+  /* No methods.*/
+
+/**
+ * @brief       Class @p synchronized_object_c data.
+ */
+#define __so_data                                                           \
+  __ro_data                                                                 \
+  struct so_data            so;
+
+/**
+ * @brief       Class @p synchronized_object_c VMT initializer.
+ */
+#define __so_vmt_init(ns)                                                   \
+  __ro_vmt_init(ns)
+
+/**
+ * @brief       Class @p synchronized_object_c virtual methods table.
+ */
+struct synchronized_object_vmt {
+  __so_methods
+};
+
+/**
+ * @brief       Structure representing a synchronized object class.
+ */
+struct synchronized_object {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct synchronized_object_vmt *vmt;
+  __so_data
+};
+/** @} */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -69,77 +140,6 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
-
-/*===========================================================================*/
-/* Module class synchronized_object_c                                        */
-/*===========================================================================*/
-
-/**
- * @class       synchronized_object_c
- * @extends     referenced_object_c
- *
- * @brief       Common ancestor class of all reference-counted, synchronized
- *              objects.
- * @details     Base class for objects that require a synchronization
- *              mechanism. This class extends @p referenced_object_c class.
- * @note        The class namespace is <tt>so</tt>, access to class fields is
- *              done using: <tt><objp>->so.<fieldname></tt><br>Note that fields
- *              of ancestor classes are in their own namespace in order to
- *              avoid field naming conflicts.
- */
-
-/**
- * @brief       Type of a synchronized object class.
- */
-typedef struct synchronized_object synchronized_object_c;
-
-/**
- * @brief       @p synchronized_object_c data as a structure.
- */
-struct so_data {
-  /**
-   * @brief       Embedded synchronization mutex.
-   */
-  mutex_t                   mutex;
-};
-
-/**
- * @brief       @p synchronized_object_c methods.
- */
-#define __so_methods                                                        \
-  __ro_methods                                                              \
-  /* No methods.*/
-
-/**
- * @brief       @p synchronized_object_c data.
- */
-#define __so_data                                                           \
-  __ro_data                                                                 \
-  struct so_data            so;
-
-/**
- * @brief       @p synchronized_object_c VMT initializer.
- */
-#define __so_vmt_init(ns)                                                   \
-  __ro_vmt_init(ns)
-
-/**
- * @brief       @p synchronized_object_c virtual methods table.
- */
-struct synchronized_object_vmt {
-  __so_methods
-};
-
-/**
- * @brief       Structure representing a synchronized object class.
- */
-struct synchronized_object {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct synchronized_object_vmt *vmt;
-  __so_data
-};
 
 #endif /* OOP_SYNCHRONIZED_OBJECT_H */
 

@@ -147,6 +147,228 @@ struct vfs_stat {
   vfs_offset_t              size;
 };
 
+/**
+ * @class       vfs_node_c
+ * @extends     referenced_object_c
+ *
+ * @brief       Common ancestor class of all VFS nodes.
+ * @note        The class namespace is <tt>vfsnode</tt>, access to class fields
+ *              is done using: <tt><objp>->vfsnode.<fieldname></tt><br>Note
+ *              that fields of ancestor classes are in their own namespace in
+ *              order to avoid field naming conflicts.
+ *
+ * @name        Class @p vfs_node_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a VFS node class.
+ */
+typedef struct vfs_node vfs_node_c;
+
+/**
+ * @brief       Class @p vfs_node_c methods as a structure.
+ */
+struct vfsnode_methods {
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
+};
+
+/**
+ * @brief       Class @p vfs_node_c data as a structure.
+ */
+struct vfsnode_data {
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
+};
+
+/**
+ * @brief       Class @p vfs_node_c methods.
+ */
+#define __vfsnode_methods                                                   \
+  __ro_methods                                                              \
+  struct vfsnode_methods    vfsnode;
+
+/**
+ * @brief       Class @p vfs_node_c data.
+ */
+#define __vfsnode_data                                                      \
+  __ro_data                                                                 \
+  struct vfsnode_data       vfsnode;
+
+/**
+ * @brief       Class @p vfs_node_c VMT initializer.
+ */
+#define __vfsnode_vmt_init(ns)                                              \
+  __ro_vmt_init(ns)                                                         \
+  .vfsnode.stat                             = __##ns##_vfsnode_stat_impl,
+
+/**
+ * @brief       Class @p vfs_node_c virtual methods table.
+ */
+struct vfs_node_vmt {
+  __vfsnode_methods
+};
+
+/**
+ * @brief       Structure representing a VFS node class.
+ */
+struct vfs_node {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_node_vmt *vmt;
+  __vfsnode_data
+};
+/** @} */
+
+/**
+ * @class       vfs_directory_node_c
+ * @extends     vfs_node_c
+ *
+ * @brief       Ancestor class of all VFS directory nodes classes.
+ * @note        The class namespace is <tt>vfsdir</tt>, access to class fields
+ *              is done using: <tt><objp>->vfsdir.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own namespace in order
+ *              to avoid field naming conflicts.
+ *
+ * @name        Class @p vfs_directory_node_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a VFS directory node class.
+ */
+typedef struct vfs_directory_node vfs_directory_node_c;
+
+/**
+ * @brief       Class @p vfs_directory_node_c methods as a structure.
+ */
+struct vfsdir_methods {
+  msg_t (*first)(void *ip, vfs_direntry_info_t *dip);
+  msg_t (*next)(void *ip, vfs_direntry_info_t *dip);
+};
+
+/**
+ * @brief       Class @p vfs_directory_node_c methods.
+ */
+#define __vfsdir_methods                                                    \
+  __vfsnode_methods                                                         \
+  struct vfsdir_methods     vfsdir;
+
+/**
+ * @brief       Class @p vfs_directory_node_c data.
+ */
+#define __vfsdir_data                                                       \
+  __vfsnode_data                                                            \
+  /* No data.*/
+
+/**
+ * @brief       Class @p vfs_directory_node_c VMT initializer.
+ */
+#define __vfsdir_vmt_init(ns)                                               \
+  __vfsnode_vmt_init(ns)                                                    \
+  .vfsdir.first                             = __##ns##_vfsdir_first_impl,   \
+  .vfsdir.next                              = __##ns##_vfsdir_next_impl,
+
+/**
+ * @brief       Class @p vfs_directory_node_c virtual methods table.
+ */
+struct vfs_directory_node_vmt {
+  __vfsdir_methods
+};
+
+/**
+ * @brief       Structure representing a VFS directory node class.
+ */
+struct vfs_directory_node {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_directory_node_vmt *vmt;
+  __vfsdir_data
+};
+/** @} */
+
+/**
+ * @class       vfs_file_node_c
+ * @extends     vfs_node_c
+ *
+ * @brief       Ancestor class of all VFS file nodes classes.
+ * @note        The class namespace is <tt>vfsfile</tt>, access to class fields
+ *              is done using: <tt><objp>->vfsfile.<fieldname></tt><br>Note
+ *              that fields of ancestor classes are in their own namespace in
+ *              order to avoid field naming conflicts.
+ *
+ * @name        Class @p vfs_file_node_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a VFS file node class.
+ */
+typedef struct vfs_file_node vfs_file_node_c;
+
+/**
+ * @brief       Class @p vfs_file_node_c methods as a structure.
+ */
+struct vfsfile_methods {
+  ssize_t (*read)(void *ip, uint8_t *buf, size_t n);
+  ssize_t (*write)(void *ip, const uint8_t *buf, size_t n);
+  msg_t (*setpos)(void *ip, vfs_offset_t offset, vfs_seekmode_t whence);
+  vfs_offset_t (*getpos)(void *ip);
+  BaseSequentialStream * (*getstream)(void *ip);
+};
+
+/**
+ * @brief       Class @p vfs_file_node_c methods.
+ */
+#define __vfsfile_methods                                                   \
+  __vfsnode_methods                                                         \
+  struct vfsfile_methods    vfsfile;
+
+/**
+ * @brief       Class @p vfs_file_node_c data.
+ */
+#define __vfsfile_data                                                      \
+  __vfsnode_data                                                            \
+  /* No data.*/
+
+/**
+ * @brief       Class @p vfs_file_node_c VMT initializer.
+ */
+#define __vfsfile_vmt_init(ns)                                              \
+  __vfsnode_vmt_init(ns)                                                    \
+  .vfsfile.read                             = __##ns##_vfsfile_read_impl,   \
+  .vfsfile.write                            = __##ns##_vfsfile_write_impl,  \
+  .vfsfile.setpos                           = __##ns##_vfsfile_setpos_impl, \
+  .vfsfile.getpos                           = __##ns##_vfsfile_getpos_impl, \
+  .vfsfile.getstream                        = __##ns##_vfsfile_getstream_impl,
+
+/**
+ * @brief       Class @p vfs_file_node_c virtual methods table.
+ */
+struct vfs_file_node_vmt {
+  __vfsfile_methods
+};
+
+/**
+ * @brief       Structure representing a VFS file node class.
+ */
+struct vfs_file_node {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_file_node_vmt *vmt;
+  __vfsfile_data
+};
+/** @} */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -180,86 +402,6 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-/*===========================================================================*/
-/* Module class vfs_node_c                                                   */
-/*===========================================================================*/
-
-/**
- * @class       vfs_node_c
- * @extends     referenced_object_c
- *
- * @brief       Common ancestor class of all VFS nodes.
- * @note        The class namespace is <tt>vfsnode</tt>, access to class fields
- *              is done using: <tt><objp>->vfsnode.<fieldname></tt><br>Note
- *              that fields of ancestor classes are in their own namespace in
- *              order to avoid field naming conflicts.
- */
-
-/**
- * @brief       Type of a VFS node class.
- */
-typedef struct vfs_node vfs_node_c;
-
-/**
- * @brief       @p vfs_node_c methods as a structure.
- */
-struct vfsnode_methods {
-  msg_t (*stat)(void *ip, vfs_stat_t *sp);
-};
-
-/**
- * @brief       @p vfs_node_c data as a structure.
- */
-struct vfsnode_data {
-  /**
-   * @brief       Driver handling this node.
-   */
-  vfs_driver_c              *driver;
-  /**
-   * @brief       Node mode information.
-   */
-  vfs_mode_t                mode;
-};
-
-/**
- * @brief       @p vfs_node_c methods.
- */
-#define __vfsnode_methods                                                   \
-  __ro_methods                                                              \
-  struct vfsnode_methods    vfsnode;
-
-/**
- * @brief       @p vfs_node_c data.
- */
-#define __vfsnode_data                                                      \
-  __ro_data                                                                 \
-  struct vfsnode_data       vfsnode;
-
-/**
- * @brief       @p vfs_node_c VMT initializer.
- */
-#define __vfsnode_vmt_init(ns)                                              \
-  __ro_vmt_init(ns)                                                         \
-  .vfsnode.stat                             = __##ns##_vfsnode_stat_impl,
-
-/**
- * @brief       @p vfs_node_c virtual methods table.
- */
-struct vfs_node_vmt {
-  __vfsnode_methods
-};
-
-/**
- * @brief       Structure representing a VFS node class.
- */
-struct vfs_node {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct vfs_node_vmt *vmt;
-  __vfsnode_data
-};
-
 /**
  * @name        Virtual methods of vfs_node_c
  * @{
@@ -283,74 +425,6 @@ static inline msg_t vfsNodeStat(void *ip, vfs_stat_t *sp) {
   return self->vmt->vfsnode.stat(ip, sp);
 }
 /** @} */
-
-/*===========================================================================*/
-/* Module class vfs_directory_node_c                                         */
-/*===========================================================================*/
-
-/**
- * @class       vfs_directory_node_c
- * @extends     vfs_node_c
- *
- * @brief       Ancestor class of all VFS directory nodes classes.
- * @note        The class namespace is <tt>vfsdir</tt>, access to class fields
- *              is done using: <tt><objp>->vfsdir.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
- */
-
-/**
- * @brief       Type of a VFS directory node class.
- */
-typedef struct vfs_directory_node vfs_directory_node_c;
-
-/**
- * @brief       @p vfs_directory_node_c methods as a structure.
- */
-struct vfsdir_methods {
-  msg_t (*first)(void *ip, vfs_direntry_info_t *dip);
-  msg_t (*next)(void *ip, vfs_direntry_info_t *dip);
-};
-
-/**
- * @brief       @p vfs_directory_node_c methods.
- */
-#define __vfsdir_methods                                                    \
-  __vfsnode_methods                                                         \
-  struct vfsdir_methods     vfsdir;
-
-/**
- * @brief       @p vfs_directory_node_c data.
- */
-#define __vfsdir_data                                                       \
-  __vfsnode_data                                                            \
-  /* No data.*/
-
-/**
- * @brief       @p vfs_directory_node_c VMT initializer.
- */
-#define __vfsdir_vmt_init(ns)                                               \
-  __vfsnode_vmt_init(ns)                                                    \
-  .vfsdir.first                             = __##ns##_vfsdir_first_impl,   \
-  .vfsdir.next                              = __##ns##_vfsdir_next_impl,
-
-/**
- * @brief       @p vfs_directory_node_c virtual methods table.
- */
-struct vfs_directory_node_vmt {
-  __vfsdir_methods
-};
-
-/**
- * @brief       Structure representing a VFS directory node class.
- */
-struct vfs_directory_node {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct vfs_directory_node_vmt *vmt;
-  __vfsdir_data
-};
 
 /**
  * @name        Virtual methods of vfs_directory_node_c
@@ -394,80 +468,6 @@ static inline msg_t vfsDirReadNext(void *ip, vfs_direntry_info_t *dip) {
   return self->vmt->vfsdir.next(ip, dip);
 }
 /** @} */
-
-/*===========================================================================*/
-/* Module class vfs_file_node_c                                              */
-/*===========================================================================*/
-
-/**
- * @class       vfs_file_node_c
- * @extends     vfs_node_c
- *
- * @brief       Ancestor class of all VFS file nodes classes.
- * @note        The class namespace is <tt>vfsfile</tt>, access to class fields
- *              is done using: <tt><objp>->vfsfile.<fieldname></tt><br>Note
- *              that fields of ancestor classes are in their own namespace in
- *              order to avoid field naming conflicts.
- */
-
-/**
- * @brief       Type of a VFS file node class.
- */
-typedef struct vfs_file_node vfs_file_node_c;
-
-/**
- * @brief       @p vfs_file_node_c methods as a structure.
- */
-struct vfsfile_methods {
-  ssize_t (*read)(void *ip, uint8_t *buf, size_t n);
-  ssize_t (*write)(void *ip, const uint8_t *buf, size_t n);
-  msg_t (*setpos)(void *ip, vfs_offset_t offset, vfs_seekmode_t whence);
-  vfs_offset_t (*getpos)(void *ip);
-  BaseSequentialStream * (*getstream)(void *ip);
-};
-
-/**
- * @brief       @p vfs_file_node_c methods.
- */
-#define __vfsfile_methods                                                   \
-  __vfsnode_methods                                                         \
-  struct vfsfile_methods    vfsfile;
-
-/**
- * @brief       @p vfs_file_node_c data.
- */
-#define __vfsfile_data                                                      \
-  __vfsnode_data                                                            \
-  /* No data.*/
-
-/**
- * @brief       @p vfs_file_node_c VMT initializer.
- */
-#define __vfsfile_vmt_init(ns)                                              \
-  __vfsnode_vmt_init(ns)                                                    \
-  .vfsfile.read                             = __##ns##_vfsfile_read_impl,   \
-  .vfsfile.write                            = __##ns##_vfsfile_write_impl,  \
-  .vfsfile.setpos                           = __##ns##_vfsfile_setpos_impl, \
-  .vfsfile.getpos                           = __##ns##_vfsfile_getpos_impl, \
-  .vfsfile.getstream                        = __##ns##_vfsfile_getstream_impl,
-
-/**
- * @brief       @p vfs_file_node_c virtual methods table.
- */
-struct vfs_file_node_vmt {
-  __vfsfile_methods
-};
-
-/**
- * @brief       Structure representing a VFS file node class.
- */
-struct vfs_file_node {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct vfs_file_node_vmt *vmt;
-  __vfsfile_data
-};
 
 /**
  * @name        Virtual methods of vfs_file_node_c

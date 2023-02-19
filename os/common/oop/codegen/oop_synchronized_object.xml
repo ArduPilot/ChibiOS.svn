@@ -7,7 +7,7 @@
     <inclusions>
       <include style="regular">oop_referenced_object.h</include>
     </inclusions>
-    <classes>
+    <types>
       <class type="abstract" name="synchronized_object" namespace="so"
         ancestorname="referenced_object" ancestornamespace="ro"
         descr="synchronized object">
@@ -42,7 +42,7 @@ osalMutexUnlock(&self->mutex);]]></implementation>
           </regular>
         </methods>
       </class>
-    </classes>
+    </types>
   </public>
   <private>
   </private>

@@ -88,8 +88,6 @@
           </field>
         </fields>
       </struct>
-    </types>
-    <classes>
       <class type="abstract" name="vfs_node" namespace="vfsnode"
         ancestorname="referenced_object" ancestornamespace="ro"
         descr="VFS node">
@@ -249,7 +247,7 @@ return NULL;<![CDATA[]]></implementation>
           </virtual>
         </methods>
       </class>
-    </classes>
+    </types>
   </public>
   <private>
     <inclusions>

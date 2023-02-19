@@ -85,25 +85,6 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
-/*===========================================================================*/
-/* External declarations.                                                    */
-/*===========================================================================*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#ifdef __cplusplus
-}
-#endif
-
-/*===========================================================================*/
-/* Module inline functions.                                                  */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Module interface base_interface_i                                         */
-/*===========================================================================*/
-
 /**
  * @interface   base_interface_i
  *
@@ -114,6 +95,9 @@ extern "C" {
  * @note        The interface namespace is <tt>bi</tt>, access to an
  *              implemented interface is done using:
  *              <tt>&<objp>-><classnamespace>.bi</tt>.
+ *
+ * @name        Interface @p base_interface_i structures
+ * @{
  */
 
 /**
@@ -122,7 +106,7 @@ extern "C" {
 typedef struct base_interface base_interface_i;
 
 /**
- * @brief       @p base_interface_i methods.
+ * @brief       Interface @p base_interface_i methods.
  */
 #define __bi_methods                                                        \
   /* Memory offset between this interface structure and begin of
@@ -130,7 +114,7 @@ typedef struct base_interface base_interface_i;
   size_t instance_offset;
 
 /**
- * @brief       @p base_interface_i VMT initializer.
+ * @brief       Interface @p base_interface_i VMT initializer.
  *
  * @param         ns            Namespace of the implementing class.
  * @param[in]     off           VMT offset to be stored.
@@ -139,7 +123,7 @@ typedef struct base_interface base_interface_i;
   .instance_offset                          = off,
 
 /**
- * @brief       @p base_interface_i virtual methods table.
+ * @brief       Interface @p base_interface_i virtual methods table.
  */
 struct base_interface_vmt {
   __bi_methods
@@ -154,6 +138,22 @@ struct base_interface {
    */
   const struct base_interface_vmt *vmt;
 };
+/** @} */
+
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+
+/*===========================================================================*/
+/* Module inline functions.                                                  */
+/*===========================================================================*/
 
 #endif /* OOP_BASE_INTERFACE_H */
 

@@ -106,7 +106,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  [#list module.public.classes.class as class]
+  [#list module.public.types.class as class]
 [@cclasses.GenerateClassMethodsPrototypes class /]
   [/#list]
   [#if module.public.functions[0]??]
@@ -121,21 +121,15 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-  [#-- Scanning all interfaces to be generated in this module.--]
-  [#list module.public.interfaces.interface as interface]
-/*===========================================================================*/
-/* Module interface ${cclasses.GetInterfaceCType(interface)?right_pad(57)}*/
-/*===========================================================================*/
-
-[@cclasses.GenerateInterfaceWrapper interface /]
+  [#-- Scanning all interfaces.--]
+  [#list module.public.types.interface as if]
+[@cclasses.GenerateInterfaceVirtualMethods if /]
   [/#list]
-  [#-- Scanning all classes to be generated in this module.--]
-  [#list module.public.classes.class as class]
-/*===========================================================================*/
-/* Module class ${cclasses.GetClassCType(class)?right_pad(61)}*/
-/*===========================================================================*/
-
-[@cclasses.GenerateClassWrapper class /]
+  [#-- Scanning all classes.--]
+  [#list module.public.types.class as class]
+[@cclasses.GenerateClassConstructorDestructor class /]
+[@cclasses.GenerateClassVirtualMethods class /]
+[@cclasses.GenerateClassInlineMethods class /]
   [/#list]
   [#if module_condition?length > 0]
 #endif /* ${module_condition} */

@@ -57,8 +57,6 @@
           </fields>
         </struct>
       </condition>
-    </types>
-    <classes>
       <class type="abstract" name="hal_base_driver"
         namespace="drv" ancestorname="base_object"
         ancestornamespace="bo" descr="HAL base driver">
@@ -262,7 +260,7 @@ osalMutexUnlock(&self->drv.mutex);]]></implementation>
           </inline>
         </methods>
       </class>
-    </classes>
+    </types>
     <variables>
       <condition check="HAL_USE_REGISTRY == TRUE">
         <variable name="hal_registry" ctype="hal_regent_t">

@@ -18,7 +18,7 @@
         <assert invalid="$N &lt; 1" />
       </config>
     </configs>
-    <classes>
+    <types>
       <class type="regular" name="vfs_overlay_dir_node"
         namespace="ovldir" ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
         descr="VFS overlay directory node">
@@ -65,7 +65,7 @@
           </dispose>
         </methods>
       </class>
-    </classes>
+    </types>
     <functions>
       <function name="__drv_overlay_init" ctype="void">
         <brief>Module initialization.</brief>

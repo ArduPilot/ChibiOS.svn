@@ -41,7 +41,7 @@ do {
 } while (false)]]></implementation>
       </macro>
     </macros>
-    <interfaces>
+    <types>
       <interface name="base_interface" namespace="bi"
         descr="base interface">
         <brief>Common interfaces ancestor.</brief>
@@ -54,7 +54,7 @@ do {
         <methods>
         </methods>
       </interface>
-    </interfaces>
+    </types>
   </public>
   <private>
   </private>

@@ -81,6 +81,64 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
+/**
+ * @class       base_object_c
+ *
+ * @brief       Common ancestor abstract class.
+ * @details     This abstract class is the common ancestor of all classes used
+ *              in ChibiOS. This class just defines the position of the VMT
+ *              pointer inside the structure.
+ * @note        The class namespace is <tt>bo</tt>, access to class fields is
+ *              done using: <tt><objp>->bo.<fieldname></tt><br>Note that fields
+ *              of ancestor classes are in their own namespace in order to
+ *              avoid field naming conflicts.
+ *
+ * @name        Class @p base_object_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a base object class.
+ */
+typedef struct base_object base_object_c;
+
+/**
+ * @brief       Class @p base_object_c methods.
+ */
+#define __bo_methods                                                        \
+  /* No methods.*/
+
+/**
+ * @brief       Class @p base_object_c data.
+ */
+#define __bo_data                                                           \
+  /* No data.*/
+
+/**
+ * @brief       Class @p base_object_c VMT initializer.
+ */
+#define __bo_vmt_init(ns)                                                   \
+  /* No methods.*/
+
+/**
+ * @brief       Class @p base_object_c virtual methods table.
+ */
+struct base_object_vmt {
+  __bo_methods
+};
+
+/**
+ * @brief       Structure representing a base object class.
+ */
+struct base_object {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct base_object_vmt *vmt;
+  __bo_data
+};
+/** @} */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -98,64 +156,6 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
-
-/*===========================================================================*/
-/* Module class base_object_c                                                */
-/*===========================================================================*/
-
-/**
- * @class       base_object_c
- *
- * @brief       Common ancestor abstract class.
- * @details     This abstract class is the common ancestor of all classes used
- *              in ChibiOS. This class just defines the position of the VMT
- *              pointer inside the structure.
- * @note        The class namespace is <tt>bo</tt>, access to class fields is
- *              done using: <tt><objp>->bo.<fieldname></tt><br>Note that fields
- *              of ancestor classes are in their own namespace in order to
- *              avoid field naming conflicts.
- */
-
-/**
- * @brief       Type of a base object class.
- */
-typedef struct base_object base_object_c;
-
-/**
- * @brief       @p base_object_c methods.
- */
-#define __bo_methods                                                        \
-  /* No methods.*/
-
-/**
- * @brief       @p base_object_c data.
- */
-#define __bo_data                                                           \
-  /* No data.*/
-
-/**
- * @brief       @p base_object_c VMT initializer.
- */
-#define __bo_vmt_init(ns)                                                   \
-  /* No methods.*/
-
-/**
- * @brief       @p base_object_c virtual methods table.
- */
-struct base_object_vmt {
-  __bo_methods
-};
-
-/**
- * @brief       Structure representing a base object class.
- */
-struct base_object {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct base_object_vmt *vmt;
-  __bo_data
-};
 
 #endif /* OOP_BASE_OBJECT_H */
 

@@ -260,26 +260,28 @@
           <xs:choice maxOccurs="1" minOccurs="0">
             <xs:element name="init" type="xs:string"
               maxOccurs="1" minOccurs="1">
+              <xs:complexType/>
             </xs:element>
-            <xs:element name="objinit" type="xs:string"
-              maxOccurs="1" minOccurs="1">
+            <xs:element name="objinit" maxOccurs="1" minOccurs="1">
+              <xs:complexType/>
             </xs:element>
-            <xs:element name="dispose" type="xs:string"
-              maxOccurs="1" minOccurs="1"></xs:element>
-            <xs:element name="api" type="xs:string"
-              maxOccurs="1" minOccurs="1">
+            <xs:element name="dispose" maxOccurs="1" minOccurs="1">
+              <xs:complexType/>
             </xs:element>
-            <xs:element name="notapi" type="xs:string"
-              maxOccurs="1" minOccurs="1">
+            <xs:element name="api" maxOccurs="1" minOccurs="1">
+              <xs:complexType/>
             </xs:element>
-            <xs:element name="iclass" type="xs:string"
-              maxOccurs="1" minOccurs="1">
+            <xs:element name="notapi" maxOccurs="1" minOccurs="1">
+              <xs:complexType/>
             </xs:element>
-            <xs:element name="sclass" type="xs:string"
-              maxOccurs="1" minOccurs="1">
+            <xs:element name="iclass" maxOccurs="1" minOccurs="1">
+              <xs:complexType/>
             </xs:element>
-            <xs:element name="xclass" type="xs:string"
-              maxOccurs="1" minOccurs="1">
+            <xs:element name="sclass" maxOccurs="1" minOccurs="1">
+              <xs:complexType/>
+            </xs:element>
+            <xs:element name="xclass" maxOccurs="1" minOccurs="1">
+              <xs:complexType/>
             </xs:element>
           </xs:choice>
         </xs:sequence>
@@ -299,8 +301,9 @@
   </xs:complexType>
   <xs:complexType name="paramType" mixed="true">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="br" type="xs:string" maxOccurs="1"
-        minOccurs="1"></xs:element>
+      <xs:element name="br" maxOccurs="1" minOccurs="1">
+        <xs:complexType/>
+      </xs:element>
       <xs:element name="verbatim" type="xs:string"
         maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>

@@ -69,28 +69,6 @@
 [/#function]
 
 [#--
-  -- Emits a C function body code reformatting the indentation using the
-  -- specified line prefix.
-  --]
-[#macro EmitIndentedCCode indent=indentation ccode=""]
-  [#local lines = ccode?string?split("^", "rm") /]
-  [#list lines as line]
-    [#local s = line?chop_linebreak /]
-    [#if !line?is_first || (s?trim?length > 0)]
-      [#if s?trim?length > 0]
-        [#if s[0] == "#"]
-${s}
-        [#else]
-${indent + s}
-        [/#if]
-      [#else]
-
-      [/#if]
-    [/#if]
-  [/#list]
-[/#macro]
-
-[#--
   -- This function generates a variable or field declaration in a string.
   -- @note Processes the $I and $N tokens in the ctype.
   --]
@@ -114,16 +92,6 @@ ${indent + s}
   [/#if]
   [#return fstring + ";"/]
 [/#function]
-
-[#--
-  -- This macro generates a variable or field.
-  -- @note Does not generate the final EOL.
-  -- @note Processes the $I and $N tokens in the ctype.
-  --]
-[#macro GenerateVariableDeclaration indent="" name="no-name" ctype="no-ctype"]
-  [#local fstring = MakeVariableDeclaration(indent name ctype) /]
-${fstring}[#rt]
-[/#macro]
 
 [#--
   -- Creates a sequence containing function parameters taken from an XML node.
@@ -151,21 +119,60 @@ ${fstring}[#rt]
 [/#function]
 
 [#--
+  -- Creates a sequence containing parameters names taken from an XML node.
+  --]
+[#function MakeCallParamsSequence params=[] node=[]]
+  [#list node.param as param]
+    [#local name  = (param.@name[0]!"no-name")?trim /]
+    [#local params = params + [name] /]
+  [/#list]
+  [#return params /]
+[/#function]
+
+[#--
+  -- Emits a C function body code reformatting the indentation using the
+  -- specified line prefix.
+  --]
+[#macro GenerateIndentedCCode indent=indentation ccode=""]
+  [#local lines = ccode?string?split("^", "rm") /]
+  [#list lines as line]
+    [#local s = line?chop_linebreak /]
+    [#if !line?is_first || (s?trim?length > 0)]
+      [#if s?trim?length > 0]
+        [#if s[0] == "#"]
+${s}
+        [#else]
+${indent + s}
+        [/#if]
+      [#else]
+
+      [/#if]
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates a variable or field.
+  -- @note Does not generate the final EOL.
+  -- @note Processes the $I and $N tokens in the ctype.
+  --]
+[#macro GenerateVariableDeclaration indent="" name="no-name" ctype="no-ctype"]
+  [#local fstring = MakeVariableDeclaration(indent name ctype) /]
+${fstring}[#rt]
+[/#macro]
+
+[#--
   -- This macro generates a function prototype from an XML node.
   -- @note Does not generate the final EOL.
   --]
-[#macro GeneratePrototypeFromNode indent="" name="" modifiers=[] params=[] node=[]]
-  [#if name?length == 0]
-    [#local name = GetName(node) /]
-  [/#if]
-  [#local retctype = GetCType(node) /]
-  [#local l1 = retctype + " " + name + "(" /]
+[#macro GeneratePrototype indent="" name="no-name" ctype="no-ctype"
+                          modifiers=[] params=[]]
+  [#local l1 = ctype + " " + name + "(" /]
   [#if modifiers?size > 0]
     [#local l1 = modifiers?join(" ") + " " + l1 /]
   [/#if]
   [#local l1 = indent + l1 /]
   [#local ln = ""?right_pad(l1?length) /]
-  [#local params = MakeProtoParamsSequence(params node) /]
   [#list params as param]
     [#if param_index == 0]
       [#local line = l1 + param /]
@@ -182,15 +189,24 @@ ${line + ")"}[#rt]
 [/#macro]
 
 [#--
-  -- Creates a sequence containing parameters names taken from an XML node.
+  -- This macro generates a function prototype from an XML node.
+  -- @note Does not generate the final EOL.
   --]
-[#function MakeCallParamsSequence params=[] node=[]]
-  [#list node.param as param]
-    [#local name  = (param.@name[0]!"no-name")?trim /]
-    [#local params = params + [name] /]
-  [/#list]
-  [#return params /]
-[/#function]
+[#macro GeneratePrototypeFromNode indent="" name="" ctype=""
+                                  modifiers=[] params=[] node=[]]
+  [#if name?length == 0]
+    [#local name = GetName(node) /]
+  [/#if]
+  [#if ctype?length == 0]
+    [#local ctype = GetCType(node) /]
+  [/#if]
+  [#local params = MakeProtoParamsSequence(params node) /]
+[@GeneratePrototype indent    = indent
+                    name      = name
+                    ctype     = ctype
+                    modifiers = modifiers
+                    params    = params /]
+[/#macro]
 
 [#--
   -- This macro generates a function call.
@@ -502,7 +518,7 @@ ${indent}};
 [@cclasses.GenerateInterfaceWrapper this /]
     [#elseif this?node_name == "verbatim"]
       [#local ccode = (this[0]!"")?trim /]
-[@EmitIndentedCCode indent ccode /]
+[@GenerateIndentedCCode indent ccode /]
     [#elseif this?node_name == "condition"]
       [#local condcheck = (this.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
@@ -606,19 +622,9 @@ ${fieldstring}
 #endif /* ${condcheck} */
     [#elseif node?node_name == "verbatim"]
       [#local ccode = (node[0]!"")?trim /]
-[@EmitIndentedCCode indent ccode /]
+[@GenerateIndentedCCode indent ccode /]
     [/#if]
   [/#list]
-[/#macro]
-
-[#--
-  -- Generates a function from an XML node.
-  --]
-[#macro GenerateFunctionFromNode modifiers=[] node=[]]
-  [#local funcimpl = GetImplementation(node) /]
-[@GeneratePrototypeFromNode modifiers=modifiers node=node /] {
-[@EmitIndentedCCode indent=indentation ccode=funcimpl /]
-}
 [/#macro]
 
 [#--

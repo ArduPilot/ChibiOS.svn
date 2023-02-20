@@ -292,8 +292,8 @@ CC_FORCE_INLINE
                                   params    = ["void *ip"]
                                   node=method /] {
   ${classctype} *self = (${classctype} *)ip;
-[@ccode.EmitIndentedCCode indent=ccode.indentation
-                          ccode=methodimpl /]
+[@ccode.GenerateIndentedCCode indent=ccode.indentation
+                              ccode=methodimpl /]
 }
     [#elseif node?node_name == "condition"]
       [#local condition = node /]
@@ -770,8 +770,8 @@ ${ccode.indentation}__${ancestornamespace}_objinit_impl(self, vmt);
   [#if (class.methods.objinit[0].implementation[0])?? &&
        (class.methods.objinit[0].implementation[0]?trim?length > 0)]
 ${ccode.indentation}/* Initialization code.*/
-[@ccode.EmitIndentedCCode indent=ccode.indentation
-                          ccode=class.methods.objinit[0].implementation[0]?string /]
+[@ccode.GenerateIndentedCCode indent=ccode.indentation
+                              ccode=class.methods.objinit[0].implementation[0]?string /]
   [#else]
 ${ccode.indentation}/* No initialization code.*/
   [/#if]
@@ -795,8 +795,8 @@ void __${classnamespace}_dispose_impl(void *ip) {
   [#if (class.methods.dispose[0].implementation[0])?? &&
        (class.methods.dispose[0].implementation[0]?trim?length > 0)]
 ${ccode.indentation}/* Finalization code.*/
-[@ccode.EmitIndentedCCode indent=ccode.indentation
-                          ccode=class.methods.dispose[0].implementation[0]?string /]
+[@ccode.GenerateIndentedCCode indent=ccode.indentation
+                              ccode=class.methods.dispose[0].implementation[0]?string /]
   [#else]
 ${ccode.indentation}/* No finalization code.*/
 ${ccode.indentation}(void)self;
@@ -831,8 +831,8 @@ ${ccode.indentation}(void)self;
                                   params    = ["void *ip"]
                                   node      = method /] {
   ${classctype} *self = (${classctype} *)ip;
-[@ccode.EmitIndentedCCode indent=ccode.indentation
-                          ccode=methodimpl /]
+[@ccode.GenerateIndentedCCode indent=ccode.indentation
+                              ccode=methodimpl /]
 }
       [/#if]
     [/#if]

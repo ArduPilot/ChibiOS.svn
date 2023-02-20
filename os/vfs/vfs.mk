@@ -7,6 +7,7 @@ VFSSRC := $(CHIBIOS)/os/vfs/src/vfsparser.c \
           $(CHIBIOS)/os/vfs/drivers/sfs/drvsfs.c \
           $(CHIBIOS)/os/vfs/drivers/fatfs/drvfatfs.c \
           $(CHIBIOS)/os/vfs/drivers/overlay/drvoverlay.c \
+          $(CHIBIOS)/os/vfs/drivers/overlay/drvoverlay_impl.c \
           $(CHIBIOS)/os/vfs/drivers/streams/drvstreams.c
 
 # Required include directories

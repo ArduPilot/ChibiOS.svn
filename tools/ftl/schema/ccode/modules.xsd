@@ -340,9 +340,22 @@
   </xs:complexType>
   <xs:complexType name="objinitMethodType">
     <xs:sequence>
-      <xs:element name="implementation" type="xs:string"
-        maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="param" type="paramType" maxOccurs="unbounded"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="implementation" type="xs:string" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
     </xs:sequence>
+    <xs:attribute name="callsuper">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:whiteSpace value="collapse"></xs:whiteSpace>
+          <xs:enumeration value="true"></xs:enumeration>
+          <xs:enumeration value="false"></xs:enumeration>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
   <xs:complexType name="disposeMethodType">
     <xs:sequence>

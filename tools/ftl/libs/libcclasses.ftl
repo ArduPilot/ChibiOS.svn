@@ -204,9 +204,9 @@ ${s}
                                   extratext="Pointer to a @p " + ctype + " instance."
                                   memberof=ctype /]
 CC_FORCE_INLINE
-[@ccode.GeneratePrototype modifiers = ["static", "inline"]
-                          params    = ["void *ip"]
-                          node=method /] {
+[@ccode.GeneratePrototypeFromNode modifiers = ["static", "inline"]
+                                  params    = ["void *ip"]
+                                  node=method /] {
 ${ccode.indentation}${ctype} *self = (${ctype} *)ip;
 
       [#local callname   = "self->vmt->" + namespace + "." + methodsname /]
@@ -288,9 +288,9 @@ CC_FORCE_INLINE
       [#else]
         [#local modifiers = [] /]
       [/#if]
-[@ccode.GeneratePrototype modifiers = modifiers
-                          params    = ["void *ip"]
-                          node=method /] {
+[@ccode.GeneratePrototypeFromNode modifiers = modifiers
+                                  params    = ["void *ip"]
+                                  node=method /] {
   ${classctype} *self = (${classctype} *)ip;
 [@ccode.EmitIndentedCCode indent=ccode.indentation
                           ccode=methodimpl /]
@@ -395,10 +395,10 @@ ${ccode.indentation}__${classnamespace}_dispose_impl(self);
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method) /]
-[@ccode.GeneratePrototype indent    = ccode.indentation
-                          modifiers = []
-                          params    = ["void *ip"]
-                          node=method /];
+[@ccode.GeneratePrototypeFromNode indent    = ccode.indentation
+                                  modifiers = []
+                                  params    = ["void *ip"]
+                                  node=method /];
     [#elseif node?node_name == "condition"]
       [#local condition = node /]
       [#local condcheck = (condition.@check[0]!"1")?trim /]
@@ -425,11 +425,11 @@ ${ccode.indentation}__${classnamespace}_dispose_impl(self);
               methodretctype = GetMethodCType(method)
               methodimpl     = method.implementation[0]!"" /]
       [#if methodimpl?length > 0]
-[@ccode.GeneratePrototype indent    = ccode.indentation
-                          name      = "__" + classnamespace + "_" + methodsname + "_impl"
-                          modifiers = []
-                          params    = ["void *ip"]
-                          node      = method /];
+[@ccode.GeneratePrototypeFromNode indent    = ccode.indentation
+                                  name      = "__" + classnamespace + "_" + methodsname + "_impl"
+                                  modifiers = []
+                                  params    = ["void *ip"]
+                                  node      = method /];
       [/#if]
     [/#if]
   [/#list]
@@ -825,11 +825,11 @@ ${ccode.indentation}(void)self;
 [@doxygen.EmitParamFromNode node=method /]
 [@doxygen.EmitReturnFromNode node=method /]
  */
-[@ccode.GeneratePrototype indent    = ""
-                          name      = "__" + classnamespace + "_" + methodsname + "_impl"
-                          modifiers = []
-                          params    = ["void *ip"]
-                          node      = method /] {
+[@ccode.GeneratePrototypeFromNode indent    = ""
+                                  name      = "__" + classnamespace + "_" + methodsname + "_impl"
+                                  modifiers = []
+                                  params    = ["void *ip"]
+                                  node      = method /] {
   ${classctype} *self = (${classctype} *)ip;
 [@ccode.EmitIndentedCCode indent=ccode.indentation
                           ccode=methodimpl /]

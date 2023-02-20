@@ -154,7 +154,7 @@ ${fstring}[#rt]
   -- This macro generates a function prototype from an XML node.
   -- @note Does not generate the final EOL.
   --]
-[#macro GeneratePrototype indent="" name="" modifiers=[] params=[] node=[]]
+[#macro GeneratePrototypeFromNode indent="" name="" modifiers=[] params=[] node=[]]
   [#if name?length == 0]
     [#local name = GetName(node) /]
   [/#if]
@@ -616,7 +616,7 @@ ${fieldstring}
   --]
 [#macro GenerateFunctionFromNode modifiers=[] node=[]]
   [#local funcimpl = GetImplementation(node) /]
-[@GeneratePrototype modifiers=modifiers node=node /] {
+[@GeneratePrototypeFromNode modifiers=modifiers node=node /] {
 [@EmitIndentedCCode indent=indentation ccode=funcimpl /]
 }
 [/#macro]
@@ -676,7 +676,7 @@ ${fieldstring}
 [#macro GenerateFunctionPrototypesFromNode indent=indentation modifiers=[] node=[]]
   [#list node.* as this]
     [#if this?node_name == "function"]
-[@GeneratePrototype indent=indent modifiers=modifiers node=this /];
+[@GeneratePrototypeFromNode indent=indent modifiers=modifiers node=this /];
     [#elseif this?node_name == "group"]
 [@GenerateFunctionPrototypesFromNode indent=indent modifiers=modifiers node=this /]
     [#elseif this?node_name == "condition"]

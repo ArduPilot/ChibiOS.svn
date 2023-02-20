@@ -672,9 +672,11 @@ extern "C" {
  *
  * @brief       Default initialization function of @p hal_sio_driver_c.
  *
- * @param[out]    no-name       Pointer to a @p hal_sio_driver_c instance to be
+ * @param[out]    self          Pointer to a @p hal_sio_driver_c instance to be
  *                              initialized.
  * @return                      Pointer to the initialized object.
+ *
+ * @objinit
  */
 CC_FORCE_INLINE
 static inline hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
@@ -688,8 +690,10 @@ static inline hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
  *
  * @brief       Default finalization function of @p hal_sio_driver_c.
  *
- * @param[in,out] no-name       Pointer to a @p hal_sio_driver_c instance to be
+ * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance to be
  *                              finalized.
+ *
+ * @dispose
  */
 CC_FORCE_INLINE
 static inline void sioDispose(hal_sio_driver_c *self) {

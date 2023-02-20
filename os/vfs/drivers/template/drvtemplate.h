@@ -312,9 +312,11 @@ extern "C" {
  *
  * @brief       Default initialization function of @p vfs_template_dir_node_c.
  *
- * @param[out]    no-name       Pointer to a @p vfs_template_dir_node_c
+ * @param[out]    self          Pointer to a @p vfs_template_dir_node_c
  *                              instance to be initialized.
  * @return                      Pointer to the initialized object.
+ *
+ * @objinit
  */
 CC_FORCE_INLINE
 static inline vfs_template_dir_node_c *tmpldirObjectInit(vfs_template_dir_node_c *self) {
@@ -328,8 +330,10 @@ static inline vfs_template_dir_node_c *tmpldirObjectInit(vfs_template_dir_node_c
  *
  * @brief       Default finalization function of @p vfs_template_dir_node_c.
  *
- * @param[in,out] no-name       Pointer to a @p vfs_template_dir_node_c
+ * @param[in,out] self          Pointer to a @p vfs_template_dir_node_c
  *                              instance to be finalized.
+ *
+ * @dispose
  */
 CC_FORCE_INLINE
 static inline void tmpldirDispose(vfs_template_dir_node_c *self) {
@@ -347,9 +351,11 @@ static inline void tmpldirDispose(vfs_template_dir_node_c *self) {
  *
  * @brief       Default initialization function of @p vfs_template_file_node_c.
  *
- * @param[out]    no-name       Pointer to a @p vfs_template_file_node_c
+ * @param[out]    self          Pointer to a @p vfs_template_file_node_c
  *                              instance to be initialized.
  * @return                      Pointer to the initialized object.
+ *
+ * @objinit
  */
 CC_FORCE_INLINE
 static inline vfs_template_file_node_c *tmplfileObjectInit(vfs_template_file_node_c *self) {
@@ -363,8 +369,10 @@ static inline vfs_template_file_node_c *tmplfileObjectInit(vfs_template_file_nod
  *
  * @brief       Default finalization function of @p vfs_template_file_node_c.
  *
- * @param[in,out] no-name       Pointer to a @p vfs_template_file_node_c
+ * @param[in,out] self          Pointer to a @p vfs_template_file_node_c
  *                              instance to be finalized.
+ *
+ * @dispose
  */
 CC_FORCE_INLINE
 static inline void tmplfileDispose(vfs_template_file_node_c *self) {
@@ -382,9 +390,11 @@ static inline void tmplfileDispose(vfs_template_file_node_c *self) {
  *
  * @brief       Default initialization function of @p vfs_template_driver_c.
  *
- * @param[out]    no-name       Pointer to a @p vfs_template_driver_c instance
+ * @param[out]    self          Pointer to a @p vfs_template_driver_c instance
  *                              to be initialized.
  * @return                      Pointer to the initialized object.
+ *
+ * @objinit
  */
 CC_FORCE_INLINE
 static inline vfs_template_driver_c *tmpldrvObjectInit(vfs_template_driver_c *self) {
@@ -398,8 +408,10 @@ static inline vfs_template_driver_c *tmpldrvObjectInit(vfs_template_driver_c *se
  *
  * @brief       Default finalization function of @p vfs_template_driver_c.
  *
- * @param[in,out] no-name       Pointer to a @p vfs_template_driver_c instance
+ * @param[in,out] self          Pointer to a @p vfs_template_driver_c instance
  *                              to be finalized.
+ *
+ * @dispose
  */
 CC_FORCE_INLINE
 static inline void tmpldrvDispose(vfs_template_driver_c *self) {

@@ -155,6 +155,13 @@
 [/#function]
 
 [#--
+  -- Returns the method short name from an XML node.
+  --]
+[#function GetObjinitCallsuper node=[] default="true"]
+  [#return (node.callsuper[0]!default)?trim /]
+[/#function]
+
+[#--
   -- This macro generates virtual methods pointers from an XML node.
   --]
 [#macro GenerateVMTPointers methods=[] ipctype="void *"]
@@ -328,15 +335,28 @@ CC_FORCE_INLINE
  *
 [@doxygen.EmitBrief "" "Default initialization function of @p " + classctype + "." /]
  *
-[@doxygen.EmitParam name=paramname dir="out"
-                    text="Pointer to a @p " + classctype + " instance to be initialized." /]
-[@doxygen.EmitReturn text="Pointer to the initialized object." /]
+[@doxygen.EmitParam name = "self"
+                    dir  = "out"
+                    text = "Pointer to a @p " + classctype + " instance to be initialized." /]
+[@doxygen.EmitParamFromNode node = node.methods.objinit[0] /]
+[@doxygen.EmitReturn text = "Pointer to the initialized object." /]
+ *
+ * @objinit
  */
 CC_FORCE_INLINE
-static inline ${classctype} *${classnamespace}ObjectInit(${classctype} *self) {
+[@ccode.GeneratePrototypeFromNode indent    = ""
+                                  name      = classnamespace + "ObjectInit"
+                                  ctype     = classctype + " *"
+                                  modifiers = ["static", "inline"]
+                                  params    = [classctype + " *self"]
+                                  node      = node.methods.objinit[0] /] {
 ${ccode.indentation}extern const struct ${classname}_vmt __${classnamespace}_vmt;
 
-${ccode.indentation}return __${classnamespace}_objinit_impl(self, &__${classnamespace}_vmt);
+    [#local params = ccode.MakeCallParamsSequence(["self", "&__" + classnamespace + "_vmt"], node.methods.objinit[0]) /]
+[@ccode.GenerateFunctionCall indent      = ccode.indentation
+                             destination = "return"
+                             name        = "__" + classnamespace + "_objinit_impl"
+                             params      = params /]
 }
 
 /**
@@ -344,11 +364,18 @@ ${ccode.indentation}return __${classnamespace}_objinit_impl(self, &__${classname
  *
 [@doxygen.EmitBrief "" "Default finalization function of @p " + classctype + "." /]
  *
-[@doxygen.EmitParam name=paramname dir="both"
-                    text="Pointer to a @p " + classctype + " instance to be finalized." /]
+[@doxygen.EmitParam name = "self"
+                    dir  = "both"
+                    text = "Pointer to a @p " + classctype + " instance to be finalized." /]
+ *
+ * @dispose
  */
 CC_FORCE_INLINE
-static inline void ${classnamespace}Dispose(${classctype} *self) {
+[@ccode.GeneratePrototype indent    = ""
+                          name      = classnamespace + "Dispose"
+                          ctype     = "void"
+                          modifiers = ["static", "inline"]
+                          params    = [classctype + " *self"] /] {
 
 ${ccode.indentation}__${classnamespace}_dispose_impl(self);
 }
@@ -415,11 +442,12 @@ ${ccode.indentation}__${classnamespace}_dispose_impl(self);
 [#macro GenerateClassVirtualMethodsPrototypes class=[]]
   [#local classname        = GetNodeName(class)
           classnamespace   = GetNodeNamespace(class) /]
-[@ccode.GeneratePrototype indent    = ccode.indentation
-                          name      = "__" + classnamespace + "_objinit_impl"
-                          ctype     = "void *"
-                          modifiers = []
-                          params    = ["void *ip", "const void *vmt"] /];
+[@ccode.GeneratePrototypeFromNode indent    = ccode.indentation
+                                  name      = "__" + classnamespace + "_objinit_impl"
+                                  ctype     = "void *"
+                                  modifiers = []
+                                  params    = ["void *ip", "const void *vmt"]
+                                  node      = class.methods.objinit[0] /];
 [@ccode.GeneratePrototype indent    = ccode.indentation
                           name      = "__" + classnamespace + "_dispose_impl"
                           ctype     = "void"
@@ -758,19 +786,30 @@ ${ccode.indentation}}
                     text="Pointer to a @p " + classctype + " instance to be initialized." /]
 [@doxygen.EmitParam name="vmt" dir="in"
                     text="VMT pointer for the new object." /]
+[@doxygen.EmitParamFromNode node = class.methods.objinit[0] /]
 [@doxygen.EmitReturn text="A new reference to the object." /]
  */
-void *__${classnamespace}_objinit_impl(void *ip, const void *vmt) {
-  ${classctype} *self = (${classctype} *)ip;
+[@ccode.GeneratePrototypeFromNode indent    = ""
+                                  name      = "__" + classnamespace + "_objinit_impl"
+                                  ctype     = "void *"
+                                  modifiers = []
+                                  params    = ["void *ip", "const void *vmt"]
+                                  node      = class.methods.objinit[0] /] {
+${ccode.indentation}${classctype} *self = (${classctype} *)ip;
 
   [#if ancestornamespace?length == 0]
 ${ccode.indentation}/* This is a root class, initializing the VMT pointer here.*/
 ${ccode.indentation}self->vmt = (struct base_object_vmt *)vmt;
 
   [#else]
+    [#if GetObjinitCallsuper(class.methods.objinit[0]) == "true"]
 ${ccode.indentation}/* Initialization of the ancestors-defined parts.*/
-${ccode.indentation}__${ancestornamespace}_objinit_impl(self, vmt);
+[@ccode.GenerateFunctionCall indent      = ccode.indentation
+                             destination = ""
+                             name        = "__" + ancestornamespace + "_objinit_impl"
+                             params      = ["self", "vmt"] /]
 
+    [/#if]
   [/#if]
   [#if class.implements.*?size > 0]
 [@GenerateClassInterfacesInitialization class.implements classctype classnamespace /]
@@ -797,8 +836,12 @@ ${ccode.indentation}return self;
 [@doxygen.EmitParam name="ip" dir="both"
                     text="Pointer to a @p " + classctype + " instance to be disposed." /]
  */
-void __${classnamespace}_dispose_impl(void *ip) {
-  ${classctype} *self = (${classctype} *)ip;
+[@ccode.GeneratePrototype indent    = ""
+                          name      = "__" + classnamespace + "_dispose_impl"
+                          ctype     = "void"
+                          modifiers = []
+                          params    = ["void *ip"] /] {
+${ccode.indentation}${classctype} *self = (${classctype} *)ip;
 
   [#if (class.methods.dispose[0].implementation[0])?? &&
        (class.methods.dispose[0].implementation[0]?trim?length > 0)]

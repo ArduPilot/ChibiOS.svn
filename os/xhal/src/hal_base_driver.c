@@ -113,7 +113,7 @@ void drvInit(void) {
  *
  * @api
  */
-hal_base_driver_c * drvRegGetFirstX(void) {
+hal_base_driver_c *drvRegGetFirstX(void) {
   hal_regent_t *rep;
 
   rep = hal_registry.next;
@@ -134,7 +134,7 @@ hal_base_driver_c * drvRegGetFirstX(void) {
  *
  * @api
  */
-hal_base_driver_c * drvRegGetNextX(hal_base_driver_c *drvp) {
+hal_base_driver_c *drvRegGetNextX(hal_base_driver_c *drvp) {
   hal_regent_t *rep;
 
   rep = drvp->drv.regent.next;
@@ -162,7 +162,7 @@ hal_base_driver_c * drvRegGetNextX(hal_base_driver_c *drvp) {
  *
  * @api
  */
-hal_base_driver_c * drvOpenByName(const char *name, msg_t *msgp) {
+hal_base_driver_c *drvOpenByName(const char *name, msg_t *msgp) {
   msg_t msg = HAL_RET_SUCCESS;
   hal_base_driver_c *drvp;
 

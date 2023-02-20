@@ -65,6 +65,10 @@
         </fields>
         <methods>
           <objinit>
+            <param name="overlaid_drv" ctype="vfs_driver_c *" dir="in"><![CDATA[Pointer to
+              a driver to be overlaid or @p NULL.]]></param>
+            <param name="path_prefix" ctype="const char *" dir="in"><![CDATA[Prefix to be
+              added to the paths or @p NULL, it must be a normalized absolute path.]]></param>
             <implementation><![CDATA[]]></implementation>
           </objinit>
           <dispose>

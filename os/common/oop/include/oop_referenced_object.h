@@ -145,7 +145,7 @@ extern "C" {
   /* Methods of referenced_object_c.*/
   void *__ro_objinit_impl(void *ip, const void *vmt);
   void __ro_dispose_impl(void *ip);
-  void * __ro_addref_impl(void *ip);
+  void *__ro_addref_impl(void *ip);
   object_references_t __ro_release_impl(void *ip);
 #ifdef __cplusplus
 }
@@ -171,7 +171,7 @@ extern "C" {
  * @return                      A new reference pointer.
  */
 CC_FORCE_INLINE
-static inline void * roAddRef(void *ip) {
+static inline void *roAddRef(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
   return self->vmt->ro.addref(ip);

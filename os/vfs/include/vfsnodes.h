@@ -393,7 +393,7 @@ extern "C" {
   msg_t __vfsfile_setpos_impl(void *ip, vfs_offset_t offset,
                               vfs_seekmode_t whence);
   vfs_offset_t __vfsfile_getpos_impl(void *ip);
-  BaseSequentialStream * __vfsfile_getstream_impl(void *ip);
+  BaseSequentialStream *__vfsfile_getstream_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif
@@ -564,7 +564,7 @@ static inline vfs_offset_t vfsFileGetPosition(void *ip) {
  * @api
  */
 CC_FORCE_INLINE
-static inline BaseSequentialStream * vfsFileGetStream(void *ip) {
+static inline BaseSequentialStream *vfsFileGetStream(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
   return self->vmt->vfsfile.getstream(ip);

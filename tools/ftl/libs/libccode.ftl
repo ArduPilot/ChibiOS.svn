@@ -167,7 +167,11 @@ ${fstring}[#rt]
   --]
 [#macro GeneratePrototype indent="" name="no-name" ctype="no-ctype"
                           modifiers=[] params=[]]
-  [#local l1 = ctype + " " + name + "(" /]
+  [#if ctype?ends_with("*")]
+    [#local l1 = ctype + name + "(" /]
+  [#else]
+    [#local l1 = ctype + " " + name + "(" /]
+  [/#if]
   [#if modifiers?size > 0]
     [#local l1 = modifiers?join(" ") + " " + l1 /]
   [/#if]
@@ -625,6 +629,16 @@ ${fieldstring}
 [@GenerateIndentedCCode indent ccode /]
     [/#if]
   [/#list]
+[/#macro]
+
+[#--
+  -- Generates a function from an XML node.
+  --]
+[#macro GenerateFunctionFromNode modifiers=[] node=[]]
+  [#local funcimpl = GetImplementation(node) /]
+[@GeneratePrototypeFromNode modifiers=modifiers node=node /] {
+[@GenerateIndentedCCode indent=indentation ccode=funcimpl /]
+}
 [/#macro]
 
 [#--

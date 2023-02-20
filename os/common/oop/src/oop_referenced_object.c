@@ -112,7 +112,7 @@ void __ro_dispose_impl(void *ip) {
  * @param[in,out] ip            Pointer to a @p referenced_object_c instance.
  * @return                      A new reference pointer.
  */
-void * __ro_addref_impl(void *ip) {
+void *__ro_addref_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
   self->ro.references++;
 

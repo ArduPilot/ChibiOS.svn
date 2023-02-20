@@ -87,7 +87,7 @@ static struct vfs_template_driver_static_struct vfs_template_driver_static;
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-static void * __tmpldir_ro_addref_impl(void *ip) {
+static void *__tmpldir_ro_addref_impl(void *ip) {
 
   return __ro_addref_impl(ip);
 }
@@ -112,7 +112,7 @@ static msg_t __tmpldir_vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
   return __vfsdir_next_impl(ip, dip);
 }
 
-static void * __tmplfile_ro_addref_impl(void *ip) {
+static void *__tmplfile_ro_addref_impl(void *ip) {
 
   return __ro_addref_impl(ip);
 }
@@ -150,7 +150,7 @@ static vfs_offset_t __tmplfile_vfsfile_getpos_impl(void *ip) {
   return __vfsfile_getpos_impl(ip);
 }
 
-static BaseSequentialStream * __tmplfile_vfsfile_getstream_impl(void *ip) {
+static BaseSequentialStream *__tmplfile_vfsfile_getstream_impl(void *ip) {
 
   return __vfsfile_getstream_impl(ip);
 }

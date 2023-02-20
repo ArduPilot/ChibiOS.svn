@@ -415,8 +415,16 @@ ${ccode.indentation}__${classnamespace}_dispose_impl(self);
 [#macro GenerateClassVirtualMethodsPrototypes class=[]]
   [#local classname        = GetNodeName(class)
           classnamespace   = GetNodeNamespace(class) /]
-  void *__${classnamespace}_objinit_impl(void *ip, const void *vmt);
-  void __${classnamespace}_dispose_impl(void *ip);
+[@ccode.GeneratePrototype indent    = ccode.indentation
+                          name      = "__" + classnamespace + "_objinit_impl"
+                          ctype     = "void *"
+                          modifiers = []
+                          params    = ["void *ip", "const void *vmt"] /];
+[@ccode.GeneratePrototype indent    = ccode.indentation
+                          name      = "__" + classnamespace + "_dispose_impl"
+                          ctype     = "void"
+                          modifiers = []
+                          params    = ["void *ip"] /];
   [#list class.methods.virtual.* as node]
     [#if node?node_name == "method"]
       [#local method=node /]

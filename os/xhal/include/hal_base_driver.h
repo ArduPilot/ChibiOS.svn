@@ -225,9 +225,9 @@ extern "C" {
   /* Regular functions.*/
   void drvInit(void);
 #if HAL_USE_REGISTRY == TRUE
-  hal_base_driver_c * drvRegGetFirstX(void);
-  hal_base_driver_c * drvRegGetNextX(hal_base_driver_c *drvp);
-  hal_base_driver_c * drvOpenByName(const char *name, msg_t *msgp);
+  hal_base_driver_c *drvRegGetFirstX(void);
+  hal_base_driver_c *drvRegGetNextX(hal_base_driver_c *drvp);
+  hal_base_driver_c *drvOpenByName(const char *name, msg_t *msgp);
 #endif
 #ifdef __cplusplus
 }
@@ -352,7 +352,7 @@ static inline void drvSetStateX(void *ip, driver_state_t state) {
  * @api
  */
 CC_FORCE_INLINE
-static inline void * drvGetOwnerX(void *ip) {
+static inline void *drvGetOwnerX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
   return self->drv.owner;
@@ -389,7 +389,7 @@ static inline void drvSetOwnerX(void *ip, void *owner) {
  * @api
  */
 CC_FORCE_INLINE
-static inline const char * drvGetNameX(void *ip) {
+static inline const char *drvGetNameX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
 #if HAL_USE_REGISTRY == TRUE

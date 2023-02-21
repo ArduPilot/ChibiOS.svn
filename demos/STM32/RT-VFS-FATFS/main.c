@@ -292,18 +292,18 @@ int main(void) {
   /* Initializing an overlay VFS object overlaying a FatFS driver. Note
      that this virtual file system can only access the "/sb1" sub-directory
      on the physical FatFS volume.*/
-  drvOverlayObjectInit(&root_overlay_driver,
-                       drvFatFSObjectInit(&root_driver),
-                       "/sb1");
+  ovldrvObjectInit(&root_overlay_driver,
+                   drvFatFSObjectInit(&root_driver),
+                   "/sb1");
 #else
   /* Initializing an overlay VFS object as a root, no overlaid driver.*/
-  drvOverlayObjectInit(&root_overlay_driver, NULL, NULL);
+  ovldrvObjectInit(&root_overlay_driver, NULL, NULL);
 #endif
 
   /* Registering a streams VFS driver on the VFS overlay root as "/dev".*/
-  msg = drvOverlayRegisterDriver(&root_overlay_driver,
-                                 drvStreamsObjectInit(&dev_driver, &streams[0]),
-                                 "dev");
+  msg = ovldrvRegisterDriver(&root_overlay_driver,
+                             drvStreamsObjectInit(&dev_driver, &streams[0]),
+                             "dev");
   if (CH_RET_IS_ERROR(msg)) {
     chSysHalt("VFS");
   }

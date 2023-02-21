@@ -158,7 +158,7 @@
   -- Returns the method short name from an XML node.
   --]
 [#function GetObjinitCallsuper node=[] default="true"]
-  [#return (node.callsuper[0]!default)?trim /]
+  [#return (node.@callsuper[0]!default)?trim /]
 [/#function]
 
 [#--

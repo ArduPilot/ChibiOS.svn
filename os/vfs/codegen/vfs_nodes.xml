@@ -101,8 +101,18 @@
           </field>
         </fields>
         <methods>
-          <objinit>
-            <implementation><![CDATA[ ]]></implementation>
+          <objinit callsuper="false">
+            <param name="driver" ctype="vfs_driver_c *" dir="in">
+              Pointer to the controlling driver.
+            </param>
+            <param name="mode" ctype="vfs_mode_t" dir="in">
+              Node mode flags.
+            </param>
+            <implementation><![CDATA[
+self = __ro_objinit_impl(self, vmt);
+
+self->vfsnode.driver = driver;
+self->vfsnode.mode   = mode;]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
@@ -132,8 +142,15 @@ return CH_RET_SUCCESS;]]></implementation>
         <fields>
         </fields>
         <methods>
-          <objinit>
-            <implementation><![CDATA[ ]]></implementation>
+          <objinit callsuper="false">
+            <param name="driver" ctype="vfs_driver_c *" dir="in">
+              Pointer to the controlling driver.
+            </param>
+            <param name="mode" ctype="vfs_mode_t" dir="in">
+              Node mode flags.
+            </param>
+            <implementation><![CDATA[
+self = __vfsnode_objinit_impl(ip, vmt, driver, mode);]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
@@ -175,8 +192,15 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
         <fields>
         </fields>
         <methods>
-          <objinit>
-            <implementation><![CDATA[ ]]></implementation>
+          <objinit callsuper="false">
+            <param name="driver" ctype="vfs_driver_c *" dir="in">
+              Pointer to the controlling driver.
+            </param>
+            <param name="mode" ctype="vfs_mode_t" dir="in">
+              Node mode flags.
+            </param>
+            <implementation><![CDATA[
+self = __vfsnode_objinit_impl(ip, vmt, driver, mode);]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>

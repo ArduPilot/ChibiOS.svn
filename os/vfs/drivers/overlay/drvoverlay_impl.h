@@ -59,17 +59,6 @@ extern "C" {
   msg_t __ovldir_vfsnode_stat_impl(void *ip, vfs_stat_t *sp);
   msg_t __ovldir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip);
   msg_t __ovldir_vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip);
-  void *__ovlfile_ro_addref_impl(void *ip);
-  object_references_t __ovlfile_ro_release_impl(void *ip);
-  msg_t __ovlfile_vfsnode_stat_impl(void *ip, vfs_stat_t *sp);
-  ssize_t __ovlfile_vfsfile_read_impl(void *ip, uint8_t *buf,
-                                      size_t size);
-  ssize_t __ovlfile_vfsfile_write_impl(void *ip, const uint8_t *buf,
-                                       size_t size);
-  msg_t __ovlfile_vfsfile_setpos_impl(void *ip, vfs_offset_t offset,
-                                      vfs_seekmode_t whence);
-  vfs_offset_t __ovlfile_vfsfile_getpos_impl(void *ip);
-  BaseSequentialStream *__ovlfile_vfsfile_getstream_impl(void *ip);
   msg_t __ovldrv_vfsdrv_setcwd_impl(void *ip, const char *path);
   msg_t __ovldrv_vfsdrv_getcwd_impl(void *ip, char *buf, size_t size);
   msg_t __ovldrv_vfsdrv_stat_impl(void *ip, const char *path,
@@ -84,11 +73,6 @@ extern "C" {
   msg_t __ovldrv_vfsdrv_mkdir_impl(void *ip, const char *path,
                                    vfs_mode_t mode);
   msg_t __ovldrv_vfsdrv_rmdir_impl(void *ip, const char *path);
-  size_t __ovlfile_stm_write_impl(void *ip, const uint8_t *buf,
-                                  size_t size);
-  size_t __ovlfile_stm_read_impl(void *ip, uint8_t *buf, size_t size);
-  msg_t __ovlfile_stm_put_impl(void *ip, uint8_t b);
-  msg_t __ovlfile_stm_get_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif

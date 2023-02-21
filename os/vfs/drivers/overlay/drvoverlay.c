@@ -105,15 +105,19 @@ const struct vfs_overlay_dir_node_vmt __ovldir_vmt = {
  * @param[out]    ip            Pointer to a @p vfs_overlay_dir_node_c instance
  *                              to be initialized.
  * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      A new reference to the object.
  */
-void *__ovldir_objinit_impl(void *ip, const void *vmt) {
+void *__ovldir_objinit_impl(void *ip, const void *vmt,
+                            vfs_overlay_driver_c *driver, vfs_mode_t mode) {
   vfs_overlay_dir_node_c *self = (vfs_overlay_dir_node_c *)ip;
 
-  /* Initialization of the ancestors-defined parts.*/
-  __vfsdir_objinit_impl(self, vmt);
+  /* Initialization code.*/
+  self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
 
-  /* No initialization code.*/
+  self->ovldir.index         = 0U;
+  self->ovldir.overlaid_root = NULL;
 
   return self;
 }
@@ -136,74 +140,6 @@ void __ovldir_dispose_impl(void *ip) {
 
   /* Finalization of the ancestors-defined parts.*/
   __vfsdir_dispose_impl(self);
-}
-/** @} */
-
-/*===========================================================================*/
-/* Module class "vfs_overlay_file_node_c" methods.                           */
-/*===========================================================================*/
-
-/**
- * @brief       VMT structure of VFS overlay file node class.
- * @note        It is public because accessed by the inlined constructor.
- */
-const struct vfs_overlay_file_node_vmt __ovlfile_vmt = {
-  __ovlfile_vmt_init(ovlfile)
-};
-
-/**
- * @name        Virtual methods implementations of vfs_overlay_file_node_c
- * @{
- */
-/**
- * @memberof    vfs_overlay_file_node_c
- * @protected
- *
- * @brief       Implementation of object creation.
- * @note        This function is meant to be used by derived classes.
- *
- * @param[out]    ip            Pointer to a @p vfs_overlay_file_node_c
- *                              instance to be initialized.
- * @param[in]     vmt           VMT pointer for the new object.
- * @return                      A new reference to the object.
- */
-void *__ovlfile_objinit_impl(void *ip, const void *vmt) {
-  vfs_overlay_file_node_c *self = (vfs_overlay_file_node_c *)ip;
-
-  /* Initialization of the ancestors-defined parts.*/
-  __vfsfile_objinit_impl(self, vmt);
-
-  /* Implementation of interface sequential_stream_i.*/
-  {
-    static const struct sequential_stream_vmt ovlfile_stm_vmt = {
-      __stm_vmt_init(ovlfile, offsetof(vfs_overlay_file_node_c, ovlfile.stm))
-    };
-    oopIfObjectInit(&self->ovlfile.stm, &ovlfile_stm_vmt);
-  }
-
-  /* No initialization code.*/
-
-  return self;
-}
-
-/**
- * @memberof    vfs_overlay_file_node_c
- * @protected
- *
- * @brief       Implementation of object finalization.
- * @note        This function is meant to be used by derived classes.
- *
- * @param[in,out] ip            Pointer to a @p vfs_overlay_file_node_c
- *                              instance to be disposed.
- */
-void __ovlfile_dispose_impl(void *ip) {
-  vfs_overlay_file_node_c *self = (vfs_overlay_file_node_c *)ip;
-
-  /* No finalization code.*/
-  (void)self;
-
-  /* Finalization of the ancestors-defined parts.*/
-  __vfsfile_dispose_impl(self);
 }
 /** @} */
 

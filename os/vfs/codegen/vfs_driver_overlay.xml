@@ -22,30 +22,23 @@
       <class type="regular" name="vfs_overlay_dir_node"
         namespace="ovldir" ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
         descr="VFS overlay directory node">
-        <fields></fields>
-        <methods>
-          <objinit>
-            <implementation><![CDATA[]]></implementation>
-          </objinit>
-          <dispose>
-            <implementation><![CDATA[]]></implementation>
-          </dispose>
-        </methods>
-      </class>
-      <class type="regular" name="vfs_overlay_file_node"
-        namespace="ovlfile" ancestorname="vfs_file_node" ancestornamespace="vfsfile"
-        descr="VFS overlay file node">
-        <implements>
-          <ifref name="sequential_stream" namespace="stm" />
-        </implements>
         <fields>
-          <field name="stm" ctype="sequential_stream_i">
-            <brief>Stream interface for this file.</brief>
-          </field>
+          <field name="index" ctype="unsigned"></field>
+          <field name="overlaid_root" ctype="vfs_directory_node_c$I*"></field>
         </fields>
         <methods>
-          <objinit>
-            <implementation><![CDATA[]]></implementation>
+          <objinit callsuper="false">
+            <param name="driver" ctype="vfs_overlay_driver_c *" dir="in">
+              Pointer to the controlling driver.
+            </param>
+            <param name="mode" ctype="vfs_mode_t" dir="in">
+              Node mode flags.
+            </param>
+            <implementation><![CDATA[
+self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
+
+self->ovldir.index         = 0U;
+self->ovldir.overlaid_root = NULL;]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[]]></implementation>
@@ -105,22 +98,10 @@ return ret;]]></implementation>
       <struct name="vfs_overlay_driver_static_struct">
         <brief>Structure representing the global state of @p vfs_overlay_driver_c.</brief>
         <fields>
-          <field name="fs_nodes_pool" ctype="memory_pool_t">
-            <brief>Pool of file system objects.</brief>
-          </field>
-          <field name="info_nodes_pool" ctype="memory_pool_t">
-            <brief>Pool of file info objects.</brief>
-          </field>
           <field name="dir_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of file directory nodes.</brief>
           </field>
-          <field name="file_nodes_pool" ctype="memory_pool_t">
-            <brief>Pool of file nodes.</brief>
-          </field>
           <field name="dir_nodes" ctype="vfs_overlay_dir_node_c$I$N[DRV_CFG_OVERLAY_DIR_NODES_NUM]">
-            <brief>Pool of file nodes.</brief>
-          </field>
-          <field name="file_nodes" ctype="vfs_overlay_file_node_c$I$N[DRV_CFG_OVERLAY_DIR_NODES_NUM]">
             <brief>Pool of file nodes.</brief>
           </field>
         </fields>

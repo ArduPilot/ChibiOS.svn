@@ -377,16 +377,19 @@ struct vfs_file_node {
 extern "C" {
 #endif
   /* Methods of vfs_node_c.*/
-  void *__vfsnode_objinit_impl(void *ip, const void *vmt);
+  void *__vfsnode_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                               vfs_mode_t mode);
   void __vfsnode_dispose_impl(void *ip);
   msg_t __vfsnode_stat_impl(void *ip, vfs_stat_t *sp);
   /* Methods of vfs_directory_node_c.*/
-  void *__vfsdir_objinit_impl(void *ip, const void *vmt);
+  void *__vfsdir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                              vfs_mode_t mode);
   void __vfsdir_dispose_impl(void *ip);
   msg_t __vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip);
   msg_t __vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip);
   /* Methods of vfs_file_node_c.*/
-  void *__vfsfile_objinit_impl(void *ip, const void *vmt);
+  void *__vfsfile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                               vfs_mode_t mode);
   void __vfsfile_dispose_impl(void *ip);
   ssize_t __vfsfile_read_impl(void *ip, uint8_t *buf, size_t n);
   ssize_t __vfsfile_write_impl(void *ip, const uint8_t *buf, size_t n);

@@ -98,6 +98,14 @@
 typedef struct vfs_overlay_dir_node vfs_overlay_dir_node_c;
 
 /**
+ * @brief       Class @p vfs_overlay_dir_node_c data as a structure.
+ */
+struct ovldir_data {
+  unsigned                  index;
+  vfs_directory_node_c      *overlaid_root;
+};
+
+/**
  * @brief       Class @p vfs_overlay_dir_node_c methods.
  */
 #define __ovldir_methods                                                    \
@@ -109,7 +117,7 @@ typedef struct vfs_overlay_dir_node vfs_overlay_dir_node_c;
  */
 #define __ovldir_data                                                       \
   __vfsdir_data                                                             \
-  /* No data.*/
+  struct ovldir_data        ovldir;
 
 /**
  * @brief       Class @p vfs_overlay_dir_node_c VMT initializer.
@@ -134,89 +142,6 @@ struct vfs_overlay_dir_node {
   const struct vfs_overlay_dir_node_vmt *vmt;
   __ovldir_data
 };
-/** @} */
-
-/**
- * @class       vfs_overlay_file_node_c
- * @extends     vfs_file_node_c
- * @implements  sequential_stream_i
- *
- * @note        The class namespace is <tt>ovlfile</tt>, access to class fields
- *              is done using: <tt><objp>->ovlfile.<fieldname></tt><br>Note
- *              that fields of ancestor classes are in their own namespace in
- *              order to avoid field naming conflicts.
- *
- * @name        Class @p vfs_overlay_file_node_c structures
- * @{
- */
-
-/**
- * @brief       Type of a VFS overlay file node class.
- */
-typedef struct vfs_overlay_file_node vfs_overlay_file_node_c;
-
-/**
- * @brief       Class @p vfs_overlay_file_node_c data as a structure.
- */
-struct ovlfile_data {
-  /**
-   * @brief       Stream interface for this file.
-   */
-  sequential_stream_i       stm;
-};
-
-/**
- * @brief       Class @p vfs_overlay_file_node_c methods.
- */
-#define __ovlfile_methods                                                   \
-  __vfsfile_methods                                                         \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_overlay_file_node_c data.
- */
-#define __ovlfile_data                                                      \
-  __vfsfile_data                                                            \
-  struct ovlfile_data       ovlfile;
-
-/**
- * @brief       Class @p vfs_overlay_file_node_c VMT initializer.
- */
-#define __ovlfile_vmt_init(ns)                                              \
-  __vfsfile_vmt_init(ns)
-
-/**
- * @brief       Class @p vfs_overlay_file_node_c virtual methods table.
- */
-struct vfs_overlay_file_node_vmt {
-  __ovlfile_methods
-};
-
-/**
- * @brief       Structure representing a VFS overlay file node class.
- */
-struct vfs_overlay_file_node {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct vfs_overlay_file_node_vmt *vmt;
-  __ovlfile_data
-};
-
-/**
- * @memberof    vfs_overlay_file_node_c
- *
- * @brief       Access macro for vfs_overlay_file_node_c interfaces.
- *
- * @param[in]     ip            Pointer to the class instance.
- * @param         ifns          Implemented interface namespace.
- * @return                      A void pointer to the interface within the
- *                              class instance.
- *
- * @api
- */
-#define ovlfileGetIf(ip, ifns)                                              \
-  boGetIf(ip, ifns, ovlfile)
 /** @} */
 
 /**
@@ -294,29 +219,13 @@ struct vfs_overlay_driver {
  */
 struct vfs_overlay_driver_static_struct {
   /**
-   * @brief       Pool of file system objects.
-   */
-  memory_pool_t             fs_nodes_pool;
-  /**
-   * @brief       Pool of file info objects.
-   */
-  memory_pool_t             info_nodes_pool;
-  /**
    * @brief       Pool of file directory nodes.
    */
   memory_pool_t             dir_nodes_pool;
   /**
    * @brief       Pool of file nodes.
    */
-  memory_pool_t             file_nodes_pool;
-  /**
-   * @brief       Pool of file nodes.
-   */
   vfs_overlay_dir_node_c    dir_nodes[DRV_CFG_OVERLAY_DIR_NODES_NUM];
-  /**
-   * @brief       Pool of file nodes.
-   */
-  vfs_overlay_file_node_c   file_nodes[DRV_CFG_OVERLAY_DIR_NODES_NUM];
 };
 
 /*===========================================================================*/
@@ -329,11 +238,9 @@ extern struct vfs_overlay_driver_static_struct vfs_overlay_driver_static;
 extern "C" {
 #endif
   /* Methods of vfs_overlay_dir_node_c.*/
-  void *__ovldir_objinit_impl(void *ip, const void *vmt);
+  void *__ovldir_objinit_impl(void *ip, const void *vmt,
+                              vfs_overlay_driver_c *driver, vfs_mode_t mode);
   void __ovldir_dispose_impl(void *ip);
-  /* Methods of vfs_overlay_file_node_c.*/
-  void *__ovlfile_objinit_impl(void *ip, const void *vmt);
-  void __ovlfile_dispose_impl(void *ip);
   /* Methods of vfs_overlay_driver_c.*/
   void *__ovldrv_objinit_impl(void *ip, const void *vmt,
                               vfs_driver_c *overlaid_drv,
@@ -361,15 +268,19 @@ extern "C" {
  *
  * @param[out]    self          Pointer to a @p vfs_overlay_dir_node_c instance
  *                              to be initialized.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      Pointer to the initialized object.
  *
  * @objinit
  */
 CC_FORCE_INLINE
-static inline vfs_overlay_dir_node_c *ovldirObjectInit(vfs_overlay_dir_node_c *self) {
+static inline vfs_overlay_dir_node_c *ovldirObjectInit(vfs_overlay_dir_node_c *self,
+                                                       vfs_overlay_driver_c *driver,
+                                                       vfs_mode_t mode) {
   extern const struct vfs_overlay_dir_node_vmt __ovldir_vmt;
 
-  return __ovldir_objinit_impl(self, &__ovldir_vmt);
+  return __ovldir_objinit_impl(self, &__ovldir_vmt, driver, mode);
 }
 
 /**
@@ -386,45 +297,6 @@ CC_FORCE_INLINE
 static inline void ovldirDispose(vfs_overlay_dir_node_c *self) {
 
   __ovldir_dispose_impl(self);
-}
-/** @} */
-
-/**
- * @name        Constructor and destructor of vfs_overlay_file_node_c
- * @{
- */
-/**
- * @memberof    vfs_overlay_file_node_c
- *
- * @brief       Default initialization function of @p vfs_overlay_file_node_c.
- *
- * @param[out]    self          Pointer to a @p vfs_overlay_file_node_c
- *                              instance to be initialized.
- * @return                      Pointer to the initialized object.
- *
- * @objinit
- */
-CC_FORCE_INLINE
-static inline vfs_overlay_file_node_c *ovlfileObjectInit(vfs_overlay_file_node_c *self) {
-  extern const struct vfs_overlay_file_node_vmt __ovlfile_vmt;
-
-  return __ovlfile_objinit_impl(self, &__ovlfile_vmt);
-}
-
-/**
- * @memberof    vfs_overlay_file_node_c
- *
- * @brief       Default finalization function of @p vfs_overlay_file_node_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_overlay_file_node_c
- *                              instance to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void ovlfileDispose(vfs_overlay_file_node_c *self) {
-
-  __ovlfile_dispose_impl(self);
 }
 /** @} */
 

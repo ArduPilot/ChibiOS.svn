@@ -71,15 +71,19 @@
  * @param[out]    ip            Pointer to a @p vfs_node_c instance to be
  *                              initialized.
  * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      A new reference to the object.
  */
-void *__vfsnode_objinit_impl(void *ip, const void *vmt) {
+void *__vfsnode_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                             vfs_mode_t mode) {
   vfs_node_c *self = (vfs_node_c *)ip;
 
-  /* Initialization of the ancestors-defined parts.*/
-  __ro_objinit_impl(self, vmt);
+  /* Initialization code.*/
+  self = __ro_objinit_impl(self, vmt);
 
-  /* No initialization code.*/
+  self->vfsnode.driver = driver;
+  self->vfsnode.mode   = mode;
 
   return self;
 }
@@ -140,15 +144,16 @@ msg_t __vfsnode_stat_impl(void *ip, vfs_stat_t *sp) {
  * @param[out]    ip            Pointer to a @p vfs_directory_node_c instance
  *                              to be initialized.
  * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      A new reference to the object.
  */
-void *__vfsdir_objinit_impl(void *ip, const void *vmt) {
+void *__vfsdir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                            vfs_mode_t mode) {
   vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
 
-  /* Initialization of the ancestors-defined parts.*/
-  __vfsnode_objinit_impl(self, vmt);
-
-  /* No initialization code.*/
+  /* Initialization code.*/
+  self = __vfsnode_objinit_impl(ip, vmt, driver, mode);
 
   return self;
 }
@@ -226,15 +231,16 @@ msg_t __vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
  * @param[out]    ip            Pointer to a @p vfs_file_node_c instance to be
  *                              initialized.
  * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      A new reference to the object.
  */
-void *__vfsfile_objinit_impl(void *ip, const void *vmt) {
+void *__vfsfile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                             vfs_mode_t mode) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  /* Initialization of the ancestors-defined parts.*/
-  __vfsnode_objinit_impl(self, vmt);
-
-  /* No initialization code.*/
+  /* Initialization code.*/
+  self = __vfsnode_objinit_impl(ip, vmt, driver, mode);
 
   return self;
 }

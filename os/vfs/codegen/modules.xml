@@ -4,6 +4,7 @@
   <!ENTITY vfs_nodes SYSTEM "vfs_nodes.xml">
   <!ENTITY vfs_driver_template SYSTEM "vfs_driver_template.xml">
   <!ENTITY vfs_driver_overlay SYSTEM "vfs_driver_overlay.xml">
+  <!ENTITY vfs_driver_fatfs SYSTEM "vfs_driver_fatfs.xml">
 ]>
 <!-- Class/interfaces definitions -->
 <instance
@@ -14,5 +15,6 @@
     &vfs_nodes;
     &vfs_driver_template;
     &vfs_driver_overlay;
+    &vfs_driver_fatfs;
   </modules>
 </instance>

@@ -316,9 +316,81 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
-  -- This macro generates constructor and destructor from an XML node.
+  -- This macro generates private constructor and destructor from an XML node.
   --]
-[#macro GenerateClassConstructorDestructor node=[]]
+[#macro GenerateClassPrivateConstructorDestructor node=[]]
+  [#local classname         = GetNodeName(node)
+          classnamespace    = GetNodeNamespace(node)
+          classtype         = GetClassType(node)
+          classctype        = GetClassCType(node)
+          classdescr        = GetNodeDescription(node) /]
+  [#if classtype == "regular"]
+    [#assign generated = true /]
+/**
+[@doxygen.EmitTagVerbatim "" "name" "Constructor and destructor of " + classctype /]
+ * @{
+ */
+/**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ *
+[@doxygen.EmitBrief "" "Default initialization function of @p " + classctype + "." /]
+ *
+[@doxygen.EmitParam name = "self"
+                    dir  = "out"
+                    text = "Pointer to a @p " + classctype + " instance to be initialized." /]
+[@doxygen.EmitParamFromNode node = node.methods.objinit[0] /]
+[@doxygen.EmitReturn text = "Pointer to the initialized object." /]
+ *
+ * @objinit
+ */
+CC_FORCE_INLINE
+[@ccode.GeneratePrototypeFromNode indent    = ""
+                                  name      = classnamespace + "ObjectInit"
+                                  ctype     = classctype + " *"
+                                  modifiers = ["static", "inline"]
+                                  params    = [classctype + " *self"]
+                                  node      = node.methods.objinit[0] /] {
+    [#local vmtname = "__" + classnamespace + "_vmt" /]
+  static const struct ${classname}_vmt ${vmtname} = {
+    __${classnamespace}_vmt_init(${classnamespace})
+  };
+
+    [#local params = ccode.MakeCallParamsSequence(["self", "&" + vmtname], node.methods.objinit[0]) /]
+[@ccode.GenerateFunctionCall indent      = ccode.indentation
+                             destination = "return"
+                             name        = "__" + classnamespace + "_objinit_impl"
+                             params      = params /]
+}
+
+/**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ *
+[@doxygen.EmitBrief "" "Default finalization function of @p " + classctype + "." /]
+ *
+[@doxygen.EmitParam name = "self"
+                    dir  = "both"
+                    text = "Pointer to a @p " + classctype + " instance to be finalized." /]
+ *
+ * @dispose
+ */
+CC_FORCE_INLINE
+[@ccode.GeneratePrototype indent    = ""
+                          name      = classnamespace + "Dispose"
+                          ctype     = "void"
+                          modifiers = ["static", "inline"]
+                          params    = [classctype + " *self"] /] {
+
+${ccode.indentation}__${classnamespace}_dispose_impl(self);
+}
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates public constructor and destructor from an XML node.
+  --]
+[#macro GenerateClassPublicConstructorDestructor node=[]]
   [#local classname         = GetNodeName(node)
           classnamespace    = GetNodeNamespace(node)
           classtype         = GetClassType(node)

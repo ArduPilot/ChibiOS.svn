@@ -24,6 +24,109 @@
       </config>
     </configs>
     <types>
+      <class type="regular" name="vfs_fatfs_driver" namespace="ffdrv"
+        ancestorname="vfs_driver" ancestornamespace="vfsdrv"
+        descr="VFS fatfs driver">
+        <fields></fields>
+        <methods>
+          <objinit>
+            <implementation><![CDATA[]]></implementation>
+          </objinit>
+          <dispose>
+            <implementation><![CDATA[]]></implementation>
+          </dispose>
+        </methods>
+      </class>
+    </types>
+    <variables>
+      <variable name="vfs_fatfs_driver_static"
+        ctype="struct vfs_fatfs_driver_static_struct">
+        <brief>Global state of @p vfs_fatfs_driver_c</brief>
+      </variable>
+      <variable name="__nocache_vfs_fatfs_driver_static"
+        ctype="struct vfs_fatfs_driver_static_nc_struct">
+        <brief>Global state of @p vfs_fatfs_driver_c</brief>
+      </variable>
+    </variables>
+    <functions>
+      <function name="__drv_fatfs_init" ctype="void">
+        <brief>Module initialization.</brief>
+        <init />
+        <implementation><![CDATA[
+
+/* Initializing pools.*/
+chPoolObjectInit(&vfs_fatfs_driver_static.dir_nodes_pool,
+                 sizeof (vfs_fatfs_dir_node_c),
+                 chCoreAllocAlignedI);
+chPoolObjectInit(&vfs_fatfs_driver_static.file_nodes_pool,
+                 sizeof (vfs_fatfs_file_node_c),
+                 chCoreAllocAlignedI);
+
+/* Preloading pools.*/
+chPoolLoadArray(&vfs_fatfs_driver_static.dir_nodes_pool,
+                &vfs_fatfs_driver_static.dir_nodes[0],
+                DRV_CFG_FATFS_DIR_NODES_NUM);
+chPoolLoadArray(&vfs_fatfs_driver_static.file_nodes_pool,
+                &vfs_fatfs_driver_static.file_nodes[0],
+                DRV_CFG_FATFS_FILE_NODES_NUM);]]></implementation>
+      </function>
+      <function name="ffdrvMount" ctype="msg_t">
+        <brief>Mounts a FatFS volume.</brief>
+        <param name="name" ctype="const char *" dir="in"><![CDATA[Name to
+                be assigned to the volume, see FatFS @p f_mount() documentation
+                because there are several options.]]></param>
+        <param name="mountnow" ctype="bool" dir="in"> Immediate mount option.
+        </param>
+        <return>The operation result.</return>
+        <api />
+        <implementation><![CDATA[
+FATFS *fs;
+FRESULT res;
+
+fs = f_getfs(name);
+if (fs == NULL) {
+  fs = chPoolAlloc(&vfs_fatfs_driver_static.fs_nodes_pool);
+  if (fs == NULL) {
+    return CH_RET_ENOMEM;
+  }
+}
+
+res = f_mount(fs, name, (BYTE)(mountnow ? 1 : 0));
+if (res != FR_OK) {
+  chPoolFree(&vfs_fatfs_driver_static.fs_nodes_pool, (void *)fs);
+}
+
+return translate_error(res);]]></implementation>
+      </function>
+      <function name="ffdrvUnmount" ctype="msg_t">
+        <brief>Unmounts a FatFS volume.</brief>
+        <param name="name" ctype="const char *" dir="in">Name of the volume to
+          be unmounted.</param>
+        <return>The operation result.</return>
+        <api />
+        <implementation><![CDATA[
+FATFS *fs;
+FRESULT res;
+
+fs = f_getfs(name);
+if (fs == NULL) {
+  return CH_RET_EINVAL;
+}
+
+res = f_unmount(name);
+
+chPoolFree(&vfs_fatfs_driver_static.fs_nodes_pool, (void *)fs);
+
+return translate_error(res);]]></implementation>
+      </function>
+    </functions>
+  </public>
+  <private>
+    <inclusions>
+      <include style="regular">vfs.h</include>
+      <include style="regular">ff.h</include>
+    </inclusions>
+    <types>
       <class type="regular" name="vfs_fatfs_dir_node" namespace="ffdir"
         ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
         descr="VFS fatfs directory node">
@@ -33,8 +136,15 @@
           </field>
         </fields>
         <methods>
-          <objinit>
-            <implementation><![CDATA[]]></implementation>
+          <objinit callsuper="false">
+            <param name="driver" ctype="vfs_driver_c *" dir="in">
+              Pointer to the controlling driver.
+            </param>
+            <param name="mode" ctype="vfs_mode_t" dir="in">
+              Node mode flags.
+            </param>
+            <implementation><![CDATA[
+self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[]]></implementation>
@@ -56,21 +166,15 @@
           </field>
         </fields>
         <methods>
-          <objinit>
-            <implementation><![CDATA[]]></implementation>
-          </objinit>
-          <dispose>
-            <implementation><![CDATA[]]></implementation>
-          </dispose>
-        </methods>
-      </class>
-      <class type="regular" name="vfs_fatfs_driver" namespace="ffdrv"
-        ancestorname="vfs_driver" ancestornamespace="vfsdrv"
-        descr="VFS fatfs driver">
-        <fields></fields>
-        <methods>
-          <objinit>
-            <implementation><![CDATA[]]></implementation>
+          <objinit callsuper="false">
+            <param name="driver" ctype="vfs_driver_c *" dir="in">
+              Pointer to the controlling driver.
+            </param>
+            <param name="mode" ctype="vfs_mode_t" dir="in">
+              Node mode flags.
+            </param>
+            <implementation><![CDATA[
+self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[]]></implementation>
@@ -111,102 +215,14 @@
         </fields>
       </struct>
     </types>
-    <variables>
-      <variable name="vfs_fatfs_driver_static"
-        ctype="struct vfs_fatfs_driver_static_struct">
-        <brief>Global state of @p vfs_fatfs_driver_c</brief>
-      </variable>
-      <variable name="__nocache_vfs_fatfs_driver_static"
-        ctype="struct vfs_fatfs_driver_static_nc_struct">
-        <brief>Global state of @p vfs_fatfs_driver_c</brief>
-      </variable>
-    </variables>
-    <functions>
-      <function name="__drv_fatfs_init" ctype="void">
-        <brief>Module initialization.</brief>
-        <init />
-        <implementation><![CDATA[
-
-/* Initializing pools.*/
-chPoolObjectInit(&vfs_fatfs_driver_static.dir_nodes_pool,
-                 sizeof (vfs_fatfs_dir_node_c),
-                 chCoreAllocAlignedI);
-chPoolObjectInit(&vfs_fatfs_driver_static.file_nodes_pool,
-                 sizeof (vfs_fatfs_file_node_c),
-                 chCoreAllocAlignedI);
-
-/* Preloading pools.*/
-chPoolLoadArray(&vfs_fatfs_driver_static.dir_nodes_pool,
-                &vfs_fatfs_driver_static.dir_nodes[0],
-                DRV_CFG_FATFS_DIR_NODES_NUM);
-chPoolLoadArray(&vfs_fatfs_driver_static.file_nodes_pool,
-                &vfs_fatfs_driver_static.file_nodes[0],
-                DRV_CFG_FATFS_FILE_NODES_NUM);]]></implementation>
-      </function>
-      <function>
-        <brief>Mounts a FatFS volume.</brief>
-        <param name="name" ctype="const char *" dir="in"><![CDATA[Name to
-                be assigned to the volume, see FatFS @p f_mount() documentation
-                because there are several options.]]></param>
-        <param name="mountnow" ctype="bool" dir="in">Immediate mount option.
-        </param>
-        <return>The operation result.</return>
-        <api />
-        <implementation><![CDATA[
-FATFS *fs;
-FRESULT res;
-
-fs = f_getfs(name);
-if (fs == NULL) {
-  fs = chPoolAlloc(&vfs_fatfs_driver_static.fs_nodes_pool);
-  if (fs == NULL) {
-    return CH_RET_ENOMEM;
-  }
-}
-
-res = f_mount(fs, name, (BYTE)(mountnow ? 1 : 0));
-if (res != FR_OK) {
-  chPoolFree(&vfs_fatfs_driver_static.fs_nodes_pool, (void *)fs);
-}
-
-return translate_error(res);]]></implementation>
-      </function>
-      <function>
-        <brief>Unmounts a FatFS volume.</brief>
-        <param name="name" ctype="const char *" dir="in">Name of the volume to be unmounted.</param>
-        <return>The operation result.</return>
-        <api />
-        <implementation><![CDATA[
-FATFS *fs;
-FRESULT res;
-
-fs = f_getfs(name);
-if (fs == NULL) {
-  return CH_RET_EINVAL;
-}
-
-res = f_unmount(name);
-
-chPoolFree(&vfs_fatfs_driver_static.fs_nodes_pool, (void *)fs);
-
-return translate_error(res);]]></implementation>
-      </function>
-    </functions>
-  </public>
-  <private>
-    <inclusions>
-      <include style="regular">vfs.h</include>
-      <include style="regular">drvfatfs_impl.h</include>
-    </inclusions>
     <functions>
       <function name="__ffdir_ro_addref_impl" ctype="void *">
-        <param name="ip" ctype="void *" />
+        <param name="ip" ctype="void *"/>
         <implementation><![CDATA[
 
 return __ro_addref_impl(ip);]]></implementation>
       </function>
-      <function name="__ffdir_ro_release_impl"
-        ctype="object_references_t">
+      <function name="__ffdir_ro_release_impl" ctype="object_references_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
@@ -234,13 +250,12 @@ return __vfsdir_first_impl(ip, dip);]]></implementation>
 return __vfsdir_next_impl(ip, dip);]]></implementation>
       </function>
       <function name="__fffile_ro_addref_impl" ctype="void *">
-        <param name="ip" ctype="void *" />
+        <param name="ip" ctype="void *"/>
         <implementation><![CDATA[
 
 return __ro_addref_impl(ip);]]></implementation>
       </function>
-      <function name="__fffile_ro_release_impl"
-        ctype="object_references_t">
+      <function name="__fffile_ro_release_impl" ctype="object_references_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
@@ -277,15 +292,13 @@ return __vfsfile_write_impl(ip, buf, size);]]></implementation>
 
 return __vfsfile_setpos_impl(ip, offset, whence);]]></implementation>
       </function>
-      <function name="__fffile_vfsfile_getpos_impl"
-        ctype="vfs_offset_t">
+      <function name="__fffile_vfsfile_getpos_impl" ctype="vfs_offset_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
 return __vfsfile_getpos_impl(ip);]]></implementation>
       </function>
-      <function name="__fffile_vfsfile_getstream_impl"
-        ctype="BaseSequentialStream *">
+      <function name="__fffile_vfsfile_getstream_impl" ctype="BaseSequentialStream *">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 

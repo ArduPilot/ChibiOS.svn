@@ -54,6 +54,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+  msg_t __ffdrv_translate_error(FRESULT res);
   void *__ffdir_ro_addref_impl(void *ip);
   object_references_t __ffdir_ro_release_impl(void *ip);
   msg_t __ffdir_vfsnode_stat_impl(void *ip, vfs_stat_t *sp);

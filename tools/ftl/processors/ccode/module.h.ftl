@@ -127,7 +127,7 @@ extern "C" {
   [/#list]
   [#-- Scanning all classes.--]
   [#list module.public.types.class as class]
-[@cclasses.GenerateClassConstructorDestructor class /]
+[@cclasses.GenerateClassPublicConstructorDestructor class /]
 [@cclasses.GenerateClassVirtualMethods class /]
 [@cclasses.GenerateClassInlineMethods class /]
   [/#list]

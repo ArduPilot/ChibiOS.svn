@@ -285,10 +285,12 @@ struct vfs_template_driver {
 extern "C" {
 #endif
   /* Methods of vfs_template_dir_node_c.*/
-  void *__tmpldir_objinit_impl(void *ip, const void *vmt);
+  void *__tmpldir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                               vfs_mode_t mode);
   void __tmpldir_dispose_impl(void *ip);
   /* Methods of vfs_template_file_node_c.*/
-  void *__tmplfile_objinit_impl(void *ip, const void *vmt);
+  void *__tmplfile_objinit_impl(void *ip, const void *vmt,
+                                vfs_driver_c *driver, vfs_mode_t mode);
   void __tmplfile_dispose_impl(void *ip);
   /* Methods of vfs_template_driver_c.*/
   void *__tmpldrv_objinit_impl(void *ip, const void *vmt);
@@ -314,15 +316,19 @@ extern "C" {
  *
  * @param[out]    self          Pointer to a @p vfs_template_dir_node_c
  *                              instance to be initialized.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      Pointer to the initialized object.
  *
  * @objinit
  */
 CC_FORCE_INLINE
-static inline vfs_template_dir_node_c *tmpldirObjectInit(vfs_template_dir_node_c *self) {
+static inline vfs_template_dir_node_c *tmpldirObjectInit(vfs_template_dir_node_c *self,
+                                                         vfs_driver_c *driver,
+                                                         vfs_mode_t mode) {
   extern const struct vfs_template_dir_node_vmt __tmpldir_vmt;
 
-  return __tmpldir_objinit_impl(self, &__tmpldir_vmt);
+  return __tmpldir_objinit_impl(self, &__tmpldir_vmt, driver, mode);
 }
 
 /**
@@ -353,15 +359,19 @@ static inline void tmpldirDispose(vfs_template_dir_node_c *self) {
  *
  * @param[out]    self          Pointer to a @p vfs_template_file_node_c
  *                              instance to be initialized.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      Pointer to the initialized object.
  *
  * @objinit
  */
 CC_FORCE_INLINE
-static inline vfs_template_file_node_c *tmplfileObjectInit(vfs_template_file_node_c *self) {
+static inline vfs_template_file_node_c *tmplfileObjectInit(vfs_template_file_node_c *self,
+                                                           vfs_driver_c *driver,
+                                                           vfs_mode_t mode) {
   extern const struct vfs_template_file_node_vmt __tmplfile_vmt;
 
-  return __tmplfile_objinit_impl(self, &__tmplfile_vmt);
+  return __tmplfile_objinit_impl(self, &__tmplfile_vmt, driver, mode);
 }
 
 /**

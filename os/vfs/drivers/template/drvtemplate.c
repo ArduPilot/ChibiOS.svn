@@ -297,15 +297,16 @@ const struct vfs_template_dir_node_vmt __tmpldir_vmt = {
  * @param[out]    ip            Pointer to a @p vfs_template_dir_node_c
  *                              instance to be initialized.
  * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      A new reference to the object.
  */
-void *__tmpldir_objinit_impl(void *ip, const void *vmt) {
+void *__tmpldir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                             vfs_mode_t mode) {
   vfs_template_dir_node_c *self = (vfs_template_dir_node_c *)ip;
 
-  /* Initialization of the ancestors-defined parts.*/
-  __vfsdir_objinit_impl(self, vmt);
-
-  /* No initialization code.*/
+  /* Initialization code.*/
+  self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
 
   return self;
 }
@@ -357,13 +358,13 @@ const struct vfs_template_file_node_vmt __tmplfile_vmt = {
  * @param[out]    ip            Pointer to a @p vfs_template_file_node_c
  *                              instance to be initialized.
  * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
  * @return                      A new reference to the object.
  */
-void *__tmplfile_objinit_impl(void *ip, const void *vmt) {
+void *__tmplfile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                              vfs_mode_t mode) {
   vfs_template_file_node_c *self = (vfs_template_file_node_c *)ip;
-
-  /* Initialization of the ancestors-defined parts.*/
-  __vfsfile_objinit_impl(self, vmt);
 
   /* Implementation of interface sequential_stream_i.*/
   {
@@ -373,7 +374,8 @@ void *__tmplfile_objinit_impl(void *ip, const void *vmt) {
     oopIfObjectInit(&self->tmplfile.stm, &tmplfile_stm_vmt);
   }
 
-  /* No initialization code.*/
+  /* Initialization code.*/
+  self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
 
   return self;
 }

@@ -219,11 +219,11 @@ struct vfs_overlay_driver {
  */
 struct vfs_overlay_driver_static_struct {
   /**
-   * @brief       Pool of file directory nodes.
+   * @brief       Pool of directory nodes.
    */
   memory_pool_t             dir_nodes_pool;
   /**
-   * @brief       Pool of file nodes.
+   * @brief       Static storage of directory nodes.
    */
   vfs_overlay_dir_node_c    dir_nodes[DRV_CFG_OVERLAY_DIR_NODES_NUM];
 };

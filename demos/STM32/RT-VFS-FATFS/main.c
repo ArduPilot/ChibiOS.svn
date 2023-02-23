@@ -184,7 +184,7 @@ static void InsertHandler(eventid_t id) {
   }
 #endif
 
-  err = drvFatFSMount("0:", 1);
+  err = ffdrvMount("0:", 1);
   if (CH_RET_IS_ERROR(err)) {
 #if HAL_USE_SDC
     sdcDisconnect(&PORTAB_SDCD1);
@@ -293,7 +293,7 @@ int main(void) {
      that this virtual file system can only access the "/sb1" sub-directory
      on the physical FatFS volume.*/
   ovldrvObjectInit(&root_overlay_driver,
-                   drvFatFSObjectInit(&root_driver),
+                   (vfs_driver_c *)ffdrvObjectInit(&root_driver),
                    "/sb1");
 #else
   /* Initializing an overlay VFS object as a root, no overlaid driver.*/

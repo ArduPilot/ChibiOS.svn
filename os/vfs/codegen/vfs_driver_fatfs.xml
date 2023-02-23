@@ -2,7 +2,7 @@
 <!-- C module definition -->
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="drvfatfs_test" descr="VFS FatFS Driver"
+  name="drvfatfs" descr="VFS FatFS Driver"
   check="VFS_CFG_ENABLE_DRV_FATFS == TRUE" sourcepath="drivers/fatfs"
   headerpath="drivers/fatfs">
   <public>
@@ -54,21 +54,30 @@
         <init />
         <implementation><![CDATA[
 
-/* Initializing pools.*/
-chPoolObjectInit(&vfs_fatfs_driver_static.dir_nodes_pool,
-                 sizeof (vfs_fatfs_dir_node_c),
-                 chCoreAllocAlignedI);
-chPoolObjectInit(&vfs_fatfs_driver_static.file_nodes_pool,
-                 sizeof (vfs_fatfs_file_node_c),
-                 chCoreAllocAlignedI);
+  /* Initializing pools.*/
+  chPoolObjectInit(&vfs_fatfs_driver_static.dir_nodes_pool,
+                   sizeof (vfs_fatfs_dir_node_c),
+                   chCoreAllocAlignedI);
+  chPoolObjectInit(&vfs_fatfs_driver_static.file_nodes_pool,
+                   sizeof (vfs_fatfs_file_node_c),
+                   chCoreAllocAlignedI);
+  chPoolObjectInit(&vfs_fatfs_driver_static.info_nodes_pool,
+                   sizeof (FILINFO),
+                   chCoreAllocAlignedI);
+  chPoolObjectInit(&vfs_fatfs_driver_static.fs_nodes_pool,
+                   sizeof (FATFS),
+                   NULL);
 
-/* Preloading pools.*/
-chPoolLoadArray(&vfs_fatfs_driver_static.dir_nodes_pool,
-                &vfs_fatfs_driver_static.dir_nodes[0],
-                DRV_CFG_FATFS_DIR_NODES_NUM);
-chPoolLoadArray(&vfs_fatfs_driver_static.file_nodes_pool,
-                &vfs_fatfs_driver_static.file_nodes[0],
-                DRV_CFG_FATFS_FILE_NODES_NUM);]]></implementation>
+  /* Preloading pools.*/
+  chPoolLoadArray(&vfs_fatfs_driver_static.dir_nodes_pool,
+                  &vfs_fatfs_driver_static.dir_nodes[0],
+                  DRV_CFG_FATFS_DIR_NODES_NUM);
+  chPoolLoadArray(&vfs_fatfs_driver_static.file_nodes_pool,
+                  &vfs_fatfs_driver_static.file_nodes[0],
+                  DRV_CFG_FATFS_FILE_NODES_NUM);
+  chPoolLoadArray(&vfs_fatfs_driver_static.fs_nodes_pool,
+                  &__nocache_vfs_fatfs_driver_static.fs[0],
+                  DRV_CFG_FATFS_FS_NUM);]]></implementation>
       </function>
       <function name="ffdrvMount" ctype="msg_t">
         <brief>Mounts a FatFS volume.</brief>
@@ -191,18 +200,18 @@ self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implem
             <brief>Pool of file info objects.</brief>
           </field>
           <field name="dir_nodes_pool" ctype="memory_pool_t">
-            <brief>Pool of file directory nodes.</brief>
+            <brief>Pool of directory nodes.</brief>
           </field>
           <field name="file_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of file nodes.</brief>
           </field>
           <field name="dir_nodes"
             ctype="vfs_fatfs_dir_node_c$I$N[DRV_CFG_FATFS_DIR_NODES_NUM]">
-            <brief>Pool of file nodes.</brief>
+            <brief>Static storage of directory nodes.</brief>
           </field>
           <field name="file_nodes"
-            ctype="vfs_fatfs_file_node_c$I$N[DRV_CFG_FATFS_DIR_NODES_NUM]">
-            <brief>Pool of file nodes.</brief>
+            ctype="vfs_fatfs_file_node_c$I$N[DRV_CFG_FATFS_FILE_NODES_NUM]">
+            <brief>Static storage of file nodes.</brief>
           </field>
         </fields>
       </struct>
@@ -214,212 +223,9 @@ self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implem
           </field>
         </fields>
       </struct>
+      <verbatim><![CDATA[
+/* Methods implementations in an unmanaged module.*/
+#include "drvfatfs_impl.inc"]]></verbatim>
     </types>
-    <functions>
-      <function name="__ffdir_ro_addref_impl" ctype="void *">
-        <param name="ip" ctype="void *"/>
-        <implementation><![CDATA[
-
-return __ro_addref_impl(ip);]]></implementation>
-      </function>
-      <function name="__ffdir_ro_release_impl" ctype="object_references_t">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-
-return __ro_release_impl(ip);]]></implementation>
-      </function>
-      <function name="__ffdir_vfsnode_stat_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="sp" ctype="vfs_stat_t *" />
-        <implementation><![CDATA[
-
-return __vfsnode_stat_impl(ip, sp);]]></implementation>
-      </function>
-      <function name="__ffdir_vfsdir_first_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="dip" ctype="vfs_direntry_info_t *" />
-        <implementation><![CDATA[
-
-return __vfsdir_first_impl(ip, dip);]]></implementation>
-      </function>
-      <function name="__ffdir_vfsdir_next_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="dip" ctype="vfs_direntry_info_t *" />
-        <implementation><![CDATA[
-
-return __vfsdir_next_impl(ip, dip);]]></implementation>
-      </function>
-      <function name="__fffile_ro_addref_impl" ctype="void *">
-        <param name="ip" ctype="void *"/>
-        <implementation><![CDATA[
-
-return __ro_addref_impl(ip);]]></implementation>
-      </function>
-      <function name="__fffile_ro_release_impl" ctype="object_references_t">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-
-return __ro_release_impl(ip);]]></implementation>
-      </function>
-      <function name="__fffile_vfsnode_stat_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="sp" ctype="vfs_stat_t *" />
-        <implementation><![CDATA[
-
-return __vfsnode_stat_impl(ip, sp);]]></implementation>
-      </function>
-      <function name="__fffile_vfsfile_read_impl" ctype="ssize_t">
-        <param name="ip" ctype="void *" />
-        <param name="buf" ctype="uint8_t *" />
-        <param name="size" ctype="size_t" />
-        <implementation><![CDATA[
-
-return __vfsfile_read_impl(ip, buf, size);]]></implementation>
-      </function>
-      <function name="__fffile_vfsfile_write_impl" ctype="ssize_t">
-        <param name="ip" ctype="void *" />
-        <param name="buf" ctype="const uint8_t *" />
-        <param name="size" ctype="size_t" />
-        <implementation><![CDATA[
-
-return __vfsfile_write_impl(ip, buf, size);]]></implementation>
-      </function>
-      <function name="__fffile_vfsfile_setpos_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="offset" ctype="vfs_offset_t" />
-        <param name="whence" ctype="vfs_seekmode_t" />
-        <implementation><![CDATA[
-
-return __vfsfile_setpos_impl(ip, offset, whence);]]></implementation>
-      </function>
-      <function name="__fffile_vfsfile_getpos_impl" ctype="vfs_offset_t">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-
-return __vfsfile_getpos_impl(ip);]]></implementation>
-      </function>
-      <function name="__fffile_vfsfile_getstream_impl" ctype="BaseSequentialStream *">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-
-return __vfsfile_getstream_impl(ip);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_setcwd_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="path" ctype="const char *" />
-        <implementation><![CDATA[
-
-return __vfsdrv_setcwd_impl(ip, path);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_getcwd_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="buf" ctype="char *" />
-        <param name="size" ctype="size_t" />
-        <implementation><![CDATA[
-
-return __vfsdrv_getcwd_impl(ip, buf, size);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_stat_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="path" ctype="const char *" />
-        <param name="sp" ctype="vfs_stat_t *" />
-        <implementation><![CDATA[
-
-return __vfsdrv_stat_impl(ip, path, sp);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_opendir_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="path" ctype="const char *" />
-        <param name="vdnpp" ctype="vfs_directory_node_c **" />
-        <implementation><![CDATA[
-
-return __vfsdrv_opendir_impl(ip, path, vdnpp);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_openfile_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="path" ctype="const char *" />
-        <param name="flags" ctype="int" />
-        <param name="vfnpp" ctype="vfs_file_node_c **" />
-        <implementation><![CDATA[
-
-return __vfsdrv_openfile_impl(ip, path, flags, vfnpp);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_unlink_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="path" ctype="const char *" />
-        <implementation><![CDATA[
-
-return __vfsdrv_unlink_impl(ip, path);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_rename_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="oldpath" ctype="const char *" />
-        <param name="newpath" ctype="const char *" />
-        <implementation><![CDATA[
-
-return __vfsdrv_rename_impl(ip, oldpath, newpath);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_mkdir_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="path" ctype="const char *" />
-        <param name="mode" ctype="vfs_mode_t" />
-        <implementation><![CDATA[
-
-return __vfsdrv_mkdir_impl(ip, path, mode);]]></implementation>
-      </function>
-      <function name="__ffdrv_vfsdrv_rmdir_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="path" ctype="const char *" />
-        <implementation><![CDATA[
-
-return __vfsdrv_rmdir_impl(ip, path);]]></implementation>
-      </function>
-      <function name="__fffile_stm_write_impl" ctype="size_t">
-        <param name="ip" ctype="void *" />
-        <param name="buf" ctype="const uint8_t *" />
-        <param name="size" ctype="size_t" />
-        <implementation><![CDATA[
-vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
-
-(void)self;
-(void)buf;
-(void)size;
-
-return (size_t)0;]]></implementation>
-      </function>
-      <function name="__fffile_stm_read_impl" ctype="size_t">
-        <param name="ip" ctype="void *" />
-        <param name="buf" ctype="uint8_t *" />
-        <param name="size" ctype="size_t" />
-        <implementation><![CDATA[
-vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
-
-(void)self;
-(void)buf;
-(void)size;
-
-return (size_t)0;]]></implementation>
-      </function>
-      <function name="__fffile_stm_put_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="b" ctype="uint8_t" />
-        <implementation><![CDATA[
-vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
-
-(void)self;
-(void)b;
-
-return MSG_OK;]]></implementation>
-      </function>
-      <function name="__fffile_stm_get_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
-
-(void)self;
-
-return (msg_t)0;]]></implementation>
-      </function>
-    </functions>
   </private>
 </module>

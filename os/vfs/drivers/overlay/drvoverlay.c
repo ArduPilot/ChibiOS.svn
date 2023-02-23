@@ -24,7 +24,6 @@
  */
 
 #include "vfs.h"
-#include "drvoverlay_impl.h"
 
 #if (VFS_CFG_ENABLE_DRV_OVERLAY == TRUE) || defined (__DOXYGEN__)
 
@@ -48,6 +47,9 @@ struct vfs_overlay_driver_static_struct vfs_overlay_driver_static;
 /*===========================================================================*/
 /* Module local types.                                                       */
 /*===========================================================================*/
+
+/* Methods implementations in an unmanaged module.*/
+#include "drvoverlay_impl.inc"
 
 /*===========================================================================*/
 /* Module local variables.                                                   */

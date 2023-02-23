@@ -105,16 +105,16 @@ chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
             <brief>Pool of file info objects.</brief>
           </field>
           <field name="dir_nodes_pool" ctype="memory_pool_t">
-            <brief>Pool of file directory nodes.</brief>
+            <brief>Pool of directory nodes.</brief>
           </field>
           <field name="file_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of file nodes.</brief>
           </field>
           <field name="dir_nodes" ctype="vfs_template_dir_node_c$I$N[DRV_CFG_TEMPLATE_DIR_NODES_NUM]">
-            <brief>Pool of file nodes.</brief>
+            <brief>Static storage of directory nodes.</brief>
           </field>
-          <field name="file_nodes" ctype="vfs_template_file_node_c$I$N[DRV_CFG_TEMPLATE_DIR_NODES_NUM]">
-            <brief>Pool of file nodes.</brief>
+          <field name="file_nodes" ctype="vfs_template_file_node_c$I$N[DRV_CFG_TEMPLATE_FILE_NODES_NUM]">
+            <brief>Static storage of file nodes.</brief>
           </field>
         </fields>
       </struct>

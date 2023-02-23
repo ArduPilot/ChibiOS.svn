@@ -99,10 +99,10 @@ return ret;]]></implementation>
         <brief>Structure representing the global state of @p vfs_overlay_driver_c.</brief>
         <fields>
           <field name="dir_nodes_pool" ctype="memory_pool_t">
-            <brief>Pool of file directory nodes.</brief>
+            <brief>Pool of directory nodes.</brief>
           </field>
           <field name="dir_nodes" ctype="vfs_overlay_dir_node_c$I$N[DRV_CFG_OVERLAY_DIR_NODES_NUM]">
-            <brief>Pool of file nodes.</brief>
+            <brief>Static storage of directory nodes.</brief>
           </field>
         </fields>
       </struct>
@@ -133,7 +133,11 @@ chPoolLoadArray(&vfs_overlay_driver_static.dir_nodes_pool,
   <private>
     <inclusions>
       <include style="regular">vfs.h</include>
-      <include style="regular">drvoverlay_impl.h</include>
     </inclusions>
+    <types>
+      <verbatim><![CDATA[
+/* Methods implementations in an unmanaged module.*/
+#include "drvoverlay_impl.inc"]]></verbatim>
+    </types>
   </private>
 </module>

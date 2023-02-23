@@ -345,7 +345,7 @@ CC_FORCE_INLINE
  */
 CC_FORCE_INLINE
 [@ccode.GeneratePrototypeFromNode indent    = ""
-                                  name      = classnamespace + "ObjectInit"
+                                  name      = classnamespace + "_object_init"
                                   ctype     = classctype + " *"
                                   modifiers = ["static", "inline"]
                                   params    = [classctype + " *self"]
@@ -375,7 +375,7 @@ CC_FORCE_INLINE
  */
 CC_FORCE_INLINE
 [@ccode.GeneratePrototype indent    = ""
-                          name      = classnamespace + "Dispose"
+                          name      = classnamespace + "_dispose"
                           ctype     = "void"
                           modifiers = ["static", "inline"]
                           params    = [classctype + " *self"] /] {

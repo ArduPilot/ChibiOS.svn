@@ -1,34 +1,34 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
 
-    This file is part of ChibiOS.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation version 3 of the License.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
+
 /**
- * @file    vfs/drivers/drvfatfs.h
- * @brief   FatFS VFS driver header.
+ * @file        drvfatfs.h
+ * @brief       Generated VFS FatFS Driver header.
+ * @note        This is a generated file, do not edit directly.
  *
- * @addtogroup VFS_DRV_FATFS
- * @details Exposes FatFS as VFS files.
+ * @addtogroup  DRVFATFS
  * @{
  */
-
+ 
 #ifndef DRVFATFS_H
 #define DRVFATFS_H
 
-#if (VFS_CFG_ENABLE_DRV_FATFS == TRUE) || defined(__DOXYGEN__)
+#include "oop_sequential_stream.h"
+
+#if (VFS_CFG_ENABLE_DRV_FATFS == TRUE) || defined (__DOXYGEN__)
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -38,80 +38,133 @@
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
+/**
+ * @name    Configuration options
+ * @{
+ */
+/**
+ * @brief       Maximum number of FatFS file systems mounted.
+ */
+#if !defined(DRV_CFG_FATFS_FS_NUM) || defined(__DOXYGEN__)
+#define DRV_CFG_FATFS_FS_NUM                1
+#endif
+
+/**
+ * @brief       Number of directory nodes pre-allocated in the pool.
+ */
+#if !defined(DRV_CFG_FATFS_DIR_NODES_NUM) || defined(__DOXYGEN__)
+#define DRV_CFG_FATFS_DIR_NODES_NUM         1
+#endif
+
+/**
+ * @brief       Number of file nodes pre-allocated in the pool.
+ */
+#if !defined(DRV_CFG_FATFS_FILE_NODES_NUM) || defined(__DOXYGEN__)
+#define DRV_CFG_FATFS_FILE_NODES_NUM        1
+#endif
+/** @} */
+
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-/* Configuration options checks.*/
-#if !defined(DRV_CFG_FATFS_FS_NUM)
-#error "DRV_CFG_FATFS_FS_NUM not defined in vfsconf.h"
+/* Checks on DRV_CFG_FATFS_FS_NUM configuration.*/
+#if DRV_CFG_FATFS_FS_NUM < 1
+#error "invalid DRV_CFG_FATFS_FS_NUM value"
 #endif
 
-#if !defined(DRV_CFG_FATFS_DIR_NODES_NUM)
-#error "DRV_CFG_FATFS_DIR_NODES_NUM not defined in vfsconf.h"
-#endif
-
-#if !defined(DRV_CFG_FATFS_FILE_NODES_NUM)
-#error "DRV_CFG_FATFS_FILE_NODES_NUM not defined in vfsconf.h"
-#endif
-
+/* Checks on DRV_CFG_FATFS_DIR_NODES_NUM configuration.*/
 #if DRV_CFG_FATFS_DIR_NODES_NUM < 1
-#error "invalid value for DRV_CFG_FATFS_DIR_NODES_NUM"
+#error "invalid DRV_CFG_FATFS_DIR_NODES_NUM value"
 #endif
 
+/* Checks on DRV_CFG_FATFS_FILE_NODES_NUM configuration.*/
 #if DRV_CFG_FATFS_FILE_NODES_NUM < 1
-#error "invalid value for DRV_CFG_FATFS_FILE_NODES_NUM"
+#error "invalid DRV_CFG_FATFS_FILE_NODES_NUM value"
 #endif
-
-/*===========================================================================*/
-/* Module data structures and types.                                         */
-/*===========================================================================*/
-
-/**
- * @brief   @p vfs_fatfs_driver_c specific methods.
- */
-#define __vfs_fatfs_driver_methods                                          \
-  __vfsdrv_methods
-
-/**
- * @brief   @p vfs_fatfs_driver_c specific data.
- */
-#define __vfs_fatfs_driver_data                                             \
-  __vfsdrv_data
-
-/**
- * @brief   @p vfs_fatfs_driver_c virtual methods table.
- */
-struct vfs_fatfs_driver_vmt {
-  __vfs_fatfs_driver_methods
-};
-
-/**
- * @brief   Type of a VFS FatFS driver class.
- */
-typedef struct vfs_fatfs_driver {
-  /**
-   * @brief   Virtual Methods Table.
-   */
-  const struct vfs_fatfs_driver_vmt   *vmt;
-  __vfs_fatfs_driver_data
-} vfs_fatfs_driver_c;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
 
 /*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
+/**
+ * @class       vfs_fatfs_driver_c
+ * @extends     vfs_driver_c
+ *
+ * @note        The class namespace is <tt>ffdrv</tt>, access to class fields
+ *              is done using: <tt><objp>->ffdrv.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own namespace in order
+ *              to avoid field naming conflicts.
+ *
+ * @name        Class @p vfs_fatfs_driver_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a VFS fatfs driver class.
+ */
+typedef struct vfs_fatfs_driver vfs_fatfs_driver_c;
+
+/**
+ * @brief       Class @p vfs_fatfs_driver_c methods.
+ */
+#define __ffdrv_methods                                                     \
+  __vfsdrv_methods                                                          \
+  /* No methods.*/
+
+/**
+ * @brief       Class @p vfs_fatfs_driver_c data.
+ */
+#define __ffdrv_data                                                        \
+  __vfsdrv_data                                                             \
+  /* No data.*/
+
+/**
+ * @brief       Class @p vfs_fatfs_driver_c VMT initializer.
+ */
+#define __ffdrv_vmt_init(ns)                                                \
+  __vfsdrv_vmt_init(ns)
+
+/**
+ * @brief       Class @p vfs_fatfs_driver_c virtual methods table.
+ */
+struct vfs_fatfs_driver_vmt {
+  __ffdrv_methods
+};
+
+/**
+ * @brief       Structure representing a VFS fatfs driver class.
+ */
+struct vfs_fatfs_driver {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_fatfs_driver_vmt *vmt;
+  __ffdrv_data
+};
+/** @} */
+
+/*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
+
+extern struct vfs_fatfs_driver_static_struct vfs_fatfs_driver_static;
+extern struct vfs_fatfs_driver_static_nc_struct __nocache_vfs_fatfs_driver_static;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+  /* Methods of vfs_fatfs_driver_c.*/
+  void *__ffdrv_objinit_impl(void *ip, const void *vmt);
+  void __ffdrv_dispose_impl(void *ip);
+  /* Regular functions.*/
   void __drv_fatfs_init(void);
-  vfs_driver_c *drvFatFSObjectInit(vfs_fatfs_driver_c *vffdp);
-  msg_t drvFatFSMount(const char *name, bool mountnow);
-  msg_t drvFatFSUnmount(const char *name);
+  msg_t ffdrvMount(const char *name, bool mountnow);
+  msg_t ffdrvUnmount(const char *name);
 #ifdef __cplusplus
 }
 #endif
@@ -119,6 +172,45 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+/**
+ * @name        Constructor and destructor of vfs_fatfs_driver_c
+ * @{
+ */
+/**
+ * @memberof    vfs_fatfs_driver_c
+ *
+ * @brief       Default initialization function of @p vfs_fatfs_driver_c.
+ *
+ * @param[out]    self          Pointer to a @p vfs_fatfs_driver_c instance to
+ *                              be initialized.
+ * @return                      Pointer to the initialized object.
+ *
+ * @objinit
+ */
+CC_FORCE_INLINE
+static inline vfs_fatfs_driver_c *ffdrvObjectInit(vfs_fatfs_driver_c *self) {
+  extern const struct vfs_fatfs_driver_vmt __ffdrv_vmt;
+
+  return __ffdrv_objinit_impl(self, &__ffdrv_vmt);
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ *
+ * @brief       Default finalization function of @p vfs_fatfs_driver_c.
+ *
+ * @param[in,out] self          Pointer to a @p vfs_fatfs_driver_c instance to
+ *                              be finalized.
+ *
+ * @dispose
+ */
+CC_FORCE_INLINE
+static inline void ffdrvDispose(vfs_fatfs_driver_c *self) {
+
+  __ffdrv_dispose_impl(self);
+}
+/** @} */
 
 #endif /* VFS_CFG_ENABLE_DRV_FATFS == TRUE */
 

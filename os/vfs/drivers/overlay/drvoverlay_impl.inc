@@ -14,39 +14,7 @@
     limitations under the License.
 */
 
-/**
- * @file        drvoverlay.c
- * @brief       Generated VFS Template Driver source.
- * @note        This is a generated file, do not edit directly.
- *
- * @addtogroup  DRVOVERLAY
- * @{
- */
-
-#include "vfs.h"
-#include "drvoverlay_impl.h"
-
-#if (VFS_CFG_ENABLE_DRV_OVERLAY == TRUE) || defined (__DOXYGEN__)
-
-/*===========================================================================*/
-/* Module local definitions.                                                 */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Module local macros.                                                      */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Module exported variables.                                                */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Module local types.                                                       */
-/*===========================================================================*/
-
-/*===========================================================================*/
-/* Module local variables.                                                   */
-/*===========================================================================*/
+/* This is an included part of drvoverlay.c, must not be compiled alone.*/
 
 /*===========================================================================*/
 /* Module local functions.                                                   */
@@ -356,14 +324,6 @@ msg_t __ovldir_vfsnode_stat_impl(void *ip, vfs_stat_t *sp) {
   return __vfsnode_stat_impl(ip, sp); /* TODO */
 }
 
-msg_t __ovldir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
-  vfs_overlay_dir_node_c *odnp = (vfs_overlay_dir_node_c *)ip;
-
-  odnp->ovldir.index = 0U;
-
-  return __ovldir_vfsdir_next_impl(ip, dip);
-}
-
 msg_t __ovldir_vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
   vfs_overlay_dir_node_c *odnp = (vfs_overlay_dir_node_c *)ip;
   vfs_overlay_driver_c *drvp = (vfs_overlay_driver_c *)odnp->vfsnode.driver;
@@ -395,6 +355,14 @@ msg_t __ovldir_vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
   }
 
   return (msg_t)0;
+}
+
+msg_t __ovldir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
+  vfs_overlay_dir_node_c *odnp = (vfs_overlay_dir_node_c *)ip;
+
+  odnp->ovldir.index = 0U;
+
+  return __ovldir_vfsdir_next_impl(ip, dip);
 }
 
 msg_t __ovldrv_vfsdrv_setcwd_impl(void *ip, const char *path) {
@@ -809,7 +777,5 @@ msg_t __ovldrv_vfsdrv_rmdir_impl(void *ip, const char *path) {
 
   return ret;
 }
-
-#endif /* VFS_CFG_ENABLE_DRV_OVERLAY == TRUE */
 
 /** @} */

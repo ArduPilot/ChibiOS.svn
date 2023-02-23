@@ -57,7 +57,7 @@ struct vfs_template_driver_static_struct {
    */
   memory_pool_t             info_nodes_pool;
   /**
-   * @brief       Pool of file directory nodes.
+   * @brief       Pool of directory nodes.
    */
   memory_pool_t             dir_nodes_pool;
   /**
@@ -65,13 +65,13 @@ struct vfs_template_driver_static_struct {
    */
   memory_pool_t             file_nodes_pool;
   /**
-   * @brief       Pool of file nodes.
+   * @brief       Static storage of directory nodes.
    */
   vfs_template_dir_node_c   dir_nodes[DRV_CFG_TEMPLATE_DIR_NODES_NUM];
   /**
-   * @brief       Pool of file nodes.
+   * @brief       Static storage of file nodes.
    */
-  vfs_template_file_node_c  file_nodes[DRV_CFG_TEMPLATE_DIR_NODES_NUM];
+  vfs_template_file_node_c  file_nodes[DRV_CFG_TEMPLATE_FILE_NODES_NUM];
 };
 
 /*===========================================================================*/

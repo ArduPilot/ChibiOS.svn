@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -15,34 +15,26 @@
 */
 
 /**
- * @file    hal_buffered_serial.h
- * @brief   Buffered Serial Driver macros and structures.
+ * @file        hal_buffered_serial.h
+ * @brief       Generated Buffered Serial Driver header.
+ * @note        This is a generated file, do not edit directly.
  *
- * @addtogroup HAL_BUFFERED_SERIAL
+ * @addtogroup  HAL_BUFFERED_SERIAL
+ * @brief       Common ancestor of drivers based on circular I/O buffers.
+ * @details     This class implements a channel interface and links it to two
+ *              circular I/O queues.
  * @{
  */
-
+ 
 #ifndef HAL_BUFFERED_SERIAL_H
 #define HAL_BUFFERED_SERIAL_H
 
 /*===========================================================================*/
-/* Driver constants.                                                         */
+/* Module constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @name    Serial status flags (legacy)
- * @{
- */
-#define SD_PARITY_ERROR         CHN_PARITY_ERROR
-#define SD_FRAMING_ERROR        CHN_FRAMING_ERROR
-#define SD_OVERRUN_ERROR        CHN_OVERRUN_ERROR
-#define SD_NOISE_ERROR          CHN_NOISE_ERROR
-#define SD_BREAK_DETECTED       CHN_BREAK_DETECTED
-#define SD_QUEUE_FULL_ERROR     CHN_BUFFER_FULL_ERROR
-/** @} */
-
 /*===========================================================================*/
-/* Driver pre-compile time settings.                                         */
+/* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -50,66 +42,108 @@
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver data structures and types.                                         */
+/* Module macros.                                                            */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module data structures and types.                                         */
 /*===========================================================================*/
 
 /**
- * @brief   @p BufferedSerial state machine states.
- */
-typedef enum {
-  BS_UNINIT = 0,                    /**< Not initialized.                   */
-  BS_STOP = 1,                      /**< Stopped.                           */
-  BS_READY = 2                      /**< Ready.                             */
-} bsstate_t;
-
-/**
- * @brief   Structure representing a buffered serial class.
- */
-typedef struct hal_buffered_serial BufferedSerial;
-
-/**
- * @brief   @p BufferedSerial specific methods.
- */
-#define __buffered_serial_methods                                           \
-  __base_asynchronous_channel_methods
-
-/**
- * @extends BaseAsynchronousChannelVMT
+ * @class       hal_buffered_serial_c
+ * @extends     base_driver_c
+ * @implements  asynchronous_channel_i
  *
- * @brief   @p BufferedSerial virtual methods table.
+ * @brief       Ancestor class of serial buffered drivers.
+ * @note        The class namespace is <tt>bs</tt>, access to class fields is
+ *              done using: <tt><objp>->bs.<fieldname></tt><br>Note that fields
+ *              of ancestor classes are in their own namespace in order to
+ *              avoid field naming conflicts.
+ *
+ * @name        Class @p hal_buffered_serial_c structures
+ * @{
  */
-struct BufferedSerialVMT {
-  __buffered_serial_methods
+
+/**
+ * @brief       Type of a HAL buffered serial driver class.
+ */
+typedef struct hal_buffered_serial hal_buffered_serial_c;
+
+/**
+ * @brief       Class @p hal_buffered_serial_c data as a structure.
+ */
+struct bs_data {
+  /**
+   * @brief       Channel interface.
+   */
+  asynchronous_channel_i    chn;
+  /**
+   * @brief       Input queue.
+   */
+  input_queue_t             iqueue;
+  /**
+   * @brief       Output queue.
+   */
+  output_queue_t            oqueue;
+  /**
+   * @brief       I/O condition event source.
+   */
+  event_source_t            event;
 };
 
 /**
- * @brief   @p BufferedSerial specific data.
+ * @brief       Class @p hal_buffered_serial_c methods.
  */
-#define __buffered_serial_data                                              \
-  __base_asynchronous_channel_data                                          \
-  /* Driver state.*/                                                        \
-  bsstate_t                 state;                                          \
-  /* Input queue.*/                                                         \
-  input_queue_t             iqueue;                                         \
-  /* Output queue.*/                                                        \
-  output_queue_t            oqueue;
+#define __bs_methods                                                        \
+  __drv_methods                                                             \
+  /* No methods.*/
 
 /**
- * @extends BaseAsynchronousChannel
- *
- * @brief   Buffered serial channel class.
- * @details This class extends @p BaseAsynchronousChannel by adding physical
- *          I/O queues.
+ * @brief       Class @p hal_buffered_serial_c data.
+ */
+#define __bs_data                                                           \
+  __drv_data                                                                \
+  struct bs_data            bs;
+
+/**
+ * @brief       Class @p hal_buffered_serial_c VMT initializer.
+ */
+#define __bs_vmt_init(ns)                                                   \
+  __drv_vmt_init(ns)
+
+/**
+ * @brief       Class @p hal_buffered_serial_c virtual methods table.
+ */
+struct hal_buffered_serial_vmt {
+  __bs_methods
+};
+
+/**
+ * @brief       Structure representing a HAL buffered serial driver class.
  */
 struct hal_buffered_serial {
-  /** @brief Virtual Methods Table.*/
-  const struct BufferedSerialVMT *vmt;
-  __buffered_serial_data
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct hal_buffered_serial_vmt *vmt;
+  __bs_data
 };
 
-/*===========================================================================*/
-/* Driver macros.                                                            */
-/*===========================================================================*/
+/**
+ * @memberof    hal_buffered_serial_c
+ *
+ * @brief       Access macro for hal_buffered_serial_c interfaces.
+ *
+ * @param[in]     ip            Pointer to the class instance.
+ * @param         ifns          Implemented interface namespace.
+ * @return                      A void pointer to the interface within the
+ *                              class instance.
+ *
+ * @api
+ */
+#define bsGetIf(ip, ifns)                                                   \
+  boGetIf(ip, ifns, bs)
+/** @} */
 
 /*===========================================================================*/
 /* External declarations.                                                    */
@@ -118,141 +152,19 @@ struct hal_buffered_serial {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void bsIncomingDataI(BufferedSerial *bsp, uint8_t b);
-  msg_t bsRequestDataI(BufferedSerial *bsp);
+  /* Methods of hal_buffered_serial_c.*/
+  void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib,
+                          size_t ibsize, qnotify_t inotify, void *iarg,
+                          uint8_t *ob, size_t obsize, qnotify_t onotify,
+                          void *oarg);
+  void __bs_dispose_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif
 
 /*===========================================================================*/
-/* Inline functions.                                                         */
+/* Module inline functions.                                                  */
 /*===========================================================================*/
-
-/**
- * @name    Methods implementations
- * @{
- */
-/**
- * @brief   Object initialization implementation.
- *
- * @param[in] ip        Pointer to a @p BufferedSerial structure to be
- *                      initialized.
- * @param[in] vmt       VMT pointer for the new object.
- * @param[in] ib        pointer to the input buffer
- * @param[in] ibsize    size of the input buffer
- * @param[in] inotify   pointer to a callback function that is invoked when
- *                      some data is read from the input queue. The value
- *                      can be @p NULL.
- * @param[in] iarg      parameter for the input notification callback
- * @param[in] ob        pointer to the output buffer
- * @param[in] obsize    size of the output buffer
- * @param[in] onotify   pointer to a callback function that is invoked when
- *                      some data is written in the output queue. The value
- *                      can be @p NULL.
- * @param[in] oarg      parameter for the output notification callback
- *
- * @init
- */
-CC_FORCE_INLINE
-static inline void __buffered_serial_objinit_impl(void *ip, const void *vmt,
-                                                  uint8_t *ib, size_t ibsize,
-                                                  qnotify_t inotify, void *iarg,
-                                                  uint8_t *ob, size_t obsize,
-                                                  qnotify_t onotify, void *oarg) {
-  BufferedSerial *bsp = (BufferedSerial *)ip;
-
-  bsp->vmt = (const struct BufferedSerialVMT *)vmt;  /* TODO use new obj model.*/
-  osalEventObjectInit(&bsp->event);  /* TODO super class should do this.*/
-  bsp->state = BS_STOP;
-  iqObjectInit(&bsp->iqueue, ib, ibsize, inotify, iarg);
-  oqObjectInit(&bsp->oqueue, ob, obsize, onotify, oarg);
-}
-
-CC_FORCE_INLINE
-static inline size_t __buffered_serial_write_impl(void *ip,
-                                                  const uint8_t *bp,
-                                                  size_t n) {
-
-  return oqWriteTimeout(&((BufferedSerial *)ip)->oqueue, bp,
-                        n, TIME_INFINITE);
-}
-
-CC_FORCE_INLINE
-static inline size_t __buffered_serial_read_impl(void *ip,
-                                                 uint8_t *bp,
-                                                 size_t n) {
-
-  return iqReadTimeout(&((BufferedSerial *)ip)->iqueue, bp,
-                       n, TIME_INFINITE);
-}
-
-CC_FORCE_INLINE
-static inline msg_t __buffered_serial_put_impl(void *ip,
-                                               uint8_t b) {
-
-  return oqPutTimeout(&((BufferedSerial *)ip)->oqueue, b, TIME_INFINITE);
-}
-
-CC_FORCE_INLINE
-static inline msg_t __buffered_serial_get_impl(void *ip) {
-
-  return iqGetTimeout(&((BufferedSerial *)ip)->iqueue, TIME_INFINITE);
-}
-
-CC_FORCE_INLINE
-static inline msg_t __buffered_serial_put_timeout_impl(void *ip,
-                                                       uint8_t b,
-                                                       sysinterval_t timeout) {
-
-  return oqPutTimeout(&((BufferedSerial *)ip)->oqueue, b, timeout);
-}
-
-CC_FORCE_INLINE
-static inline msg_t __buffered_serial_get_timeout_impl(void *ip,
-                                                       sysinterval_t timeout) {
-
-  return iqGetTimeout(&((BufferedSerial *)ip)->iqueue, timeout);
-}
-
-CC_FORCE_INLINE
-static inline size_t __buffered_serial_write_timeout_impl(void *ip,
-                                                          const uint8_t *bp,
-                                                          size_t n,
-                                                          sysinterval_t timeout) {
-
-  return oqWriteTimeout(&((BufferedSerial *)ip)->oqueue, bp, n, timeout);
-}
-
-CC_FORCE_INLINE
-static inline size_t __buffered_serial_read_timeout_impl(void *ip,
-                                                         uint8_t *bp,
-                                                         size_t n,
-                                                         sysinterval_t timeout) {
-
-  return iqReadTimeout(&((BufferedSerial *)ip)->iqueue, bp, n, timeout);
-}
-
-CC_FORCE_INLINE
-static inline msg_t __buffered_serial_ctl_impl(void *ip,
-                                               unsigned int operation,
-                                               void *arg) {
-  BufferedSerial *bsp = (BufferedSerial *)ip;
-
-  osalDbgCheck(bsp != NULL);
-
-  switch (operation) {
-  case CHN_CTL_NOP:
-    osalDbgCheck(arg == NULL);
-    break;
-  case CHN_CTL_INVALID:
-    return HAL_RET_UNKNOWN_CTL;
-  default:
-    return HAL_RET_UNKNOWN_CTL;
-  }
-
-  return HAL_RET_SUCCESS;
-}
-/** @} */
 
 #endif /* HAL_BUFFERED_SERIAL_H */
 

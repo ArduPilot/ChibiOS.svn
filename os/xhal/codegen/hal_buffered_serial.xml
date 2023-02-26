@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_buffered_serial_test" descr="Buffered Serial Driver">
+  name="hal_buffered_serial" descr="Buffered Serial Driver">
   <brief>Common ancestor of drivers based on circular I/O buffers.</brief>
   <details><![CDATA[This class implements a channel interface and links
     it to two circular I/O queues.]]></details>
   <public>
     <types>
-      <class type="regular" name="hal_buffered_serial" namespace="bs"
+      <class type="abstract" name="hal_buffered_serial" namespace="bs"
         ancestorname="base_driver" ancestornamespace="drv"
         descr="HAL buffered serial driver">
         <brief>Ancestor class of serial buffered drivers.</brief>
@@ -15,10 +15,13 @@
           <ifref name="asynchronous_channel" namespace="chn" />
         </implements>
         <fields>
+          <field name="chn" ctype="asynchronous_channel_i">
+            <brief>Channel interface.</brief>
+          </field>
           <field name="iqueue" ctype="input_queue_t">
             <brief>Input queue.</brief>
           </field>
-          <field name="oqueue" ctype="output_queue_t int">
+          <field name="oqueue" ctype="output_queue_t">
             <brief>Output queue.</brief>
           </field>
           <field name="event" ctype="event_source_t">
@@ -28,23 +31,29 @@
         <methods>
           <objinit>
             <param name="ib" ctype="uint8_t *" dir="in">pointer to the input
-              buffer</param>
+              buffer
+            </param>
             <param name="ibsize" ctype="size_t" dir="in">size of the input
-              buffer</param>
+              buffer
+            </param>
             <param name="inotify" ctype="qnotify_t" dir="in"><![CDATA[pointer
               to a callback function that is invoked when some data is read
               from the input queue. The value can be @p NULL]]></param>
             <param name="iarg" ctype="void *" dir="in">parameter for the input
-              notification callback</param>
+              notification callback
+            </param>
             <param name="ob" ctype="uint8_t *" dir="in">pointer to the output
-              buffer</param>
+              buffer
+            </param>
             <param name="obsize" ctype="size_t" dir="in">size of the output
-              buffer</param>
+              buffer
+            </param>
             <param name="onotify" ctype="qnotify_t" dir="in"><![CDATA[pointer
               to a callback function that is invoked when some data is written
               to the output queue. The value can be @p NULL]]></param>
             <param name="oarg" ctype="void *" dir="in">parameter for the output
-              notification callback</param>
+              notification callback
+            </param>
             <implementation><![CDATA[
 
 osalEventObjectInit(&self->bs.event);
@@ -62,5 +71,119 @@ oqObjectInit(&self->bs.oqueue, ob, obsize, onotify, oarg);]]></implementation>
     <inclusions>
       <include style="regular">hal.h</include>
     </inclusions>
+    <functions>
+      <function name="__bs_stm_write_impl" ctype="size_t">
+        <param name="ip" ctype="void *" />
+        <param name="bp" ctype="const uint8_t *" dir="in" />
+        <param name="n" ctype="size_t" dir="in" />
+        <implementation><![CDATA[
+
+(void)ip;
+(void)bp;
+(void)n;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_stm_read_impl" ctype="size_t">
+        <param name="ip" ctype="void *" />
+        <param name="bp" ctype="uint8_t *" dir="in" />
+        <param name="n" ctype="size_t" dir="in" />
+        <implementation><![CDATA[
+
+(void)ip;
+(void)bp;
+(void)n;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_stm_put_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="b" ctype="uint8_t" dir="in" />
+        <implementation><![CDATA[
+
+(void)ip;
+(void)b;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_stm_get_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+
+(void)ip;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_chn_writet_impl" ctype="size_t">
+        <param name="ip" ctype="void *" />
+        <param name="bp" ctype="const uint8_t *" dir="in" />
+        <param name="n" ctype="size_t" dir="in" />
+        <param name="timeout" ctype="sysinterval_t" dir="in" />
+        <implementation><![CDATA[
+
+(void)ip;
+(void)bp;
+(void)n;
+(void)timeout;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_chn_readt_impl" ctype="size_t">
+        <param name="ip" ctype="void *" />
+        <param name="bp" ctype="uint8_t *" dir="in" />
+        <param name="n" ctype="size_t" dir="in" />
+        <param name="timeout" ctype="sysinterval_t" dir="in" />
+        <implementation><![CDATA[
+
+(void)ip;
+(void)bp;
+(void)n;
+(void)timeout;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_chn_putt_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="b" ctype="uint8_t" dir="in" />
+        <param name="timeout" ctype="sysinterval_t" dir="in" />
+        <implementation><![CDATA[
+
+(void)ip;
+(void)b;
+(void)timeout;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_chn_gett_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="timeout" ctype="sysinterval_t" dir="in" />
+        <implementation><![CDATA[
+
+(void)ip;
+(void)timeout;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_chn_getclrevt_impl" ctype="eventflags_t">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+
+(void)ip;
+
+return 0;]]></implementation>
+      </function>
+      <function name="__bs_chn_ctl_impl" ctype="msg_t">
+        <param name="ip" ctype="void *" />
+        <param name="operation" ctype="unsigned int" dir="in" />
+        <param name="arg" ctype="void *" dir="both" />
+        <implementation><![CDATA[
+
+(void)ip;
+(void)operation;
+(void)arg;
+
+return 0;]]></implementation>
+      </function>
+    </functions>
   </private>
 </module>

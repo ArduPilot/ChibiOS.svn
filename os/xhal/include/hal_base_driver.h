@@ -151,15 +151,36 @@ struct drv_methods {
  * @brief       Class @p hal_base_driver_c data as a structure.
  */
 struct drv_data {
+  /**
+   * @brief       Driver state.
+   */
   driver_state_t            state;
+  /**
+   * @brief       Open counter.
+   */
   unsigned int              opencnt;
+  /**
+   * @brief       Driver owner.
+   */
   void                      *owner;
 #if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+  /**
+   * @brief       Driver mutex.
+   */
   mutex_t                   mutex;
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 #if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+  /**
+   * @brief       Driver identifier.
+   */
   unsigned int              id;
+  /**
+   * @brief       Driver name.
+   */
   const char                *name;
+  /**
+   * @brief       Registry link structure.
+   */
   hal_regent_t              regent;
 #endif /* HAL_USE_REGISTRY == TRUE */
 };

@@ -62,16 +62,30 @@
         ancestornamespace="bo" descr="HAL base driver">
         <brief>Ancestor class of stateful HAL drivers.</brief>
         <fields>
-          <field name="state" ctype="driver_state_t" />
-          <field name="opencnt" ctype="unsigned int" />
-          <field name="owner" ctype="void$I*" />
+          <field name="state" ctype="driver_state_t" >
+            <brief>Driver state.</brief>
+          </field>
+          <field name="opencnt" ctype="unsigned int">
+            <brief>Open counter.</brief>
+          </field>
+          <field name="owner" ctype="void$I*">
+            <brief>Driver owner.</brief>
+          </field>
           <condition check="HAL_USE_MUTUAL_EXCLUSION == TRUE">
-            <field name="mutex" ctype="mutex_t" />
+            <field name="mutex" ctype="mutex_t">
+              <brief>Driver mutex.</brief>
+            </field>
           </condition>
           <condition check="HAL_USE_REGISTRY == TRUE">
-            <field name="id" ctype="unsigned int" />
-            <field name="name" ctype="const char$I*" />
-            <field name="regent" ctype="hal_regent_t" />
+            <field name="id" ctype="unsigned int">
+              <brief>Driver identifier.</brief>
+            </field>
+            <field name="name" ctype="const char$I*">
+              <brief>Driver name.</brief>
+            </field>
+            <field name="regent" ctype="hal_regent_t">
+              <brief>Registry link structure.</brief>
+            </field>
           </condition>
         </fields>
         <methods>

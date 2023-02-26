@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -15,88 +15,208 @@
 */
 
 /**
- * @file    hal_buffered_serial.h
- * @brief   Buffered Serial Driver code.
+ * @file        hal_buffered_serial.c
+ * @brief       Generated Buffered Serial Driver source.
+ * @note        This is a generated file, do not edit directly.
  *
- * @addtogroup HAL_BUFFERED_SERIAL
+ * @addtogroup  HAL_BUFFERED_SERIAL
  * @{
  */
 
 #include "hal.h"
 
 /*===========================================================================*/
-/* Driver local definitions.                                                 */
+/* Module local definitions.                                                 */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver exported variables.                                                */
+/* Module local macros.                                                      */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver local variables and types.                                         */
+/* Module exported variables.                                                */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver local functions.                                                   */
+/* Module local types.                                                       */
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver exported functions.                                                */
+/* Module local variables.                                                   */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module local functions.                                                   */
+/*===========================================================================*/
+
+static size_t __bs_stm_write_impl(void *ip, const uint8_t *bp, size_t n) {
+
+  (void)ip;
+  (void)bp;
+  (void)n;
+
+  return 0;
+}
+
+static size_t __bs_stm_read_impl(void *ip, uint8_t *bp, size_t n) {
+
+  (void)ip;
+  (void)bp;
+  (void)n;
+
+  return 0;
+}
+
+static msg_t __bs_stm_put_impl(void *ip, uint8_t b) {
+
+  (void)ip;
+  (void)b;
+
+  return 0;
+}
+
+static msg_t __bs_stm_get_impl(void *ip) {
+
+  (void)ip;
+
+  return 0;
+}
+
+static size_t __bs_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
+                                   sysinterval_t timeout) {
+
+  (void)ip;
+  (void)bp;
+  (void)n;
+  (void)timeout;
+
+  return 0;
+}
+
+static size_t __bs_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
+                                  sysinterval_t timeout) {
+
+  (void)ip;
+  (void)bp;
+  (void)n;
+  (void)timeout;
+
+  return 0;
+}
+
+static msg_t __bs_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
+
+  (void)ip;
+  (void)b;
+  (void)timeout;
+
+  return 0;
+}
+
+static msg_t __bs_chn_gett_impl(void *ip, sysinterval_t timeout) {
+
+  (void)ip;
+  (void)timeout;
+
+  return 0;
+}
+
+static eventflags_t __bs_chn_getclrevt_impl(void *ip) {
+
+  (void)ip;
+
+  return 0;
+}
+
+static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
+
+  (void)ip;
+  (void)operation;
+  (void)arg;
+
+  return 0;
+}
+
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Module class "hal_buffered_serial_c" methods.                             */
 /*===========================================================================*/
 
 /**
- * @brief   Handles incoming data.
- * @details This function must be called from the input interrupt service
- *          routine in order to enqueue incoming data and generate the
- *          related events.
- * @note    The incoming data event is only generated when the input queue
- *          becomes non-empty.
- *
- * @param[in] bsp       pointer to a @p BufferedSerial structure
- * @param[in] b         the byte to be written in the driver's Input Queue
- *
- * @iclass
+ * @name        Virtual methods implementations of hal_buffered_serial_c
+ * @{
  */
-void bsIncomingDataI(BufferedSerial *bsp, uint8_t b) {
+/**
+ * @memberof    hal_buffered_serial_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p hal_buffered_serial_c instance
+ *                              to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     ib            Pointer to the input buffer
+ * @param[in]     ibsize        Size of the input buffer
+ * @param[in]     inotify       Pointer to a callback function that is invoked
+ *                              when some data is read from the input queue.
+ *                              The value can be @p NULL
+ * @param[in]     iarg          Parameter for the input notification callback
+ * @param[in]     ob            Pointer to the output buffer
+ * @param[in]     obsize        Size of the output buffer
+ * @param[in]     onotify       Pointer to a callback function that is invoked
+ *                              when some data is written to the output queue.
+ *                              The value can be @p NULL
+ * @param[in]     oarg          Parameter for the output notification callback
+ * @return                      A new reference to the object.
+ */
+void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
+                        qnotify_t inotify, void *iarg, uint8_t *ob,
+                        size_t obsize, qnotify_t onotify, void *oarg) {
+  hal_buffered_serial_c *self = (hal_buffered_serial_c *)ip;
 
-  osalDbgCheckClassI();
-  osalDbgCheck(bsp != NULL);
+  /* Initialization of the ancestors-defined parts.*/
+  __drv_objinit_impl(self, vmt);
 
-  if (iqIsEmptyI(&bsp->iqueue)) {
-    chnAddFlagsI(bsp, CHN_INPUT_AVAILABLE);
+  /* Implementation of interface asynchronous_channel_i.*/
+  {
+    static const struct asynchronous_channel_vmt bs_chn_vmt = {
+      __chn_vmt_init(bs, offsetof(hal_buffered_serial_c, bs.chn))
+    };
+    oopIfObjectInit(&self->bs.chn, &bs_chn_vmt);
   }
 
-  if (iqPutI(&bsp->iqueue, b) < MSG_OK) {
-    chnAddFlagsI(bsp, SD_QUEUE_FULL_ERROR);
-  }
+  /* Initialization code.*/
+
+  osalEventObjectInit(&self->bs.event);
+  iqObjectInit(&self->bs.iqueue, ib, ibsize, inotify, iarg);
+  oqObjectInit(&self->bs.oqueue, ob, obsize, onotify, oarg);
+
+  return self;
 }
 
 /**
- * @brief   Handles outgoing data.
- * @details Must be called from the output interrupt service routine in order
- *          to get the next byte to be transmitted.
- * @note    In order to gain some performance it is suggested to not use
- *          this function directly but copy this code directly into the
- *          interrupt service routine.
+ * @memberof    hal_buffered_serial_c
+ * @protected
  *
- * @param[in] bsp       pointer to a @p BufferedSerial structure
- * @return              The byte value read from the driver's output queue.
- * @retval MSG_TIMEOUT  if the queue is empty.
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
  *
- * @iclass
+ * @param[in,out] ip            Pointer to a @p hal_buffered_serial_c instance
+ *                              to be disposed.
  */
-msg_t bsRequestDataI(BufferedSerial *bsp) {
-  msg_t  b;
+void __bs_dispose_impl(void *ip) {
+  hal_buffered_serial_c *self = (hal_buffered_serial_c *)ip;
 
-  osalDbgCheckClassI();
-  osalDbgCheck(bsp != NULL);
+  /* No finalization code.*/
+  (void)self;
 
-  b = oqGetI(&bsp->oqueue);
-  if (b < MSG_OK) {
-    chnAddFlagsI(bsp, CHN_OUTPUT_EMPTY);
-  }
-
-  return b;
+  /* Finalization of the ancestors-defined parts.*/
+  __drv_dispose_impl(self);
 }
+/** @} */
 
 /** @} */

@@ -60,7 +60,7 @@
       <class type="abstract" name="hal_base_driver"
         namespace="drv" ancestorname="base_object"
         ancestornamespace="bo" descr="HAL base driver">
-        <brief>Ancstor class of stateful HAL drivers.</brief>
+        <brief>Ancestor class of stateful HAL drivers.</brief>
         <fields>
           <field name="state" ctype="driver_state_t" />
           <field name="opencnt" ctype="unsigned int" />

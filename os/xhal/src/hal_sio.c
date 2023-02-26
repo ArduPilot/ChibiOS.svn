@@ -211,6 +211,12 @@ static msg_t __sio_chn_gett_impl(void *ip, sysinterval_t timeout) {
   return sioGetX(siop);
 }
 
+static eventflags_t __sio_chn_getclrevt_impl(void *ip) {
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
+
+  return (eventflags_t)sioGetAndClearErrorsX(siop);
+}
+
 static msg_t __sio_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
   hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 

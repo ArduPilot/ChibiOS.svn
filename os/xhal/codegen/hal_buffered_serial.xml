@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
+  name="hal_buffered_serial_test" descr="Buffered Serial Driver">
+  <brief>Common ancestor of drivers based on circular I/O buffers.</brief>
+  <details><![CDATA[This class implements a channel interface and links
+    it to two circular I/O queues.]]></details>
+  <public>
+    <types>
+      <class type="regular" name="hal_buffered_serial" namespace="bs"
+        ancestorname="base_driver" ancestornamespace="drv"
+        descr="HAL buffered serial driver">
+        <brief>Ancestor class of serial buffered drivers.</brief>
+        <implements>
+          <ifref name="asynchronous_channel" namespace="chn" />
+        </implements>
+        <fields>
+          <field name="iqueue" ctype="input_queue_t">
+            <brief>Input queue.</brief>
+          </field>
+          <field name="oqueue" ctype="output_queue_t int">
+            <brief>Output queue.</brief>
+          </field>
+          <field name="event" ctype="event_source_t">
+            <brief>I/O condition event source.</brief>
+          </field>
+        </fields>
+        <methods>
+          <objinit>
+            <param name="ib" ctype="uint8_t *" dir="in">pointer to the input
+              buffer</param>
+            <param name="ibsize" ctype="size_t" dir="in">size of the input
+              buffer</param>
+            <param name="inotify" ctype="qnotify_t" dir="in"><![CDATA[pointer
+              to a callback function that is invoked when some data is read
+              from the input queue. The value can be @p NULL]]></param>
+            <param name="iarg" ctype="void *" dir="in">parameter for the input
+              notification callback</param>
+            <param name="ob" ctype="uint8_t *" dir="in">pointer to the output
+              buffer</param>
+            <param name="obsize" ctype="size_t" dir="in">size of the output
+              buffer</param>
+            <param name="onotify" ctype="qnotify_t" dir="in"><![CDATA[pointer
+              to a callback function that is invoked when some data is written
+              to the output queue. The value can be @p NULL]]></param>
+            <param name="oarg" ctype="void *" dir="in">parameter for the output
+              notification callback</param>
+            <implementation><![CDATA[
+
+osalEventObjectInit(&self->bs.event);
+iqObjectInit(&self->bs.iqueue, ib, ibsize, inotify, iarg);
+oqObjectInit(&self->bs.oqueue, ob, obsize, onotify, oarg);]]></implementation>
+          </objinit>
+          <dispose>
+            <implementation><![CDATA[ ]]></implementation>
+          </dispose>
+        </methods>
+      </class>
+    </types>
+  </public>
+  <private>
+    <inclusions>
+      <include style="regular">hal.h</include>
+    </inclusions>
+  </private>
+</module>

@@ -123,7 +123,7 @@ struct hal_regent {
  * @class       hal_base_driver_c
  * @extends     base_object_c
  *
- * @brief       Ancstor class of stateful HAL drivers.
+ * @brief       Ancestor class of stateful HAL drivers.
  * @note        The class namespace is <tt>drv</tt>, access to class fields is
  *              done using: <tt><objp>->drv.<fieldname></tt><br>Note that
  *              fields of ancestor classes are in their own namespace in order

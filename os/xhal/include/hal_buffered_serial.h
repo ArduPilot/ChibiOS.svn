@@ -158,6 +158,8 @@ extern "C" {
                           uint8_t *ob, size_t obsize, qnotify_t onotify,
                           void *oarg);
   void __bs_dispose_impl(void *ip);
+  void bsIncomingDataI(void *ip, uint8_t b);
+  msg_t bsRequestDataI(void *ip);
 #ifdef __cplusplus
 }
 #endif
@@ -165,6 +167,30 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+/**
+ * @name        Inline methods of hal_buffered_serial_c
+ * @{
+ */
+/**
+ * @memberof    hal_buffered_serial_c
+ * @public
+ *
+ * @brief       Adds status flags to the flags mask.
+ * @details     This function is usually called from the I/O ISRs in order to
+ *              notify I/O conditions such as data events, errors, signal
+ *              changes etc.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_buffered_serial_c instance.
+ * @param[in]     flags         Event flags to be added.
+ */
+CC_FORCE_INLINE
+static inline void bsAddFlagsI(void *ip, eventflags_t flags) {
+  hal_buffered_serial_c *self = (hal_buffered_serial_c *)ip;
+
+  osalEventBroadcastFlagsI(&self->bs.event, flags);
+}
+/** @} */
 
 #endif /* HAL_BUFFERED_SERIAL_H */
 

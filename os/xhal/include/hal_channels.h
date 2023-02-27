@@ -193,7 +193,6 @@ struct chn_methods {
   size_t (*readt)(void *ip, uint8_t *bp, size_t n, sysinterval_t timeout);
   msg_t (*putt)(void *ip, uint8_t b, sysinterval_t timeout);
   msg_t (*gett)(void *ip, sysinterval_t timeout);
-  eventflags_t (*getclrevt)(void *ip);
   msg_t (*ctl)(void *ip, unsigned int operation, void *arg);
 };
 
@@ -216,7 +215,6 @@ struct chn_methods {
   .chn.readt                                = __##ns##_chn_readt_impl,      \
   .chn.putt                                 = __##ns##_chn_putt_impl,       \
   .chn.gett                                 = __##ns##_chn_gett_impl,       \
-  .chn.getclrevt                            = __##ns##_chn_getclrevt_impl,  \
   .chn.ctl                                  = __##ns##_chn_ctl_impl,
 
 /**
@@ -368,24 +366,6 @@ static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
 
   return self->vmt->chn.gett(ip, timeout);
-}
-
-/**
- * @memberof    asynchronous_channel_i
- * @public
- *
- * @brief       Returns and clears pending event flags.
- *
- * @param[in,out] ip            Pointer to a @p asynchronous_channel_i
- *                              instance.
- * @return                      The cleared event flags.
- * @retval 0                    If no events were pending."
- */
-CC_FORCE_INLINE
-static inline eventflags_t chnGetAndClearEvents(void *ip) {
-  asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
-
-  return self->vmt->chn.getclrevt(ip);
 }
 
 /**

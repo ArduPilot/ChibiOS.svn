@@ -195,11 +195,6 @@
             <retval value="STM_TIMEOUT">If the specified time expired."</retval>
             <retval value="STM_RESET">If the channel was reset."</retval>
           </method>
-          <method name="chnGetAndClearEvents" shortname="getclrevt" ctype="eventflags_t">
-            <brief>Returns and clears pending event flags.</brief>
-            <return>The cleared event flags.</return>
-            <retval value="0">If no events were pending."</retval>
-          </method>
           <method name="chnControl" shortname="ctl" ctype="msg_t">
             <brief>Control operation on a channel.</brief>
             <param name="operation" ctype="unsigned int" dir="in">control

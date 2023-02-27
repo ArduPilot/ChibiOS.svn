@@ -50,87 +50,59 @@
 /*===========================================================================*/
 
 static size_t __bs_stm_write_impl(void *ip, const uint8_t *bp, size_t n) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
-  (void)bp;
-  (void)n;
-
-  return 0;
+  return oqWriteTimeout(&bsp->bs.oqueue, bp, n, TIME_INFINITE);
 }
 
 static size_t __bs_stm_read_impl(void *ip, uint8_t *bp, size_t n) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
-  (void)bp;
-  (void)n;
-
-  return 0;
+  return iqReadTimeout(&bsp->bs.iqueue, bp, n, TIME_INFINITE);
 }
 
 static msg_t __bs_stm_put_impl(void *ip, uint8_t b) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
-  (void)b;
-
-  return 0;
+  return oqPutTimeout(&bsp->bs.oqueue, b, TIME_INFINITE);
 }
 
 static msg_t __bs_stm_get_impl(void *ip) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
-
-  return 0;
+  return iqGetTimeout(&bsp->bs.iqueue, TIME_INFINITE);
 }
 
 static size_t __bs_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
                                    sysinterval_t timeout) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
-  (void)bp;
-  (void)n;
-  (void)timeout;
-
-  return 0;
+  return oqWriteTimeout(&bsp->bs.oqueue, bp, n, timeout);
 }
 
 static size_t __bs_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
                                   sysinterval_t timeout) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
-  (void)bp;
-  (void)n;
-  (void)timeout;
-
-  return 0;
+  return iqReadTimeout(&bsp->bs.iqueue, bp, n, timeout);
 }
 
 static msg_t __bs_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
-  (void)b;
-  (void)timeout;
-
-  return 0;
+  return oqPutTimeout(&bsp->bs.oqueue, b, timeout);
 }
 
 static msg_t __bs_chn_gett_impl(void *ip, sysinterval_t timeout) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
-  (void)timeout;
-
-  return 0;
-}
-
-static eventflags_t __bs_chn_getclrevt_impl(void *ip) {
-
-  (void)ip;
-
-  return 0;
+  return iqGetTimeout(&bsp->bs.iqueue, timeout);
 }
 
 static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  (void)ip;
+  (void)bsp;
   (void)operation;
   (void)arg;
 
@@ -216,6 +188,69 @@ void __bs_dispose_impl(void *ip) {
 
   /* Finalization of the ancestors-defined parts.*/
   __drv_dispose_impl(self);
+}
+/** @} */
+
+/**
+ * @name        Regular methods of hal_buffered_serial_c
+ * @{
+ */
+/**
+ * @memberof    hal_buffered_serial_c
+ * @public
+ *
+ * @brief       Handles incoming data.
+ * @details     This function must be called from the input interrupt service
+ *              routine in order to enqueue incoming data and generate the
+ *              related events.
+ * @note        The incoming data event is only generated when the input queue
+ *              becomes non-empty.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_buffered_serial_c instance.
+ * @param[in]     b             The byte to be written in the driver's Input
+ *                              Queue
+ */
+void bsIncomingDataI(void *ip, uint8_t b) {
+  hal_buffered_serial_c *self = (hal_buffered_serial_c *)ip;
+
+  osalDbgCheckClassI();
+  osalDbgCheck(self != NULL);
+
+  if (iqIsEmptyI(&self->bs.iqueue)) {
+    bsAddFlagsI(self, CHN_INPUT_AVAILABLE);
+  }
+
+  if (iqPutI(&self->bs.iqueue, b) < MSG_OK) {
+    bsAddFlagsI(self, CHN_BUFFER_FULL_ERROR);
+  }
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @public
+ *
+ * @brief       Handles outgoing data.
+ * @details     Must be called from the output interrupt service routine in
+ *              order to get the next byte to be transmitted.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_buffered_serial_c instance.
+ * @return                      The byte value read from the driver's output
+ *                              queue.
+ * @retval MSG_TIMEOUT          If the queue is empty.
+ */
+msg_t bsRequestDataI(void *ip) {
+  hal_buffered_serial_c *self = (hal_buffered_serial_c *)ip;
+  msg_t  b;
+
+  osalDbgCheckClassI();
+  osalDbgCheck(self != NULL);
+
+  b = oqGetI(&self->bs.oqueue);
+  if (b < MSG_OK) {
+    bsAddFlagsI(self, CHN_OUTPUT_EMPTY);
+  }
+
+  return b;
 }
 /** @} */
 

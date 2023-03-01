@@ -429,11 +429,6 @@ SIO_CONFIG_EXT_FIELDS]]></verbatim>
           </condition>
         </implements>
         <fields>
-          <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
-            <field name="chn" ctype="asynchronous_channel_i">
-              <brief>Channel interface.</brief>
-            </field>
-          </condition>
           <field name="enabled" ctype="sioevents_t">
             <brief>Enabled event flags.</brief>
           </field>

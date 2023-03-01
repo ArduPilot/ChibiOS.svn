@@ -554,6 +554,31 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
+  -- This macro generates class interface fields from an XML node.
+  --]
+[#macro GenerateClassInterfaceFields node=[]]
+  [#list node.* as this]
+    [#if this?node_name == "ifref"]
+      [#local ifname      = GetNodeName(this)
+              ifnamespace = GetNodeNamespace(this)
+              ifctype     = GetInterfaceCType(this) /]
+[@ccode.Indent 1 /]/**
+[@doxygen.EmitBrief ccode.indentation "Implemented interface @p " + ifctype + "." /]
+[@ccode.Indent 1 /] */
+[@ccode.GenerateVariableDeclaration indent=ccode.indentation
+                                    name=ifnamespace
+                                    ctype=ifctype /]
+
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateClassInterfaceFields this /]
+#endif /* ${condcheck} */
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassWrapper node=[]]
@@ -607,7 +632,8 @@ struct ${methodsstruct} {
 [@doxygen.EmitBrief "" "Class @p " + classctype + " data as a structure." /]
  */
 struct ${datastruct} {
-[@ccode.GenerateStructureFields ccode.indentation class.fields /]
+[@GenerateClassInterfaceFields node=class.implements /]
+[@ccode.GenerateStructureFieldsFromNode ccode.indentation class.fields /]
 };
 
   [/#if]

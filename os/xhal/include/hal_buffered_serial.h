@@ -74,7 +74,7 @@ typedef struct hal_buffered_serial hal_buffered_serial_c;
  */
 struct bs_data {
   /**
-   * @brief       Channel interface.
+   * @brief       Implemented interface @p asynchronous_channel_i.
    */
   asynchronous_channel_i    chn;
   /**

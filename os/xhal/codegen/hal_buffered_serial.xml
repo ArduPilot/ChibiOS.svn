@@ -15,9 +15,6 @@
           <ifref name="asynchronous_channel" namespace="chn" />
         </implements>
         <fields>
-          <field name="chn" ctype="asynchronous_channel_i">
-            <brief>Channel interface.</brief>
-          </field>
           <field name="iqueue" ctype="input_queue_t">
             <brief>Input queue.</brief>
           </field>

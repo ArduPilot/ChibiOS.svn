@@ -537,7 +537,7 @@ typedef struct hal_sio_driver hal_sio_driver_c;
 struct sio_data {
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
   /**
-   * @brief       Channel interface.
+   * @brief       Implemented interface @p asynchronous_channel_i.
    */
   asynchronous_channel_i    chn;
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */

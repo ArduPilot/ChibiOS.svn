@@ -494,7 +494,7 @@ ${indent}typedef ${basectype} ${typename};
     [#local structname = structname + " " /]
   [/#if]
 ${indent}struct ${structname}{
-[@ccode.GenerateStructureFields indent+indentation node.fields /]
+[@ccode.GenerateStructureFieldsFromNode indent+indentation node.fields /]
 ${indent}};
 [/#macro]
 
@@ -507,7 +507,7 @@ ${indent}};
     [#local unionname = unionname + " " /]
   [/#if]
 ${indent}union ${unionname}{
-[@ccode.GenerateStructureFields indent+indentation node.fields /]
+[@ccode.GenerateStructureFieldsFromNode indent+indentation node.fields /]
 ${indent}};
 [/#macro]
 
@@ -618,7 +618,7 @@ ${varstring}
 [#--
   -- This macro generates structure fields from an XML node.
   --]
-[#macro GenerateStructureFields indent="" fields=[]]
+[#macro GenerateStructureFieldsFromNode indent="" fields=[]]
   [#list fields.* as node]
     [#if node?node_name == "field"]
       [#local field = node /]
@@ -631,7 +631,7 @@ ${fieldstring}
       [#local condition = node /]
       [#local condcheck = (condition.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateStructureFields indent condition /]
+[@GenerateStructureFieldsFromNode indent condition /]
 #endif /* ${condcheck} */
     [#elseif node?node_name == "verbatim"]
       [#local ccode = (node[0]!"")?trim /]

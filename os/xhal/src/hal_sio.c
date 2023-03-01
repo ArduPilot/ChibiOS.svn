@@ -211,6 +211,12 @@ static msg_t __sio_chn_gett_impl(void *ip, sysinterval_t timeout) {
   return sioGetX(siop);
 }
 
+static chnflags_t __sio_chn_getclr_impl(void *ip, chnflags_t mask) {
+  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
+
+  return (chnflags_t)sioGetAndClearEventsX(siop, (sioevents_t)mask);
+}
+
 static msg_t __sio_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
   hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
 
@@ -429,11 +435,12 @@ sioevents_t sioGetAndClearErrors(void *ip) {
  * @brief       Get and clears SIO event flags.
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
+ * @param[in]     mask          Mask of events to be returned and cleared.
  * @return                      The pending event flags.
  *
  * @api
  */
-sioevents_t sioGetAndClearEvents(void *ip) {
+sioevents_t sioGetAndClearEvents(void *ip, sioevents_t mask) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   sioevents_t events;
 
@@ -441,7 +448,7 @@ sioevents_t sioGetAndClearEvents(void *ip) {
 
   osalSysLock();
   osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
-  events = sioGetAndClearEventsX(self);
+  events = sioGetAndClearEventsX(self, mask);
   osalSysUnlock();
 
   return events;

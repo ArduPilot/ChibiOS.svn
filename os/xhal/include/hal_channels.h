@@ -52,42 +52,34 @@
 /** @} */
 
 /**
- * @name    Channel events offsets
+ * @name    Channel event flags
  * @{
  */
-#define CHN_CONNECTED_POS                   0
-#define CHN_DISCONNECTED_POS                1
-#define CHN_INPUT_AVAILABLE_POS             2
-#define CHN_OUTPUT_EMPTY_POS                2
-#define CHN_TRANSMISSION_END_POS            4
-#define CHN_ALL_ERRORS_POS                  5
-#define CHN_PARITY_ERROR_POS                5
-#define CHN_FRAMING_ERROR_POS               6
-#define CHN_NOISE_ERROR_POS                 7
-#define CHN_OVERRUN_ERROR_POS               8
-#define CHN_IDLE_DETECTED_POS               9
-#define CHN_BREAK_DETECTED_POS              10
-#define CHN_BUFFER_FULL_ERROR_POS           11
-/** @} */
-
-/**
- * @name    Channel events masks
- * @{
- */
-#define CHN_NO_ERROR                        0U
-#define CHN_CONNECTED                       (1U << CHN_CONNECTED_POS)
-#define CHN_DISCONNECTED                    (1U << CHN_DISCONNECTED_POS)
-#define CHN_INPUT_AVAILABLE                 (1U << CHN_INPUT_AVAILABLE_POS)
-#define CHN_OUTPUT_EMPTY                    (1U << CHN_OUTPUT_EMPTY_POS)
-#define CHN_TRANSMISSION_END                (1U << CHN_TRANSMISSION_END_POS)
-#define CHN_ALL_ERRORS                      (15U << CHN_ALL_ERRORS_POS)
-#define CHN_PARITY_ERROR                    (1U << CHN_PARITY_ERROR_POS)
-#define CHN_FRAMING_ERROR                   (1U << CHN_FRAMING_ERROR_POS)
-#define CHN_NOISE_ERROR                     (1U << CHN_NOISE_ERROR_POS)
-#define CHN_OVERRUN_ERROR                   (1U << CHN_OVERRUN_ERROR_POS)
-#define CHN_IDLE_DETECTED                   (1U << CHN_IDLE_DETECTED_POS)
-#define CHN_BREAK_DETECTED                  (1U << CHN_BREAK_DETECTED_POS)
-#define CHN_BUFFER_FULL_ERROR               (1U << CHN_BUFFER_FULL_ERROR_POS)
+#define CHN_FL_PARITY_ERR_POS               0
+#define CHN_FL_PARITY_ERR                   (1U << CHN_FL_PARITY_ERR_POS)
+#define CHN_FL_FRAMING_ERR_POS              1
+#define CHN_FL_FRAMING_ERR                  (1U << CHN_FL_FRAMING_ERR_POS)
+#define CHN_FL_NOISE_ERR_POS                2
+#define CHN_FL_NOISE_ERR                    (1U << CHN_FL_NOISE_ERR_POS)
+#define CHN_FL_OVERRUN_ERR_POS              3
+#define CHN_FL_OVERRUN_ERR                  (1U << CHN_FL_OVERRUN_ERR_POS)
+#define CHN_FL_BUFFER_FULL_ERR_POS          4
+#define CHN_FL_BUFFER_FULL_ERR              (1U << CHN_FL_BUFFER_FULL_ERR_POS)
+#define CHN_FL_FULLMASK                     (15U << CHN_FL_PARITY_POS)
+#define CHN_FL_TX_NOTFULL_POS               8
+#define CHN_FL_TX_NOTFULL                   (1U << CHN_FL_TX_NOTFULL_POS)
+#define CHN_FL_RX_NOTEMPTY_POS              9
+#define CHN_FL_RX_NOTEMPTY                  (1U << CHN_FL_RX_NOTEMPTY_POS)
+#define CHN_FL_TX_END_POS                   10
+#define CHN_FL_TX_END                       (1U << CHN_FL_TX_END_POS)
+#define CHN_FL_RX_IDLE_POS                  11
+#define CHN_FL_RX_IDLE                      (1U << CHN_FL_RX_IDLE_POS)
+#define CHN_FL_RX_BREAK_POS                 12
+#define CHN_FL_RX_BREAK                     (1U << CHN_FL_RX_BREAK_POS)
+#define CHN_FL_CONNECTED_POS                13
+#define CHN_FL_CONNECTED                    (1U << CHN_FL_CONNECTED_POS)
+#define CHN_FL_DISCONNECTED_POS             14
+#define CHN_FL_DISCONNECTED                 (1U << CHN_FL_DISCONNECTED_POS)
 /** @} */
 
 /*===========================================================================*/
@@ -166,6 +158,11 @@
 /*===========================================================================*/
 
 /**
+ * @brief       Type of channel event flags.
+ */
+typedef eventflags_t chnflags_t;
+
+/**
  * @interface   asynchronous_channel_i
  * @extends     sequential_stream_i
  *
@@ -193,6 +190,7 @@ struct chn_methods {
   size_t (*readt)(void *ip, uint8_t *bp, size_t n, sysinterval_t timeout);
   msg_t (*putt)(void *ip, uint8_t b, sysinterval_t timeout);
   msg_t (*gett)(void *ip, sysinterval_t timeout);
+  chnflags_t (*getclr)(void *ip, chnflags_t mask);
   msg_t (*ctl)(void *ip, unsigned int operation, void *arg);
 };
 
@@ -215,6 +213,7 @@ struct chn_methods {
   .chn.readt                                = __##ns##_chn_readt_impl,      \
   .chn.putt                                 = __##ns##_chn_putt_impl,       \
   .chn.gett                                 = __##ns##_chn_gett_impl,       \
+  .chn.getclr                               = __##ns##_chn_getclr_impl,     \
   .chn.ctl                                  = __##ns##_chn_ctl_impl,
 
 /**
@@ -274,6 +273,8 @@ extern "C" {
  *                              - @a TIME_INFINITE no timeout.
  *                              .
  * @return                      The number of bytes transferred.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline size_t chnWriteTimeout(void *ip, const uint8_t *bp, size_t n,
@@ -302,6 +303,8 @@ static inline size_t chnWriteTimeout(void *ip, const uint8_t *bp, size_t n,
  *                              - @a TIME_INFINITE no timeout.
  *                              .
  * @return                      The number of bytes transferred.
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
@@ -333,6 +336,8 @@ static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
  * @retval STM_OK               If the operation succeeded."
  * @retval STM_TIMEOUT          If the specified time expired."
  * @retval STM_RESET            If the channel was reset."
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
@@ -360,6 +365,8 @@ static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
  * @return                      A byte value from the channel.
  * @retval STM_TIMEOUT          If the specified time expired."
  * @retval STM_RESET            If the channel was reset."
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
@@ -372,16 +379,39 @@ static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
  * @memberof    asynchronous_channel_i
  * @public
  *
+ * @brief       Returns and clears pending event flags.
+ *
+ * @param[in,out] ip            Pointer to a @p asynchronous_channel_i
+ *                              instance.
+ * @param[in]     mask          Mask of flags to be returned and cleared.
+ * @return                      The cleared event flags.
+ * @retval 0                    If no event flags were pending."
+ *
+ * @api
+ */
+CC_FORCE_INLINE
+static inline chnflags_t chnGetAndClearFlags(void *ip, chnflags_t mask) {
+  asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
+
+  return self->vmt->chn.getclr(ip, mask);
+}
+
+/**
+ * @memberof    asynchronous_channel_i
+ * @public
+ *
  * @brief       Control operation on a channel.
  *
  * @param[in,out] ip            Pointer to a @p asynchronous_channel_i
  *                              instance.
  * @param[in]     operation     Control operation code
- * @param[in,out] arg           Operation argument
+ * @param[in,out] arg           Operation argument.
  * @return                      The operation status.
  * @retval STM_OK               If the operation succeeded."
  * @retval STM_TIMEOUT          If the specified time expired."
  * @retval STM_RESET            If the channel was reset."
+ *
+ * @api
  */
 CC_FORCE_INLINE
 static inline msg_t chnControl(void *ip, unsigned int operation, void *arg) {

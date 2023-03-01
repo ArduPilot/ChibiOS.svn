@@ -99,6 +99,15 @@ static msg_t __bs_chn_gett_impl(void *ip, sysinterval_t timeout) {
   return iqGetTimeout(&bsp->bs.iqueue, timeout);
 }
 
+static eventflags_t __bs_chn_getclr_impl(void *ip, eventflags_t mask) {
+  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  (void)bsp;
+  (void)mask;
+
+  return 0;
+}
+
 static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
@@ -207,7 +216,7 @@ void __bs_dispose_impl(void *ip) {
  *              becomes non-empty.
  *
  * @param[in,out] ip            Pointer to a @p hal_buffered_serial_c instance.
- * @param[in]     b             The byte to be written in the driver's Input
+ * @param[in]     b             The byte to be written to the driver's Input
  *                              Queue
  */
 void bsIncomingDataI(void *ip, uint8_t b) {
@@ -217,11 +226,11 @@ void bsIncomingDataI(void *ip, uint8_t b) {
   osalDbgCheck(self != NULL);
 
   if (iqIsEmptyI(&self->bs.iqueue)) {
-    bsAddFlagsI(self, CHN_INPUT_AVAILABLE);
+    bsAddFlagsI(self, CHN_FL_RX_NOTEMPTY);
   }
 
   if (iqPutI(&self->bs.iqueue, b) < MSG_OK) {
-    bsAddFlagsI(self, CHN_BUFFER_FULL_ERROR);
+    bsAddFlagsI(self, CHN_FL_BUFFER_FULL_ERR);
   }
 }
 
@@ -247,7 +256,9 @@ msg_t bsRequestDataI(void *ip) {
 
   b = oqGetI(&self->bs.oqueue);
   if (b < MSG_OK) {
-    bsAddFlagsI(self, CHN_OUTPUT_EMPTY);
+    /* Note, this event is only added when the buffer becomes fully empty in
+       order to avoid continuous reporting.*/
+    bsAddFlagsI(self, CHN_FL_TX_NOTFULL);
   }
 
   return b;

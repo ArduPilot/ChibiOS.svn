@@ -5,47 +5,33 @@
   <brief>SIO Driver macros and structures.</brief>
   <public>
     <definitions_early>
-      <group description="SIO masks offsets">
-        <define name="SIO_EV_RXNOTEMPY_POS"
-          value="CHN_INPUT_AVAILABLE_POS" />
-        <define name="SIO_EV_TXNOTFULL_POS"
-          value="CHN_OUTPUT_EMPTY_POS" />
-        <define name="SIO_EV_TXDONE_POS"
-          value="CHN_TRANSMISSION_END_POS" />
-        <define name="SIO_EV_ALL_ERRORS_POS"
-          value="CHN_PARITY_ERROR_POS" />
-        <define name="SIO_EV_PARITY_ERR_POS"
-          value="CHN_PARITY_ERROR_POS" />
-        <define name="SIO_EV_FRAMING_ERR_POS"
-          value="CHN_FRAMING_ERROR_POS" />
-        <define name="SIO_EV_NOISE_ERR_POS"
-          value="CHN_NOISE_ERROR_POS" />
-        <define name="SIO_EV_OVERRUN_ERR_POS"
-          value="CHN_OVERRUN_ERROR_POS" />
-        <define name="SIO_EV_RXIDLE_POS"
-          value="CHN_IDLE_DETECTED_POS" />
-        <define name="SIO_EV_RXBREAK_POS"
-          value="CHN_BREAK_DETECTED_POS" />
-      </group>
-      <group description="SIO event flags">
-        <define name="SIO_EV_NONE" value="0U" />
-        <define name="SIO_EV_RXNOTEMPY"
-          value="CHN_INPUT_AVAILABLE" />
-        <define name="SIO_EV_TXNOTFULL" value="CHN_OUTPUT_EMPTY" />
-        <define name="SIO_EV_ALL_DATA"
-          value="(SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)" />
-        <define name="SIO_EV_TXDONE" value="CHN_TRANSMISSION_END" />
-        <define name="SIO_EV_ALL_ERRORS" value="CHN_ALL_ERRORS" />
-        <define name="SIO_EV_PARITY_ERR" value="CHN_PARITY_ERROR" />
-        <define name="SIO_EV_FRAMING_ERR"
-          value="CHN_FRAMING_ERROR" />
-        <define name="SIO_EV_NOISE_ERR" value="CHN_NOISE_ERROR" />
-        <define name="SIO_EV_OVERRUN_ERR"
-          value="CHN_OVERRUN_ERROR" />
-        <define name="SIO_EV_RXIDLE" value="CHN_IDLE_DETECTED" />
-        <define name="SIO_EV_RXBREAK" value="CHN_BREAK_DETECTED" />
-        <define name="SIO_EV_ALL_EVENTS"
-          value="(SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)" />
+      <group description="SIO events">
+        <define name="SIO_EV_PARITY_ERR_POS" value="CHN_FL_PARITY_ERR_POS" />
+        <define name="SIO_EV_PARITY_ERR" value="CHN_FL_PARITY_ERR" />
+        <define name="SIO_EV_FRAMING_ERR_POS" value="CHN_FL_FRAMING_ERR_POS" />
+        <define name="SIO_EV_FRAMING_ERR" value="CHN_FL_FRAMING_ERR" />
+        <define name="SIO_EV_NOISE_ERR_POS" value="CHN_FL_NOISE_ERR_POS" />
+        <define name="SIO_EV_NOISE_ERR" value="CHN_FL_NOISE_ERR" />
+        <define name="SIO_EV_OVERRUN_ERR_POS" value="CHN_FL_OVERRUN_ERR_POS" />
+        <define name="SIO_EV_OVERRUN_ERR" value="CHN_FL_OVERRUN_ERR" />
+        <define name="SIO_EV_ALL_ERRORS_POS" value="SIO_EV_PARITY_ERR_POS" />
+        <define name="SIO_EV_ALL_ERRORS" value="(15U &lt;&lt; SIO_EV_ALL_ERRORS_POS)" />
+        <define name="SIO_EV_TX_NOTFULL_POS" value="CHN_FL_TX_NOTFULL_POS" />
+        <define name="SIO_EV_TX_NOTFULL" value="CHN_FL_TX_NOTFULL" />
+        <define name="SIO_EV_RX_NOTEMPTY_POS" value="CHN_FL_RX_NOTEMPTY_POS" />
+        <define name="SIO_EV_RX_NOTEMPTY" value="CHN_FL_RX_NOTEMPTY" />
+        <define name="SIO_EV_ALL_DATA_POS" value="SIO_EV_TX_NOTFULL_POS" />
+        <define name="SIO_EV_ALL_DATA" value="(3U &lt;&lt; SIO_EV_ALL_DATA_POS)" />
+        <define name="SIO_EV_TX_END_POS" value="CHN_FL_TX_END_POS" />
+        <define name="SIO_EV_TX_END" value="CHN_FL_TX_END" />
+        <define name="SIO_EV_RX_IDLE_POS" value="CHN_FL_RX_IDLE_POS" />
+        <define name="SIO_EV_RX_IDLE" value="CHN_FL_RX_IDLE" />
+        <define name="SIO_EV_RX_BREAK_POS" value="CHN_FL_RX_BREAK_POS" />
+        <define name="SIO_EV_RX_BREAK" value="CHN_FL_RX_BREAK" />
+        <define name="SIO_EV_ALL_STATUS_POS" value="SIO_EV_TX_END_POS" />
+        <define name="SIO_EV_ALL_STATUS" value="(7U &lt;&lt; SIO_EV_ALL_STATUS_POS)" />
+        <define name="SIO_EV_NONE_MASK" value="0U" />
+        <define name="SIO_EV_ALL_EVENTS" value="(SIO_EV_ALL_ERRORS | SIO_EV_ALL_DATA | SIO_EV_ALL_STATUS)" />
       </group>
       <group description="Additional messages">
         <define name="SIO_MSG_ERRORS" value="1" />
@@ -183,8 +169,7 @@ do {
       <macro name="sioGetAndClearErrorsX">
         <brief>Gets and clears SIO error flags.</brief>
         <param name="siop" dir="both">pointer to the @p hal_sio_driver_c
-          object
-        </param>
+          object</param>
         <return>The pending error flags.</return>
         <xclass />
         <implementation><![CDATA[sio_lld_get_and_clear_errors(siop)]]></implementation>
@@ -192,11 +177,12 @@ do {
       <macro name="sioGetAndClearEventsX">
         <brief>Gets and clears SIO event flags.</brief>
         <param name="siop" dir="both">pointer to the @p hal_sio_driver_c
-          object
-        </param>
+          object</param>
+        <param name="mask" ctype="sioevents_t" dir="in">Mask of events
+          to be returned and cleared.</param>
         <return>The pending event flags.</return>
         <xclass />
-        <implementation><![CDATA[sio_lld_get_and_clear_events(siop)]]></implementation>
+        <implementation><![CDATA[sio_lld_get_and_clear_events(siop, mask)]]></implementation>
       </macro>
       <macro name="sioGetEventsX">
         <brief>Returns all SIO event flags.</brief>
@@ -394,7 +380,7 @@ do {
     <types>
       <typedef name="sioevents_t">
         <brief>Type of SIO event flags.</brief>
-        <basetype ctype="eventflags_t" />
+        <basetype ctype="chnflags_t" />
       </typedef>
       <typedef name="hal_sio_config_t">
         <brief>Type of structure representing a SIO configuration.</brief>
@@ -559,6 +545,8 @@ return errors;]]></implementation>
             <method name="sioGetAndClearEvents"
               ctype="sioevents_t">
               <brief>Get and clears SIO event flags.</brief>
+              <param name="mask" ctype="sioevents_t" dir="in">Mask of events
+                to be returned and cleared.</param>
               <return>The pending event flags.</return>
               <api />
               <implementation><![CDATA[
@@ -568,7 +556,7 @@ osalDbgCheck(self != NULL);
 
 osalSysLock();
 osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
-events = sioGetAndClearEventsX(self);
+events = sioGetAndClearEventsX(self, mask);
 osalSysUnlock();
 
 return events;]]></implementation>
@@ -987,6 +975,14 @@ if (msg != MSG_OK) {
 }
 
 return sioGetX(siop);]]></implementation>
+        </function>
+        <function name="__sio_chn_getclr_impl" ctype="chnflags_t">
+          <param name="ip" ctype="void *" />
+          <param name="mask" ctype="chnflags_t" dir="in" />
+          <implementation><![CDATA[
+hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
+
+return (chnflags_t)sioGetAndClearEventsX(siop, (sioevents_t)mask);]]></implementation>
         </function>
         <function name="__sio_chn_ctl_impl" ctype="msg_t">
           <param name="ip" ctype="void *" />

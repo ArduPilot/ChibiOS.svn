@@ -71,9 +71,8 @@ oqObjectInit(&self->bs.oqueue, ob, obsize, onotify, oarg);]]></implementation>
                 and generate the related events.]]></details>
               <note><![CDATA[The incoming data event is only generated when
                 the input queue becomes non-empty.]]></note>
-              <param name="b" ctype="uint8_t" dir="in">
-                the byte to be written
-                in the driver's Input Queue
+              <param name="b" ctype="uint8_t" dir="in"> the byte to be written
+                to the driver's Input Queue
               </param>
               <implementation><![CDATA[
 
@@ -81,11 +80,11 @@ osalDbgCheckClassI();
 osalDbgCheck(self != NULL);
 
 if (iqIsEmptyI(&self->bs.iqueue)) {
-  bsAddFlagsI(self, CHN_INPUT_AVAILABLE);
+  bsAddFlagsI(self, CHN_FL_RX_NOTEMPTY);
 }
 
 if (iqPutI(&self->bs.iqueue, b) < MSG_OK) {
-  bsAddFlagsI(self, CHN_BUFFER_FULL_ERROR);
+  bsAddFlagsI(self, CHN_FL_BUFFER_FULL_ERR);
 }]]></implementation>
             </method>
             <method name="bsRequestDataI" ctype="msg_t">
@@ -93,8 +92,7 @@ if (iqPutI(&self->bs.iqueue, b) < MSG_OK) {
               <details><![CDATA[Must be called from the output interrupt
                 service routine in order to get the next byte to be
                 transmitted.]]></details>
-              <return>
-                The byte value read from the driver's output queue.
+              <return> The byte value read from the driver's output queue.
               </return>
               <retval value="MSG_TIMEOUT">If the queue is empty.</retval>
               <implementation><![CDATA[
@@ -105,7 +103,9 @@ osalDbgCheck(self != NULL);
 
 b = oqGetI(&self->bs.oqueue);
 if (b < MSG_OK) {
-  bsAddFlagsI(self, CHN_OUTPUT_EMPTY);
+  /* Note, this event is only added when the buffer becomes fully empty in
+     order to avoid continuous reporting.*/
+  bsAddFlagsI(self, CHN_FL_TX_NOTFULL);
 }
 
 return b;]]></implementation>
@@ -202,6 +202,17 @@ return oqPutTimeout(&bsp->bs.oqueue, b, timeout);]]></implementation>
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
 return iqGetTimeout(&bsp->bs.iqueue, timeout);]]></implementation>
+      </function>
+      <function name="__bs_chn_getclr_impl" ctype="eventflags_t">
+        <param name="ip" ctype="void *" />
+        <param name="mask" ctype="eventflags_t" dir="in" />
+        <implementation><![CDATA[
+hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+(void)bsp;
+(void)mask;
+
+return 0;]]></implementation>
       </function>
       <function name="__bs_chn_ctl_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />

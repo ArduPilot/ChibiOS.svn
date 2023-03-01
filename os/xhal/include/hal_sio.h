@@ -34,38 +34,35 @@
 /*===========================================================================*/
 
 /**
- * @name    SIO masks offsets
+ * @name    SIO events
  * @{
  */
-#define SIO_EV_RXNOTEMPY_POS                CHN_INPUT_AVAILABLE_POS
-#define SIO_EV_TXNOTFULL_POS                CHN_OUTPUT_EMPTY_POS
-#define SIO_EV_TXDONE_POS                   CHN_TRANSMISSION_END_POS
-#define SIO_EV_ALL_ERRORS_POS               CHN_PARITY_ERROR_POS
-#define SIO_EV_PARITY_ERR_POS               CHN_PARITY_ERROR_POS
-#define SIO_EV_FRAMING_ERR_POS              CHN_FRAMING_ERROR_POS
-#define SIO_EV_NOISE_ERR_POS                CHN_NOISE_ERROR_POS
-#define SIO_EV_OVERRUN_ERR_POS              CHN_OVERRUN_ERROR_POS
-#define SIO_EV_RXIDLE_POS                   CHN_IDLE_DETECTED_POS
-#define SIO_EV_RXBREAK_POS                  CHN_BREAK_DETECTED_POS
-/** @} */
-
-/**
- * @name    SIO event flags
- * @{
- */
-#define SIO_EV_NONE                         0U
-#define SIO_EV_RXNOTEMPY                    CHN_INPUT_AVAILABLE
-#define SIO_EV_TXNOTFULL                    CHN_OUTPUT_EMPTY
-#define SIO_EV_ALL_DATA                     (SIO_EV_RXNOTEMPY | SIO_EV_TXNOTFULL)
-#define SIO_EV_TXDONE                       CHN_TRANSMISSION_END
-#define SIO_EV_ALL_ERRORS                   CHN_ALL_ERRORS
-#define SIO_EV_PARITY_ERR                   CHN_PARITY_ERROR
-#define SIO_EV_FRAMING_ERR                  CHN_FRAMING_ERROR
-#define SIO_EV_NOISE_ERR                    CHN_NOISE_ERROR
-#define SIO_EV_OVERRUN_ERR                  CHN_OVERRUN_ERROR
-#define SIO_EV_RXIDLE                       CHN_IDLE_DETECTED
-#define SIO_EV_RXBREAK                      CHN_BREAK_DETECTED
-#define SIO_EV_ALL_EVENTS                   (SIO_EV_ALL_DATA | SIO_EV_ALL_ERRORS | SIO_EV_TXDONE | SIO_EV_RXIDLE)
+#define SIO_EV_PARITY_ERR_POS               CHN_FL_PARITY_ERR_POS
+#define SIO_EV_PARITY_ERR                   CHN_FL_PARITY_ERR
+#define SIO_EV_FRAMING_ERR_POS              CHN_FL_FRAMING_ERR_POS
+#define SIO_EV_FRAMING_ERR                  CHN_FL_FRAMING_ERR
+#define SIO_EV_NOISE_ERR_POS                CHN_FL_NOISE_ERR_POS
+#define SIO_EV_NOISE_ERR                    CHN_FL_NOISE_ERR
+#define SIO_EV_OVERRUN_ERR_POS              CHN_FL_OVERRUN_ERR_POS
+#define SIO_EV_OVERRUN_ERR                  CHN_FL_OVERRUN_ERR
+#define SIO_EV_ALL_ERRORS_POS               SIO_EV_PARITY_ERR_POS
+#define SIO_EV_ALL_ERRORS                   (15U << SIO_EV_ALL_ERRORS_POS)
+#define SIO_EV_TX_NOTFULL_POS               CHN_FL_TX_NOTFULL_POS
+#define SIO_EV_TX_NOTFULL                   CHN_FL_TX_NOTFULL
+#define SIO_EV_RX_NOTEMPTY_POS              CHN_FL_RX_NOTEMPTY_POS
+#define SIO_EV_RX_NOTEMPTY                  CHN_FL_RX_NOTEMPTY
+#define SIO_EV_ALL_DATA_POS                 SIO_EV_TX_NOTFULL_POS
+#define SIO_EV_ALL_DATA                     (3U << SIO_EV_ALL_DATA_POS)
+#define SIO_EV_TX_END_POS                   CHN_FL_TX_END_POS
+#define SIO_EV_TX_END                       CHN_FL_TX_END
+#define SIO_EV_RX_IDLE_POS                  CHN_FL_RX_IDLE_POS
+#define SIO_EV_RX_IDLE                      CHN_FL_RX_IDLE
+#define SIO_EV_RX_BREAK_POS                 CHN_FL_RX_BREAK_POS
+#define SIO_EV_RX_BREAK                     CHN_FL_RX_BREAK
+#define SIO_EV_ALL_STATUS_POS               SIO_EV_TX_END_POS
+#define SIO_EV_ALL_STATUS                   (7U << SIO_EV_ALL_STATUS_POS)
+#define SIO_EV_NONE_MASK                    0U
+#define SIO_EV_ALL_EVENTS                   (SIO_EV_ALL_ERRORS | SIO_EV_ALL_DATA | SIO_EV_ALL_STATUS)
 /** @} */
 
 /**
@@ -266,12 +263,13 @@
  * @brief       Gets and clears SIO event flags.
  *
  * @param[in,out] siop          Pointer to the @p hal_sio_driver_c object
+ * @param[in]     mask          Mask of events to be returned and cleared.
  * @return                      The pending event flags.
  *
  * @xclass
  */
-#define sioGetAndClearEventsX(siop)                                         \
-  sio_lld_get_and_clear_events(siop)
+#define sioGetAndClearEventsX(siop, mask)                                   \
+  sio_lld_get_and_clear_events(siop, mask)
 
 /**
  * @brief       Returns all SIO event flags.
@@ -475,7 +473,7 @@
 /**
  * @brief       Type of SIO event flags.
  */
-typedef eventflags_t sioevents_t;
+typedef chnflags_t sioevents_t;
 
 /**
  * @brief       Type of structure representing a SIO configuration.
@@ -645,7 +643,7 @@ extern "C" {
   void sioSetEnableFlags(void *ip, sioevents_t mask);
   void sioClearEnableFlags(void *ip, sioevents_t mask);
   sioevents_t sioGetAndClearErrors(void *ip);
-  sioevents_t sioGetAndClearEvents(void *ip);
+  sioevents_t sioGetAndClearEvents(void *ip, sioevents_t mask);
   sioevents_t sioGetEvents(void *ip);
 #if (SIO_USE_SYNCHRONIZATION == TRUE) || defined (__DOXYGEN__)
   msg_t sioSynchronizeRX(void *ip, sysinterval_t timeout);

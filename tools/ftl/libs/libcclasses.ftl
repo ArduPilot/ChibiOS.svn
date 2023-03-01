@@ -214,7 +214,7 @@ CC_FORCE_INLINE
 [@ccode.GeneratePrototypeFromNode modifiers = ["static", "inline"]
                                   params    = ["void *ip"]
                                   node=method /] {
-${ccode.indentation}${ctype} *self = (${ctype} *)ip;
+[@ccode.Indent 1 /]${ctype} *self = (${ctype} *)ip;
 
       [#local callname   = "self->vmt->" + namespace + "." + methodsname /]
       [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
@@ -269,7 +269,7 @@ ${ccode.indentation}${ctype} *self = (${ctype} *)ip;
  * @api
  */
 ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_align) + "\\"}
-  boGetIf(ip, ifns, ${classnamespace})
+[@ccode.Indent 1 /]boGetIf(ip, ifns, ${classnamespace})
   [/#if]
 [/#macro]
 
@@ -351,9 +351,9 @@ CC_FORCE_INLINE
                                   params    = [classctype + " *self"]
                                   node      = node.methods.objinit[0] /] {
     [#local vmtname = "__" + classnamespace + "_vmt" /]
-  static const struct ${classname}_vmt ${vmtname} = {
-    __${classnamespace}_vmt_init(${classnamespace})
-  };
+[@ccode.Indent 1 /]static const struct ${classname}_vmt ${vmtname} = {
+[@ccode.Indent 2 /]__${classnamespace}_vmt_init(${classnamespace})
+[@ccode.Indent 1 /]};
 
     [#local params = ccode.MakeCallParamsSequence(["self", "&" + vmtname], node.methods.objinit[0]) /]
 [@ccode.GenerateFunctionCall indent      = ccode.indentation
@@ -380,7 +380,7 @@ CC_FORCE_INLINE
                           modifiers = ["static", "inline"]
                           params    = [classctype + " *self"] /] {
 
-${ccode.indentation}__${classnamespace}_dispose_impl(self);
+[@ccode.Indent 1 /]__${classnamespace}_dispose_impl(self);
 }
 /** @} */
 
@@ -422,7 +422,7 @@ CC_FORCE_INLINE
                                   modifiers = ["static", "inline"]
                                   params    = [classctype + " *self"]
                                   node      = node.methods.objinit[0] /] {
-${ccode.indentation}extern const struct ${classname}_vmt __${classnamespace}_vmt;
+[@ccode.Indent 1 /]extern const struct ${classname}_vmt __${classnamespace}_vmt;
 
     [#local params = ccode.MakeCallParamsSequence(["self", "&__" + classnamespace + "_vmt"], node.methods.objinit[0]) /]
 [@ccode.GenerateFunctionCall indent      = ccode.indentation
@@ -449,7 +449,7 @@ CC_FORCE_INLINE
                           modifiers = ["static", "inline"]
                           params    = [classctype + " *self"] /] {
 
-${ccode.indentation}__${classnamespace}_dispose_impl(self);
+[@ccode.Indent 1 /]__${classnamespace}_dispose_impl(self);
 }
 /** @} */
 
@@ -548,7 +548,7 @@ ${ccode.indentation}__${classnamespace}_dispose_impl(self);
   --]
 [#macro GenerateClassMethodsPrototypes class=[]]
     [#local classctype = GetClassCType(class) /]
-${ccode.indentation}/* Methods of ${classctype}.*/
+[@ccode.Indent 1 /]/* Methods of ${classctype}.*/
 [@GenerateClassVirtualMethodsPrototypes class /]
 [@GenerateClassRegularMethodsPrototypes class.methods.regular /]
 [/#macro]
@@ -626,7 +626,7 @@ ${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
 
 
   [#else]
-${ccode.indentation}/* No methods.*/
+[@ccode.Indent 1 /]/* No methods.*/
 
   [/#if]
 /**
@@ -644,7 +644,7 @@ ${("  __" + ancestornamespace + "_data")?right_pad(76)}\
 
 
   [#else]
-${ccode.indentation}/* No data.*/
+[@ccode.Indent 1 /]/* No data.*/
 
   [/#if]
 /**
@@ -660,7 +660,7 @@ ${ccode.indentation}/* No data.*/
 ${s}
 [@GenerateVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
   [#else]
-${ccode.indentation}/* No methods.*/
+[@ccode.Indent 1 /]/* No methods.*/
   [/#if]
 
 /**
@@ -674,9 +674,9 @@ struct ${classname?lower_case}_vmt {
 [@doxygen.EmitBrief "" "Structure representing a " + classdescr + " class." /]
  */
 struct ${classname?lower_case} {
-${ccode.indentation}/**
+[@ccode.Indent 1 /]/**
 [@doxygen.EmitBrief ccode.indentation "Virtual Methods Table." /]
-${ccode.indentation} */
+[@ccode.Indent 1 /] */
   [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N" /]
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   ${datadefine}
@@ -794,9 +794,9 @@ struct ${ifname?lower_case}_vmt {
 [@doxygen.EmitBrief "" "Structure representing a " + ifdescr + "." /]
  */
 struct ${ifname?lower_case} {
-${ccode.indentation}/**
+[@ccode.Indent 1 /]/**
 [@doxygen.EmitBrief ccode.indentation "Virtual Methods Table." /]
-${ccode.indentation} */
+[@ccode.Indent 1 /] */
   [#local vmtctype  = "const struct " + ifname?lower_case + "_vmt$I*$N" /]
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 };
@@ -812,13 +812,13 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
       [#local ifname      = GetNodeName(this)
               ifnamespace = GetNodeNamespace(this)
               ifctype     = GetInterfaceCType(this) /]
-${ccode.indentation}/* Implementation of interface ${ifctype}.*/
-${ccode.indentation}{
-${ccode.indentation}${ccode.indentation}static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
-${ccode.indentation}${ccode.indentation}${ccode.indentation}__${ifnamespace}_vmt_init(${classnamespace}, offsetof(${classctype}, ${classnamespace}.${ifnamespace}))
-${ccode.indentation}${ccode.indentation}};
-${ccode.indentation}${ccode.indentation}oopIfObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
-${ccode.indentation}}
+[@ccode.Indent 1 /]/* Implementation of interface ${ifctype}.*/
+[@ccode.Indent 1 /]{
+[@ccode.Indent 2 /]static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
+[@ccode.Indent 3 /]__${ifnamespace}_vmt_init(${classnamespace}, offsetof(${classctype}, ${classnamespace}.${ifnamespace}))
+[@ccode.Indent 2 /]};
+[@ccode.Indent 2 /]oopIfObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
+[@ccode.Indent 1 /]}
       [#if node?node_name != "condition"]
 
       [/#if]
@@ -867,15 +867,15 @@ ${ccode.indentation}}
                                   modifiers = []
                                   params    = ["void *ip", "const void *vmt"]
                                   node      = class.methods.objinit[0] /] {
-${ccode.indentation}${classctype} *self = (${classctype} *)ip;
+[@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
 
   [#if ancestornamespace?length == 0]
-${ccode.indentation}/* This is a root class, initializing the VMT pointer here.*/
-${ccode.indentation}self->vmt = (struct base_object_vmt *)vmt;
+[@ccode.Indent 1 /]/* This is a root class, initializing the VMT pointer here.*/
+[@ccode.Indent 1 /]self->vmt = (struct base_object_vmt *)vmt;
 
   [#else]
     [#if GetObjinitCallsuper(class.methods.objinit[0]) == "true"]
-${ccode.indentation}/* Initialization of the ancestors-defined parts.*/
+[@ccode.Indent 1 /]/* Initialization of the ancestors-defined parts.*/
 [@ccode.GenerateFunctionCall indent      = ccode.indentation
                              destination = ""
                              name        = "__" + ancestornamespace + "_objinit_impl"
@@ -888,14 +888,14 @@ ${ccode.indentation}/* Initialization of the ancestors-defined parts.*/
   [/#if]
   [#if (class.methods.objinit[0].implementation[0])?? &&
        (class.methods.objinit[0].implementation[0]?trim?length > 0)]
-${ccode.indentation}/* Initialization code.*/
+[@ccode.Indent 1 /]/* Initialization code.*/
 [@ccode.GenerateIndentedCCode indent=ccode.indentation
                               ccode=class.methods.objinit[0].implementation[0]?string /]
   [#else]
-${ccode.indentation}/* No initialization code.*/
+[@ccode.Indent 1 /]/* No initialization code.*/
   [/#if]
 
-${ccode.indentation}return self;
+[@ccode.Indent 1 /]return self;
 }
 
 /**
@@ -913,21 +913,21 @@ ${ccode.indentation}return self;
                           ctype     = "void"
                           modifiers = []
                           params    = ["void *ip"] /] {
-${ccode.indentation}${classctype} *self = (${classctype} *)ip;
+[@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
 
   [#if (class.methods.dispose[0].implementation[0])?? &&
        (class.methods.dispose[0].implementation[0]?trim?length > 0)]
-${ccode.indentation}/* Finalization code.*/
+[@ccode.Indent 1 /]/* Finalization code.*/
 [@ccode.GenerateIndentedCCode indent=ccode.indentation
                               ccode=class.methods.dispose[0].implementation[0]?string /]
   [#else]
-${ccode.indentation}/* No finalization code.*/
-${ccode.indentation}(void)self;
+[@ccode.Indent 1 /]/* No finalization code.*/
+[@ccode.Indent 1 /](void)self;
   [/#if]
   [#if ancestornamespace?length > 0]
 
-  /* Finalization of the ancestors-defined parts.*/
-  __${ancestornamespace}_dispose_impl(self);
+[@ccode.Indent 1 /]/* Finalization of the ancestors-defined parts.*/
+[@ccode.Indent 1 /]__${ancestornamespace}_dispose_impl(self);
   [/#if]
 }
   [#list class.methods.virtual.* as node]
@@ -953,7 +953,7 @@ ${ccode.indentation}(void)self;
                                   modifiers = []
                                   params    = ["void *ip"]
                                   node      = method /] {
-  ${classctype} *self = (${classctype} *)ip;
+[@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
 [@ccode.GenerateIndentedCCode indent=ccode.indentation
                               ccode=methodimpl /]
 }

@@ -130,6 +130,15 @@
 [/#function]
 
 [#--
+  -- Emits the specified indentation as spaces.
+  --]
+[#macro Indent n=0]
+  [#list 1..n as i]
+${indentation}[#rt]
+  [/#list]
+[/#macro]
+
+[#--
   -- Emits a C function body code reformatting the indentation using the
   -- specified line prefix.
   --]

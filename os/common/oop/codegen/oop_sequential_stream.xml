@@ -26,7 +26,7 @@
       <condition check="defined(OOP_USE_LEGACY)">
         <typedef name="BaseSequentialStream">
           <brief>For compatibility with legacy @p BaseSequentialStream.</brief>
-          <basetype ctype="base_interface_i" />
+          <basetype ctype="sequential_stream_i" />
         </typedef>
       </condition>
       <interface name="sequential_stream" namespace="stm"

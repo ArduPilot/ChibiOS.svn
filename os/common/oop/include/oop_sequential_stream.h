@@ -74,7 +74,7 @@
 /**
  * @brief       For compatibility with legacy @p BaseSequentialStream.
  */
-typedef base_interface_i BaseSequentialStream;
+typedef sequential_stream_i BaseSequentialStream;
 #endif /* defined(OOP_USE_LEGACY) */
 
 /**

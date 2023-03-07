@@ -4,9 +4,9 @@
   name="oop_synchronized_object" descr="Synchronized Object">
   <brief>Common ancestor class of all reference-counted, synchronized objects.</brief>
   <public>
-    <inclusions>
+    <includes>
       <include style="regular">oop_referenced_object.h</include>
-    </inclusions>
+    </includes>
     <types>
       <class type="abstract" name="synchronized_object" namespace="so"
         ancestorname="referenced_object" ancestornamespace="ro"

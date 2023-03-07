@@ -4,9 +4,9 @@
   name="oop_sequential_stream" descr="Sequential Stream Interface">
   <brief>Sequential data streams interface.</brief>
   <public>
-    <inclusions>
+    <includes>
       <include style="regular">oop_base_interface.h</include>
-    </inclusions>
+    </includes>
     <definitions_early>
       <group description="Streams return codes">
         <define name="STM_OK" value="MSG_OK" />

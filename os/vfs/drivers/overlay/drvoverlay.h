@@ -26,9 +26,9 @@
 #ifndef DRVOVERLAY_H
 #define DRVOVERLAY_H
 
-#include "oop_sequential_stream.h"
-
 #if (VFS_CFG_ENABLE_DRV_OVERLAY == TRUE) || defined (__DOXYGEN__)
+
+#include "oop_sequential_stream.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */

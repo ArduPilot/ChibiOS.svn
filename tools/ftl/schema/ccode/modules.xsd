@@ -42,45 +42,50 @@
   <xs:element name="module" type="moduleType"></xs:element>
   <xs:complexType name="privateType">
     <xs:sequence>
-      <xs:element name="inclusions" type="inclusionsType"
-        maxOccurs="1" minOccurs="0">
-      </xs:element>
-      <xs:element name="definitions" type="definitionsType"
-        maxOccurs="1" minOccurs="0">
-      </xs:element>
-      <xs:element name="macros" type="macrosType"
-        maxOccurs="1" minOccurs="0">
-      </xs:element>
-      <xs:element name="types" type="typesType" maxOccurs="1"
+            <xs:element name="includes_always" type="includesType" maxOccurs="1"
+              minOccurs="0">
+            </xs:element>
+            <xs:element name="includes" type="includesType" maxOccurs="1"
         minOccurs="0">
+      </xs:element>
+      <xs:element name="definitions" type="definitionsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="macros" type="macrosType" maxOccurs="1" minOccurs="0">
+      </xs:element>
+      <xs:element name="types" type="typesType" maxOccurs="1" minOccurs="0">
       </xs:element>
       <xs:element name="variables" type="variablesType" maxOccurs="1"
         minOccurs="0">
       </xs:element>
-      <xs:element name="functions" type="functionsType"
-        maxOccurs="1" minOccurs="0">
+      <xs:element name="functions" type="functionsType" maxOccurs="1"
+        minOccurs="0">
       </xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="publicType">
     <xs:sequence>
-      <xs:element name="inclusions" type="inclusionsType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="definitions_early"
-        type="definitionsType" maxOccurs="1" minOccurs="0">
+            <xs:element name="includes_always" type="includesType" maxOccurs="1" minOccurs="0"></xs:element>
+            <xs:element name="includes" type="includesType" maxOccurs="1"
+        minOccurs="0">
       </xs:element>
-      <xs:element name="configs" type="configsType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="definitions_late"
-        type="definitionsType" maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="macros" type="macrosType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="types" type="typesType" maxOccurs="1"
-        minOccurs="0"></xs:element>
-      <xs:element name="variables" type="variablesType"
-        maxOccurs="1" minOccurs="0"></xs:element>
-      <xs:element name="functions" type="functionsType"
-        maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="definitions_early" type="definitionsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="configs" type="configsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="definitions_late" type="definitionsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="macros" type="macrosType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="types" type="typesType" maxOccurs="1" minOccurs="0"></xs:element>
+      <xs:element name="variables" type="variablesType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="functions" type="functionsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="configsType">
@@ -89,10 +94,10 @@
         maxOccurs="unbounded" minOccurs="0"></xs:element>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="inclusionsType">
+  <xs:complexType name="includesType">
     <xs:sequence>
       <xs:element name="include" type="includeType"
-        maxOccurs="unbounded" minOccurs="0"></xs:element>
+        maxOccurs="unbounded" minOccurs="1"></xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="definitionsType">
@@ -258,8 +263,7 @@
             maxOccurs="unbounded" minOccurs="0">
           </xs:element>
           <xs:choice maxOccurs="1" minOccurs="0">
-            <xs:element name="init" type="xs:string"
-              maxOccurs="1" minOccurs="1">
+            <xs:element name="init" maxOccurs="1" minOccurs="1">
               <xs:complexType/>
             </xs:element>
             <xs:element name="objinit" maxOccurs="1" minOccurs="1">

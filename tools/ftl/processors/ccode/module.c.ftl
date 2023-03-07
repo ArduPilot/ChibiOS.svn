@@ -52,16 +52,22 @@
  */
 
   [#-- Generating inclusions.--]
-  [#if (module.private.inclusions[0])??]
-[@ccode.GenerateInclusionsFromNode module.private.inclusions /]
-  [#else]
+  [#if !module.private.includes_always[0]?? && !module.private.includes[0]??]
 #include "${moduleheadername}"
+
+  [/#if]
+  [#if module.private.includes_always[0]??]
+[@ccode.GenerateInclusionsFromNode module.private.includes_always /]
 
   [/#if]
   [#-- Handling of conditional modules.--]
   [#assign module_condition =  module.@check[0]!""?trim/]
   [#if module_condition?length > 0]
 #if (${module_condition}) || defined (__DOXYGEN__)
+
+  [/#if]
+  [#if module.private.includes[0]??]
+[@ccode.GenerateInclusionsFromNode module.private.includes /]
 
   [/#if]
 /*===========================================================================*/

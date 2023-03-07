@@ -57,13 +57,18 @@
 #define ${moduledocgroup}_H
 
   [#-- Generating inclusions.--]
-  [#if (module.public.inclusions[0])??]
-[@ccode.GenerateInclusionsFromNode module.public.inclusions /]
+  [#if module.public.includes_always[0]??]
+[@ccode.GenerateInclusionsFromNode module.public.includes_always /]
+
   [/#if]
   [#-- Handling of conditional modules.--]
   [#assign module_condition =  module.@check[0]!""?trim/]
   [#if module_condition?length > 0]
 #if (${module_condition}) || defined (__DOXYGEN__)
+
+  [/#if]
+  [#if module.public.includes[0]??]
+[@ccode.GenerateInclusionsFromNode module.public.includes /]
 
   [/#if]
 /*===========================================================================*/

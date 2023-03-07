@@ -274,8 +274,8 @@ return NULL;<![CDATA[]]></implementation>
     </types>
   </public>
   <private>
-    <inclusions>
+    <includes_always>
       <include style="regular">vfs.h</include>
-    </inclusions>
+    </includes_always>
   </private>
 </module>

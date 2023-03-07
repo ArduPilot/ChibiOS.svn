@@ -6,8 +6,9 @@
   check="VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE" sourcepath="drivers/template"
   headerpath="drivers/template">
   <public>
-    <inclusions>
-      <include style="regular">oop_sequential_stream.h</include></inclusions>
+    <includes>
+      <include style="regular">oop_sequential_stream.h</include>
+    </includes>
     <configs>
       <config name="DRV_CFG_TEMPLATE_DIR_NODES_NUM" default="1">
         <brief>Number of directory nodes pre-allocated in the pool.</brief>
@@ -105,9 +106,9 @@ chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
     </functions>
   </public>
   <private>
-    <inclusions>
+    <includes_always>
       <include style="regular">vfs.h</include>
-    </inclusions>
+    </includes_always>
     <types>
       <struct name="vfs_template_driver_static_struct">
         <brief>Structure representing the global state of @p vfs_template_driver_c.</brief>

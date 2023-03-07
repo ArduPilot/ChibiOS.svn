@@ -26,9 +26,9 @@
 #ifndef DRVTEMPLATE_H
 #define DRVTEMPLATE_H
 
-#include "oop_sequential_stream.h"
-
 #if (VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE) || defined (__DOXYGEN__)
+
+#include "oop_sequential_stream.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -160,6 +160,10 @@ typedef struct vfs_template_file_node vfs_template_file_node_c;
  * @brief       Class @p vfs_template_file_node_c data as a structure.
  */
 struct tmplfile_data {
+  /**
+   * @brief       Implemented interface @p sequential_stream_i.
+   */
+  sequential_stream_i       stm;
   /**
    * @brief       Stream interface for this file.
    */

@@ -378,10 +378,10 @@ return drvp;]]></implementation>
     </functions>
   </public>
   <private>
-    <inclusions>
+    <includes>
       <include style="angular">string.h</include>
       <include style="regular">hal.h</include>
-    </inclusions>
+    </includes>
     <functions>
       <condition check="HAL_USE_REGISTRY == TRUE">
         <function name="drv_reg_insert" ctype="void">

@@ -6,8 +6,9 @@
   check="VFS_CFG_ENABLE_DRV_OVERLAY == TRUE" sourcepath="drivers/overlay"
   headerpath="drivers/overlay">
   <public>
-    <inclusions>
-      <include style="regular">oop_sequential_stream.h</include></inclusions>
+    <includes>
+      <include style="regular">oop_sequential_stream.h</include>
+    </includes>
     <configs>
       <config name="DRV_CFG_OVERLAY_DRV_MAX" default="1">
         <brief>Maximum number of overlay directories.</brief>
@@ -131,9 +132,9 @@ chPoolLoadArray(&vfs_overlay_driver_static.dir_nodes_pool,
     </functions>
   </public>
   <private>
-    <inclusions>
+    <includes_always>
       <include style="regular">vfs.h</include>
-    </inclusions>
+    </includes_always>
     <types>
       <verbatim><![CDATA[
 /* Methods implementations in an unmanaged module.*/

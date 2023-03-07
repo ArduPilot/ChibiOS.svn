@@ -4,12 +4,12 @@
   name="oop_base_interface" descr="Base Interface">
   <brief>Common interfaces ancestor.</brief>
   <public>
-    <inclusions>
+    <includes>
       <include style="angular">stdint.h</include>
       <include style="angular">stdbool.h</include>
       <include style="angular">stddef.h</include>
       <include style="regular">ccportab.h</include>
-    </inclusions>
+    </includes>
     <macros>
       <macro name="oopIfGetOwner">
         <brief>Returns an object pointer starting by an interface pointer.</brief>

@@ -126,9 +126,9 @@ osalEventBroadcastFlagsI(&self->bs.event, flags);]]></implementation>
     </types>
   </public>
   <private>
-    <inclusions>
+    <includes>
       <include style="regular">hal.h</include>
-    </inclusions>
+    </includes>
     <functions>
       <function name="__bs_stm_write_impl" ctype="size_t">
         <param name="ip" ctype="void *" />

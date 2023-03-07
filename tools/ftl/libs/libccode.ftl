@@ -261,10 +261,6 @@ ${line + ");"}
     [#else]
 #include "${include[0]}"
     [/#if]
-    [#-- Empty line after last inclusion.--]
-    [#if include?is_last]
-
-    [/#if]
   [/#list]
 [/#macro]
 

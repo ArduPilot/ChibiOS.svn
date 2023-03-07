@@ -777,9 +777,9 @@ sio_lld_init();]]></implementation>
     </functions>
   </public>
   <private>
-    <inclusions>
+    <includes_always>
       <include style="regular">hal.h</include>
-    </inclusions>
+    </includes_always>
     <functions>
       <function name="__sio_drv_start_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />

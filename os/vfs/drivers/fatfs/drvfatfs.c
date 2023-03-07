@@ -24,9 +24,10 @@
  */
 
 #include "vfs.h"
-#include "ff.h"
 
 #if (VFS_CFG_ENABLE_DRV_FATFS == TRUE) || defined (__DOXYGEN__)
+
+#include "ff.h"
 
 /*===========================================================================*/
 /* Module local definitions.                                                 */
@@ -145,7 +146,7 @@ typedef struct vfs_fatfs_file_node vfs_fatfs_file_node_c;
  */
 struct fffile_data {
   /**
-   * @brief       Stream interface for this file.
+   * @brief       Implemented interface @p sequential_stream_i.
    */
   sequential_stream_i       stm;
   /**

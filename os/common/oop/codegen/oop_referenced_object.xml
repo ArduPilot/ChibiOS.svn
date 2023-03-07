@@ -4,9 +4,9 @@
   name="oop_referenced_object" descr="Referenced Object">
   <brief>Common ancestor class of all reference-counted objects.</brief>
   <public>
-    <inclusions>
+    <includes>
       <include style="regular">oop_base_object.h</include>
-    </inclusions>
+    </includes>
     <types>
       <typedef name="object_references_t">
         <brief>Type of a references counter.</brief>

@@ -4,9 +4,9 @@
   name="vfsdrivers" descr="VFS Drivers">
   <brief>Common ancestor class of all reference-counted objects.</brief>
   <public>
-    <inclusions>
+    <includes>
       <include style="angular">fcntl.h</include>
-    </inclusions>
+    </includes>
     <definitions_early>
       <group description="File open flags compatible with Posix">
         <define name="VO_SUPPORTED_FLAGS_MASK" value="(O_ACCMODE | O_APPEND | O_CREAT | O_TRUNC | O_EXCL)" />
@@ -199,8 +199,8 @@ return ret;
       </function></functions>
   </public>
   <private>
-    <inclusions>
+    <includes_always>
       <include style="regular">vfs.h</include>
-    </inclusions>
+    </includes_always>
   </private>
 </module>

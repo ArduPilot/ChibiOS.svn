@@ -345,7 +345,7 @@ vfs_offset_t __vfsfile_getpos_impl(void *ip) {
  * @param[in,out] ip            Pointer to a @p vfs_file_node_c instance.
  * @return                      Pointer to the HAL stream interface.
  */
-BaseSequentialStream *__vfsfile_getstream_impl(void *ip) {
+sequential_stream_i *__vfsfile_getstream_impl(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
   (void)self;

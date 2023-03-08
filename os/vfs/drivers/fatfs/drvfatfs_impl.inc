@@ -294,10 +294,10 @@ static vfs_offset_t __fffile_vfsfile_getpos_impl(void *ip) {
   return (vfs_offset_t)f_tell(&fffnp->fffile.file);
 }
 
-static BaseSequentialStream *__fffile_vfsfile_getstream_impl(void *ip) {
+static sequential_stream_i *__fffile_vfsfile_getstream_impl(void *ip) {
   vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
 
-  return (BaseSequentialStream *)&fffnp->fffile.stm;
+  return &fffnp->fffile.stm;
 }
 
 static msg_t __ffdrv_vfsdrv_setcwd_impl(void *ip, const char *path) {

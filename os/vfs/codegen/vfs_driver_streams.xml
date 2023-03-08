@@ -30,7 +30,7 @@
           <field name="name" ctype="const char$I*">
             <brief>Filename for the stream.</brief>
           </field>
-          <field name="stm" ctype="const sequential_stream_i$I*">
+          <field name="stm" ctype="sequential_stream_i$I*">
             <brief>Pointer to the stream.</brief>
           </field>
         </fields>
@@ -64,7 +64,7 @@ self->stmdir.index = 0U;]]></implementation>
         namespace="stmfile" ancestorname="vfs_file_node" ancestornamespace="vfsfile"
         descr="VFS streams file node">
         <fields>
-          <field name="stm" ctype="sequential_stream_i">
+          <field name="stm" ctype="sequential_stream_i$I*">
             <brief>Stream interface for this file.</brief>
           </field>
         </fields>
@@ -76,7 +76,7 @@ self->stmdir.index = 0U;]]></implementation>
             <param name="mode" ctype="vfs_mode_t" dir="in">
               Node mode flags.
             </param>
-            <param name="stream" ctype="sequential_stream_i" dir="in">
+            <param name="stream" ctype="sequential_stream_i *" dir="in">
               Stream to be associated.
             </param>
             <implementation><![CDATA[
@@ -91,13 +91,17 @@ self->stmfile.stm = stream;]]></implementation>
       <class type="regular" name="vfs_streams_driver" namespace="stmdrv"
         ancestorname="vfs_driver" ancestornamespace="vfsdrv"
         descr="VFS streams driver">
-        <fields></fields>
+        <fields>
+          <field name="streams" ctype="const drv_streams_element_t$I*">
+            <brief>Pointer to the stream elements to be exposed.</brief></field>
+        </fields>
         <methods>
-          <objinit callsuper="false">
+          <objinit>
             <param name="streams" ctype="const drv_streams_element_t *" dir="in">
               Pointer to a @p vfs_streams_driver_c structure.
             </param>
-            <implementation><![CDATA[]]></implementation>
+            <implementation><![CDATA[
+self->stmdrv.streams  = streams;]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[]]></implementation>

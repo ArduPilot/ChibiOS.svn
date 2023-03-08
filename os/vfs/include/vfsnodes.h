@@ -27,6 +27,8 @@
 #ifndef VFSNODES_H
 #define VFSNODES_H
 
+#include "oop_sequential_stream.h"
+
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
@@ -322,7 +324,7 @@ struct vfsfile_methods {
   ssize_t (*write)(void *ip, const uint8_t *buf, size_t n);
   msg_t (*setpos)(void *ip, vfs_offset_t offset, vfs_seekmode_t whence);
   vfs_offset_t (*getpos)(void *ip);
-  BaseSequentialStream * (*getstream)(void *ip);
+  sequential_stream_i * (*getstream)(void *ip);
 };
 
 /**
@@ -396,7 +398,7 @@ extern "C" {
   msg_t __vfsfile_setpos_impl(void *ip, vfs_offset_t offset,
                               vfs_seekmode_t whence);
   vfs_offset_t __vfsfile_getpos_impl(void *ip);
-  BaseSequentialStream *__vfsfile_getstream_impl(void *ip);
+  sequential_stream_i *__vfsfile_getstream_impl(void *ip);
 #ifdef __cplusplus
 }
 #endif
@@ -567,7 +569,7 @@ static inline vfs_offset_t vfsFileGetPosition(void *ip) {
  * @api
  */
 CC_FORCE_INLINE
-static inline BaseSequentialStream *vfsFileGetStream(void *ip) {
+static inline sequential_stream_i *vfsFileGetStream(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
   return self->vmt->vfsfile.getstream(ip);

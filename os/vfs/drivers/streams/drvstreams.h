@@ -1,34 +1,34 @@
 /*
-    ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
+    ChibiOS - Copyright (C) 2006..2023 Giovanni Di Sirio
 
-    This file is part of ChibiOS.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation version 3 of the License.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
+
 /**
- * @file    vfs/drivers/drvstreams.h
- * @brief   HAL streams VFS driver header.
+ * @file        drvstreams.h
+ * @brief       Generated VFS Streams Driver header.
+ * @note        This is a generated file, do not edit directly.
  *
- * @addtogroup VFS_DRV_STREAMS
- * @details Exposes HAL streams as VFS files.
+ * @addtogroup  DRVSTREAMS
  * @{
  */
-
+ 
 #ifndef DRVSTREAMS_H
 #define DRVSTREAMS_H
 
-#if (VFS_CFG_ENABLE_DRV_STREAMS == TRUE) || defined(__DOXYGEN__)
+#if (VFS_CFG_ENABLE_DRV_STREAMS == TRUE) || defined (__DOXYGEN__)
+
+#include "oop_sequential_stream.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -38,152 +38,290 @@
 /* Module pre-compile time settings.                                         */
 /*===========================================================================*/
 
+/**
+ * @name    Configuration options
+ * @{
+ */
+/**
+ * @brief       Number of directory nodes pre-allocated in the pool.
+ */
+#if !defined(DRV_CFG_STREAMS_DIR_NODES_NUM) || defined(__DOXYGEN__)
+#define DRV_CFG_STREAMS_DIR_NODES_NUM       1
+#endif
+
+/**
+ * @brief       Number of file nodes pre-allocated in the pool.
+ */
+#if !defined(DRV_CFG_STREAMS_FILE_NODES_NUM) || defined(__DOXYGEN__)
+#define DRV_CFG_STREAMS_FILE_NODES_NUM      1
+#endif
+/** @} */
+
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-/* Configuration options checks.*/
-#if !defined(DRV_CFG_STREAMS_DIR_NODES_NUM)
-#error "DRV_CFG_STREAMS_DIR_NODES_NUM not defined in vfsconf.h"
-#endif
-
-#if !defined(DRV_CFG_STREAMS_FILE_NODES_NUM)
-#error "DRV_CFG_STREAMS_FILE_NODES_NUM not defined in vfsconf.h"
-#endif
-
+/* Checks on DRV_CFG_STREAMS_DIR_NODES_NUM configuration.*/
 #if DRV_CFG_STREAMS_DIR_NODES_NUM < 1
-#error "invalid value for DRV_CFG_STREAMS_DIR_NODES_NUM"
+#error "invalid DRV_CFG_STREAMS_DIR_NODES_NUM value"
 #endif
 
+/* Checks on DRV_CFG_STREAMS_FILE_NODES_NUM configuration.*/
 #if DRV_CFG_STREAMS_FILE_NODES_NUM < 1
-#error "invalid value for DRV_CFG_STREAMS_FILE_NODES_NUM"
+#error "invalid DRV_CFG_STREAMS_FILE_NODES_NUM value"
 #endif
-
-/*===========================================================================*/
-/* Module data structures and types.                                         */
-/*===========================================================================*/
-
-/**
- * @brief   Type of a stream association structure.
- */
-typedef struct drv_streams_element {
-  /**
-   * @brief   Filename for the stream.
-   */
-  char                          *name;
-  /**
-   * @brief   Pointer to the stream.
-   */
-  BaseSequentialStream          *stream;
-} drv_streams_element_t;
-
-/**
- * @brief   @p vfs_streams_dir_node_c specific methods.
- */
-#define __vfs_streams_dir_node_methods                                      \
-  __vfsdir_methods
-
-/**
- * @brief   @p vfs_streams_dir_node_c specific data.
- */
-#define __vfs_streams_dir_node_data                                         \
-  __vfsdir_data                                                             \
-  unsigned                              index;
-
-/**
- * @brief   @p vfs_streams_dir_node_c virtual methods table.
- */
-struct vfs_streams_dir_node_vmt {
-  __vfs_streams_dir_node_methods
-};
-
-/**
- * @brief   Type of a stream dir VFS node class.
- */
-typedef struct vfs_streams_dir_node {
-  /**
-   * @brief   Virtual Methods Table.
-   */
-  const struct vfs_streams_dir_node_vmt *vmt;
-  __vfs_streams_dir_node_data
-} vfs_streams_dir_node_c;
-
-/**
- * @brief   @p vfs_streams_file_node_c specific methods.
- */
-#define __vfs_streams_file_node_methods                                     \
-  __vfsfile_methods
-
-/**
- * @brief   @p vfs_streams_file_node_c specific data.
- */
-#define __vfs_streams_file_node_data                                        \
-  __vfsfile_data                                                            \
-  BaseSequentialStream                  *stream;
-
-/**
- * @brief   @p vfs_streams_file_node_c virtual methods table.
- */
-struct vfs_streams_file_node_vmt {
-  __vfs_streams_file_node_methods
-};
-
-/**
- * @brief   Type of a stream file VFS node class.
- */
-typedef struct vfs_streams_file_node {
-  /**
-   * @brief   Virtual Methods Table.
-   */
-  const struct vfs_streams_file_node_vmt *vmt;
-  __vfs_streams_file_node_data
-} vfs_streams_file_node_c;
-
-/**
- * @brief   @p vfs_streams_driver_c specific methods.
- */
-#define __vfs_streams_driver_methods                                        \
-  __vfsdrv_methods
-
-/**
- * @brief   @p vfs_streams_driver_c specific data.
- */
-#define __vfs_streams_driver_data                                           \
-  __vfsdrv_data                                                         \
-  const drv_streams_element_t    *streams;
-
-/**
- * @brief   @p vfs_streams_driver_c virtual methods table.
- */
-struct vfs_streams_driver_vmt {
-  __vfs_streams_driver_methods
-};
-
-/**
- * @brief   Type of a VFS streams driver class.
- */
-typedef struct vfs_streams_driver {
-  /**
-   * @brief   Virtual Methods Table.
-   */
-  const struct vfs_streams_driver_vmt   *vmt;
-  __vfs_streams_driver_data
-} vfs_streams_driver_c;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
 
 /*===========================================================================*/
+/* Module data structures and types.                                         */
+/*===========================================================================*/
+
+/**
+ * @brief       Type of a stream association structure.
+ */
+typedef struct drv_streams_element drv_streams_element_t;
+
+/**
+ * @brief       Structure representing a stream association.
+ */
+struct drv_streams_element {
+  /**
+   * @brief       Filename for the stream.
+   */
+  const char                *name;
+  /**
+   * @brief       Pointer to the stream.
+   */
+  sequential_stream_i       *stm;
+};
+
+/**
+ * @class       vfs_streams_dir_node_c
+ * @extends     vfs_directory_node_c
+ *
+ * @note        The class namespace is <tt>stmdir</tt>, access to class fields
+ *              is done using: <tt><objp>->stmdir.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own namespace in order
+ *              to avoid field naming conflicts.
+ *
+ * @name        Class @p vfs_streams_dir_node_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a VFS streams directory node class.
+ */
+typedef struct vfs_streams_dir_node vfs_streams_dir_node_c;
+
+/**
+ * @brief       Class @p vfs_streams_dir_node_c data as a structure.
+ */
+struct stmdir_data {
+  /**
+   * @brief       Current directory entry during scanning.
+   */
+  unsigned                  index;
+};
+
+/**
+ * @brief       Class @p vfs_streams_dir_node_c methods.
+ */
+#define __stmdir_methods                                                    \
+  __vfsdir_methods                                                          \
+  /* No methods.*/
+
+/**
+ * @brief       Class @p vfs_streams_dir_node_c data.
+ */
+#define __stmdir_data                                                       \
+  __vfsdir_data                                                             \
+  struct stmdir_data        stmdir;
+
+/**
+ * @brief       Class @p vfs_streams_dir_node_c VMT initializer.
+ */
+#define __stmdir_vmt_init(ns)                                               \
+  __vfsdir_vmt_init(ns)
+
+/**
+ * @brief       Class @p vfs_streams_dir_node_c virtual methods table.
+ */
+struct vfs_streams_dir_node_vmt {
+  __stmdir_methods
+};
+
+/**
+ * @brief       Structure representing a VFS streams directory node class.
+ */
+struct vfs_streams_dir_node {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_streams_dir_node_vmt *vmt;
+  __stmdir_data
+};
+/** @} */
+
+/**
+ * @class       vfs_streams_file_node_c
+ * @extends     vfs_file_node_c
+ *
+ * @note        The class namespace is <tt>stmfile</tt>, access to class fields
+ *              is done using: <tt><objp>->stmfile.<fieldname></tt><br>Note
+ *              that fields of ancestor classes are in their own namespace in
+ *              order to avoid field naming conflicts.
+ *
+ * @name        Class @p vfs_streams_file_node_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a VFS streams file node class.
+ */
+typedef struct vfs_streams_file_node vfs_streams_file_node_c;
+
+/**
+ * @brief       Class @p vfs_streams_file_node_c data as a structure.
+ */
+struct stmfile_data {
+  /**
+   * @brief       Stream interface for this file.
+   */
+  sequential_stream_i       *stm;
+};
+
+/**
+ * @brief       Class @p vfs_streams_file_node_c methods.
+ */
+#define __stmfile_methods                                                   \
+  __vfsfile_methods                                                         \
+  /* No methods.*/
+
+/**
+ * @brief       Class @p vfs_streams_file_node_c data.
+ */
+#define __stmfile_data                                                      \
+  __vfsfile_data                                                            \
+  struct stmfile_data       stmfile;
+
+/**
+ * @brief       Class @p vfs_streams_file_node_c VMT initializer.
+ */
+#define __stmfile_vmt_init(ns)                                              \
+  __vfsfile_vmt_init(ns)
+
+/**
+ * @brief       Class @p vfs_streams_file_node_c virtual methods table.
+ */
+struct vfs_streams_file_node_vmt {
+  __stmfile_methods
+};
+
+/**
+ * @brief       Structure representing a VFS streams file node class.
+ */
+struct vfs_streams_file_node {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_streams_file_node_vmt *vmt;
+  __stmfile_data
+};
+/** @} */
+
+/**
+ * @class       vfs_streams_driver_c
+ * @extends     vfs_driver_c
+ *
+ * @note        The class namespace is <tt>stmdrv</tt>, access to class fields
+ *              is done using: <tt><objp>->stmdrv.<fieldname></tt><br>Note that
+ *              fields of ancestor classes are in their own namespace in order
+ *              to avoid field naming conflicts.
+ *
+ * @name        Class @p vfs_streams_driver_c structures
+ * @{
+ */
+
+/**
+ * @brief       Type of a VFS streams driver class.
+ */
+typedef struct vfs_streams_driver vfs_streams_driver_c;
+
+/**
+ * @brief       Class @p vfs_streams_driver_c data as a structure.
+ */
+struct stmdrv_data {
+  /**
+   * @brief       Pointer to the stream elements to be exposed.
+   */
+  const drv_streams_element_t *streams;
+};
+
+/**
+ * @brief       Class @p vfs_streams_driver_c methods.
+ */
+#define __stmdrv_methods                                                    \
+  __vfsdrv_methods                                                          \
+  /* No methods.*/
+
+/**
+ * @brief       Class @p vfs_streams_driver_c data.
+ */
+#define __stmdrv_data                                                       \
+  __vfsdrv_data                                                             \
+  struct stmdrv_data        stmdrv;
+
+/**
+ * @brief       Class @p vfs_streams_driver_c VMT initializer.
+ */
+#define __stmdrv_vmt_init(ns)                                               \
+  __vfsdrv_vmt_init(ns)
+
+/**
+ * @brief       Class @p vfs_streams_driver_c virtual methods table.
+ */
+struct vfs_streams_driver_vmt {
+  __stmdrv_methods
+};
+
+/**
+ * @brief       Structure representing a VFS streams driver class.
+ */
+struct vfs_streams_driver {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct vfs_streams_driver_vmt *vmt;
+  __stmdrv_data
+};
+/** @} */
+
+/*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
+
+extern struct vfs_streams_driver_static_struct vfs_streams_driver_static;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+  /* Methods of vfs_streams_dir_node_c.*/
+  void *__stmdir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                              vfs_mode_t mode);
+  void __stmdir_dispose_impl(void *ip);
+  /* Methods of vfs_streams_file_node_c.*/
+  void *__stmfile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                               vfs_mode_t mode, sequential_stream_i *stream);
+  void __stmfile_dispose_impl(void *ip);
+  /* Methods of vfs_streams_driver_c.*/
+  void *__stmdrv_objinit_impl(void *ip, const void *vmt,
+                              const drv_streams_element_t *streams);
+  void __stmdrv_dispose_impl(void *ip);
+  /* Regular functions.*/
   void __drv_streams_init(void);
-  vfs_driver_c *drvStreamsObjectInit(vfs_streams_driver_c *vsdp,
-                                     const drv_streams_element_t *streams);
 #ifdef __cplusplus
 }
 #endif
@@ -191,6 +329,135 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+/**
+ * @name        Constructor and destructor of vfs_streams_dir_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_streams_dir_node_c
+ *
+ * @brief       Default initialization function of @p vfs_streams_dir_node_c.
+ *
+ * @param[out]    self          Pointer to a @p vfs_streams_dir_node_c instance
+ *                              to be initialized.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
+ * @return                      Pointer to the initialized object.
+ *
+ * @objinit
+ */
+CC_FORCE_INLINE
+static inline vfs_streams_dir_node_c *stmdirObjectInit(vfs_streams_dir_node_c *self,
+                                                       vfs_driver_c *driver,
+                                                       vfs_mode_t mode) {
+  extern const struct vfs_streams_dir_node_vmt __stmdir_vmt;
+
+  return __stmdir_objinit_impl(self, &__stmdir_vmt, driver, mode);
+}
+
+/**
+ * @memberof    vfs_streams_dir_node_c
+ *
+ * @brief       Default finalization function of @p vfs_streams_dir_node_c.
+ *
+ * @param[in,out] self          Pointer to a @p vfs_streams_dir_node_c instance
+ *                              to be finalized.
+ *
+ * @dispose
+ */
+CC_FORCE_INLINE
+static inline void stmdirDispose(vfs_streams_dir_node_c *self) {
+
+  __stmdir_dispose_impl(self);
+}
+/** @} */
+
+/**
+ * @name        Constructor and destructor of vfs_streams_file_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_streams_file_node_c
+ *
+ * @brief       Default initialization function of @p vfs_streams_file_node_c.
+ *
+ * @param[out]    self          Pointer to a @p vfs_streams_file_node_c
+ *                              instance to be initialized.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
+ * @param[in]     stream        Stream to be associated.
+ * @return                      Pointer to the initialized object.
+ *
+ * @objinit
+ */
+CC_FORCE_INLINE
+static inline vfs_streams_file_node_c *stmfileObjectInit(vfs_streams_file_node_c *self,
+                                                         vfs_driver_c *driver,
+                                                         vfs_mode_t mode,
+                                                         sequential_stream_i *stream) {
+  extern const struct vfs_streams_file_node_vmt __stmfile_vmt;
+
+  return __stmfile_objinit_impl(self, &__stmfile_vmt, driver, mode, stream);
+}
+
+/**
+ * @memberof    vfs_streams_file_node_c
+ *
+ * @brief       Default finalization function of @p vfs_streams_file_node_c.
+ *
+ * @param[in,out] self          Pointer to a @p vfs_streams_file_node_c
+ *                              instance to be finalized.
+ *
+ * @dispose
+ */
+CC_FORCE_INLINE
+static inline void stmfileDispose(vfs_streams_file_node_c *self) {
+
+  __stmfile_dispose_impl(self);
+}
+/** @} */
+
+/**
+ * @name        Constructor and destructor of vfs_streams_driver_c
+ * @{
+ */
+/**
+ * @memberof    vfs_streams_driver_c
+ *
+ * @brief       Default initialization function of @p vfs_streams_driver_c.
+ *
+ * @param[out]    self          Pointer to a @p vfs_streams_driver_c instance
+ *                              to be initialized.
+ * @param[in]     streams       Pointer to a @p vfs_streams_driver_c structure.
+ * @return                      Pointer to the initialized object.
+ *
+ * @objinit
+ */
+CC_FORCE_INLINE
+static inline vfs_streams_driver_c *stmdrvObjectInit(vfs_streams_driver_c *self,
+                                                     const drv_streams_element_t *streams) {
+  extern const struct vfs_streams_driver_vmt __stmdrv_vmt;
+
+  return __stmdrv_objinit_impl(self, &__stmdrv_vmt, streams);
+}
+
+/**
+ * @memberof    vfs_streams_driver_c
+ *
+ * @brief       Default finalization function of @p vfs_streams_driver_c.
+ *
+ * @param[in,out] self          Pointer to a @p vfs_streams_driver_c instance
+ *                              to be finalized.
+ *
+ * @dispose
+ */
+CC_FORCE_INLINE
+static inline void stmdrvDispose(vfs_streams_driver_c *self) {
+
+  __stmdrv_dispose_impl(self);
+}
+/** @} */
 
 #endif /* VFS_CFG_ENABLE_DRV_STREAMS == TRUE */
 

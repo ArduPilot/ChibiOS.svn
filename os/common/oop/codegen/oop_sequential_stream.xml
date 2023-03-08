@@ -23,12 +23,6 @@
       </condition>
     </definitions_early>
     <types>
-      <condition check="defined(OOP_USE_LEGACY)">
-        <typedef name="BaseSequentialStream">
-          <brief>For compatibility with legacy @p BaseSequentialStream.</brief>
-          <basetype ctype="sequential_stream_i" />
-        </typedef>
-      </condition>
       <interface name="sequential_stream" namespace="stm"
         ancestorname="base_interface" ancestornamespace="bi"
         descr="sequential stream">
@@ -95,6 +89,12 @@
           </method>
         </methods>
       </interface>
+      <condition check="defined(OOP_USE_LEGACY)">
+        <typedef name="BaseSequentialStream">
+          <brief>For compatibility with legacy @p BaseSequentialStream.</brief>
+          <basetype ctype="sequential_stream_i" />
+        </typedef>
+      </condition>
     </types>
   </public>
   <private>

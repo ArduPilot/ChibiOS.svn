@@ -358,11 +358,11 @@ vfs_offset_t vfsGetFilePosition(vfs_file_node_c *vfnp) {
  * @brief   Returns the inner stream associated to the file.
  *
  * @param[in] vfnp      Pointer to the @p vfs_file_node_c object.
- * @return              The current file size.
+ * @return              The inner stream interface.
  *
  * @api
  */
-BaseSequentialStream *vfsGetFileStream(vfs_file_node_c *vfnp) {
+sequential_stream_i *vfsGetFileStream(vfs_file_node_c *vfnp) {
 
   chDbgAssert(vfnp->ro.references > 0U, "zero count");
 

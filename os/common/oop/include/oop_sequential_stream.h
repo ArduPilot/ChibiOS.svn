@@ -70,13 +70,6 @@
 /* Module data structures and types.                                         */
 /*===========================================================================*/
 
-#if (defined(OOP_USE_LEGACY)) || defined (__DOXYGEN__)
-/**
- * @brief       For compatibility with legacy @p BaseSequentialStream.
- */
-typedef sequential_stream_i BaseSequentialStream;
-#endif /* defined(OOP_USE_LEGACY) */
-
 /**
  * @interface   sequential_stream_i
  * @extends     base_interface_i
@@ -148,6 +141,13 @@ struct sequential_stream {
   const struct sequential_stream_vmt *vmt;
 };
 /** @} */
+
+#if (defined(OOP_USE_LEGACY)) || defined (__DOXYGEN__)
+/**
+ * @brief       For compatibility with legacy @p BaseSequentialStream.
+ */
+typedef sequential_stream_i BaseSequentialStream;
+#endif /* defined(OOP_USE_LEGACY) */
 
 /*===========================================================================*/
 /* External declarations.                                                    */

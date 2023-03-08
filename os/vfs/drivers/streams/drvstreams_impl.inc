@@ -48,11 +48,11 @@ msg_t __stmdir_vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
   vfs_streams_dir_node_c *sdnp = (vfs_streams_dir_node_c *)ip;
   vfs_streams_driver_c *vsdp = (vfs_streams_driver_c *)sdnp->vfsnode.driver;
 
-  if (vsdp->streams[sdnp->index].name != NULL) {
+  if (vsdp->stmdrv.streams[sdnp->stmdir.index].name != NULL) {
 
     dip->mode = VFS_MODE_S_IFIFO | VFS_MODE_S_IRUSR | VFS_MODE_S_IWUSR;
     dip->size = (vfs_offset_t)0;
-    strcpy(dip->name, vsdp->streams[sdnp->stmdir.index].name);
+    strcpy(dip->name, vsdp->stmdrv.streams[sdnp->stmdir.index].name);
 
     sdnp->stmdir.index++;
 
@@ -67,7 +67,7 @@ msg_t __stmdir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
 
   sdnp->stmdir.index = 0U;
 
-  return node_dir_next(ip, dip);
+  return __stmdir_vfsdir_next_impl(ip, dip);
 }
 
 void *__stmfile_ro_addref_impl(void *ip) {
@@ -97,14 +97,14 @@ msg_t __stmfile_vfsnode_stat_impl(void *ip, vfs_stat_t *sp) {
 ssize_t __stmfile_vfsfile_read_impl(void *ip, uint8_t *buf, size_t size) {
   vfs_streams_file_node_c *sfnp = (vfs_streams_file_node_c *)ip;
 
-  return stmRead(sfnp->stmfile.stream, buf, size);
+  return stmRead(sfnp->stmfile.stm, buf, size);
 }
 
 ssize_t __stmfile_vfsfile_write_impl(void *ip, const uint8_t *buf,
                                     size_t size) {
   vfs_streams_file_node_c *sfnp = (vfs_streams_file_node_c *)ip;
 
-  return stmWrite(sfnp->stmfile.stream, buf, size);
+  return stmWrite(sfnp->stmfile.stm, buf, size);
 }
 
 msg_t __stmfile_vfsfile_setpos_impl(void *ip, vfs_offset_t offset,
@@ -118,10 +118,10 @@ vfs_offset_t __stmfile_vfsfile_getpos_impl(void *ip) {
   return __vfsfile_getpos_impl(ip);
 }
 
-BaseSequentialStream *__stmfile_vfsfile_getstream_impl(void *ip) {
+sequential_stream_i *__stmfile_vfsfile_getstream_impl(void *ip) {
   vfs_streams_file_node_c *sfnp = (vfs_streams_file_node_c *)ip;
 
-  return sfnp->stmfile.stream;
+  return sfnp->stmfile.stm;
 }
 
 msg_t __stmdrv_vfsdrv_setcwd_impl(void *ip, const char *path) {
@@ -181,7 +181,7 @@ msg_t __stmdrv_vfsdrv_opendir_impl(void *ip, const char *path,
 /*      __ro_objinit_impl(sdnp, &dir_node_vmt);
       sdnp->vfsnode.driver  = (vfs_driver_c *)drvp;
       sdnp->vfsnode.mode    = VFS_MODE_S_IFDIR | VFS_MODE_S_IRUSR;
-      sdnp->index           = 0U;*/
+      sdnp->stmdir.index           = 0U;*/
 
       *vdnpp = (vfs_directory_node_c *)sdnp;
       return CH_RET_SUCCESS;
@@ -196,7 +196,7 @@ msg_t __stmdrv_vfsdrv_opendir_impl(void *ip, const char *path,
 
 msg_t __stmdrv_vfsdrv_openfile_impl(void *ip, const char *path,
                                     int flags, vfs_file_node_c **vfnpp) {
-  vfs_streams_driver_c *drvp = (vfs_streams_driver_c *)instance;
+  vfs_streams_driver_c *drvp = (vfs_streams_driver_c *)ip;
   const drv_streams_element_t *dsep;
   msg_t ret;
 
@@ -221,7 +221,7 @@ msg_t __stmdrv_vfsdrv_openfile_impl(void *ip, const char *path,
     ret = vfs_parse_match_end(&path);
     CH_BREAK_ON_ERROR(ret);
 
-    dsep = &drvp->streams[0];
+    dsep = &drvp->stmdrv.streams[0];
     while (dsep->name != NULL) {
       if (strncmp(fname, dsep->name, VFS_CFG_NAMELEN_MAX) == 0) {
         vfs_streams_file_node_c *sfnp;
@@ -230,10 +230,10 @@ msg_t __stmdrv_vfsdrv_openfile_impl(void *ip, const char *path,
         if (sfnp != NULL) {
 
           /* Node object initialization.*/
-          (void) stmFileObjectInit(sfnp,
+          (void) stmfileObjectInit(sfnp,
                                    (vfs_driver_c *)drvp,
                                    VFS_MODE_S_IFIFO | VFS_MODE_S_IRUSR | VFS_MODE_S_IWUSR,
-                                   dsep->stream);
+                                   dsep->stm);
 /*          __ro_objinit_impl(sfnp, &file_node_vmt);
           sfnp->vfsnode.driver  = (vfs_driver_c *)drvp;
           sfnp->vfsnode.mode    = VFS_MODE_S_IFIFO | VFS_MODE_S_IRUSR | VFS_MODE_S_IWUSR;

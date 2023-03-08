@@ -150,7 +150,7 @@ static vfs_offset_t __tmplfile_vfsfile_getpos_impl(void *ip) {
   return __vfsfile_getpos_impl(ip);
 }
 
-static BaseSequentialStream *__tmplfile_vfsfile_getstream_impl(void *ip) {
+static sequential_stream_i *__tmplfile_vfsfile_getstream_impl(void *ip) {
 
   return __vfsfile_getstream_impl(ip);
 }

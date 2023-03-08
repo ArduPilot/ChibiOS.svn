@@ -222,7 +222,7 @@ return __vfsfile_setpos_impl(ip, offset, whence);]]></implementation>
 
 return __vfsfile_getpos_impl(ip);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsfile_getstream_impl" ctype="BaseSequentialStream *">
+      <function name="__tmplfile_vfsfile_getstream_impl" ctype="sequential_stream_i *">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 

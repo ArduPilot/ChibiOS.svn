@@ -669,6 +669,12 @@ ${fieldstring}
  */
 [@GenerateFunctionsFromNode modifiers=modifiers node=this /]
 /** @} */
+    [#elseif this?node_name == "verbatim"]
+      [#if !this?is_first]
+
+      [/#if]
+      [#local ccode = (this[0]!"")?trim /]
+[@GenerateIndentedCCode indent ccode /]
     [#elseif this?node_name == "condition"]
       [#local condcheck = (this.@check[0]!"1")?trim /]
       [#if !this?is_first]

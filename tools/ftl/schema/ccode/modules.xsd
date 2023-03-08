@@ -148,15 +148,16 @@
   </xs:complexType>
   <xs:complexType name="functionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="function" type="functionType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="function" type="functionType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
-      <xs:element name="group" type="groupedFunctionsType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="group" type="groupedFunctionsType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
-      <xs:element name="condition"
-        type="conditionalFunctionsType" maxOccurs="1" minOccurs="1">
+      <xs:element name="condition" type="conditionalFunctionsType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
+      <xs:element name="verbatim" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="classType">

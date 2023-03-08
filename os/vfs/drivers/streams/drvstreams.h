@@ -303,8 +303,6 @@ struct vfs_streams_driver {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-extern struct vfs_streams_driver_static_struct vfs_streams_driver_static;
-
 #ifdef __cplusplus
 extern "C" {
 #endif

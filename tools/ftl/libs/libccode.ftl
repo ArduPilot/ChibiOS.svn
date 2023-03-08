@@ -548,11 +548,11 @@ ${indent}};
   [#local varname   = GetName(node)
           varctype  = GetCType(node)
           varstring = MakeVariableDeclaration(indent varname varctype) /]
-          [#if static]
-            [#local varstring = indent + "static " + varstring /]
-          [#else]
-            [#local varstring = indent + varstring /]
-          [/#if]
+  [#if static]
+    [#local varstring = indent + "static " + varstring /]
+  [#else]
+    [#local varstring = indent + varstring /]
+  [/#if]
 [@doxygen.EmitFullCommentFromNode indent node /]
 ${varstring}
 [/#macro]
@@ -565,17 +565,17 @@ ${varstring}
     [#if this?node_name == "variable"]
       [#assign generated = true /]
 [@GenerateVariableFromNode indent this static /]
-      [#if (node?node_name != "group") && (node?node_name != "condition")]
-
-      [/#if]
+    [#elseif this?node_name == "verbatim"]
+      [#local ccode = (this[0]!"")?trim /]
+[@GenerateIndentedCCode indent ccode /]
     [#elseif this?node_name == "condition"]
       [#local condcheck = (this.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateVariablesFromNode indent this static /]
 #endif /* ${condcheck} */
-      [#if (node?node_name != "group") && (node?node_name != "condition")]
+    [/#if]
+    [#if this?has_next || (node?node_name != "condition")]
 
-      [/#if]
     [/#if]
   [/#list]
 [/#macro]

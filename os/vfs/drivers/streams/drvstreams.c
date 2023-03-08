@@ -39,11 +39,6 @@
 /* Module exported variables.                                                */
 /*===========================================================================*/
 
-/**
- * @brief       Global state of @p vfs_streams_driver_c.
- */
-struct vfs_streams_driver_static_struct vfs_streams_driver_static;
-
 /*===========================================================================*/
 /* Module local types.                                                       */
 /*===========================================================================*/
@@ -71,12 +66,17 @@ struct vfs_streams_driver_static_struct {
   vfs_streams_file_node_c   file_nodes[DRV_CFG_STREAMS_FILE_NODES_NUM];
 };
 
-/* Methods implementations in an unmanaged module.*/
-#include "drvstreams_impl.inc"
-
 /*===========================================================================*/
 /* Module local variables.                                                   */
 /*===========================================================================*/
+
+/**
+ * @brief       Global state of @p vfs_streams_driver_c.
+ */
+static struct vfs_streams_driver_static_struct vfs_streams_driver_static;
+
+/* Methods implementations in an unmanaged module.*/
+#include "drvstreams_impl.inc"
 
 /*===========================================================================*/
 /* Module local functions.                                                   */

@@ -109,11 +109,6 @@ self->stmdrv.streams  = streams;]]></implementation>
         </methods>
       </class>
     </types>
-    <variables>
-      <variable name="vfs_streams_driver_static" ctype="struct vfs_streams_driver_static_struct">
-        <brief>Global state of @p vfs_streams_driver_c</brief>
-      </variable>
-    </variables>
     <functions>
       <function name="__drv_streams_init" ctype="void">
         <brief>Module initialization.</brief>
@@ -160,9 +155,14 @@ self->stmdrv.streams  = streams;]]></implementation>
           </field>
         </fields>
       </struct>
+    </types>
+    <variables>
+      <variable name="vfs_streams_driver_static" ctype="struct vfs_streams_driver_static_struct">
+        <brief>Global state of @p vfs_streams_driver_c</brief>
+      </variable>
       <verbatim><![CDATA[
 /* Methods implementations in an unmanaged module.*/
 #include "drvstreams_impl.inc"]]></verbatim>
-    </types>
+    </variables>
   </private>
 </module>

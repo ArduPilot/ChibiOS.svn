@@ -39,21 +39,21 @@
 /* Module exported variables.                                                */
 /*===========================================================================*/
 
-/**
- * @brief       Global state of @p vfs_overlay_driver_c.
- */
-struct vfs_overlay_driver_static_struct vfs_overlay_driver_static;
-
 /*===========================================================================*/
 /* Module local types.                                                       */
 /*===========================================================================*/
 
-/* Methods implementations in an unmanaged module.*/
-#include "drvoverlay_impl.inc"
-
 /*===========================================================================*/
 /* Module local variables.                                                   */
 /*===========================================================================*/
+
+/**
+ * @brief       Global state of @p vfs_overlay_driver_c.
+ */
+static struct vfs_overlay_driver_static_struct vfs_overlay_driver_static;
+
+/* Methods implementations in an unmanaged module.*/
+#include "drvoverlay_impl.inc"
 
 /*===========================================================================*/
 /* Module local functions.                                                   */

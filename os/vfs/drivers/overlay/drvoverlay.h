@@ -232,8 +232,6 @@ struct vfs_overlay_driver_static_struct {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-extern struct vfs_overlay_driver_static_struct vfs_overlay_driver_static;
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -108,11 +108,6 @@ return ret;]]></implementation>
         </fields>
       </struct>
     </types>
-    <variables>
-      <variable name="vfs_overlay_driver_static" ctype="struct vfs_overlay_driver_static_struct">
-        <brief>Global state of @p vfs_overlay_driver_c</brief>
-      </variable>
-    </variables>
     <functions>
       <function name="__drv_overlay_init" ctype="void">
         <brief>Module initialization.</brief>
@@ -135,10 +130,13 @@ chPoolLoadArray(&vfs_overlay_driver_static.dir_nodes_pool,
     <includes_always>
       <include style="regular">vfs.h</include>
     </includes_always>
-    <types>
+    <variables>
+      <variable name="vfs_overlay_driver_static" ctype="struct vfs_overlay_driver_static_struct">
+        <brief>Global state of @p vfs_overlay_driver_c</brief>
+      </variable>
       <verbatim><![CDATA[
 /* Methods implementations in an unmanaged module.*/
 #include "drvoverlay_impl.inc"]]></verbatim>
-    </types>
+    </variables>
   </private>
 </module>

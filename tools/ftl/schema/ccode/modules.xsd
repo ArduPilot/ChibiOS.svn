@@ -583,15 +583,16 @@
   </xs:complexType>
   <xs:complexType name="variablesType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="variable" type="variableType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="variable" type="variableType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
-      <xs:element name="group" type="groupedVariablesType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="group" type="groupedVariablesType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
-      <xs:element name="condition"
-        type="conditionalVariablesType" maxOccurs="1" minOccurs="1">
+      <xs:element name="condition" type="conditionalVariablesType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
+      <xs:element name="verbatim" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="variableType">

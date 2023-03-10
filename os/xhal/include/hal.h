@@ -287,48 +287,48 @@ static inline halfreq_t halClockGetPointX(halclkpt_t clkpt) {
 /* Driver late inclusions.                                                   */
 /*===========================================================================*/
 
-/* Abstract interfaces.*/
+/* Abstract classes and interfaces.*/
 #include "oop_base_object.h"
 #include "oop_base_interface.h"
 #include "oop_sequential_stream.h"
 #include "hal_base_driver.h"
-#include "hal_objects.h"
+//#include "hal_objects.h"
 //#include "hal_streams.h"
 #include "hal_channels.h"
 //#include "hal_files.h"
-#include "hal_ioblock.h"
-#include "hal_mmcsd.h"
-#include "hal_persistent.h"
-#include "hal_flash.h"
+//#include "hal_ioblock.h"
+//#include "hal_mmcsd.h"
+//#include "hal_persistent.h"
+//#include "hal_flash.h"
 
 /* Shared headers.*/
-#include "hal_buffers.h"
+//#include "hal_buffers.h"
 #include "hal_queues.h"
 #include "hal_buffered_serial.h"
 
 /* Normal drivers.*/
 #include "hal_pal.h"
-#include "hal_adc.h"
-#include "hal_can.h"
-#include "hal_crypto.h"
-#include "hal_dac.h"
-#include "hal_efl.h"
-#include "hal_gpt.h"
-#include "hal_i2c.h"
-#include "hal_i2s.h"
-#include "hal_icu.h"
-#include "hal_mac.h"
-#include "hal_pwm.h"
-#include "hal_rtc.h"
-#include "hal_serial.h"
-#include "hal_sdc.h"
+//#include "hal_adc.h"
+//#include "hal_can.h"
+//#include "hal_crypto.h"
+//#include "hal_dac.h"
+//#include "hal_efl.h"
+//#include "hal_gpt.h"
+//#include "hal_i2c.h"
+//#include "hal_i2s.h"
+//#include "hal_icu.h"
+//#include "hal_mac.h"
+//#include "hal_pwm.h"
+//#include "hal_rtc.h"
+//#include "hal_serial.h"
+//#include "hal_sdc.h"
 #include "hal_sio.h"
-#include "hal_spi.h"
-#include "hal_trng.h"
-#include "hal_uart.h"
-#include "hal_usb.h"
-#include "hal_wdg.h"
-#include "hal_wspi.h"
+//#include "hal_spi.h"
+//#include "hal_trng.h"
+//#include "hal_uart.h"
+//#include "hal_usb.h"
+//#include "hal_wdg.h"
+//#include "hal_wspi.h"
 
 /*
  *  The ST driver is a special case, it is only included if the OSAL is
@@ -339,8 +339,8 @@ static inline halfreq_t halClockGetPointX(halclkpt_t clkpt) {
 #endif
 
 /* Complex drivers.*/
-#include "hal_mmc_spi.h"
-#include "hal_serial_usb.h"
+//#include "hal_mmc_spi.h"
+//#include "hal_serial_usb.h"
 
 /* Community drivers.*/
 #if defined(HAL_USE_COMMUNITY) || defined(__DOXYGEN__)

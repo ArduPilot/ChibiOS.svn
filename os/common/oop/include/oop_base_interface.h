@@ -23,7 +23,7 @@
  * @brief       Common interfaces ancestor.
  * @{
  */
- 
+
 #ifndef OOP_BASE_INTERFACE_H
 #define OOP_BASE_INTERFACE_H
 

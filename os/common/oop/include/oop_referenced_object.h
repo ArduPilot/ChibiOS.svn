@@ -23,7 +23,7 @@
  * @brief       Common ancestor class of all reference-counted objects.
  * @{
  */
- 
+
 #ifndef OOP_REFERENCED_OBJECT_H
 #define OOP_REFERENCED_OBJECT_H
 

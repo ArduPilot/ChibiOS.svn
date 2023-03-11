@@ -23,7 +23,7 @@
  * @brief       SIO Driver macros and structures.
  * @{
  */
- 
+
 #ifndef HAL_SIO_H
 #define HAL_SIO_H
 

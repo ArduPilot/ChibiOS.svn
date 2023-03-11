@@ -24,7 +24,7 @@
  *              objects.
  * @{
  */
- 
+
 #ifndef OOP_SYNCHRONIZED_OBJECT_H
 #define OOP_SYNCHRONIZED_OBJECT_H
 

@@ -25,7 +25,7 @@
  *              HAL drivers.
  * @{
  */
- 
+
 #ifndef HAL_BASE_DRIVER_H
 #define HAL_BASE_DRIVER_H
 

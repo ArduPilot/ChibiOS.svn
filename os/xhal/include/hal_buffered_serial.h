@@ -25,7 +25,7 @@
  *              circular I/O queues.
  * @{
  */
- 
+
 #ifndef HAL_BUFFERED_SERIAL_H
 #define HAL_BUFFERED_SERIAL_H
 

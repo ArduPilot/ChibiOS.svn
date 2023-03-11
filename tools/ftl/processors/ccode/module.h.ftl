@@ -52,7 +52,7 @@
 [@doxygen.EmitNoteFromNode node=module /]
  * @{
  */
- 
+
 #ifndef ${moduledocgroup}_H
 #define ${moduledocgroup}_H
 

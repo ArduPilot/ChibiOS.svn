@@ -22,7 +22,7 @@
  * @addtogroup  DRVOVERLAY
  * @{
  */
- 
+
 #ifndef DRVOVERLAY_H
 #define DRVOVERLAY_H
 

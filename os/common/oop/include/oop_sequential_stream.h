@@ -23,7 +23,7 @@
  * @brief       Sequential data streams interface.
  * @{
  */
- 
+
 #ifndef OOP_SEQUENTIAL_STREAM_H
 #define OOP_SEQUENTIAL_STREAM_H
 

@@ -22,7 +22,7 @@
  * @addtogroup  DRVFATFS
  * @{
  */
- 
+
 #ifndef DRVFATFS_H
 #define DRVFATFS_H
 

@@ -23,7 +23,7 @@
  * @brief       Common ancestor abstract class.
  * @{
  */
- 
+
 #ifndef OOP_BASE_OBJECT_H
 #define OOP_BASE_OBJECT_H
 

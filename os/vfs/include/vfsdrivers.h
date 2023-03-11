@@ -23,7 +23,7 @@
  * @brief       Common ancestor class of all reference-counted objects.
  * @{
  */
- 
+
 #ifndef VFSDRIVERS_H
 #define VFSDRIVERS_H
 

@@ -22,7 +22,7 @@
  * @addtogroup  DRVSTREAMS
  * @{
  */
- 
+
 #ifndef DRVSTREAMS_H
 #define DRVSTREAMS_H
 

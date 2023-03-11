@@ -22,7 +22,7 @@
  * @addtogroup  DRVTEMPLATE
  * @{
  */
- 
+
 #ifndef DRVTEMPLATE_H
 #define DRVTEMPLATE_H
 

@@ -23,7 +23,7 @@
  * @brief       Sequential data streams interface.
  * @{
  */
- 
+
 #ifndef HAL_CHANNELS_H
 #define HAL_CHANNELS_H
 

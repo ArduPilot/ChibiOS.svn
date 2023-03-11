@@ -27,7 +27,7 @@
 #ifndef HAL_SIO_H
 #define HAL_SIO_H
 
-#if (HAL_USE_SIO == TRUE) || defined (__DOXYGEN__)
+#if (HAL_USE_SIO == TRUE) || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Module constants.                                                         */

@@ -26,7 +26,7 @@
 #ifndef DRVSTREAMS_H
 #define DRVSTREAMS_H
 
-#if (VFS_CFG_ENABLE_DRV_STREAMS == TRUE) || defined (__DOXYGEN__)
+#if (VFS_CFG_ENABLE_DRV_STREAMS == TRUE) || defined(__DOXYGEN__)
 
 #include "oop_sequential_stream.h"
 

@@ -25,7 +25,7 @@
 
 #include "hal.h"
 
-#if (HAL_USE_SIO == TRUE) || defined (__DOXYGEN__)
+#if (HAL_USE_SIO == TRUE) || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Module local definitions.                                                 */

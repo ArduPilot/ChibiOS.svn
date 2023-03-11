@@ -26,7 +26,7 @@
 #ifndef DRVFATFS_H
 #define DRVFATFS_H
 
-#if (VFS_CFG_ENABLE_DRV_FATFS == TRUE) || defined (__DOXYGEN__)
+#if (VFS_CFG_ENABLE_DRV_FATFS == TRUE) || defined(__DOXYGEN__)
 
 #include "oop_sequential_stream.h"
 

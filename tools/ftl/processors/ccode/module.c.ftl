@@ -63,7 +63,7 @@
   [#-- Handling of conditional modules.--]
   [#assign module_condition =  module.@check[0]!""?trim/]
   [#if module_condition?length > 0]
-#if (${module_condition}) || defined (__DOXYGEN__)
+#if (${module_condition}) || defined(__DOXYGEN__)
 
   [/#if]
   [#if module.private.includes[0]??]

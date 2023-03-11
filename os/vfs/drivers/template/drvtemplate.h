@@ -26,7 +26,7 @@
 #ifndef DRVTEMPLATE_H
 #define DRVTEMPLATE_H
 
-#if (VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE) || defined (__DOXYGEN__)
+#if (VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE) || defined(__DOXYGEN__)
 
 #include "oop_sequential_stream.h"
 

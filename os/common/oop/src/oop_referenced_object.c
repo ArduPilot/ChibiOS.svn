@@ -117,7 +117,7 @@ void *__ro_addref_impl(void *ip) {
 
   self->ro.references++;
 
-  osalDbgAssert(self->ro.references != (object_references_t)0, "overflow");
+  oopAssert(self->ro.references != (object_references_t)0, "overflow");
 
   return self;
 }
@@ -132,7 +132,7 @@ void *__ro_addref_impl(void *ip) {
 object_references_t __ro_release_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  osalDbgAssert(self->ro.references > 0U, "zero references");
+  oopAssert(self->ro.references > 0U, "zero references");
 
   if (--self->ro.references == 0U) {
     __ro_dispose_impl(self);

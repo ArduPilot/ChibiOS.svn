@@ -5,7 +5,15 @@
   <brief>Common ancestor abstract class.</brief>
   <public>
     <includes>
-      <include style="regular">osal.h</include>
+      <condition check="defined(OOP_USE_CHIBIOS)">
+        <include style="regular">ch.h</include>
+        <elseif check="defined(OOP_USE_NOTHING)" />
+        <include style="angular">stddef.h</include>
+        <include style="angular">stdint.h</include>
+        <include style="angular">stdbool.h</include>
+        <elseif />
+        <include style="regular">osal.h</include>
+      </condition>
     </includes>
     <macros>
       <macro name="oopGetOwner">
@@ -32,6 +40,28 @@
         <api />
         <implementation><![CDATA[(void *)(&(ip)->cns.ifns)]]></implementation>
       </macro>
+      <condition check="defined(OOP_USE_CHIBIOS)">
+        <macro name="oopAssert">
+          <brief>Condition assertion.</brief>
+          <param name="c">Condition to be proven true.</param>
+          <param name="r">Remark associated to the assertion.</param>
+          <implementation><![CDATA[
+chDbgAssert(c, r)]]></implementation>
+        </macro>
+        <elseif check="defined(OOP_USE_NOTHING)" />
+        <macro name="oopAssert">
+          <param name="c" />
+          <param name="r" />
+          <implementation><![CDATA[]]></implementation>
+        </macro>
+        <elseif />
+        <macro name="oopAssert">
+          <param name="c" />
+          <param name="r" />
+          <implementation><![CDATA[
+osalDbgAssert(c, r)]]></implementation>
+        </macro>
+      </condition>
     </macros>
     <types>
       <class name="base_object" namespace="bo" descr="base object"

@@ -27,7 +27,15 @@
 #ifndef OOP_BASE_OBJECT_H
 #define OOP_BASE_OBJECT_H
 
+#if (defined(OOP_USE_CHIBIOS)) || defined (__DOXYGEN__)
+#include "ch.h"
+#elif defined(OOP_USE_NOTHING)
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+#else
 #include "osal.h"
+#endif
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -76,6 +84,24 @@
  */
 #define boGetIf(ip, ifns, cns)                                              \
   (void *)(&(ip)->cns.ifns)
+
+#if (defined(OOP_USE_CHIBIOS)) || defined (__DOXYGEN__)
+/**
+ * @brief       Condition assertion.
+ *
+ * @param         c             Condition to be proven true.
+ * @param         r             Remark associated to the assertion.
+ */
+#define oopAssert(c, r)                                                     \
+  chDbgAssert(c, r)
+
+#elif defined(OOP_USE_NOTHING)
+#define oopAssert(c, r)
+
+#else
+#define oopAssert(c, r)                                                     \
+  osalDbgAssert(c, r)
+#endif /* defined(OOP_USE_CHIBIOS) */
 
 /*===========================================================================*/
 /* Module data structures and types.                                         */

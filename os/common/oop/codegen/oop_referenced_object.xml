@@ -41,7 +41,7 @@
 
 self->ro.references++;
 
-osalDbgAssert(self->ro.references != (object_references_t)0, "overflow");
+oopAssert(self->ro.references != (object_references_t)0, "overflow");
 
 return self;]]></implementation>
             </method>
@@ -53,7 +53,7 @@ return self;]]></implementation>
               <return>The value of the reference counter.</return>
               <implementation><![CDATA[
 
-osalDbgAssert(self->ro.references > 0U, "zero references");
+oopAssert(self->ro.references > 0U, "zero references");
 
 if (--self->ro.references == 0U) {
   __ro_dispose_impl(self);

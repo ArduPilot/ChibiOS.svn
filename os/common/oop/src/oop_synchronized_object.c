@@ -80,7 +80,11 @@ void *__so_objinit_impl(void *ip, const void *vmt) {
   __ro_objinit_impl(self, vmt);
 
   /* Initialization code.*/
+#if defined(OOP_USE_CHIBIOS)
+  chMtxObjectInit(&self->mutex);
+#else
   osalMutexObjectInit(&self->mutex);
+#endif
 
   return self;
 }
@@ -121,7 +125,11 @@ void __so_dispose_impl(void *ip) {
 void soLock(void *ip) {
   synchronized_object_c *self = (synchronized_object_c *)ip;
 
+#if defined(OOP_USE_CHIBIOS)
+  chMtxLock(&self->mutex);
+#else
   osalMutexLock(&self->mutex);
+#endif
 }
 
 /**
@@ -135,7 +143,11 @@ void soLock(void *ip) {
 void soUnlock(void *ip) {
   synchronized_object_c *self = (synchronized_object_c *)ip;
 
+#if defined(OOP_USE_CHIBIOS)
+  chMtxUnlock(&self->mutex);
+#else
   osalMutexUnlock(&self->mutex);
+#endif
 }
 /** @} */
 

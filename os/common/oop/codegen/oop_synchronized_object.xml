@@ -7,6 +7,13 @@
     <includes>
       <include style="regular">oop_referenced_object.h</include>
     </includes>
+    <definitions_late>
+      <verbatim><![CDATA[
+#if defined(OOP_USE_NOTHING)
+#error "OOP_USE_NOTHING specified, not compatible"
+#endif
+]]></verbatim>
+    </definitions_late>
     <types>
       <class type="abstract" name="synchronized_object" namespace="so"
         ancestorname="referenced_object" ancestornamespace="ro"
@@ -21,7 +28,12 @@
         </fields>
         <methods>
           <objinit>
-            <implementation><![CDATA[osalMutexObjectInit(&self->mutex);]]></implementation>
+            <implementation><![CDATA[
+#if defined(OOP_USE_CHIBIOS)
+chMtxObjectInit(&self->mutex);
+#else
+osalMutexObjectInit(&self->mutex);
+#endif]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
@@ -31,13 +43,21 @@
               <brief>Object lock.</brief>
               <implementation><![CDATA[
 
-osalMutexLock(&self->mutex);]]></implementation>
+#if defined(OOP_USE_CHIBIOS)
+chMtxLock(&self->mutex);
+#else
+osalMutexLock(&self->mutex);
+#endif]]></implementation>
             </method>
             <method name="soUnlock" ctype="void">
               <brief>Object unlock.</brief>
               <implementation><![CDATA[
 
-osalMutexUnlock(&self->mutex);]]></implementation>
+#if defined(OOP_USE_CHIBIOS)
+chMtxUnlock(&self->mutex);
+#else
+osalMutexUnlock(&self->mutex);
+#endif]]></implementation>
             </method>
           </regular>
         </methods>

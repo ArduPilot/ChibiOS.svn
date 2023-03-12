@@ -97,7 +97,6 @@ DEPDIR   := ./.dep/stm32h735ig_discovery
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
 # Common files.
-include $(CHIBIOS)/os/common/utils/utils.mk
 include $(CHIBIOS)/os/common/oop/oop.mk
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32h7xx.mk

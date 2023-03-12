@@ -208,7 +208,7 @@ msg_t __stmdrv_vfsdrv_openfile_impl(void *ip, const char *path,
     ret = vfs_parse_match_separator(&path);
     CH_BREAK_ON_ERROR(ret);
 
-    ret = (msg_t)path_get_element(&path, fname, VFS_CFG_NAMELEN_MAX + 1);
+    ret = (msg_t)vfs_path_get_element(&path, fname, VFS_CFG_NAMELEN_MAX + 1);
     CH_BREAK_ON_ERROR(ret);
 
     /* Null element.*/

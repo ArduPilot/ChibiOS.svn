@@ -29,7 +29,7 @@ static msg_t match_driver(vfs_overlay_driver_c *odp,
   while (i < odp->ovldrv.next_driver) {
     size_t n;
 
-    n = path_match_element(*pathp, odp->ovldrv.names[i], VFS_CFG_NAMELEN_MAX + 1);
+    n = vfs_path_match_element(*pathp, odp->ovldrv.names[i], VFS_CFG_NAMELEN_MAX + 1);
     if (n < VFS_CFG_NAMELEN_MAX + 1) {
       *pathp += n;
       *vdpp = odp->ovldrv.drivers[i];
@@ -64,8 +64,8 @@ static msg_t build_absolute_path(vfs_overlay_driver_c *drvp,
     *buf = '\0';
 
     /* Relative paths handling.*/
-    if (!path_is_separator(*path)) {
-      if (path_append(buf,
+    if (!vfs_path_is_separator(*path)) {
+      if (vfs_path_append(buf,
                       get_current_directory(drvp),
                       VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
         ret = CH_RET_ENAMETOOLONG;
@@ -74,13 +74,13 @@ static msg_t build_absolute_path(vfs_overlay_driver_c *drvp,
     }
 
     /* Adding the specified path.*/
-    if (path_append(buf, path, VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+    if (vfs_path_append(buf, path, VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
       ret = CH_RET_ENAMETOOLONG;
       break;
     }
 
     /* Normalization of the absolute path.*/
-    if (path_normalize(buf, buf, VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+    if (vfs_path_normalize(buf, buf, VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
       ret = CH_RET_ENAMETOOLONG;
       break;
     }
@@ -101,7 +101,7 @@ static msg_t open_absolute_dir(vfs_overlay_driver_c *drvp,
     const char *scanpath;
 
     /* Making sure there is a final separator.*/
-    if (path_add_separator(path, VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+    if (vfs_path_add_separator(path, VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
       ret = CH_RET_ENAMETOOLONG;
       break;
     }
@@ -168,9 +168,9 @@ static msg_t open_absolute_dir(vfs_overlay_driver_c *drvp,
 
           /* Processing the prefix, if defined.*/
           if (drvp->ovldrv.path_prefix != NULL) {
-            if ((path_offset = path_prepend(path,
-                                            drvp->ovldrv.path_prefix,
-                                            VFS_CFG_PATHLEN_MAX + 1)) == (size_t)0) {
+            if ((path_offset = vfs_path_prepend(path,
+                                                drvp->ovldrv.path_prefix,
+                                                VFS_CFG_PATHLEN_MAX + 1)) == (size_t)0) {
               ret = CH_RET_ENAMETOOLONG;
               break;
             }
@@ -236,9 +236,9 @@ static msg_t open_absolute_file(vfs_overlay_driver_c *drvp,
 
           /* Processing the prefix, if defined.*/
           if (drvp->ovldrv.path_prefix != NULL) {
-            if (path_prepend(path,
-                             drvp->ovldrv.path_prefix,
-                             VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+            if (vfs_path_prepend(path,
+                                 drvp->ovldrv.path_prefix,
+                                 VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
               ret = CH_RET_ENAMETOOLONG;
               break;
             }
@@ -271,9 +271,9 @@ static msg_t drv_overlaid_path_call(vfs_overlay_driver_c *drvp,
 
       /* Processing the prefix, if defined.*/
       if (drvp->ovldrv.path_prefix != NULL) {
-        if (path_prepend(buf,
-                         drvp->ovldrv.path_prefix,
-                         VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+        if (vfs_path_prepend(buf,
+                             drvp->ovldrv.path_prefix,
+                             VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
           ret = CH_RET_ENAMETOOLONG;
           break;
         }
@@ -413,7 +413,7 @@ msg_t __ovldrv_vfsdrv_getcwd_impl(void *ip, char *buf, size_t size) {
   vfs_overlay_driver_c *drvp = (vfs_overlay_driver_c *)ip;
 
   *buf = '\0';
-  if (path_append(buf, get_current_directory(drvp), size) == (size_t)0) {
+  if (vfs_path_append(buf, get_current_directory(drvp), size) == (size_t)0) {
     return CH_RET_ERANGE;
   }
 
@@ -459,9 +459,9 @@ msg_t __ovldrv_vfsdrv_stat_impl(void *ip, const char *path,
 
       /* Processing the prefix, if defined.*/
       if (drvp->ovldrv.path_prefix != NULL) {
-        if (path_prepend(shbuf->path.buf1,
-                         drvp->ovldrv.path_prefix,
-                         VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+        if (vfs_path_prepend(shbuf->path.buf1,
+                             drvp->ovldrv.path_prefix,
+                             VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
           ret = CH_RET_ENAMETOOLONG;
           break;
         }
@@ -631,15 +631,15 @@ msg_t __ovldrv_vfsdrv_rename_impl(void *ip, const char *oldpath,
 
         /* Processing the prefix, if defined.*/
         if (drvp->ovldrv.path_prefix != NULL) {
-          if (path_prepend(shbuf->path.buf1,
-                           drvp->ovldrv.path_prefix,
-                           VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+          if (vfs_path_prepend(shbuf->path.buf1,
+                               drvp->ovldrv.path_prefix,
+                               VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
             ret = CH_RET_ENAMETOOLONG;
             break;
           }
-          if (path_prepend(shbuf->path.buf2,
-                           drvp->ovldrv.path_prefix,
-                           VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+          if (vfs_path_prepend(shbuf->path.buf2,
+                               drvp->ovldrv.path_prefix,
+                               VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
             ret = CH_RET_ENAMETOOLONG;
             break;
           }
@@ -706,9 +706,9 @@ msg_t __ovldrv_vfsdrv_mkdir_impl(void *ip, const char *path,
 
           /* Processing the prefix, if defined.*/
           if (drvp->ovldrv.path_prefix != NULL) {
-            if (path_prepend(shbuf->path.buf1,
-                             drvp->ovldrv.path_prefix,
-                             VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
+            if (vfs_path_prepend(shbuf->path.buf1,
+                                 drvp->ovldrv.path_prefix,
+                                 VFS_CFG_PATHLEN_MAX + 1) == (size_t)0) {
               ret = CH_RET_ENAMETOOLONG;
               break;
             }

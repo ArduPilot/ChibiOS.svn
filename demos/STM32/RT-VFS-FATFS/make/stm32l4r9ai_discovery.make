@@ -97,7 +97,6 @@ DEPDIR   := ./.dep/stm32l4r9ai_discovery
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
 # Common files.
-include $(CHIBIOS)/os/common/utils/utils.mk
 include $(CHIBIOS)/os/common/oop/oop.mk
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32l4xx.mk

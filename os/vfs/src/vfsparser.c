@@ -18,7 +18,7 @@
 */
 
 /**
- * @file    vfs/src/chparser.c
+ * @file    vfs/src/vfsparser.c
  * @brief   VFS parser utilities code.
  *
  * @addtogroup VFS_PARSER
@@ -60,7 +60,7 @@ msg_t vfs_parse_match_separator(const char **pathp) {
   msg_t err;
   const char *p = *pathp;
 
-  if (!path_is_separator(*p++)) {
+  if (!vfs_path_is_separator(*p++)) {
     err = CH_RET_ENOENT;
   }
   else {

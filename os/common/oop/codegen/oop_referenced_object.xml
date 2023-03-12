@@ -38,6 +38,7 @@
                        reference pointer is returned.]]></details>
               <return>A new reference pointer.</return>
               <implementation><![CDATA[
+
 self->ro.references++;
 
 osalDbgAssert(self->ro.references != (object_references_t)0, "overflow");
@@ -51,6 +52,7 @@ return self;]]></implementation>
                        reaches zero then the object is disposed.]]></details>
               <return>The value of the reference counter.</return>
               <implementation><![CDATA[
+
 osalDbgAssert(self->ro.references > 0U, "zero references");
 
 if (--self->ro.references == 0U) {

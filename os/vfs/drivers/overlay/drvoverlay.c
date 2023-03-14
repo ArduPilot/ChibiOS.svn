@@ -94,7 +94,7 @@ const struct vfs_overlay_dir_node_vmt __ovldir_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_overlay_dir_node_c
+ * @name        Methods implementations of vfs_overlay_dir_node_c
  * @{
  */
 /**
@@ -158,7 +158,7 @@ const struct vfs_overlay_driver_vmt __ovldrv_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_overlay_driver_c
+ * @name        Methods implementations of vfs_overlay_driver_c
  * @{
  */
 /**

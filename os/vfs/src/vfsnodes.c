@@ -58,7 +58,7 @@
 /*===========================================================================*/
 
 /**
- * @name        Virtual methods implementations of vfs_node_c
+ * @name        Methods implementations of vfs_node_c
  * @{
  */
 /**
@@ -131,7 +131,7 @@ msg_t __vfsnode_stat_impl(void *ip, vfs_stat_t *sp) {
 /*===========================================================================*/
 
 /**
- * @name        Virtual methods implementations of vfs_directory_node_c
+ * @name        Methods implementations of vfs_directory_node_c
  * @{
  */
 /**
@@ -218,7 +218,7 @@ msg_t __vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
 /*===========================================================================*/
 
 /**
- * @name        Virtual methods implementations of vfs_file_node_c
+ * @name        Methods implementations of vfs_file_node_c
  * @{
  */
 /**

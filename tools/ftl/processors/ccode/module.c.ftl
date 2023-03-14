@@ -104,9 +104,9 @@
 
   [#-- Scanning all classes.--]
   [#list module.private.types.class as class]
-[@cclasses.GenerateClassMethodsImplementations class /]
-[@cclasses.GenerateClassRegularMethods class /]
-[@cclasses.GenerateClassPrivateConstructorDestructor class /]
+[@cclasses.GenerateClassMethodsImplementations modifiers=["static"] node=class /]
+[@cclasses.GenerateClassRegularMethods node=class /]
+[@cclasses.GenerateClassPrivateConstructorDestructor node=class /]
   [/#list]
 [@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
 /*===========================================================================*/

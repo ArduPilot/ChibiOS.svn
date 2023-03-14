@@ -284,7 +284,7 @@ const struct vfs_template_dir_node_vmt __tmpldir_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_template_dir_node_c
+ * @name        Methods implementations of vfs_template_dir_node_c
  * @{
  */
 /**
@@ -345,7 +345,7 @@ const struct vfs_template_file_node_vmt __tmplfile_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_template_file_node_c
+ * @name        Methods implementations of vfs_template_file_node_c
  * @{
  */
 /**
@@ -414,7 +414,7 @@ const struct vfs_template_driver_vmt __tmpldrv_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_template_driver_c
+ * @name        Methods implementations of vfs_template_driver_c
  * @{
  */
 /**

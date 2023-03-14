@@ -261,7 +261,7 @@ struct vfs_fatfs_driver_static_nc_struct {
 /*===========================================================================*/
 
 /**
- * @name        Virtual methods implementations of vfs_fatfs_dir_node_c
+ * @name        Methods implementations of vfs_fatfs_dir_node_c
  * @{
  */
 /**
@@ -278,8 +278,8 @@ struct vfs_fatfs_driver_static_nc_struct {
  * @param[in]     mode          Node mode flags.
  * @return                      A new reference to the object.
  */
-void *__ffdir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
-                           vfs_mode_t mode) {
+static void *__ffdir_objinit_impl(void *ip, const void *vmt,
+                                  vfs_driver_c *driver, vfs_mode_t mode) {
   vfs_fatfs_dir_node_c *self = (vfs_fatfs_dir_node_c *)ip;
 
   /* Initialization code.*/
@@ -298,7 +298,7 @@ void *__ffdir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
  * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance
  *                              to be disposed.
  */
-void __ffdir_dispose_impl(void *ip) {
+static void __ffdir_dispose_impl(void *ip) {
   vfs_fatfs_dir_node_c *self = (vfs_fatfs_dir_node_c *)ip;
 
   /* No finalization code.*/
@@ -355,7 +355,7 @@ static inline void ffdir_dispose(vfs_fatfs_dir_node_c *self) {
 /** @} */
 
 /**
- * @name        Virtual methods implementations of vfs_fatfs_file_node_c
+ * @name        Methods implementations of vfs_fatfs_file_node_c
  * @{
  */
 /**
@@ -372,8 +372,8 @@ static inline void ffdir_dispose(vfs_fatfs_dir_node_c *self) {
  * @param[in]     mode          Node mode flags.
  * @return                      A new reference to the object.
  */
-void *__fffile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
-                            vfs_mode_t mode) {
+static void *__fffile_objinit_impl(void *ip, const void *vmt,
+                                   vfs_driver_c *driver, vfs_mode_t mode) {
   vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
 
   /* Implementation of interface sequential_stream_i.*/
@@ -400,7 +400,7 @@ void *__fffile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
  * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance
  *                              to be disposed.
  */
-void __fffile_dispose_impl(void *ip) {
+static void __fffile_dispose_impl(void *ip) {
   vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
 
   /* No finalization code.*/
@@ -561,7 +561,7 @@ const struct vfs_fatfs_driver_vmt __ffdrv_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_fatfs_driver_c
+ * @name        Methods implementations of vfs_fatfs_driver_c
  * @{
  */
 /**

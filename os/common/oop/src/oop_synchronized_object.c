@@ -58,7 +58,7 @@
 /*===========================================================================*/
 
 /**
- * @name        Virtual methods implementations of synchronized_object_c
+ * @name        Methods implementations of synchronized_object_c
  * @{
  */
 /**

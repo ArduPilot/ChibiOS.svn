@@ -123,7 +123,7 @@ const struct vfs_streams_dir_node_vmt __stmdir_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_streams_dir_node_c
+ * @name        Methods implementations of vfs_streams_dir_node_c
  * @{
  */
 /**
@@ -185,7 +185,7 @@ const struct vfs_streams_file_node_vmt __stmfile_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_streams_file_node_c
+ * @name        Methods implementations of vfs_streams_file_node_c
  * @{
  */
 /**
@@ -248,7 +248,7 @@ const struct vfs_streams_driver_vmt __stmdrv_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of vfs_streams_driver_c
+ * @name        Methods implementations of vfs_streams_driver_c
  * @{
  */
 /**

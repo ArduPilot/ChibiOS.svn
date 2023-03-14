@@ -127,7 +127,7 @@ static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
 /*===========================================================================*/
 
 /**
- * @name        Virtual methods implementations of hal_buffered_serial_c
+ * @name        Methods implementations of hal_buffered_serial_c
  * @{
  */
 /**

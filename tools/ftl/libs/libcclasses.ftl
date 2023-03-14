@@ -487,10 +487,10 @@ CC_FORCE_INLINE
 [#--
   -- This macro generates regular method prototypes from an XML node.
   --]
-[#macro GenerateClassRegularMethodsPrototypes methods=[]]
-  [#list methods.* as node]
-    [#if node?node_name == "method"]
-      [#local method = node /]
+[#macro GenerateClassRegularMethodsPrototypes node=[]]
+  [#list node.* as this]
+    [#if this?node_name == "method"]
+      [#local method = this /]
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method) /]
@@ -498,8 +498,8 @@ CC_FORCE_INLINE
                                   modifiers = []
                                   params    = ["void *ip"]
                                   node=method /];
-    [#elseif node?node_name == "condition"]
-      [#local condition = node /]
+    [#elseif this?node_name == "condition"]
+      [#local condition = this /]
       [#local condcheck = (condition.@check[0]!"1")?trim /]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateClassRegularMethodsPrototypes condition /]
@@ -867,7 +867,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [#--
   -- This macro generates class method implementations from an XML node.
   --]
-[#macro GenerateClassMethodsImplementations node=[]]
+[#macro GenerateClassMethodsImplementations modifiers=[] node=[]]
   [#local class = node /]
   [#local classname         = GetNodeName(class)
           classnamespace    = GetNodeNamespace(class)
@@ -876,7 +876,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
           ancestornamespace = GetNodeAncestorNamespace(class) /]
   [#assign generated = true /]
 /**
-[@doxygen.EmitTagVerbatim "" "name" "Virtual methods implementations of " + classctype /]
+[@doxygen.EmitTagVerbatim "" "name" "Methods implementations of " + classctype /]
  * @{
  */
 /**
@@ -896,7 +896,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@ccode.GeneratePrototypeFromNode indent    = ""
                                   name      = "__" + classnamespace + "_objinit_impl"
                                   ctype     = "void *"
-                                  modifiers = []
+                                  modifiers = modifiers
                                   params    = ["void *ip", "const void *vmt"]
                                   node      = class.methods.objinit[0] /] {
 [@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
@@ -943,7 +943,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@ccode.GeneratePrototype indent    = ""
                           name      = "__" + classnamespace + "_dispose_impl"
                           ctype     = "void"
-                          modifiers = []
+                          modifiers = modifiers
                           params    = ["void *ip"] /] {
 [@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
 
@@ -982,7 +982,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
  */
 [@ccode.GeneratePrototypeFromNode indent    = ""
                                   name      = "__" + classnamespace + "_" + methodsname + "_impl"
-                                  modifiers = []
+                                  modifiers = modifiers
                                   params    = ["void *ip"]
                                   node      = method /] {
 [@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
@@ -1022,7 +1022,8 @@ const struct ${classname}_vmt __${classnamespace}_vmt = {
 [#--
   -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateClassRegularMethods class=[]]
+[#macro GenerateClassRegularMethods node=[]]
+  [#local class = node /]
   [#if class.methods.regular.*?size > 0]
     [#local classctype = GetClassCType(class) /]
 /**
@@ -1039,7 +1040,7 @@ const struct ${classname}_vmt __${classnamespace}_vmt = {
   -- This macro generates a class wrapper (.c part) from an XML node.
   --]
 [#macro GenerateClassWrapperCode class=[]]
-[@GenerateClassVMT class /]
-[@GenerateClassMethodsImplementations class /]
-[@GenerateClassRegularMethods class /]
+[@GenerateClassVMT node=class /]
+[@GenerateClassMethodsImplementations node=class /]
+[@GenerateClassRegularMethods node=class /]
 [/#macro]

@@ -88,7 +88,7 @@ msg_t vfsDrvOpen(vfs_driver_c *drvp, const char *path, int flags,
 /*===========================================================================*/
 
 /**
- * @name        Virtual methods implementations of vfs_driver_c
+ * @name        Methods implementations of vfs_driver_c
  * @{
  */
 /**

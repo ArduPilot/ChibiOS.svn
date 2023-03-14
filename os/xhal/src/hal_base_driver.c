@@ -196,7 +196,7 @@ hal_base_driver_c *drvOpenByName(const char *name, msg_t *msgp) {
 /*===========================================================================*/
 
 /**
- * @name        Virtual methods implementations of hal_base_driver_c
+ * @name        Methods implementations of hal_base_driver_c
  * @{
  */
 /**

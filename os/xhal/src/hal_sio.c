@@ -268,7 +268,7 @@ const struct hal_sio_driver_vmt __sio_vmt = {
 };
 
 /**
- * @name        Virtual methods implementations of hal_sio_driver_c
+ * @name        Methods implementations of hal_sio_driver_c
  * @{
  */
 /**

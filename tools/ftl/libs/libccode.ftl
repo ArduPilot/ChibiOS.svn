@@ -254,12 +254,26 @@ ${line + ");"}
   -- Generates inclusions from an XML node.
   --]
 [#macro GenerateInclusionsFromNode node=[]]
-  [#list node.include as include]
-    [#assign style = (include.@style[0]!"regular")?trim /]
-    [#if style == "angular"]
-#include <${include[0]}>
-    [#else]
-#include "${include[0]}"
+  [#list node.* as this]
+    [#if this?node_name == "include"]
+      [#local style = (this.@style[0]!"regular")?trim /]
+      [#if style == "angular"]
+#include <${this[0]}>
+      [#else]
+#include "${this[0]}"
+      [/#if]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim /]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateInclusionsFromNode node=this /]
+#endif
+    [#elseif this?node_name == "elseif"]
+      [#local condcheck = (this.@check[0]!"")?trim /]
+      [#if condcheck?length == 0]
+#else
+      [#else]
+#elif ${condcheck}
+      [/#if]
     [/#if]
   [/#list]
 [/#macro]
@@ -680,7 +694,7 @@ ${fieldstring}
 
       [/#if]
       [#local ccode = (this[0]!"")?trim /]
-[@GenerateIndentedCCode indent ccode /]
+[@GenerateIndentedCCode "" ccode /]
     [#elseif this?node_name == "condition"]
       [#local condcheck = (this.@check[0]!"1")?trim /]
       [#if !this?is_first]

@@ -52,7 +52,11 @@ chDbgAssert(c, r)]]></implementation>
         <macro name="oopAssert">
           <param name="c" />
           <param name="r" />
-          <implementation><![CDATA[]]></implementation>
+          <implementation><![CDATA[]]>
+do {
+  (void)c;
+  (void)r;
+} while (false)</implementation>
         </macro>
         <elseif />
         <macro name="oopAssert">
@@ -79,6 +83,24 @@ osalDbgAssert(c, r)]]></implementation>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
+          <virtual>
+            <method name="boDispose" shortname="dispose" ctype="void">
+              <brief>Object finalization.</brief>
+              <dispose />
+            </method>
+          </virtual>
+          <inline>
+            <method name="boFree" ctype="void">
+              <brief>Conditional object finalization.</brief>
+              <details><![CDATA[The object is disposed if the passed reference
+                is different from @p NULL.]]></details>
+              <implementation><![CDATA[
+
+if (self != NULL) {
+  boDispose(self);
+}]]></implementation>
+            </method>
+          </inline>
         </methods>
       </class>
     </types>

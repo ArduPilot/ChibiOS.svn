@@ -100,10 +100,14 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="includesType">
-    <xs:sequence>
-      <xs:element name="include" type="includeType"
-        maxOccurs="unbounded" minOccurs="1"></xs:element>
-    </xs:sequence>
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="include" type="includeType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="condition" type="conditionalIncludeType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+    </xs:choice>
   </xs:complexType>
   <xs:complexType name="definitionsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -830,6 +834,18 @@
       </xs:element>
       <xs:element name="verbatim" type="xs:string" maxOccurs="1"
         minOccurs="1"></xs:element>
+    </xs:choice>
+    <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="conditionalIncludeType">
+    <xs:choice maxOccurs="unbounded" minOccurs="1">
+      <xs:element name="include" type="includeType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="condition" type="conditionalIncludeType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+      <xs:element name="elseif" type="elseifType" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
   </xs:complexType>

@@ -51,6 +51,11 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
+static void __sio_bo_dispose_impl(void *ip) {
+
+  __sio_dispose_impl(ip);
+}
+
 static msg_t __sio_drv_start_impl(void *ip) {
   hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
   msg_t msg;

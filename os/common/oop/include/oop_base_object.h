@@ -96,7 +96,11 @@
   chDbgAssert(c, r)
 
 #elif defined(OOP_USE_NOTHING)
-#define oopAssert(c, r)
+#define oopAssert(c, r)                                                     \
+  do {                                                                      \
+    (void)c;                                                                \
+    (void)r;                                                                \
+  } while (false)
 
 #else
 #define oopAssert(c, r)                                                     \
@@ -129,10 +133,17 @@
 typedef struct base_object base_object_c;
 
 /**
+ * @brief       Class @p base_object_c methods as a structure.
+ */
+struct bo_methods {
+  void (*dispose)(void *ip);
+};
+
+/**
  * @brief       Class @p base_object_c methods.
  */
 #define __bo_methods                                                        \
-  /* No methods.*/
+  struct bo_methods         bo;
 
 /**
  * @brief       Class @p base_object_c data.
@@ -144,7 +155,7 @@ typedef struct base_object base_object_c;
  * @brief       Class @p base_object_c VMT initializer.
  */
 #define __bo_vmt_init(ns)                                                   \
-  /* No methods.*/
+  .bo.dispose                               = __##ns##_bo_dispose_impl,
 
 /**
  * @brief       Class @p base_object_c virtual methods table.
@@ -182,6 +193,52 @@ extern "C" {
 /*===========================================================================*/
 /* Module inline functions.                                                  */
 /*===========================================================================*/
+
+/**
+ * @name        Virtual methods of base_object_c
+ * @{
+ */
+/**
+ * @memberof    base_object_c
+ * @public
+ *
+ * @brief       Object finalization.
+ *
+ * @param[in,out] ip            Pointer to a @p base_object_c instance.
+ *
+ * @dispose
+ */
+CC_FORCE_INLINE
+static inline void boDispose(void *ip) {
+  base_object_c *self = (base_object_c *)ip;
+
+  self->vmt->bo.dispose(ip);
+}
+/** @} */
+
+/**
+ * @name        Inline methods of base_object_c
+ * @{
+ */
+/**
+ * @memberof    base_object_c
+ * @public
+ *
+ * @brief       Conditional object finalization.
+ * @details     The object is disposed if the passed reference is different
+ *              from @p NULL.
+ *
+ * @param[in,out] ip            Pointer to a @p base_object_c instance.
+ */
+CC_FORCE_INLINE
+static inline void boFree(void *ip) {
+  base_object_c *self = (base_object_c *)ip;
+
+  if (self != NULL) {
+    boDispose(self);
+  }
+}
+/** @} */
 
 #endif /* OOP_BASE_OBJECT_H */
 

@@ -781,6 +781,12 @@ sio_lld_init();]]></implementation>
       <include style="regular">hal.h</include>
     </includes_always>
     <functions>
+      <function name="__sio_bo_dispose_impl" ctype="void">
+        <param name="ip" ctype="void *" />
+        <implementation><![CDATA[
+
+__sio_dispose_impl(ip);]]></implementation>
+      </function>
       <function name="__sio_drv_start_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[

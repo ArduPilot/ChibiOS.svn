@@ -135,7 +135,7 @@ object_references_t __ro_release_impl(void *ip) {
   oopAssert(self->ro.references > 0U, "zero references");
 
   if (--self->ro.references == 0U) {
-    __ro_dispose_impl(self);
+    boDispose(self);
   }
 
   return self->ro.references;

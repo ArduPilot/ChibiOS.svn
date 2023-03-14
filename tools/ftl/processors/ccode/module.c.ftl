@@ -102,13 +102,13 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-[@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
   [#-- Scanning all classes.--]
   [#list module.private.types.class as class]
 [@cclasses.GenerateClassMethodsImplementations class /]
 [@cclasses.GenerateClassRegularMethods class /]
 [@cclasses.GenerateClassPrivateConstructorDestructor class /]
   [/#list]
+[@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/

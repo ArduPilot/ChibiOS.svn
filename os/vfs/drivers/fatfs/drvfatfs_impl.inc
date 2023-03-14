@@ -120,6 +120,11 @@ static msg_t translate_error(FRESULT res) {
   return msg;
 }
 
+static void __ffdir_bo_dispose_impl(void *ip) {
+
+  __ffdir_dispose_impl(ip);
+}
+
 static void *__ffdir_ro_addref_impl(void *ip) {
 
   return __ro_addref_impl(ip);
@@ -199,6 +204,11 @@ static msg_t __ffdir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
   }
 
   return ret;
+}
+
+static void __fffile_bo_dispose_impl(void *ip) {
+
+  __fffile_dispose_impl(ip);
 }
 
 static void *__fffile_ro_addref_impl(void *ip) {
@@ -298,6 +308,11 @@ static sequential_stream_i *__fffile_vfsfile_getstream_impl(void *ip) {
   vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
 
   return &fffnp->fffile.stm;
+}
+
+static void __ffdrv_bo_dispose_impl(void *ip) {
+
+  __ffdrv_dispose_impl(ip);
 }
 
 static msg_t __ffdrv_vfsdrv_setcwd_impl(void *ip, const char *path) {

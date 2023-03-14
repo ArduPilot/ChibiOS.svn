@@ -679,6 +679,7 @@ ${("  __" + ancestornamespace + "_data")?right_pad(76)}\
   [#local vmtinitsdefine = "__" + classnamespace + "_vmt_init(ns)" /]
 #define ${vmtinitsdefine?right_pad(68) + "\\"}
   [#if ancestornamespace?length > 0]
+    [#-- Case where there is an ancestor.--]
     [#local s = "  __" + ancestornamespace + "_vmt_init(ns)" /]
     [#if node.methods.virtual?size > 0]
       [#local s = (s + " ")?right_pad(76) + "\\" /]
@@ -686,7 +687,12 @@ ${("  __" + ancestornamespace + "_data")?right_pad(76)}\
 ${s}
 [@GenerateVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
   [#else]
+    [#-- Case where there is no ancestor.--]
+    [#if node.methods.virtual?size > 0]
+[@GenerateVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
+    [#else]
 [@ccode.Indent 1 /]/* No methods.*/
+    [/#if]
   [/#if]
 
 /**

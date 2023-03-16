@@ -294,6 +294,11 @@ static msg_t drv_overlaid_path_call(vfs_overlay_driver_c *drvp,
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
+void __ovldir_bo_dispose_impl(void *ip) {
+
+  __ro_dispose_impl(ip);
+}
+
 void *__ovldir_ro_addref_impl(void *ip) {
 
   return __ro_addref_impl(ip);
@@ -363,6 +368,11 @@ msg_t __ovldir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
   odnp->ovldir.index = 0U;
 
   return __ovldir_vfsdir_next_impl(ip, dip);
+}
+
+void __ovldrv_bo_dispose_impl(void *ip) {
+
+  __bo_dispose_impl(ip);
 }
 
 msg_t __ovldrv_vfsdrv_setcwd_impl(void *ip, const char *path) {

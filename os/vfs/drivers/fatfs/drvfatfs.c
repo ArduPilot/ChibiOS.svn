@@ -249,9 +249,6 @@ struct vfs_fatfs_driver_static_nc_struct {
   FATFS                     fs[DRV_CFG_FATFS_FS_NUM];
 };
 
-/* Methods implementations in an unmanaged module.*/
-#include "drvfatfs_impl.inc"
-
 /*===========================================================================*/
 /* Module local variables.                                                   */
 /*===========================================================================*/
@@ -259,6 +256,9 @@ struct vfs_fatfs_driver_static_nc_struct {
 /*===========================================================================*/
 /* Module local functions.                                                   */
 /*===========================================================================*/
+
+/* Methods implementations in an unmanaged module.*/
+#include "drvfatfs_impl.inc"
 
 /**
  * @name        Methods implementations of vfs_fatfs_dir_node_c

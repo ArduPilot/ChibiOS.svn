@@ -222,9 +222,11 @@ self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implem
           </field>
         </fields>
       </struct>
+    </types>
+    <functions>
       <verbatim><![CDATA[
 /* Methods implementations in an unmanaged module.*/
 #include "drvfatfs_impl.inc"]]></verbatim>
-    </types>
+    </functions>
   </private>
 </module>

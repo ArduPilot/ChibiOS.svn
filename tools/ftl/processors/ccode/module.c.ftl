@@ -102,13 +102,19 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-  [#-- Scanning all classes.--]
+  [#-- Generating local C functions.--]
+[@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
+  [#-- Generating local constructors/destructors implementations,
+       virtual methods implementations, virtual methods, regular
+       methods, constructors with VMTs.--]
   [#list module.private.types.class as class]
 [@cclasses.GenerateClassMethodsImplementations modifiers=["static"] node=class /]
 [@cclasses.GenerateClassRegularMethods node=class /]
 [@cclasses.GenerateClassPrivateConstructorDestructor node=class /]
   [/#list]
-[@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
+  [#-- Generating local Constructors with VMTs.--]
+  [#list module.private.types.class as class]
+  [/#list]
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/

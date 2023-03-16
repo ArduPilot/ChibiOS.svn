@@ -20,6 +20,11 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
+void __stmdir_bo_dispose_impl(void *ip) {
+
+  __ro_dispose_impl(ip);
+}
+
 void *__stmdir_ro_addref_impl(void *ip) {
 
   return __ro_addref_impl(ip);
@@ -68,6 +73,11 @@ msg_t __stmdir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
   sdnp->stmdir.index = 0U;
 
   return __stmdir_vfsdir_next_impl(ip, dip);
+}
+
+void __stmfile_bo_dispose_impl(void *ip) {
+
+  __ro_dispose_impl(ip);
 }
 
 void *__stmfile_ro_addref_impl(void *ip) {
@@ -122,6 +132,11 @@ sequential_stream_i *__stmfile_vfsfile_getstream_impl(void *ip) {
   vfs_streams_file_node_c *sfnp = (vfs_streams_file_node_c *)ip;
 
   return sfnp->stmfile.stm;
+}
+
+void __stmdrv_bo_dispose_impl(void *ip) {
+
+  __ro_dispose_impl(ip);
 }
 
 msg_t __stmdrv_vfsdrv_setcwd_impl(void *ip, const char *path) {

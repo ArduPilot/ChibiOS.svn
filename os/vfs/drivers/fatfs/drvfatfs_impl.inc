@@ -120,6 +120,7 @@ static msg_t translate_error(FRESULT res) {
   return msg;
 }
 
+static void __ffdir_dispose_impl(void *ip);
 static void __ffdir_bo_dispose_impl(void *ip) {
 
   __ffdir_dispose_impl(ip);
@@ -206,6 +207,7 @@ static msg_t __ffdir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
   return ret;
 }
 
+static void __fffile_dispose_impl(void *ip);
 static void __fffile_bo_dispose_impl(void *ip) {
 
   __fffile_dispose_impl(ip);

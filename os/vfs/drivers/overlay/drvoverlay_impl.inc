@@ -295,31 +295,35 @@ static msg_t drv_overlaid_path_call(vfs_overlay_driver_c *drvp,
 /*===========================================================================*/
 
 void __ovldir_bo_dispose_impl(void *ip) {
+  vfs_overlay_dir_node_c *odnp = (vfs_overlay_dir_node_c *)ip;
 
+  /* Releasing overridden driver object.*/
+  if (odnp->ovldir.overlaid_root != NULL) {
+    (void) __ro_release_impl((void *)odnp->ovldir.overlaid_root);
+  }
+
+  /* Disposing self.*/
   __ro_dispose_impl(ip);
+
+  /* Last because it corrupts the object.*/
+  chPoolFree(&vfs_overlay_driver_static.dir_nodes_pool, ip);
 }
 
 void *__ovldir_ro_addref_impl(void *ip) {
 
-  return __ro_addref_impl(ip);
+  chSysLock();
+  ip = __ro_addref_impl(ip);
+  chSysUnlock();
+
+  return ip;
 }
 
 object_references_t __ovldir_ro_release_impl(void *ip) {
-  vfs_overlay_dir_node_c *odnp = (vfs_overlay_dir_node_c *)ip;
   object_references_t references;
 
   chSysLock();
   references = __ro_release_impl(ip);
   chSysUnlock();
-  if (references == 0U) {
-
-    if (odnp->ovldir.overlaid_root != NULL) {
-      (void) __ro_release_impl((void *)odnp->ovldir.overlaid_root);
-/*      odnp->overlaid_root->vmt->release((void *)odnp->overlaid_root);*/
-    }
-
-    chPoolFree(&vfs_overlay_driver_static.dir_nodes_pool, (void *)odnp);
-  }
 
   return references;
 }
@@ -372,6 +376,7 @@ msg_t __ovldir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
 
 void __ovldrv_bo_dispose_impl(void *ip) {
 
+  /* Disposing self.*/
   __bo_dispose_impl(ip);
 }
 

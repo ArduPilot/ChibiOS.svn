@@ -22,24 +22,28 @@
 
 void __stmdir_bo_dispose_impl(void *ip) {
 
+  /* Disposing self.*/
   __ro_dispose_impl(ip);
+
+  /* Last because it corrupts the object.*/
+  chPoolFree(&vfs_streams_driver_static.dir_nodes_pool, ip);
 }
 
 void *__stmdir_ro_addref_impl(void *ip) {
 
-  return __ro_addref_impl(ip);
+  chSysLock();
+  ip = __ro_addref_impl(ip);
+  chSysUnlock();
+
+  return ip;
 }
 
 object_references_t __stmdir_ro_release_impl(void *ip) {
-  vfs_streams_dir_node_c *sdnp = (vfs_streams_dir_node_c *)ip;
   object_references_t references;
 
   chSysLock();
   references = __ro_release_impl(ip);
   chSysUnlock();
-  if (references == 0U) {
-    chPoolFree(&vfs_streams_driver_static.dir_nodes_pool, (void *)sdnp);
-  }
 
   return references;
 }
@@ -77,24 +81,28 @@ msg_t __stmdir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
 
 void __stmfile_bo_dispose_impl(void *ip) {
 
+  /* Disposing self.*/
   __ro_dispose_impl(ip);
+
+  /* Last because it corrupts the object.*/
+  chPoolFree(&vfs_streams_driver_static.file_nodes_pool, ip);
 }
 
 void *__stmfile_ro_addref_impl(void *ip) {
 
-  return __ro_addref_impl(ip);
+  chSysLock();
+  ip = __ro_addref_impl(ip);
+  chSysUnlock();
+
+  return ip;
 }
 
 object_references_t __stmfile_ro_release_impl(void *ip) {
-  vfs_streams_file_node_c *sfnp = (vfs_streams_file_node_c *)ip;
   object_references_t references;
 
   chSysLock();
   references = __ro_release_impl(ip);
   chSysUnlock();
-  if (references == 0U) {
-    chPoolFree(&vfs_streams_driver_static.file_nodes_pool, (void *)sfnp);
-  }
 
   return references;
 }
@@ -136,6 +144,7 @@ sequential_stream_i *__stmfile_vfsfile_getstream_impl(void *ip) {
 
 void __stmdrv_bo_dispose_impl(void *ip) {
 
+  /* Disposing self.*/
   __ro_dispose_impl(ip);
 }
 

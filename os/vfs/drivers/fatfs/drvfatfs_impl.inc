@@ -123,25 +123,28 @@ static msg_t translate_error(FRESULT res) {
 static void __ffdir_dispose_impl(void *ip);
 static void __ffdir_bo_dispose_impl(void *ip) {
 
+  /* Disposing self.*/
   __ffdir_dispose_impl(ip);
+
+  /* Last because it corrupts the object.*/
+  chPoolFree(&vfs_fatfs_driver_static.dir_nodes_pool, ip);
 }
 
 static void *__ffdir_ro_addref_impl(void *ip) {
 
-  return __ro_addref_impl(ip);
+  chSysLock();
+  ip = __ro_addref_impl(ip);
+  chSysUnlock();
+
+  return ip;
 }
 
 static object_references_t __ffdir_ro_release_impl(void *ip) {
-  vfs_fatfs_dir_node_c *ffdnp = (vfs_fatfs_dir_node_c *)ip;
   object_references_t references;
 
   chSysLock();
   references = __ro_release_impl(ip);
   chSysUnlock();
-  if (references == 0U) {
-
-    chPoolFree(&vfs_fatfs_driver_static.dir_nodes_pool, (void *)ffdnp);
-  }
 
   return references;
 }
@@ -210,25 +213,28 @@ static msg_t __ffdir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
 static void __fffile_dispose_impl(void *ip);
 static void __fffile_bo_dispose_impl(void *ip) {
 
+  /* Disposing self.*/
   __fffile_dispose_impl(ip);
+
+  /* Last because it corrupts the object.*/
+  chPoolFree(&vfs_fatfs_driver_static.file_nodes_pool, ip);
 }
 
 static void *__fffile_ro_addref_impl(void *ip) {
 
-  return __ro_addref_impl(ip);
+  chSysLock();
+  ip = __ro_addref_impl(ip);
+  chSysUnlock();
+
+  return ip;
 }
 
 static object_references_t __fffile_ro_release_impl(void *ip) {
-  vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
   object_references_t references;
 
   chSysLock();
   references = __ro_release_impl(ip);
   chSysUnlock();
-  if (references == 0U) {
-
-    chPoolFree(&vfs_fatfs_driver_static.file_nodes_pool, (void *)fffnp);
-  }
 
   return references;
 }
@@ -314,6 +320,7 @@ static sequential_stream_i *__fffile_vfsfile_getstream_impl(void *ip) {
 
 static void __ffdrv_bo_dispose_impl(void *ip) {
 
+  /* Disposing self.*/
   __ffdrv_dispose_impl(ip);
 }
 

@@ -256,7 +256,7 @@ extern "C" {
 /*===========================================================================*/
 
 /**
- * @name        Constructor and destructor of vfs_overlay_dir_node_c
+ * @name        Default constructor of vfs_overlay_dir_node_c
  * @{
  */
 /**
@@ -280,26 +280,10 @@ static inline vfs_overlay_dir_node_c *ovldirObjectInit(vfs_overlay_dir_node_c *s
 
   return __ovldir_objinit_impl(self, &__ovldir_vmt, driver, mode);
 }
-
-/**
- * @memberof    vfs_overlay_dir_node_c
- *
- * @brief       Default finalization function of @p vfs_overlay_dir_node_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_overlay_dir_node_c instance
- *                              to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void ovldirDispose(vfs_overlay_dir_node_c *self) {
-
-  __ovldir_dispose_impl(self);
-}
 /** @} */
 
 /**
- * @name        Constructor and destructor of vfs_overlay_driver_c
+ * @name        Default constructor of vfs_overlay_driver_c
  * @{
  */
 /**
@@ -323,22 +307,6 @@ static inline vfs_overlay_driver_c *ovldrvObjectInit(vfs_overlay_driver_c *self,
   extern const struct vfs_overlay_driver_vmt __ovldrv_vmt;
 
   return __ovldrv_objinit_impl(self, &__ovldrv_vmt, overlaid_drv, path_prefix);
-}
-
-/**
- * @memberof    vfs_overlay_driver_c
- *
- * @brief       Default finalization function of @p vfs_overlay_driver_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_overlay_driver_c instance
- *                              to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void ovldrvDispose(vfs_overlay_driver_c *self) {
-
-  __ovldrv_dispose_impl(self);
 }
 /** @} */
 

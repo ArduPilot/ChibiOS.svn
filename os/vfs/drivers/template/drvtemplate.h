@@ -310,7 +310,7 @@ extern "C" {
 /*===========================================================================*/
 
 /**
- * @name        Constructor and destructor of vfs_template_dir_node_c
+ * @name        Default constructor of vfs_template_dir_node_c
  * @{
  */
 /**
@@ -334,26 +334,10 @@ static inline vfs_template_dir_node_c *tmpldirObjectInit(vfs_template_dir_node_c
 
   return __tmpldir_objinit_impl(self, &__tmpldir_vmt, driver, mode);
 }
-
-/**
- * @memberof    vfs_template_dir_node_c
- *
- * @brief       Default finalization function of @p vfs_template_dir_node_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_template_dir_node_c
- *                              instance to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void tmpldirDispose(vfs_template_dir_node_c *self) {
-
-  __tmpldir_dispose_impl(self);
-}
 /** @} */
 
 /**
- * @name        Constructor and destructor of vfs_template_file_node_c
+ * @name        Default constructor of vfs_template_file_node_c
  * @{
  */
 /**
@@ -377,26 +361,10 @@ static inline vfs_template_file_node_c *tmplfileObjectInit(vfs_template_file_nod
 
   return __tmplfile_objinit_impl(self, &__tmplfile_vmt, driver, mode);
 }
-
-/**
- * @memberof    vfs_template_file_node_c
- *
- * @brief       Default finalization function of @p vfs_template_file_node_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_template_file_node_c
- *                              instance to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void tmplfileDispose(vfs_template_file_node_c *self) {
-
-  __tmplfile_dispose_impl(self);
-}
 /** @} */
 
 /**
- * @name        Constructor and destructor of vfs_template_driver_c
+ * @name        Default constructor of vfs_template_driver_c
  * @{
  */
 /**
@@ -415,22 +383,6 @@ static inline vfs_template_driver_c *tmpldrvObjectInit(vfs_template_driver_c *se
   extern const struct vfs_template_driver_vmt __tmpldrv_vmt;
 
   return __tmpldrv_objinit_impl(self, &__tmpldrv_vmt);
-}
-
-/**
- * @memberof    vfs_template_driver_c
- *
- * @brief       Default finalization function of @p vfs_template_driver_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_template_driver_c instance
- *                              to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void tmpldrvDispose(vfs_template_driver_c *self) {
-
-  __tmpldrv_dispose_impl(self);
 }
 /** @} */
 

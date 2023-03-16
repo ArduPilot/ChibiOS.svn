@@ -310,7 +310,7 @@ static void __ffdir_dispose_impl(void *ip) {
 /** @} */
 
 /**
- * @name        Constructor and destructor of vfs_fatfs_dir_node_c
+ * @name        Default constructor of vfs_fatfs_dir_node_c
  * @{
  */
 /**
@@ -335,22 +335,6 @@ static inline vfs_fatfs_dir_node_c *ffdir_object_init(vfs_fatfs_dir_node_c *self
   };
 
   return __ffdir_objinit_impl(self, &__ffdir_vmt, driver, mode);
-}
-
-/**
- * @memberof    vfs_fatfs_dir_node_c
- *
- * @brief       Default finalization function of @p vfs_fatfs_dir_node_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_fatfs_dir_node_c instance
- *                              to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void ffdir_dispose(vfs_fatfs_dir_node_c *self) {
-
-  __ffdir_dispose_impl(self);
 }
 /** @} */
 
@@ -412,7 +396,7 @@ static void __fffile_dispose_impl(void *ip) {
 /** @} */
 
 /**
- * @name        Constructor and destructor of vfs_fatfs_file_node_c
+ * @name        Default constructor of vfs_fatfs_file_node_c
  * @{
  */
 /**
@@ -437,22 +421,6 @@ static inline vfs_fatfs_file_node_c *fffile_object_init(vfs_fatfs_file_node_c *s
   };
 
   return __fffile_objinit_impl(self, &__fffile_vmt, driver, mode);
-}
-
-/**
- * @memberof    vfs_fatfs_file_node_c
- *
- * @brief       Default finalization function of @p vfs_fatfs_file_node_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_fatfs_file_node_c instance
- *                              to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void fffile_dispose(vfs_fatfs_file_node_c *self) {
-
-  __fffile_dispose_impl(self);
 }
 /** @} */
 

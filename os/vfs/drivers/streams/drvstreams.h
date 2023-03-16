@@ -329,7 +329,7 @@ extern "C" {
 /*===========================================================================*/
 
 /**
- * @name        Constructor and destructor of vfs_streams_dir_node_c
+ * @name        Default constructor of vfs_streams_dir_node_c
  * @{
  */
 /**
@@ -353,26 +353,10 @@ static inline vfs_streams_dir_node_c *stmdirObjectInit(vfs_streams_dir_node_c *s
 
   return __stmdir_objinit_impl(self, &__stmdir_vmt, driver, mode);
 }
-
-/**
- * @memberof    vfs_streams_dir_node_c
- *
- * @brief       Default finalization function of @p vfs_streams_dir_node_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_streams_dir_node_c instance
- *                              to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void stmdirDispose(vfs_streams_dir_node_c *self) {
-
-  __stmdir_dispose_impl(self);
-}
 /** @} */
 
 /**
- * @name        Constructor and destructor of vfs_streams_file_node_c
+ * @name        Default constructor of vfs_streams_file_node_c
  * @{
  */
 /**
@@ -398,26 +382,10 @@ static inline vfs_streams_file_node_c *stmfileObjectInit(vfs_streams_file_node_c
 
   return __stmfile_objinit_impl(self, &__stmfile_vmt, driver, mode, stream);
 }
-
-/**
- * @memberof    vfs_streams_file_node_c
- *
- * @brief       Default finalization function of @p vfs_streams_file_node_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_streams_file_node_c
- *                              instance to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void stmfileDispose(vfs_streams_file_node_c *self) {
-
-  __stmfile_dispose_impl(self);
-}
 /** @} */
 
 /**
- * @name        Constructor and destructor of vfs_streams_driver_c
+ * @name        Default constructor of vfs_streams_driver_c
  * @{
  */
 /**
@@ -438,22 +406,6 @@ static inline vfs_streams_driver_c *stmdrvObjectInit(vfs_streams_driver_c *self,
   extern const struct vfs_streams_driver_vmt __stmdrv_vmt;
 
   return __stmdrv_objinit_impl(self, &__stmdrv_vmt, streams);
-}
-
-/**
- * @memberof    vfs_streams_driver_c
- *
- * @brief       Default finalization function of @p vfs_streams_driver_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_streams_driver_c instance
- *                              to be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void stmdrvDispose(vfs_streams_driver_c *self) {
-
-  __stmdrv_dispose_impl(self);
 }
 /** @} */
 

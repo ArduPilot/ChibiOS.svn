@@ -240,20 +240,23 @@
   </xs:simpleType>
   <xs:complexType name="methodsType">
     <xs:sequence>
-      <xs:element name="objinit" type="objinitMethodType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="objinit" type="objinitMethodType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
-      <xs:element name="dispose" type="disposeMethodType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="dispose" type="disposeMethodType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
-      <xs:element name="virtual" type="virtualMethodsType"
-        maxOccurs="1" minOccurs="0">
+      <xs:element name="virtual" type="virtualMethodsType" maxOccurs="1"
+        minOccurs="0">
       </xs:element>
-      <xs:element name="regular" type="regularMethodsType"
-        maxOccurs="1" minOccurs="0">
+      <xs:element name="regular" type="regularMethodsType" maxOccurs="1"
+        minOccurs="0">
       </xs:element>
-      <xs:element name="inline" type="regularMethodsType"
-        maxOccurs="1" minOccurs="0">
+      <xs:element name="inline" type="regularMethodsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="override" type="overrideMethodsType" maxOccurs="1"
+        minOccurs="0">
       </xs:element>
     </xs:sequence>
   </xs:complexType>
@@ -848,5 +851,22 @@
       <xs:element name="elseif" type="elseifType" maxOccurs="1" minOccurs="1"></xs:element>
     </xs:choice>
     <xs:attribute name="check" type="xs:string"></xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="overrideMethodsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="method" type="overrideMethodType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="overrideMethodType">
+    <xs:complexContent>
+      <xs:extension base="ParameterizedItemType">
+        <xs:sequence>
+          <xs:element name="implementation" type="xs:string"></xs:element>
+        </xs:sequence>
+        <xs:attribute name="ctype" type="xs:string"></xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 </xs:schema>

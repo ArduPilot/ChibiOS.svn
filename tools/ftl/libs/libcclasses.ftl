@@ -327,7 +327,7 @@ CC_FORCE_INLINE
   [#if classtype == "regular"]
     [#assign generated = true /]
 /**
-[@doxygen.EmitTagVerbatim "" "name" "Constructor and destructor of " + classctype /]
+[@doxygen.EmitTagVerbatim "" "name" "Default constructor of " + classctype /]
  * @{
  */
 /**
@@ -361,27 +361,6 @@ CC_FORCE_INLINE
                              name        = "__" + classnamespace + "_objinit_impl"
                              params      = params /]
 }
-
-/**
-[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
- *
-[@doxygen.EmitBrief "" "Default finalization function of @p " + classctype + "." /]
- *
-[@doxygen.EmitParam name = "self"
-                    dir  = "both"
-                    text = "Pointer to a @p " + classctype + " instance to be finalized." /]
- *
- * @dispose
- */
-CC_FORCE_INLINE
-[@ccode.GeneratePrototype indent    = ""
-                          name      = classnamespace + "_dispose"
-                          ctype     = "void"
-                          modifiers = ["static", "inline"]
-                          params    = [classctype + " *self"] /] {
-
-[@ccode.Indent 1 /]__${classnamespace}_dispose_impl(self);
-}
 /** @} */
 
   [/#if]
@@ -399,7 +378,7 @@ CC_FORCE_INLINE
   [#if classtype == "regular"]
     [#assign generated = true /]
 /**
-[@doxygen.EmitTagVerbatim "" "name" "Constructor and destructor of " + classctype /]
+[@doxygen.EmitTagVerbatim "" "name" "Default constructor of " + classctype /]
  * @{
  */
 /**
@@ -429,27 +408,6 @@ CC_FORCE_INLINE
                              destination = "return"
                              name        = "__" + classnamespace + "_objinit_impl"
                              params      = params /]
-}
-
-/**
-[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
- *
-[@doxygen.EmitBrief "" "Default finalization function of @p " + classctype + "." /]
- *
-[@doxygen.EmitParam name = "self"
-                    dir  = "both"
-                    text = "Pointer to a @p " + classctype + " instance to be finalized." /]
- *
- * @dispose
- */
-CC_FORCE_INLINE
-[@ccode.GeneratePrototype indent    = ""
-                          name      = classnamespace + "Dispose"
-                          ctype     = "void"
-                          modifiers = ["static", "inline"]
-                          params    = [classctype + " *self"] /] {
-
-[@ccode.Indent 1 /]__${classnamespace}_dispose_impl(self);
 }
 /** @} */
 

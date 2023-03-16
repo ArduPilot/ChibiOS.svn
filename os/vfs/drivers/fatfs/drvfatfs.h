@@ -174,7 +174,7 @@ extern "C" {
 /*===========================================================================*/
 
 /**
- * @name        Constructor and destructor of vfs_fatfs_driver_c
+ * @name        Default constructor of vfs_fatfs_driver_c
  * @{
  */
 /**
@@ -193,22 +193,6 @@ static inline vfs_fatfs_driver_c *ffdrvObjectInit(vfs_fatfs_driver_c *self) {
   extern const struct vfs_fatfs_driver_vmt __ffdrv_vmt;
 
   return __ffdrv_objinit_impl(self, &__ffdrv_vmt);
-}
-
-/**
- * @memberof    vfs_fatfs_driver_c
- *
- * @brief       Default finalization function of @p vfs_fatfs_driver_c.
- *
- * @param[in,out] self          Pointer to a @p vfs_fatfs_driver_c instance to
- *                              be finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void ffdrvDispose(vfs_fatfs_driver_c *self) {
-
-  __ffdrv_dispose_impl(self);
 }
 /** @} */
 

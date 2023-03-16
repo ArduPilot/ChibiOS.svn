@@ -662,7 +662,7 @@ extern "C" {
 /*===========================================================================*/
 
 /**
- * @name        Constructor and destructor of hal_sio_driver_c
+ * @name        Default constructor of hal_sio_driver_c
  * @{
  */
 /**
@@ -681,22 +681,6 @@ static inline hal_sio_driver_c *sioObjectInit(hal_sio_driver_c *self) {
   extern const struct hal_sio_driver_vmt __sio_vmt;
 
   return __sio_objinit_impl(self, &__sio_vmt);
-}
-
-/**
- * @memberof    hal_sio_driver_c
- *
- * @brief       Default finalization function of @p hal_sio_driver_c.
- *
- * @param[in,out] self          Pointer to a @p hal_sio_driver_c instance to be
- *                              finalized.
- *
- * @dispose
- */
-CC_FORCE_INLINE
-static inline void sioDispose(hal_sio_driver_c *self) {
-
-  __sio_dispose_impl(self);
 }
 /** @} */
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_sio" descr="SIO Driver" check="HAL_USE_SIO == TRUE">
+  name="hal_sio" descr="SIO Driver" check="HAL_USE_SIO == TRUE" editcode="no">
   <brief>SIO Driver macros and structures.</brief>
   <public>
     <definitions_early>
@@ -458,7 +458,7 @@ SIO_DRIVER_EXT_FIELDS
 sio_lld_driver_fields;]]></verbatim>
         </fields>
         <methods>
-          <objinit>
+          <objinit callsuper="true">
             <implementation><![CDATA[
 self->sio.enabled     = (sioevents_t)0;
 self->sio.cb          = NULL;
@@ -764,10 +764,11 @@ return msg;]]></implementation>
       </class>
     </types>
     <functions>
-      <function name="sioInit">
+      <function name="sioInit" ctype="void">
         <brief>SIO Driver initialization.</brief>
-        <note>This function is implicitly invoked by @p halInit(), there
-          is no need to explicitly initialize the driver.
+        <note>
+          This function is implicitly invoked by @p halInit(), there is no need
+          to explicitly initialize the driver.
         </note>
         <init />
         <implementation><![CDATA[

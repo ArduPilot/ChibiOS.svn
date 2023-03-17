@@ -4,7 +4,7 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="drvtemplate" descr="VFS Template Driver"
   check="VFS_CFG_ENABLE_DRV_TEMPLATE == TRUE" sourcepath="drivers/template"
-  headerpath="drivers/template">
+  headerpath="drivers/template" editcode="yes">
   <public>
     <includes>
       <include style="regular">oop_sequential_stream.h</include>
@@ -72,7 +72,7 @@ self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implem
         descr="VFS template driver">
         <fields></fields>
         <methods>
-          <objinit>
+          <objinit callsuper="true">
             <implementation><![CDATA[]]></implementation>
           </objinit>
           <dispose>

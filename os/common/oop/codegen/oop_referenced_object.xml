@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="oop_referenced_object" descr="Referenced Object">
+  name="oop_referenced_object" descr="Referenced Object" editcode="no">
   <brief>Common ancestor class of all reference-counted objects.</brief>
   <public>
     <includes>
@@ -25,7 +25,7 @@
           </field>
         </fields>
         <methods>
-          <objinit>
+          <objinit callsuper="true">
             <implementation><![CDATA[self->ro.references = (object_references_t)1;]]></implementation>
           </objinit>
           <dispose>
@@ -67,5 +67,10 @@ return self->ro.references;]]></implementation>
     </types>
   </public>
   <private>
+    <functions>
+      <function name="test" ctype="void">
+        <implementation><![CDATA[]]></implementation>
+      </function>
+    </functions>
   </private>
 </module>

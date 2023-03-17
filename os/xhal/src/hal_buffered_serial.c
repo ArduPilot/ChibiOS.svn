@@ -140,18 +140,18 @@ static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
  * @param[out]    ip            Pointer to a @p hal_buffered_serial_c instance
  *                              to be initialized.
  * @param[in]     vmt           VMT pointer for the new object.
- * @param[in]     ib            Pointer to the input buffer
- * @param[in]     ibsize        Size of the input buffer
+ * @param[in]     ib            Pointer to the input buffer.
+ * @param[in]     ibsize        Size of the input buffer.
  * @param[in]     inotify       Pointer to a callback function that is invoked
  *                              when some data is read from the input queue.
  *                              The value can be @p NULL
- * @param[in]     iarg          Parameter for the input notification callback
- * @param[in]     ob            Pointer to the output buffer
- * @param[in]     obsize        Size of the output buffer
+ * @param[in]     iarg          Parameter for the input notification callback.
+ * @param[in]     ob            Pointer to the output buffer.
+ * @param[in]     obsize        Size of the output buffer.
  * @param[in]     onotify       Pointer to a callback function that is invoked
  *                              when some data is written to the output queue.
  *                              The value can be @p NULL
- * @param[in]     oarg          Parameter for the output notification callback
+ * @param[in]     oarg          Parameter for the output notification callback.
  * @return                      A new reference to the object.
  */
 void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,

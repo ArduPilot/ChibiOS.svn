@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_buffered_serial" descr="Buffered Serial Driver">
+  name="hal_buffered_serial" descr="Buffered Serial Driver" editcode="no">
   <brief>Common ancestor of drivers based on circular I/O buffers.</brief>
   <details><![CDATA[This class implements a channel interface and links
     it to two circular I/O queues.]]></details>
@@ -26,30 +26,30 @@
           </field>
         </fields>
         <methods>
-          <objinit>
-            <param name="ib" ctype="uint8_t *" dir="in">pointer to the input
-              buffer
+          <objinit callsuper="true">
+            <param name="ib" ctype="uint8_t *" dir="in">
+              pointer to the input buffer
             </param>
-            <param name="ibsize" ctype="size_t" dir="in">size of the input
-              buffer
+            <param name="ibsize" ctype="size_t" dir="in">
+              size of the input buffer
             </param>
             <param name="inotify" ctype="qnotify_t" dir="in"><![CDATA[pointer
               to a callback function that is invoked when some data is read
               from the input queue. The value can be @p NULL]]></param>
-            <param name="iarg" ctype="void *" dir="in">parameter for the input
-              notification callback
+            <param name="iarg" ctype="void *" dir="in">
+              parameter for the input notification callback
             </param>
-            <param name="ob" ctype="uint8_t *" dir="in">pointer to the output
-              buffer
+            <param name="ob" ctype="uint8_t *" dir="in">
+              pointer to the output buffer
             </param>
-            <param name="obsize" ctype="size_t" dir="in">size of the output
-              buffer
+            <param name="obsize" ctype="size_t" dir="in">
+              size of the output buffer
             </param>
             <param name="onotify" ctype="qnotify_t" dir="in"><![CDATA[pointer
               to a callback function that is invoked when some data is written
               to the output queue. The value can be @p NULL]]></param>
-            <param name="oarg" ctype="void *" dir="in">parameter for the output
-              notification callback
+            <param name="oarg" ctype="void *" dir="in">
+              parameter for the output notification callback
             </param>
             <implementation><![CDATA[
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="oop_base_object" descr="Base Object">
+  name="oop_base_object" descr="Base Object" editcode="no">
   <brief>Common ancestor abstract class.</brief>
   <public>
     <includes>
@@ -77,7 +77,7 @@ osalDbgAssert(c, r)]]></implementation>
         <fields>
         </fields>
         <methods>
-          <objinit>
+          <objinit callsuper="false">
             <implementation><![CDATA[ ]]></implementation>
           </objinit>
           <dispose>

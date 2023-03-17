@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_base_driver" descr="Base Driver">
+  name="hal_base_driver" descr="Base Driver" editcode="no">
   <brief>Common driver base abstract class.</brief>
   <details><![CDATA[This abstract class is the common ancestor of all HAL
     stateful HAL drivers.]]></details>
@@ -17,21 +17,17 @@
     </definitions_early>
     <configs>
       <config name="HAL_USE_MUTUAL_EXCLUSION" default="TRUE">
-        <brief>Enables the mutual exclusion APIs on driver instances.
-        </brief>
-        <note>Disabling this option saves both code and data space.
-        </note>
+        <brief>Enables the mutual exclusion APIs on driver instances.</brief>
+        <note>Disabling this option saves both code and data space.</note>
         <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
       </config>
       <config name="HAL_USE_REGISTRY" default="TRUE">
         <brief>Enables the HAL registry for drivers.</brief>
-        <note>Disabling this option saves both code and data space.
-        </note>
+        <note>Disabling this option saves both code and data space.</note>
         <assert invalid="($N != FALSE) &amp;&amp; ($N != TRUE)" />
       </config>
     </configs>
-    <macros>
-    </macros>
+    <macros></macros>
     <types>
       <typedef name="hal_base_driver_c">
         <basetype ctype="struct hal_base_driver" />
@@ -57,12 +53,12 @@
           </fields>
         </struct>
       </condition>
-      <class type="abstract" name="hal_base_driver"
-        namespace="drv" ancestorname="base_object"
-        ancestornamespace="bo" descr="HAL base driver">
+      <class type="abstract" name="hal_base_driver" namespace="drv"
+        ancestorname="base_object" ancestornamespace="bo"
+        descr="HAL base driver">
         <brief>Ancestor class of stateful HAL drivers.</brief>
         <fields>
-          <field name="state" ctype="driver_state_t" >
+          <field name="state" ctype="driver_state_t">
             <brief>Driver state.</brief>
           </field>
           <field name="opencnt" ctype="unsigned int">
@@ -89,7 +85,7 @@
           </condition>
         </fields>
         <methods>
-          <objinit>
+          <objinit callsuper="true">
             <implementation><![CDATA[
 self->drv.state   = HAL_DRV_STATE_STOP;
 self->drv.opencnt = 0U;
@@ -108,19 +104,16 @@ drv_reg_remove(self);
 #endif]]></implementation>
           </dispose>
           <virtual>
-            <method name="__drv_start" shortname="start"
-              ctype="msg_t">
+            <method name="__drv_start" shortname="start" ctype="msg_t">
               <brief>Low level driver start.</brief>
               <return>The operation status.</return>
               <notapi />
             </method>
-            <method name="__drv_stop" shortname="stop"
-              ctype="void">
+            <method name="__drv_stop" shortname="stop" ctype="void">
               <brief>Low level driver stop.</brief>
               <notapi />
             </method>
-            <method name="drvConfigureX" shortname="configure"
-              ctype="msg_t">
+            <method name="drvConfigureX" shortname="configure" ctype="msg_t">
               <brief>Driver configure.</brief>
               <details><![CDATA[Applies a new configuration to the driver. The
                 configuration structure is architecture-dependent.]]>
@@ -129,8 +122,8 @@ drv_reg_remove(self);
                 peripheral is not actively operating, this function can fail
                 depending on the driver implementation and current state.]]>
               </note>
-              <param ctype="const void *" name="config" dir="in">New driver
-                configuration.
+              <param ctype="const void *" name="config" dir="in">
+                New driver configuration.
               </param>
               <api />
             </method>
@@ -205,7 +198,8 @@ return self->drv.state;]]></implementation>
             </method>
             <method name="drvSetStateX" ctype="void">
               <brief>Driver state set.</brief>
-              <param ctype="driver_state_t" name="state" dir="in">New driver state.
+              <param ctype="driver_state_t" name="state" dir="in">
+                New driver state.
               </param>
               <api />
               <implementation><![CDATA[
@@ -222,7 +216,9 @@ return self->drv.owner;]]></implementation>
             </method>
             <method name="drvSetOwnerX" ctype="void">
               <brief>Driver owner set.</brief>
-              <param ctype="void *" name="owner" dir="in">New driver owner.</param>
+              <param ctype="void *" name="owner" dir="in">
+                New driver owner.
+              </param>
               <api />
               <implementation><![CDATA[
 
@@ -244,7 +240,9 @@ return "unk";
             <method name="drvSetNameX" ctype="void">
               <brief>Driver name set.</brief>
               <note>Does nothing if registry is disabled.</note>
-              <param ctype="const char *" name="name" dir="in">New driver name.</param>
+              <param ctype="const char *" name="name" dir="in">
+                New driver name.
+              </param>
               <api />
               <implementation><![CDATA[
 
@@ -254,8 +252,7 @@ self->drv.name = name;
 (void)name;
 #endif]]></implementation>
             </method>
-            <condition
-              check="HAL_USE_MUTUAL_EXCLUSION == TRUE">
+            <condition check="HAL_USE_MUTUAL_EXCLUSION == TRUE">
               <method name="drvLock" ctype="void">
                 <brief>Driver lock.</brief>
                 <api />
@@ -296,8 +293,7 @@ hal_registry.prev = &hal_registry;
 ]]></implementation>
       </function>
       <condition check="HAL_USE_REGISTRY == TRUE">
-        <function name="drvRegGetFirstX"
-          ctype="hal_base_driver_c *">
+        <function name="drvRegGetFirstX" ctype="hal_base_driver_c *">
           <brief>Return the first driver in the HAL registry.</brief>
           <return>A pointer to the first driver object.</return>
           <retval value="NULL">If the registry is empty.</retval>
@@ -312,12 +308,14 @@ if (rep == &hal_registry) {
 
 return oopGetOwner(hal_base_driver_c, drv.regent, rep);]]></implementation>
         </function>
-        <function name="drvRegGetNextX"
-          ctype="hal_base_driver_c *">
+        <function name="drvRegGetNextX" ctype="hal_base_driver_c *">
           <brief>Return the next driver in the HAL registry.</brief>
-          <note>This function is only available when HAL registry is
-            enabled.</note>
-          <param name="drvp" ctype="hal_base_driver_c *" dir="in">Previously found driver.</param>
+          <note>
+            This function is only available when HAL registry is enabled.
+          </note>
+          <param name="drvp" ctype="hal_base_driver_c *" dir="in">
+            Previously found driver.
+          </param>
           <return>A pointer to the next driver object.</return>
           <retval value="NULL">If there is no next driver.</retval>
           <api />
@@ -338,12 +336,14 @@ return oopGetOwner(hal_base_driver_c, drv.regent, rep);]]></implementation>
                 implementation-dependent default configuration is used
                 for initialization.]]>
           </details>
-          <note>This function is only available when HAL registry is
-            enabled.</note>
+          <note>
+            This function is only available when HAL registry is enabled.
+          </note>
           <param name="name" ctype="const char *" dir="in">Driver name.</param>
-          <param name="msgp" ctype="msg_t *" dir="out">Pointer to store the
-            error code or @p NULL. Note that in case of driver not found the
-            returned code is @p HAL_RET_SUCCESS.</param>
+          <param name="msgp" ctype="msg_t *" dir="out">
+            Pointer to store the error code or @p NULL. Note that in case of
+            driver not found the returned code is @p HAL_RET_SUCCESS.
+          </param>
           <return>A reference to the driver.</return>
           <retval value="NULL">If an error occurred.</retval>
           <api />
@@ -386,11 +386,11 @@ return drvp;]]></implementation>
       <condition check="HAL_USE_REGISTRY == TRUE">
         <function name="drv_reg_insert" ctype="void">
           <brief>Driver insertion in the HAL registry.</brief>
-          <note>This function is only available when HAL registry is
-            enabled.</note>
-          <param name="drvp" ctype="hal_base_driver_c *"
-            dir="both">Pointer to the @p hal_base_driver_c instance to be
-            inserted.
+          <note>
+            This function is only available when HAL registry is enabled.
+          </note>
+          <param name="drvp" ctype="hal_base_driver_c *" dir="both">
+            Pointer to the @p hal_base_driver_c instance to be inserted.
           </param>
           <implementation><![CDATA[
 
@@ -401,9 +401,8 @@ hal_registry.prev           = &drvp->drv.regent;]]></implementation>
         </function>
         <function name="drv_reg_remove" ctype="void">
           <brief>Driver removal from the HAL registry.</brief>
-          <param name="drvp" ctype="hal_base_driver_c *"
-            dir="both">Pointer to the @p hal_base_driver_c instance to be
-            inserted.
+          <param name="drvp" ctype="hal_base_driver_c *" dir="both">
+            Pointer to the @p hal_base_driver_c instance to be inserted.
           </param>
           <implementation><![CDATA[
 

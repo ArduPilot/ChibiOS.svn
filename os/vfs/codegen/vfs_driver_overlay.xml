@@ -4,7 +4,7 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="drvoverlay" descr="VFS Template Driver"
   check="VFS_CFG_ENABLE_DRV_OVERLAY == TRUE" sourcepath="drivers/overlay"
-  headerpath="drivers/overlay">
+  headerpath="drivers/overlay" editcode="yes">
   <public>
     <includes>
       <include style="regular">oop_sequential_stream.h</include>
@@ -58,7 +58,7 @@ self->ovldir.overlaid_root = NULL;]]></implementation>
           <field name="drivers" ctype="vfs_driver_c$I*$N[DRV_CFG_OVERLAY_DRV_MAX]"></field>
         </fields>
         <methods>
-          <objinit>
+          <objinit callsuper="true">
             <param name="overlaid_drv" ctype="vfs_driver_c *" dir="in"><![CDATA[Pointer to
               a driver to be overlaid or @p NULL.]]></param>
             <param name="path_prefix" ctype="const char *" dir="in"><![CDATA[Prefix to be

@@ -4,7 +4,7 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="drvstreams" descr="VFS Streams Driver"
   check="VFS_CFG_ENABLE_DRV_STREAMS == TRUE" sourcepath="drivers/streams"
-  headerpath="drivers/streams">
+  headerpath="drivers/streams" editcode="yes">
   <public>
     <includes>
       <include style="regular">oop_sequential_stream.h</include>
@@ -96,8 +96,9 @@ self->stmfile.stm = stream;]]></implementation>
             <brief>Pointer to the stream elements to be exposed.</brief></field>
         </fields>
         <methods>
-          <objinit>
-            <param name="streams" ctype="const drv_streams_element_t *" dir="in">
+          <objinit callsuper="true">
+            <param name="streams" ctype="const drv_streams_element_t *"
+              dir="in">
               Pointer to a @p vfs_streams_driver_c structure.
             </param>
             <implementation><![CDATA[

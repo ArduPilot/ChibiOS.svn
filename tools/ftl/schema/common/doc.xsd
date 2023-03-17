@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema elementFormDefault="qualified"
   xmlns:xs="http://www.w3.org/2001/XMLSchema">
-
+  <xs:simpleType name="identifierType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[_\w][\w\d_]*"></xs:pattern>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:complexType name="NamedItem">
     <xs:annotation>
       <xs:documentation>
@@ -9,12 +13,7 @@
         description
       </xs:documentation>
     </xs:annotation>
-    <xs:attribute name="name">
-      <xs:simpleType>
-        <xs:restriction base="xs:string">
-          <xs:pattern value="[_\w][\w\d_]*"></xs:pattern>
-        </xs:restriction>
-      </xs:simpleType>
+    <xs:attribute name="name" type="identifierType">
     </xs:attribute>
   </xs:complexType>
   <xs:complexType name="DocumentedItem">

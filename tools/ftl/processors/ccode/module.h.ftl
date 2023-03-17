@@ -33,7 +33,7 @@
   [#assign modulesheaderpath = (module.@headerpath[0]!"include")?trim?ensure_ends_with("/") /]
   [#assign moduleheadername  = modulename + ".h" /]
   [#assign moduledocgroup    = modulename?upper_case /]
-  [#-- Generating class header.--]
+  [#-- Generating header file.--]
   [@pp.changeOutputFile name=pp.home?trim?ensure_ends_with("/") + modulesheaderpath + moduleheadername /]
   [@ccode.ResetState /]
   [@cclasses.ResetState /]

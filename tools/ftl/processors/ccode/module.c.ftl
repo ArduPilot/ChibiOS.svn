@@ -34,7 +34,7 @@
   [#assign modulesourcename  = modulename + ".c" /]
   [#assign modulesourcepath  = (module.@sourcepath[0]!"src")?trim?ensure_ends_with("/") /]
   [#assign moduledocgroup    = modulename?upper_case /]
-  [#-- Generating class header.--]
+  [#-- Generating source file.--]
   [@pp.changeOutputFile name=pp.home?trim?ensure_ends_with("/") + modulesourcepath + modulesourcename /]
   [@ccode.ResetState /]
   [@cclasses.ResetState /]

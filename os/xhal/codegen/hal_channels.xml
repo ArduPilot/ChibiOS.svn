@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_channels" descr="I/O Channels" editcode="no">
+  name="hal_channels" descr="I/O Channels" editcode="false">
   <brief>Sequential data streams interface.</brief>
   <public>
     <definitions_early>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="oop_synchronized_object" descr="Synchronized Object" editcode="no">
+  name="oop_synchronized_object" descr="Synchronized Object" editcode="false">
   <brief>Common ancestor class of all reference-counted, synchronized objects.</brief>
   <public>
     <includes>

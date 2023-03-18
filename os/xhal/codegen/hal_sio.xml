@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_sio" descr="SIO Driver" check="HAL_USE_SIO == TRUE" editcode="no">
+  name="hal_sio" descr="SIO Driver" check="HAL_USE_SIO == TRUE" editcode="false">
   <brief>SIO Driver macros and structures.</brief>
   <public>
     <definitions_early>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
-  name="hal_base_driver" descr="Base Driver" editcode="no">
+  name="hal_base_driver" descr="Base Driver" editcode="false">
   <brief>Common driver base abstract class.</brief>
   <details><![CDATA[This abstract class is the common ancestor of all HAL
     stateful HAL drivers.]]></details>

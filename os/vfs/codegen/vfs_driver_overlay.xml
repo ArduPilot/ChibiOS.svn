@@ -134,9 +134,6 @@ chPoolLoadArray(&vfs_overlay_driver_static.dir_nodes_pool,
       <variable name="vfs_overlay_driver_static" ctype="struct vfs_overlay_driver_static_struct">
         <brief>Global state of @p vfs_overlay_driver_c</brief>
       </variable>
-      <verbatim><![CDATA[
-/* Methods implementations in an unmanaged module.*/
-#include "drvoverlay_impl.inc"]]></verbatim>
     </variables>
   </private>
 </module>

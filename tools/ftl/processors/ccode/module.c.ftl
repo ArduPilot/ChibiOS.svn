@@ -32,6 +32,7 @@
   [#assign moduledescription = cclasses.GetNodeDescription(module) /]
   [#assign moduleheadername  = modulename + ".h" /]
   [#assign modulesourcename  = modulename + ".c" /]
+  [#assign moduleimplname    = modulename + "_impl.inc" /]
   [#assign modulesourcepath  = (module.@sourcepath[0]!"src")?trim?ensure_ends_with("/") /]
   [#assign moduledocgroup    = modulename?upper_case /]
   [#-- Generating source file.--]
@@ -98,43 +99,47 @@
 /*===========================================================================*/
 
 [@ccode.GenerateVariablesFromNode "" module.private.variables true /]
+  [#if (module.@editcode[0]!"no")?trim == "false"]
 /*===========================================================================*/
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-  [#-- Generating local C functions.--]
+    [#-- Generating local C functions.--]
 [@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
-  [#-- Generating local constructors/destructors implementations,
-       virtual methods implementations, virtual methods, regular
-       methods, constructors with VMTs.--]
-  [#list module.private.types.class as class]
+    [#-- Generating local constructors/destructors implementations,
+         virtual methods implementations, virtual methods, regular
+         methods, constructors with VMTs.--]
+    [#list module.private.types.class as class]
 [@cclasses.GenerateClassMethodsImplementations modifiers=["static"] node=class /]
 [@cclasses.GenerateClassRegularMethods node=class /]
 [@cclasses.GenerateClassPrivateConstructorDestructor node=class /]
-  [/#list]
-  [#-- Generating local Constructors with VMTs.--]
-  [#list module.private.types.class as class]
-  [/#list]
+    [/#list]
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
 [@ccode.GenerateFunctionsFromNode node=module.public.functions /]
-  [#-- Scanning all classes.--]
-  [#list module.public.types.class as class]
+    [#-- Scanning all classes.--]
+    [#list module.public.types.class as class]
 /*===========================================================================*/
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
 /*===========================================================================*/
 
 [@cclasses.GenerateClassWrapperCode class /]
-  [/#list]
+    [/#list]
+    [#-- Dropping the file if nothing has been generated inside.--]
+    [#if (ccode.generated == false) && (cclasses.generated == false)]
+      [@pp.dropOutputFile /]
+    [/#if]
+  [#else]
+/* Module code has been generated into an hand-editable file and included
+   here.*/
+#include "${moduleimplname}"
+
+  [/#if]
   [#if module_condition?length > 0]
 #endif /* ${module_condition} */
 
   [/#if]
 /** @} */
-  [#-- Dropping the file if nothing has been generated inside.--]
-  [#if (ccode.generated == false) && (cclasses.generated == false)]
-    [@pp.dropOutputFile /]
-  [/#if]
 [/#list]

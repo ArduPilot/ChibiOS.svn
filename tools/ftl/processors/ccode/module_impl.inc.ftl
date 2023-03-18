@@ -59,12 +59,27 @@
       [#-- Generating local C functions.--]
 [@ccode.GenerateFunctionsFromNode modifiers=["static"]
                                   node=module.private.functions /]
+      [#list module.private.types.class as class]
+[@cclasses.GenerateClassMethodsImplementations modifiers=["static"]
+                                               node=class /]
+[@cclasses.GenerateClassRegularMethods node=class /]
+[@cclasses.GenerateClassPrivateConstructorDestructor node=class /]
+      [/#list]
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
+     [#-- Generating global C functions.--]
 [@ccode.GenerateFunctionsFromNode modifiers=[]
                                   node=module.public.functions /]
+     [#-- Generating methods.--]
+  [#list module.public.types.class as class]
+/*===========================================================================*/
+/* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
+/*===========================================================================*/
+
+[@cclasses.GenerateClassWrapperCode class /]
+  [/#list]
     [/#if]
   [/#if]
 [/#list]

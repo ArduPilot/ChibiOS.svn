@@ -161,9 +161,6 @@ self->stmdrv.streams  = streams;]]></implementation>
       <variable name="vfs_streams_driver_static" ctype="struct vfs_streams_driver_static_struct">
         <brief>Global state of @p vfs_streams_driver_c</brief>
       </variable>
-      <verbatim><![CDATA[
-/* Methods implementations in an unmanaged module.*/
-#include "drvstreams_impl.inc"]]></verbatim>
     </variables>
   </private>
 </module>

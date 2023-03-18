@@ -40,8 +40,8 @@
           <xs:simpleType>
             <xs:restriction base="xs:string">
               <xs:whiteSpace value="collapse"></xs:whiteSpace>
-              <xs:enumeration value="yes"></xs:enumeration>
-              <xs:enumeration value="no"></xs:enumeration>
+              <xs:enumeration value="true"></xs:enumeration>
+              <xs:enumeration value="false"></xs:enumeration>
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>

@@ -14,12 +14,12 @@
     limitations under the License.
 */
 
-/* This is an included part of drvstreams.c, must not be compiled alone.*/
+/* This is an, automatically generated, implementation file that can be
+   manually edited, it is not re-generated if already present.*/
 
 /*===========================================================================*/
 /* Module local functions.                                                   */
 /*===========================================================================*/
-
 void __stmdir_bo_dispose_impl(void *ip) {
 
   /* Disposing self.*/
@@ -301,3 +301,220 @@ msg_t __stmdrv_vfsdrv_rmdir_impl(void *ip, const char *path) {
 
   return __vfsdrv_rmdir_impl(ip, path);
 }
+
+/*===========================================================================*/
+/* Module exported functions.                                                */
+/*===========================================================================*/
+
+/**
+ * @brief       Module initialization.
+ *
+ * @init
+ */
+void __drv_streams_init(void) {
+
+    /* Initializing pools.*/
+    chPoolObjectInit(&vfs_streams_driver_static.dir_nodes_pool,
+                     sizeof (vfs_streams_dir_node_c),
+                     chCoreAllocAlignedI);
+    chPoolObjectInit(&vfs_streams_driver_static.file_nodes_pool,
+                     sizeof (vfs_streams_file_node_c),
+                     chCoreAllocAlignedI);
+
+    /* Preloading pools.*/
+    chPoolLoadArray(&vfs_streams_driver_static.dir_nodes_pool,
+                    &vfs_streams_driver_static.dir_nodes[0],
+                    DRV_CFG_STREAMS_DIR_NODES_NUM);
+    chPoolLoadArray(&vfs_streams_driver_static.file_nodes_pool,
+                    &vfs_streams_driver_static.file_nodes[0],
+                    DRV_CFG_STREAMS_FILE_NODES_NUM);
+}
+
+/*===========================================================================*/
+/* Module class "vfs_streams_dir_node_c" methods.                            */
+/*===========================================================================*/
+
+/**
+ * @brief       VMT structure of VFS streams directory node class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct vfs_streams_dir_node_vmt __stmdir_vmt = {
+  __stmdir_vmt_init(stmdir)
+};
+
+/**
+ * @name        Methods implementations of vfs_streams_dir_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_streams_dir_node_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p vfs_streams_dir_node_c instance
+ *                              to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
+ * @return                      A new reference to the object.
+ */
+void *__stmdir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                            vfs_mode_t mode) {
+  vfs_streams_dir_node_c *self = (vfs_streams_dir_node_c *)ip;
+
+  /* Initialization code.*/
+  self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
+  self->stmdir.index = 0U;
+
+  return self;
+}
+
+/**
+ * @memberof    vfs_streams_dir_node_c
+ * @protected
+ *
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_streams_dir_node_c instance
+ *                              to be disposed.
+ */
+void __stmdir_dispose_impl(void *ip) {
+  vfs_streams_dir_node_c *self = (vfs_streams_dir_node_c *)ip;
+
+  /* No finalization code.*/
+  (void)self;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __vfsdir_dispose_impl(self);
+}
+/** @} */
+
+/*===========================================================================*/
+/* Module class "vfs_streams_file_node_c" methods.                           */
+/*===========================================================================*/
+
+/**
+ * @brief       VMT structure of VFS streams file node class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct vfs_streams_file_node_vmt __stmfile_vmt = {
+  __stmfile_vmt_init(stmfile)
+};
+
+/**
+ * @name        Methods implementations of vfs_streams_file_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_streams_file_node_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p vfs_streams_file_node_c
+ *                              instance to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
+ * @param[in]     stream        Stream to be associated.
+ * @return                      A new reference to the object.
+ */
+void *__stmfile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
+                             vfs_mode_t mode, sequential_stream_i *stream) {
+  vfs_streams_file_node_c *self = (vfs_streams_file_node_c *)ip;
+
+  /* Initialization code.*/
+  self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
+  self->stmfile.stm = stream;
+
+  return self;
+}
+
+/**
+ * @memberof    vfs_streams_file_node_c
+ * @protected
+ *
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_streams_file_node_c
+ *                              instance to be disposed.
+ */
+void __stmfile_dispose_impl(void *ip) {
+  vfs_streams_file_node_c *self = (vfs_streams_file_node_c *)ip;
+
+  /* No finalization code.*/
+  (void)self;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __vfsfile_dispose_impl(self);
+}
+/** @} */
+
+/*===========================================================================*/
+/* Module class "vfs_streams_driver_c" methods.                              */
+/*===========================================================================*/
+
+/**
+ * @brief       VMT structure of VFS streams driver class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct vfs_streams_driver_vmt __stmdrv_vmt = {
+  __stmdrv_vmt_init(stmdrv)
+};
+
+/**
+ * @name        Methods implementations of vfs_streams_driver_c
+ * @{
+ */
+/**
+ * @memberof    vfs_streams_driver_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p vfs_streams_driver_c instance
+ *                              to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     streams       Pointer to a @p vfs_streams_driver_c structure.
+ * @return                      A new reference to the object.
+ */
+void *__stmdrv_objinit_impl(void *ip, const void *vmt,
+                            const drv_streams_element_t *streams) {
+  vfs_streams_driver_c *self = (vfs_streams_driver_c *)ip;
+
+  /* Initialization of the ancestors-defined parts.*/
+  __vfsdrv_objinit_impl(self, vmt);
+
+  /* Initialization code.*/
+  self->stmdrv.streams  = streams;
+
+  return self;
+}
+
+/**
+ * @memberof    vfs_streams_driver_c
+ * @protected
+ *
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_streams_driver_c instance
+ *                              to be disposed.
+ */
+void __stmdrv_dispose_impl(void *ip) {
+  vfs_streams_driver_c *self = (vfs_streams_driver_c *)ip;
+
+  /* No finalization code.*/
+  (void)self;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __vfsdrv_dispose_impl(self);
+}
+/** @} */
+

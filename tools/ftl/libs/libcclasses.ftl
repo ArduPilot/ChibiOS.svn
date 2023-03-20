@@ -37,9 +37,12 @@
 [/#macro]
 
 [#--
-  -- Getting references of all module public classes.
+  -- Getting references of all module public classes/interfaces.
   --]
 [#macro ImportModulePublicClasses node=[]]
+  [#list node.public.types.interface as interface]
+    [#assign ifscache = ifscache + {GetNodeNamespace(interface):interface} /]
+  [/#list]
   [#list node.public.types.class as class]
     [#assign classescache = classescache + {GetNodeNamespace(class):class} /]
   [/#list]
@@ -61,44 +64,14 @@
 [/#macro]
 
 [#--
-  -- Getting references of all module public interfaces.
-  --]
-[#macro ImportModulePublicInterfaces node=[]]
-  [#list node.public.types.interface as interface]
-    [#assign ifscache = ifscache + {GetNodeNamespace(interface):interface} /]
-  [/#list]
-  [#list node.imports.import as import]
-    [#local xmlname = import?trim /]
-    [#if xmlcache[xmlname]??]
-        [#-- Already in cache, no need to reimport.--]
-    [#else]
-      [#attempt]
-        [#local xmldoc = pp.loadData("xml", xmlname) /]
-      [#recover]
-        [@pp.dropOutputFile /]
-        [#stop ">>>> Importing '" + xmlname + "' failed!"]
-      [/#attempt]
-      [@ImportModulePublicClasses node=xmldoc.module /]
-      [#assign xmlcache = xmlcache + {xmlname:xmldoc} /]
-    [/#if]
-  [/#list]
-[/#macro]
-
-[#--
-  -- Getting references of all module private classes.
+  -- Getting references of all module private classes/interfaces.
   --]
 [#macro ImportModulePrivateClasses node=[]]
-  [#list node.public.types.class as class]
-    [#assign classescache = classescache + {GetNodeNamespace(class):class} /]
-  [/#list]
-[/#macro]
-
-[#--
-  -- Getting references of all module private interfaces.
-  --]
-[#macro ImportModulePrivateInterfaces node=[]]
   [#list node.public.types.interface as interface]
     [#assign ifscache = ifscache + {GetNodeNamespace(interface):interface} /]
+  [/#list]
+  [#list node.public.types.class as class]
+    [#assign classescache = classescache + {GetNodeNamespace(class):class} /]
   [/#list]
 [/#macro]
 
@@ -106,9 +79,7 @@
   [@ccode.ResetState /]
   [@ResetState /]
   [@ImportModulePrivateClasses node=node /]
-  [@ImportModulePrivateInterfaces node=node /]
   [@ImportModulePublicClasses node=node /]
-  [@ImportModulePublicInterfaces node=node /]
 [#-- ${xmlcache?keys?join(", ")} - ${classescache?keys?join(", ")} - ${ifscache?keys?join(", ")} --]
 [/#macro]
 

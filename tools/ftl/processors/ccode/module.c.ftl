@@ -37,8 +37,7 @@
   [#assign moduledocgroup    = modulename?upper_case /]
   [#-- Generating source file.--]
   [@pp.changeOutputFile name=pp.home?trim?ensure_ends_with("/") + modulesourcepath + modulesourcename /]
-  [@ccode.ResetState /]
-  [@cclasses.ResetState /]
+  [@cclasses.InitModule node=module /]
 /*
 [@license.EmitLicenseAsText /]
 */

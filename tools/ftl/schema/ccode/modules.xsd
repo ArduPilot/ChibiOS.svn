@@ -6,7 +6,8 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-          <xs:element name="public" type="publicType" maxOccurs="1"
+                    <xs:element name="imports" type="importsType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+                    <xs:element name="public" type="publicType" maxOccurs="1"
             minOccurs="1">
           </xs:element>
           <xs:element name="private" type="privateType" maxOccurs="1"
@@ -397,7 +398,7 @@
   </xs:complexType>
   <xs:complexType name="includeType">
     <xs:simpleContent>
-      <xs:extension base="xs:string">
+            <xs:extension base="xs:string">
         <xs:attribute name="style" use="required">
           <xs:simpleType>
             <xs:restriction base="xs:string">
@@ -868,4 +869,17 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  <xs:complexType name="importsType">
+    <xs:sequence>
+      <xs:element name="import" maxOccurs="1" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="1"></xs:minLength>
+            <xs:whiteSpace value="collapse"></xs:whiteSpace>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
 </xs:schema>

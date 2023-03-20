@@ -3,6 +3,9 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="oop_synchronized_object" descr="Synchronized Object" editcode="false">
   <brief>Common ancestor class of all reference-counted, synchronized objects.</brief>
+  <imports>
+    <import>oop_referenced_object.xml</import>
+  </imports>
   <public>
     <includes>
       <include style="regular">oop_referenced_object.h</include>

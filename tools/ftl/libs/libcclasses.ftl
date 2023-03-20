@@ -25,12 +25,55 @@
 
 [#assign class_suffix = "_c" /]
 [#assign interface_suffix = "_i" /]
+[#assign xmlcache = {} /]
+[#assign classescache={} /]
 
 [#--
   -- Resets global variables.
   --]
 [#macro ResetState]
   [#assign generated = false /]
+[/#macro]
+
+[#--
+  -- Getting references of all module public classes.
+  --]
+[#macro ImportModulePublicClasses node=[]]
+  [#list node.public.types.class as class]
+    [#assign classescache = classescache + {GetNodeNamespace(class):class} /]
+  [/#list]
+  [#list node.imports.import as import]
+    [#local xmlname = import?trim /]
+    [#if xmlcache[xmlname]??]
+        [#-- Already in cache, no need to reimport.--]
+    [#else]
+      [#attempt]
+        [#local xmldoc = pp.loadData("xml", xmlname) /]
+      [#recover]
+        [@pp.dropOutputFile /]
+        [#stop ">>>> Importing '" + xmlname + "' failed!"]
+      [/#attempt]
+      [@ImportModulePublicClasses node=xmldoc.module /]
+      [#assign xmlcache = xmlcache + {xmlname:xmldoc} /]
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- Getting references of all module private classes.
+  --]
+[#macro ImportModulePrivateClasses node=[]]
+  [#list node.public.types.class as class]
+    [#assign classescache = classescache + {GetNodeNamespace(class):class} /]
+  [/#list]
+[/#macro]
+
+[#macro InitModule node=[]]
+  [@ccode.ResetState /]
+  [@ResetState /]
+  [@ImportModulePrivateClasses node=node /]
+  [@ImportModulePublicClasses node=node /]
+[#-- ${xmlcache?keys?join(", ")} - ${classescache?keys?join(", ")} --]
 [/#macro]
 
 [#--

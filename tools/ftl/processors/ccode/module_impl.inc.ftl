@@ -43,8 +43,7 @@
     [#if pp.outputFileExists(filename) == false]
       [#-- Generating handwritten source file.--]
       [@pp.changeOutputFile name=filename /]
-      [@ccode.ResetState /]
-      [@cclasses.ResetState /]
+      [@cclasses.InitModule node=module /]
 /*
 [@license.EmitLicenseAsText /]
 */

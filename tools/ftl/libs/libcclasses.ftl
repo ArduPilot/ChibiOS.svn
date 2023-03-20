@@ -27,6 +27,7 @@
 [#assign interface_suffix = "_i" /]
 [#assign xmlcache = {} /]
 [#assign classescache={} /]
+[#assign ifscache={} /]
 
 [#--
   -- Resets global variables.
@@ -60,6 +61,30 @@
 [/#macro]
 
 [#--
+  -- Getting references of all module public interfaces.
+  --]
+[#macro ImportModulePublicInterfaces node=[]]
+  [#list node.public.types.interface as interface]
+    [#assign ifscache = ifscache + {GetNodeNamespace(interface):interface} /]
+  [/#list]
+  [#list node.imports.import as import]
+    [#local xmlname = import?trim /]
+    [#if xmlcache[xmlname]??]
+        [#-- Already in cache, no need to reimport.--]
+    [#else]
+      [#attempt]
+        [#local xmldoc = pp.loadData("xml", xmlname) /]
+      [#recover]
+        [@pp.dropOutputFile /]
+        [#stop ">>>> Importing '" + xmlname + "' failed!"]
+      [/#attempt]
+      [@ImportModulePublicClasses node=xmldoc.module /]
+      [#assign xmlcache = xmlcache + {xmlname:xmldoc} /]
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
   -- Getting references of all module private classes.
   --]
 [#macro ImportModulePrivateClasses node=[]]
@@ -68,12 +93,23 @@
   [/#list]
 [/#macro]
 
+[#--
+  -- Getting references of all module private interfaces.
+  --]
+[#macro ImportModulePrivateInterfaces node=[]]
+  [#list node.public.types.interface as interface]
+    [#assign ifscache = ifscache + {GetNodeNamespace(interface):interface} /]
+  [/#list]
+[/#macro]
+
 [#macro InitModule node=[]]
   [@ccode.ResetState /]
   [@ResetState /]
   [@ImportModulePrivateClasses node=node /]
+  [@ImportModulePrivateInterfaces node=node /]
   [@ImportModulePublicClasses node=node /]
-[#-- ${xmlcache?keys?join(", ")} - ${classescache?keys?join(", ")} --]
+  [@ImportModulePublicInterfaces node=node /]
+[#-- ${xmlcache?keys?join(", ")} - ${classescache?keys?join(", ")} - ${ifscache?keys?join(", ")} --]
 [/#macro]
 
 [#--

@@ -79,7 +79,7 @@ typedef struct referenced_object referenced_object_c;
 /**
  * @brief       Class @p referenced_object_c methods as a structure.
  */
-struct ro_methods {
+struct referenced_object_methods {
   void * (*addref)(void *ip);
   object_references_t (*release)(void *ip);
 };
@@ -87,7 +87,7 @@ struct ro_methods {
 /**
  * @brief       Class @p referenced_object_c data as a structure.
  */
-struct ro_data {
+struct referenced_object_data {
   /**
    * @brief       Number of references to the object.
    */
@@ -97,22 +97,22 @@ struct ro_data {
 /**
  * @brief       Class @p referenced_object_c methods.
  */
-#define __ro_methods                                                        \
-  __bo_methods                                                              \
-  struct ro_methods         ro;
+#define __referenced_object_methods                                         \
+  __base_object_methods                                                     \
+  struct referenced_object_methods ro;
 
 /**
  * @brief       Class @p referenced_object_c data.
  */
-#define __ro_data                                                           \
-  __bo_data                                                                 \
-  struct ro_data            ro;
+#define __referenced_object_data                                            \
+  __base_object_data                                                        \
+  struct referenced_object_data ro;
 
 /**
  * @brief       Class @p referenced_object_c VMT initializer.
  */
-#define __ro_vmt_init(ns)                                                   \
-  __bo_vmt_init(ns)                                                         \
+#define __referenced_object_vmt_init(ns)                                    \
+  __base_object_vmt_init(ns)                                                \
   .ro.addref                                = __##ns##_ro_addref_impl,      \
   .ro.release                               = __##ns##_ro_release_impl,
 
@@ -120,7 +120,7 @@ struct ro_data {
  * @brief       Class @p referenced_object_c virtual methods table.
  */
 struct referenced_object_vmt {
-  __ro_methods
+  __referenced_object_methods
 };
 
 /**
@@ -131,7 +131,7 @@ struct referenced_object {
    * @brief       Virtual Methods Table.
    */
   const struct referenced_object_vmt *vmt;
-  __ro_data
+  __referenced_object_data
 };
 /** @} */
 

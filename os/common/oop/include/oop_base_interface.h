@@ -108,7 +108,7 @@ typedef struct base_interface base_interface_i;
 /**
  * @brief       Interface @p base_interface_i methods.
  */
-#define __bi_methods                                                        \
+#define __base_interface_methods                                            \
   /* Memory offset between this interface structure and begin of
      the implementing class structure.*/                                    \
   size_t instance_offset;
@@ -119,14 +119,14 @@ typedef struct base_interface base_interface_i;
  * @param         ns            Namespace of the implementing class.
  * @param[in]     off           VMT offset to be stored.
  */
-#define __bi_vmt_init(ns, off)                                              \
+#define __base_interface_vmt_init(ns, off)                                  \
   .instance_offset                          = off,
 
 /**
  * @brief       Interface @p base_interface_i virtual methods table.
  */
 struct base_interface_vmt {
-  __bi_methods
+  __base_interface_methods
 };
 
 /**

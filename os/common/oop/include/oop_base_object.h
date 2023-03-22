@@ -135,33 +135,33 @@ typedef struct base_object base_object_c;
 /**
  * @brief       Class @p base_object_c methods as a structure.
  */
-struct bo_methods {
+struct base_object_methods {
   void (*dispose)(void *ip);
 };
 
 /**
  * @brief       Class @p base_object_c methods.
  */
-#define __bo_methods                                                        \
-  struct bo_methods         bo;
+#define __base_object_methods                                               \
+  struct base_object_methods bo;
 
 /**
  * @brief       Class @p base_object_c data.
  */
-#define __bo_data                                                           \
+#define __base_object_data                                                  \
   /* No data.*/
 
 /**
  * @brief       Class @p base_object_c VMT initializer.
  */
-#define __bo_vmt_init(ns)                                                   \
+#define __base_object_vmt_init(ns)                                          \
   .bo.dispose                               = __##ns##_bo_dispose_impl,
 
 /**
  * @brief       Class @p base_object_c virtual methods table.
  */
 struct base_object_vmt {
-  __bo_methods
+  __base_object_methods
 };
 
 /**
@@ -172,7 +172,7 @@ struct base_object {
    * @brief       Virtual Methods Table.
    */
   const struct base_object_vmt *vmt;
-  __bo_data
+  __base_object_data
 };
 /** @} */
 

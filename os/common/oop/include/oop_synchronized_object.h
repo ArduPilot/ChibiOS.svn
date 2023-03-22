@@ -79,7 +79,7 @@ typedef struct synchronized_object synchronized_object_c;
 /**
  * @brief       Class @p synchronized_object_c data as a structure.
  */
-struct so_data {
+struct synchronized_object_data {
   /**
    * @brief       Embedded synchronization mutex.
    */
@@ -89,28 +89,28 @@ struct so_data {
 /**
  * @brief       Class @p synchronized_object_c methods.
  */
-#define __so_methods                                                        \
-  __ro_methods                                                              \
+#define __synchronized_object_methods                                       \
+  __referenced_object_methods                                               \
   /* No methods.*/
 
 /**
  * @brief       Class @p synchronized_object_c data.
  */
-#define __so_data                                                           \
-  __ro_data                                                                 \
-  struct so_data            so;
+#define __synchronized_object_data                                          \
+  __referenced_object_data                                                  \
+  struct synchronized_object_data so;
 
 /**
  * @brief       Class @p synchronized_object_c VMT initializer.
  */
-#define __so_vmt_init(ns)                                                   \
-  __ro_vmt_init(ns)
+#define __synchronized_object_vmt_init(ns)                                  \
+  __referenced_object_vmt_init(ns)
 
 /**
  * @brief       Class @p synchronized_object_c virtual methods table.
  */
 struct synchronized_object_vmt {
-  __so_methods
+  __synchronized_object_methods
 };
 
 /**
@@ -121,7 +121,7 @@ struct synchronized_object {
    * @brief       Virtual Methods Table.
    */
   const struct synchronized_object_vmt *vmt;
-  __so_data
+  __synchronized_object_data
 };
 /** @} */
 

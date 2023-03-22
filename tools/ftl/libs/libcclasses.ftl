@@ -402,7 +402,7 @@ CC_FORCE_INLINE
                                   node      = node.methods.objinit[0] /] {
     [#local vmtname = "__" + classnamespace + "_vmt" /]
 [@ccode.Indent 1 /]static const struct ${classname}_vmt ${vmtname} = {
-[@ccode.Indent 2 /]__${classnamespace}_vmt_init(${classnamespace})
+[@ccode.Indent 2 /]__${classname}_vmt_init(${classnamespace})
 [@ccode.Indent 1 /]};
 
     [#local params = ccode.MakeCallParamsSequence(["self", "&" + vmtname], node.methods.objinit[0]) /]
@@ -595,8 +595,7 @@ CC_FORCE_INLINE
           classnamespace    = GetNodeNamespace(class)
           classctype        = GetClassCType(class)
           classdescr        = GetNodeDescription(class)
-          ancestorname      = GetNodeName(class)
-          ancestornamespace = GetNodeAncestorNamespace(class)
+          ancestorname      = GetNodeAncestorName(class, "")
           ancestorctype     = GetClassAncestorCType(class) /]
 /**
 [@doxygen.EmitTagVerbatim indent="" tag="class" text=classctype /]
@@ -624,7 +623,7 @@ CC_FORCE_INLINE
  */
 typedef struct ${classname} ${classctype};
 
-  [#local methodsstruct = classnamespace + "_methods" /]
+  [#local methodsstruct = classname + "_methods" /]
   [#if node.methods.virtual?size > 0]
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " methods as a structure." /]
@@ -634,7 +633,7 @@ struct ${methodsstruct} {
 };
 
   [/#if]
-  [#local datastruct = classnamespace + "_data" /]
+  [#local datastruct = classname + "_data" /]
   [#if class.fields.*?size > 0]
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " data as a structure." /]
@@ -648,10 +647,10 @@ struct ${datastruct} {
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " methods." /]
  */
-  [#local methodsdefine = "__" + classnamespace + "_methods" /]
+  [#local methodsdefine = "__" + classname + "_methods" /]
 #define ${methodsdefine?right_pad(68) + "\\"}
-  [#if ancestornamespace?length > 0]
-${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
+  [#if ancestorname?length > 0]
+${("  __" + ancestorname + "_methods")?right_pad(76)}\
   [/#if]
   [#if class.methods.virtual?size > 0]
 [@ccode.GenerateVariableDeclaration indent=ccode.indentation
@@ -666,10 +665,10 @@ ${("  __" + ancestornamespace + "_methods")?right_pad(76)}\
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " data." /]
  */
-  [#local datadefine = "__" + classnamespace + "_data" /]
+  [#local datadefine = "__" + classname + "_data" /]
 #define ${datadefine?right_pad(68) + "\\"}
-  [#if ancestornamespace?length > 0]
-${("  __" + ancestornamespace + "_data")?right_pad(76)}\
+  [#if ancestorname?length > 0]
+${("  __" + ancestorname + "_data")?right_pad(76)}\
   [/#if]
   [#if class.fields.*?size > 0]
 [@ccode.GenerateVariableDeclaration indent=ccode.indentation
@@ -684,11 +683,11 @@ ${("  __" + ancestornamespace + "_data")?right_pad(76)}\
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " VMT initializer." /]
  */
-  [#local vmtinitsdefine = "__" + classnamespace + "_vmt_init(ns)" /]
+  [#local vmtinitsdefine = "__" + classname + "_vmt_init(ns)" /]
 #define ${vmtinitsdefine?right_pad(68) + "\\"}
-  [#if ancestornamespace?length > 0]
+  [#if ancestorname?length > 0]
     [#-- Case where there is an ancestor.--]
-    [#local s = "  __" + ancestornamespace + "_vmt_init(ns)" /]
+    [#local s = "  __" + ancestorname + "_vmt_init(ns)" /]
     [#if node.methods.virtual?size > 0]
       [#local s = (s + " ")?right_pad(76) + "\\" /]
     [/#if]
@@ -746,8 +745,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
           ifnamespace       = GetNodeNamespace(if)
           ifctype           = GetInterfaceCType(if)
           ifdescr           = GetNodeDescription(if)
-          ancestorname      = GetNodeAncestorName(if)
-          ancestornamespace = GetNodeAncestorNamespace(if)
+          ancestorname      = GetNodeAncestorName(if, "")
           ancestorctype     = GetInterfaceAncestorCType(if) /]
 /**
  * @interface   ${ifctype}
@@ -773,7 +771,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
  */
 typedef struct ${ifname} ${ifctype};
 
-  [#local methodsstruct = ifnamespace + "_methods" /]
+  [#local methodsstruct = ifname + "_methods" /]
   [#if node.methods.method?size > 0]
 /**
 [@doxygen.EmitBrief "" "Interface @p " + ifctype + " methods as a structure." /]
@@ -786,10 +784,10 @@ struct ${methodsstruct} {
 /**
 [@doxygen.EmitBrief "" "Interface @p " + ifctype + " methods." /]
  */
-  [#local methodsdefine = "__" + ifnamespace + "_methods" /]
+  [#local methodsdefine = "__" + ifname + "_methods" /]
 ${("#define " + methodsdefine)?right_pad(ccode.backslash_align) + "\\"}
-  [#if ancestornamespace?length > 0]
-${(ccode.indentation + "__" + ancestornamespace +
+  [#if ancestorname?length > 0]
+${(ccode.indentation + "__" + ancestorname +
                        "_methods")?right_pad(ccode.backslash_align) + "\\"}
   [/#if]
   [#if if.methods.method?size > 0]
@@ -810,10 +808,10 @@ ${(ccode.indentation + "size_t instance_offset;")}
 [@doxygen.EmitParam "" "ns" "" "Namespace of the implementing class." /]
 [@doxygen.EmitParam "" "off" "in" "VMT offset to be stored." /]
  */
-  [#local vmtinitsdefine = "__" + ifnamespace + "_vmt_init(ns, off)" /]
+  [#local vmtinitsdefine = "__" + ifname + "_vmt_init(ns, off)" /]
 #define ${vmtinitsdefine?right_pad(68) + "\\"}
-  [#if ancestornamespace?length > 0]
-    [#local s = "  __" + ancestornamespace + "_vmt_init(ns, off)" /]
+  [#if ancestorname?length > 0]
+    [#local s = "  __" + ancestorname + "_vmt_init(ns, off)" /]
     [#if node.methods?size > 0]
       [#local s = (s + " ")?right_pad(76) + "\\" /]
     [/#if]
@@ -855,7 +853,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@ccode.Indent 1 /]/* Implementation of interface ${ifctype}.*/
 [@ccode.Indent 1 /]{
 [@ccode.Indent 2 /]static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
-[@ccode.Indent 3 /]__${ifnamespace}_vmt_init(${classnamespace}, offsetof(${classctype}, ${classnamespace}.${ifnamespace}))
+[@ccode.Indent 3 /]__${ifname}_vmt_init(${classnamespace}, offsetof(${classctype}, ${classnamespace}.${ifnamespace}))
 [@ccode.Indent 2 /]};
 [@ccode.Indent 2 /]oopIfObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
 [@ccode.Indent 1 /]}
@@ -881,6 +879,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
           classnamespace    = GetNodeNamespace(class)
           classctype        = GetClassCType(class)
           classdescr        = GetNodeDescription(class)
+          ancestorname      = GetNodeAncestorName(class, "")
           ancestornamespace = GetNodeAncestorNamespace(class) /]
   [#assign generated = true /]
 /**
@@ -909,7 +908,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
                                   node      = class.methods.objinit[0] /] {
 [@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
 
-  [#if ancestornamespace?length == 0]
+  [#if ancestorname?length == 0]
 [@ccode.Indent 1 /]/* This is a root class, initializing the VMT pointer here.*/
 [@ccode.Indent 1 /]self->vmt = (struct base_object_vmt *)vmt;
 
@@ -964,7 +963,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@ccode.Indent 1 /]/* No finalization code.*/
 [@ccode.Indent 1 /](void)self;
   [/#if]
-  [#if ancestornamespace?length > 0]
+  [#if ancestorname?length > 0]
 
 [@ccode.Indent 1 /]/* Finalization of the ancestors-defined parts.*/
 [@ccode.Indent 1 /]__${ancestornamespace}_dispose_impl(self);
@@ -1021,7 +1020,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@doxygen.EmitNote "" "It is public because accessed by the inlined constructor." /]
  */
 const struct ${classname}_vmt __${classnamespace}_vmt = {
-  __${classnamespace}_vmt_init(${classnamespace})
+  __${classname}_vmt_init(${classnamespace})
 };
 
   [/#if]

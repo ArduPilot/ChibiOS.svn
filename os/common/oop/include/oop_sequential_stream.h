@@ -97,7 +97,7 @@ typedef struct sequential_stream sequential_stream_i;
 /**
  * @brief       Interface @p sequential_stream_i methods as a structure.
  */
-struct stm_methods {
+struct sequential_stream_methods {
   size_t (*write)(void *ip, const uint8_t *bp, size_t n);
   size_t (*read)(void *ip, uint8_t *bp, size_t n);
   msg_t (*put)(void *ip, uint8_t b);
@@ -107,9 +107,9 @@ struct stm_methods {
 /**
  * @brief       Interface @p sequential_stream_i methods.
  */
-#define __stm_methods                                                       \
-  __bi_methods                                                              \
-  struct stm_methods        stm;
+#define __sequential_stream_methods                                         \
+  __base_interface_methods                                                  \
+  struct sequential_stream_methods stm;
 
 /**
  * @brief       Interface @p sequential_stream_i VMT initializer.
@@ -117,8 +117,8 @@ struct stm_methods {
  * @param         ns            Namespace of the implementing class.
  * @param[in]     off           VMT offset to be stored.
  */
-#define __stm_vmt_init(ns, off)                                             \
-  __bi_vmt_init(ns, off)                                                    \
+#define __sequential_stream_vmt_init(ns, off)                               \
+  __base_interface_vmt_init(ns, off)                                        \
   .stm.write                                = __##ns##_stm_write_impl,      \
   .stm.read                                 = __##ns##_stm_read_impl,       \
   .stm.put                                  = __##ns##_stm_put_impl,        \
@@ -128,7 +128,7 @@ struct stm_methods {
  * @brief       Interface @p sequential_stream_i virtual methods table.
  */
 struct sequential_stream_vmt {
-  __stm_methods
+  __sequential_stream_methods
 };
 
 /**

@@ -83,6 +83,16 @@ ${s}
 [/#macro]
 
 [#--
+  -- This macro generates a generic tag with formatted text.
+  --]
+[#macro EmitTagFormattedNoCap indent="" tag="no-tag" text="" align=near_align]
+[@utils.FormatStringAsText indent + (" * @" + tag + " ")?right_pad(align)
+                           indent + (" *")?right_pad(align)
+                           utils.WithDot(text)
+                           doxygen_boundary /]
+[/#macro]
+
+[#--
   -- This macro generates a brief tag description.
   --]
 [#macro EmitBrief indent="" text=""]

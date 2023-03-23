@@ -52,51 +52,51 @@
 static size_t __bs_stm_write_impl(void *ip, const uint8_t *bp, size_t n) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  return oqWriteTimeout(&bsp->bs.oqueue, bp, n, TIME_INFINITE);
+  return oqWriteTimeout(&bsp->oqueue, bp, n, TIME_INFINITE);
 }
 
 static size_t __bs_stm_read_impl(void *ip, uint8_t *bp, size_t n) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  return iqReadTimeout(&bsp->bs.iqueue, bp, n, TIME_INFINITE);
+  return iqReadTimeout(&bsp->iqueue, bp, n, TIME_INFINITE);
 }
 
 static msg_t __bs_stm_put_impl(void *ip, uint8_t b) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  return oqPutTimeout(&bsp->bs.oqueue, b, TIME_INFINITE);
+  return oqPutTimeout(&bsp->oqueue, b, TIME_INFINITE);
 }
 
 static msg_t __bs_stm_get_impl(void *ip) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  return iqGetTimeout(&bsp->bs.iqueue, TIME_INFINITE);
+  return iqGetTimeout(&bsp->iqueue, TIME_INFINITE);
 }
 
 static size_t __bs_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
                                    sysinterval_t timeout) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  return oqWriteTimeout(&bsp->bs.oqueue, bp, n, timeout);
+  return oqWriteTimeout(&bsp->oqueue, bp, n, timeout);
 }
 
 static size_t __bs_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
                                   sysinterval_t timeout) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  return iqReadTimeout(&bsp->bs.iqueue, bp, n, timeout);
+  return iqReadTimeout(&bsp->iqueue, bp, n, timeout);
 }
 
 static msg_t __bs_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  return oqPutTimeout(&bsp->bs.oqueue, b, timeout);
+  return oqPutTimeout(&bsp->oqueue, b, timeout);
 }
 
 static msg_t __bs_chn_gett_impl(void *ip, sysinterval_t timeout) {
   hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-  return iqGetTimeout(&bsp->bs.iqueue, timeout);
+  return iqGetTimeout(&bsp->iqueue, timeout);
 }
 
 static eventflags_t __bs_chn_getclr_impl(void *ip, eventflags_t mask) {
@@ -165,16 +165,16 @@ void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
   /* Implementation of interface asynchronous_channel_i.*/
   {
     static const struct asynchronous_channel_vmt bs_chn_vmt = {
-      __chn_vmt_init(bs, offsetof(hal_buffered_serial_c, bs.chn))
+      __asynchronous_channel_vmt_init(bs, offsetof(hal_buffered_serial_c, bs.chn))
     };
     oopIfObjectInit(&self->bs.chn, &bs_chn_vmt);
   }
 
   /* Initialization code.*/
 
-  osalEventObjectInit(&self->bs.event);
-  iqObjectInit(&self->bs.iqueue, ib, ibsize, inotify, iarg);
-  oqObjectInit(&self->bs.oqueue, ob, obsize, onotify, oarg);
+  osalEventObjectInit(&self->event);
+  iqObjectInit(&self->iqueue, ib, ibsize, inotify, iarg);
+  oqObjectInit(&self->oqueue, ob, obsize, onotify, oarg);
 
   return self;
 }
@@ -225,11 +225,11 @@ void bsIncomingDataI(void *ip, uint8_t b) {
   osalDbgCheckClassI();
   osalDbgCheck(self != NULL);
 
-  if (iqIsEmptyI(&self->bs.iqueue)) {
+  if (iqIsEmptyI(&self->iqueue)) {
     bsAddFlagsI(self, CHN_FL_RX_NOTEMPTY);
   }
 
-  if (iqPutI(&self->bs.iqueue, b) < MSG_OK) {
+  if (iqPutI(&self->iqueue, b) < MSG_OK) {
     bsAddFlagsI(self, CHN_FL_BUFFER_FULL_ERR);
   }
 }
@@ -254,7 +254,7 @@ msg_t bsRequestDataI(void *ip) {
   osalDbgCheckClassI();
   osalDbgCheck(self != NULL);
 
-  b = oqGetI(&self->bs.oqueue);
+  b = oqGetI(&self->oqueue);
   if (b < MSG_OK) {
     /* Note, this event is only added when the buffer becomes fully empty in
        order to avoid continuous reporting.*/

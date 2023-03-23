@@ -510,7 +510,7 @@ ${indent}typedef ${basectype} ${typename};
     [#local structname = structname + " " /]
   [/#if]
 ${indent}struct ${structname}{
-[@ccode.GenerateStructureFieldsFromNode indent+indentation node.fields /]
+[@GenerateStructureFieldsFromNode indent+indentation node.fields /]
 ${indent}};
 [/#macro]
 
@@ -523,7 +523,7 @@ ${indent}};
     [#local unionname = unionname + " " /]
   [/#if]
 ${indent}union ${unionname}{
-[@ccode.GenerateStructureFieldsFromNode indent+indentation node.fields /]
+[@GenerateStructureFieldsFromNode indent+indentation node.fields /]
 ${indent}};
 [/#macro]
 
@@ -542,9 +542,13 @@ ${indent}};
 [@doxygen.EmitFullCommentFromNode indent this /]
 [@GenerateUnionFromNode indent this /]
     [#elseif this?node_name == "class"]
-[@cclasses.GenerateClassWrapper this /]
+[@cclasses.GenerateClassFromNode this /]
+[#--
+[@cclasses.GenerateClassWrapper this /]  --]
     [#elseif this?node_name == "interface"]
-[@cclasses.GenerateInterfaceWrapper this /]
+[@cclasses.GenerateInterfaceFromNode this /]
+[#--
+[@cclasses.GenerateInterfaceWrapper this /]  --]
     [#elseif this?node_name == "verbatim"]
       [#local ccode = (this[0]!"")?trim /]
 [@GenerateIndentedCCode indent ccode /]

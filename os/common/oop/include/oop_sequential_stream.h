@@ -72,7 +72,7 @@
 
 /**
  * @interface   sequential_stream_i
- * @extends     base_interface_i
+ * @extends     base_interface_i.
  *
  * @brief       Sequential data streams interface.
  * @details     This module define an interface for generic sequential data
@@ -81,9 +81,6 @@
  *              streaming capability.
  * @note        This interface is meant to be compatible with legacy HAL @p
  *              BaseSequentialStream interface.
- * @note        The interface namespace is <tt>stm</tt>, access to an
- *              implemented interface is done using:
- *              <tt>&<objp>-><classnamespace>.stm</tt>.
  *
  * @name        Interface @p sequential_stream_i structures
  * @{
@@ -95,9 +92,14 @@
 typedef struct sequential_stream sequential_stream_i;
 
 /**
- * @brief       Interface @p sequential_stream_i methods as a structure.
+ * @brief       Interface @p sequential_stream_i virtual methods table.
  */
-struct sequential_stream_methods {
+struct sequential_stream_vmt {
+  /* Memory offset between this interface structure and begin of
+     the implementing class structure.*/
+  size_t instance_offset;
+  /* From base_interface_i.*/
+  /* From sequential_stream_i.*/
   size_t (*write)(void *ip, const uint8_t *bp, size_t n);
   size_t (*read)(void *ip, uint8_t *bp, size_t n);
   msg_t (*put)(void *ip, uint8_t b);
@@ -105,34 +107,7 @@ struct sequential_stream_methods {
 };
 
 /**
- * @brief       Interface @p sequential_stream_i methods.
- */
-#define __sequential_stream_methods                                         \
-  __base_interface_methods                                                  \
-  struct sequential_stream_methods stm;
-
-/**
- * @brief       Interface @p sequential_stream_i VMT initializer.
- *
- * @param         ns            Namespace of the implementing class.
- * @param[in]     off           VMT offset to be stored.
- */
-#define __sequential_stream_vmt_init(ns, off)                               \
-  __base_interface_vmt_init(ns, off)                                        \
-  .stm.write                                = __##ns##_stm_write_impl,      \
-  .stm.read                                 = __##ns##_stm_read_impl,       \
-  .stm.put                                  = __##ns##_stm_put_impl,        \
-  .stm.get                                  = __##ns##_stm_get_impl,
-
-/**
- * @brief       Interface @p sequential_stream_i virtual methods table.
- */
-struct sequential_stream_vmt {
-  __sequential_stream_methods
-};
-
-/**
- * @brief       Structure representing a sequential stream.
+ * @brief       Structure representing a sequential stream interface.
  */
 struct sequential_stream {
   /**
@@ -186,7 +161,7 @@ CC_FORCE_INLINE
 static inline size_t stmWrite(void *ip, const uint8_t *bp, size_t n) {
   sequential_stream_i *self = (sequential_stream_i *)ip;
 
-  return self->vmt->stm.write(ip, bp, n);
+  return self->vmt->write(ip, bp, n);
 }
 
 /**
@@ -207,7 +182,7 @@ CC_FORCE_INLINE
 static inline size_t stmRead(void *ip, uint8_t *bp, size_t n) {
   sequential_stream_i *self = (sequential_stream_i *)ip;
 
-  return self->vmt->stm.read(ip, bp, n);
+  return self->vmt->read(ip, bp, n);
 }
 
 /**
@@ -226,7 +201,7 @@ CC_FORCE_INLINE
 static inline msg_t stmPut(void *ip, uint8_t b) {
   sequential_stream_i *self = (sequential_stream_i *)ip;
 
-  return self->vmt->stm.put(ip, b);
+  return self->vmt->put(ip, b);
 }
 
 /**
@@ -244,7 +219,7 @@ CC_FORCE_INLINE
 static inline msg_t stmGet(void *ip) {
   sequential_stream_i *self = (sequential_stream_i *)ip;
 
-  return self->vmt->stm.get(ip);
+  return self->vmt->get(ip);
 }
 /** @} */
 

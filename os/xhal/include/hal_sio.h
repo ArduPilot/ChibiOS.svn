@@ -136,7 +136,7 @@
  * @xclass
  */
 #define sioSetCallbackX(siop, f)                                            \
-  (siop)->sio.cb = (f)
+  (siop)->cb = (f)
 
 /**
  * @brief       Determines the state of the RX FIFO.
@@ -205,7 +205,7 @@
  */
 #define sioWriteEnableFlagsX(siop, mask)                                    \
   do {                                                                      \
-    (siop)->sio.enabled = (mask);                                           \
+    (siop)->enabled = (mask);                                               \
     sio_lld_update_enable_flags(siop);                                      \
   } while (false)
 
@@ -219,7 +219,7 @@
  */
 #define sioSetEnableFlagsX(siop, mask)                                      \
   do {                                                                      \
-    (siop)->sio.enabled |= (mask);                                          \
+    (siop)->enabled |= (mask);                                              \
     sio_lld_update_enable_flags(siop);                                      \
   } while (false)
 
@@ -233,7 +233,7 @@
  */
 #define sioClearEnableFlagsX(siop, mask)                                    \
   do {                                                                      \
-    (siop)->sio.enabled &= ~(mask);                                         \
+    (siop)->enabled &= ~(mask);                                             \
     sio_lld_update_enable_flags(siop);                                      \
   } while (false)
 
@@ -246,7 +246,7 @@
  * @xclass
  */
 #define sioGetEnableFlagsX(siop)                                            \
-  (siop)->sio.enabled
+  (siop)->enabled
 
 /**
  * @brief       Gets and clears SIO error flags.
@@ -369,8 +369,8 @@
  */
 #define __sio_callback(siop)                                                \
   do {                                                                      \
-    if ((siop)->sio.cb != NULL) {                                           \
-      (siop)->sio.cb(siop);                                                 \
+    if ((siop)->cb != NULL) {                                               \
+      (siop)->cb(siop);                                                     \
     }                                                                       \
   } while (false)
 
@@ -385,8 +385,8 @@
 #define __sio_wakeup_errors(siop)                                           \
   do {                                                                      \
     osalSysLockFromISR();                                                   \
-    osalThreadResumeI(&(siop)->sio.sync_rx, SIO_MSG_ERRORS);                \
-    osalThreadResumeI(&(siop)->sio.sync_rxidle, SIO_MSG_ERRORS);            \
+    osalThreadResumeI(&(siop)->sync_rx, SIO_MSG_ERRORS);                    \
+    osalThreadResumeI(&(siop)->sync_rxidle, SIO_MSG_ERRORS);                \
     osalSysUnlockFromISR();                                                 \
   } while (false)
 
@@ -400,7 +400,7 @@
 #define __sio_wakeup_rx(siop)                                               \
   do {                                                                      \
     osalSysLockFromISR();                                                   \
-    osalThreadResumeI(&(siop)->sio.sync_rx, MSG_OK);                        \
+    osalThreadResumeI(&(siop)->sync_rx, MSG_OK);                            \
     osalSysUnlockFromISR();                                                 \
   } while (false)
 
@@ -414,7 +414,7 @@
 #define __sio_wakeup_rxidle(siop)                                           \
   do {                                                                      \
     osalSysLockFromISR();                                                   \
-    osalThreadResumeI(&(siop)->sio.sync_rxidle, MSG_OK);                    \
+    osalThreadResumeI(&(siop)->sync_rxidle, MSG_OK);                        \
     osalSysUnlockFromISR();                                                 \
   } while (false)
 
@@ -428,7 +428,7 @@
 #define __sio_wakeup_tx(siop)                                               \
   do {                                                                      \
     osalSysLockFromISR();                                                   \
-    osalThreadResumeI(&(siop)->sio.sync_tx, MSG_OK);                        \
+    osalThreadResumeI(&(siop)->sync_tx, MSG_OK);                            \
     osalSysUnlockFromISR();                                                 \
   } while (false)
 
@@ -442,7 +442,7 @@
 #define __sio_wakeup_txend(siop)                                            \
   do {                                                                      \
     osalSysLockFromISR();                                                   \
-    osalThreadResumeI(&(siop)->sio.sync_txend, MSG_OK);                     \
+    osalThreadResumeI(&(siop)->sync_txend, MSG_OK);                         \
     osalSysUnlockFromISR();                                                 \
   } while (false)
 
@@ -513,14 +513,10 @@ struct hal_sio_config {
 
 /**
  * @class       hal_sio_driver_c
- * @extends     hal_base_driver_c
+ * @extends     base_object_c, hal_base_driver_c.
  * @implements  asynchronous_channel_i
  *
  * @brief       Class of a SIO (Serial I/O) driver.
- * @note        The class namespace is <tt>sio</tt>, access to class fields is
- *              done using: <tt><objp>->sio.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p hal_sio_driver_c structures
  * @{
@@ -532,9 +528,58 @@ struct hal_sio_config {
 typedef struct hal_sio_driver hal_sio_driver_c;
 
 /**
- * @brief       Class @p hal_sio_driver_c data as a structure.
+ * @brief       Class @p hal_sio_driver_c virtual methods table.
  */
-struct sio_data {
+struct hal_sio_driver_vmt {
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From hal_base_driver_c.*/
+  msg_t (*start)(void *ip);
+  void (*stop)(void *ip);
+  msg_t (*configure)(void *ip, const void *config);
+  /* From hal_sio_driver_c.*/
+};
+
+/**
+ * @brief       Structure representing a SIO driver class.
+ */
+struct hal_sio_driver {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct hal_sio_driver_vmt *vmt;
+  /**
+   * @brief       Driver state.
+   */
+  driver_state_t            state;
+  /**
+   * @brief       Open counter.
+   */
+  unsigned int              opencnt;
+  /**
+   * @brief       Driver owner.
+   */
+  void                      *owner;
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+  /**
+   * @brief       Driver mutex.
+   */
+  mutex_t                   mutex;
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+  /**
+   * @brief       Driver identifier.
+   */
+  unsigned int              id;
+  /**
+   * @brief       Driver name.
+   */
+  const char                *name;
+  /**
+   * @brief       Registry link structure.
+   */
+  hal_regent_t              regent;
+#endif /* HAL_USE_REGISTRY == TRUE */
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
   /**
    * @brief       Implemented interface @p asynchronous_channel_i.
@@ -574,59 +619,6 @@ struct sio_data {
   /* End of the mandatory fields.*/
   sio_lld_driver_fields;
 };
-
-/**
- * @brief       Class @p hal_sio_driver_c methods.
- */
-#define __sio_methods                                                       \
-  __drv_methods                                                             \
-  /* No methods.*/
-
-/**
- * @brief       Class @p hal_sio_driver_c data.
- */
-#define __sio_data                                                          \
-  __drv_data                                                                \
-  struct sio_data           sio;
-
-/**
- * @brief       Class @p hal_sio_driver_c VMT initializer.
- */
-#define __sio_vmt_init(ns)                                                  \
-  __drv_vmt_init(ns)
-
-/**
- * @brief       Class @p hal_sio_driver_c virtual methods table.
- */
-struct hal_sio_driver_vmt {
-  __sio_methods
-};
-
-/**
- * @brief       Structure representing a SIO driver class.
- */
-struct hal_sio_driver {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct hal_sio_driver_vmt *vmt;
-  __sio_data
-};
-
-/**
- * @memberof    hal_sio_driver_c
- *
- * @brief       Access macro for hal_sio_driver_c interfaces.
- *
- * @param[in]     ip            Pointer to the class instance.
- * @param         ifns          Implemented interface namespace.
- * @return                      A void pointer to the interface within the
- *                              class instance.
- *
- * @api
- */
-#define sioGetIf(ip, ifns)                                                  \
-  boGetIf(ip, ifns, sio)
 /** @} */
 
 /*===========================================================================*/

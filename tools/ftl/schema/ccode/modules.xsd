@@ -521,8 +521,12 @@
   </xs:complexType>
   <xs:complexType name="instanceType">
     <xs:sequence>
-      <xs:element name="modules" type="modulesType" maxOccurs="1"
-        minOccurs="1"></xs:element>
+            <xs:element name="paths" type="pathsType" maxOccurs="1"
+              minOccurs="0">
+            </xs:element>
+            <xs:element name="modules" type="modulesType" maxOccurs="1"
+        minOccurs="1">
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
   <xs:element name="instance" type="instanceType"></xs:element>
@@ -871,7 +875,7 @@
   </xs:complexType>
   <xs:complexType name="importsType">
     <xs:sequence>
-      <xs:element name="import" maxOccurs="1" minOccurs="0">
+      <xs:element name="import" maxOccurs="unbounded" minOccurs="0">
         <xs:simpleType>
           <xs:restriction base="xs:string">
             <xs:minLength value="1"></xs:minLength>
@@ -882,4 +886,17 @@
     </xs:sequence>
   </xs:complexType>
 
+
+  <xs:complexType name="pathsType">
+    <xs:sequence>
+      <xs:element name="path" maxOccurs="unbounded" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:whiteSpace value="collapse"></xs:whiteSpace>
+            <xs:minLength value="1"></xs:minLength>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
 </xs:schema>

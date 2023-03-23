@@ -8,7 +8,7 @@
   <public>
     <types>
       <class type="abstract" name="hal_buffered_serial" namespace="bs"
-        ancestorname="base_driver" ancestornamespace="drv"
+        ancestorname="hal_base_driver" ancestornamespace="drv"
         descr="HAL buffered serial driver">
         <brief>Ancestor class of serial buffered drivers.</brief>
         <implements>
@@ -53,9 +53,9 @@
             </param>
             <implementation><![CDATA[
 
-osalEventObjectInit(&self->bs.event);
-iqObjectInit(&self->bs.iqueue, ib, ibsize, inotify, iarg);
-oqObjectInit(&self->bs.oqueue, ob, obsize, onotify, oarg);]]></implementation>
+osalEventObjectInit(&self->event);
+iqObjectInit(&self->iqueue, ib, ibsize, inotify, iarg);
+oqObjectInit(&self->oqueue, ob, obsize, onotify, oarg);]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
@@ -76,11 +76,11 @@ oqObjectInit(&self->bs.oqueue, ob, obsize, onotify, oarg);]]></implementation>
 osalDbgCheckClassI();
 osalDbgCheck(self != NULL);
 
-if (iqIsEmptyI(&self->bs.iqueue)) {
+if (iqIsEmptyI(&self->iqueue)) {
   bsAddFlagsI(self, CHN_FL_RX_NOTEMPTY);
 }
 
-if (iqPutI(&self->bs.iqueue, b) < MSG_OK) {
+if (iqPutI(&self->iqueue, b) < MSG_OK) {
   bsAddFlagsI(self, CHN_FL_BUFFER_FULL_ERR);
 }]]></implementation>
             </method>
@@ -98,7 +98,7 @@ msg_t  b;
 osalDbgCheckClassI();
 osalDbgCheck(self != NULL);
 
-b = oqGetI(&self->bs.oqueue);
+b = oqGetI(&self->oqueue);
 if (b < MSG_OK) {
   /* Note, this event is only added when the buffer becomes fully empty in
      order to avoid continuous reporting.*/
@@ -118,7 +118,7 @@ return b;]]></implementation>
                 be added.</param>
               <implementation><![CDATA[
 
-osalEventBroadcastFlagsI(&self->bs.event, flags);]]></implementation>
+osalEventBroadcastFlagsI(&self->event, flags);]]></implementation>
             </method>
           </inline>
         </methods>
@@ -137,7 +137,7 @@ osalEventBroadcastFlagsI(&self->bs.event, flags);]]></implementation>
         <implementation><![CDATA[
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-return oqWriteTimeout(&bsp->bs.oqueue, bp, n, TIME_INFINITE);]]></implementation>
+return oqWriteTimeout(&bsp->oqueue, bp, n, TIME_INFINITE);]]></implementation>
       </function>
       <function name="__bs_stm_read_impl" ctype="size_t">
         <param name="ip" ctype="void *" />
@@ -146,7 +146,7 @@ return oqWriteTimeout(&bsp->bs.oqueue, bp, n, TIME_INFINITE);]]></implementation
         <implementation><![CDATA[
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-return iqReadTimeout(&bsp->bs.iqueue, bp, n, TIME_INFINITE);]]></implementation>
+return iqReadTimeout(&bsp->iqueue, bp, n, TIME_INFINITE);]]></implementation>
       </function>
       <function name="__bs_stm_put_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
@@ -154,14 +154,14 @@ return iqReadTimeout(&bsp->bs.iqueue, bp, n, TIME_INFINITE);]]></implementation>
         <implementation><![CDATA[
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-return oqPutTimeout(&bsp->bs.oqueue, b, TIME_INFINITE);]]></implementation>
+return oqPutTimeout(&bsp->oqueue, b, TIME_INFINITE);]]></implementation>
       </function>
       <function name="__bs_stm_get_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-return iqGetTimeout(&bsp->bs.iqueue, TIME_INFINITE);]]></implementation>
+return iqGetTimeout(&bsp->iqueue, TIME_INFINITE);]]></implementation>
       </function>
       <function name="__bs_chn_writet_impl" ctype="size_t">
         <param name="ip" ctype="void *" />
@@ -171,7 +171,7 @@ return iqGetTimeout(&bsp->bs.iqueue, TIME_INFINITE);]]></implementation>
         <implementation><![CDATA[
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-return oqWriteTimeout(&bsp->bs.oqueue, bp, n, timeout);]]></implementation>
+return oqWriteTimeout(&bsp->oqueue, bp, n, timeout);]]></implementation>
       </function>
       <function name="__bs_chn_readt_impl" ctype="size_t">
         <param name="ip" ctype="void *" />
@@ -181,7 +181,7 @@ return oqWriteTimeout(&bsp->bs.oqueue, bp, n, timeout);]]></implementation>
         <implementation><![CDATA[
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-return iqReadTimeout(&bsp->bs.iqueue, bp, n, timeout);]]></implementation>
+return iqReadTimeout(&bsp->iqueue, bp, n, timeout);]]></implementation>
       </function>
       <function name="__bs_chn_putt_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
@@ -190,7 +190,7 @@ return iqReadTimeout(&bsp->bs.iqueue, bp, n, timeout);]]></implementation>
         <implementation><![CDATA[
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-return oqPutTimeout(&bsp->bs.oqueue, b, timeout);]]></implementation>
+return oqPutTimeout(&bsp->oqueue, b, timeout);]]></implementation>
       </function>
       <function name="__bs_chn_gett_impl" ctype="msg_t">
         <param name="ip" ctype="void *" />
@@ -198,7 +198,7 @@ return oqPutTimeout(&bsp->bs.oqueue, b, timeout);]]></implementation>
         <implementation><![CDATA[
 hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
 
-return iqGetTimeout(&bsp->bs.iqueue, timeout);]]></implementation>
+return iqGetTimeout(&bsp->iqueue, timeout);]]></implementation>
       </function>
       <function name="__bs_chn_getclr_impl" ctype="eventflags_t">
         <param name="ip" ctype="void *" />

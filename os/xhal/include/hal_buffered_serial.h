@@ -51,14 +51,10 @@
 
 /**
  * @class       hal_buffered_serial_c
- * @extends     base_driver_c
+ * @extends     base_object_c, hal_base_driver_c.
  * @implements  asynchronous_channel_i
  *
  * @brief       Ancestor class of serial buffered drivers.
- * @note        The class namespace is <tt>bs</tt>, access to class fields is
- *              done using: <tt><objp>->bs.<fieldname></tt><br>Note that fields
- *              of ancestor classes are in their own namespace in order to
- *              avoid field naming conflicts.
  *
  * @name        Class @p hal_buffered_serial_c structures
  * @{
@@ -70,9 +66,58 @@
 typedef struct hal_buffered_serial hal_buffered_serial_c;
 
 /**
- * @brief       Class @p hal_buffered_serial_c data as a structure.
+ * @brief       Class @p hal_buffered_serial_c virtual methods table.
  */
-struct bs_data {
+struct hal_buffered_serial_vmt {
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From hal_base_driver_c.*/
+  msg_t (*start)(void *ip);
+  void (*stop)(void *ip);
+  msg_t (*configure)(void *ip, const void *config);
+  /* From hal_buffered_serial_c.*/
+};
+
+/**
+ * @brief       Structure representing a HAL buffered serial driver class.
+ */
+struct hal_buffered_serial {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct hal_buffered_serial_vmt *vmt;
+  /**
+   * @brief       Driver state.
+   */
+  driver_state_t            state;
+  /**
+   * @brief       Open counter.
+   */
+  unsigned int              opencnt;
+  /**
+   * @brief       Driver owner.
+   */
+  void                      *owner;
+#if (HAL_USE_MUTUAL_EXCLUSION == TRUE) || defined (__DOXYGEN__)
+  /**
+   * @brief       Driver mutex.
+   */
+  mutex_t                   mutex;
+#endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
+#if (HAL_USE_REGISTRY == TRUE) || defined (__DOXYGEN__)
+  /**
+   * @brief       Driver identifier.
+   */
+  unsigned int              id;
+  /**
+   * @brief       Driver name.
+   */
+  const char                *name;
+  /**
+   * @brief       Registry link structure.
+   */
+  hal_regent_t              regent;
+#endif /* HAL_USE_REGISTRY == TRUE */
   /**
    * @brief       Implemented interface @p asynchronous_channel_i.
    */
@@ -90,59 +135,6 @@ struct bs_data {
    */
   event_source_t            event;
 };
-
-/**
- * @brief       Class @p hal_buffered_serial_c methods.
- */
-#define __bs_methods                                                        \
-  __drv_methods                                                             \
-  /* No methods.*/
-
-/**
- * @brief       Class @p hal_buffered_serial_c data.
- */
-#define __bs_data                                                           \
-  __drv_data                                                                \
-  struct bs_data            bs;
-
-/**
- * @brief       Class @p hal_buffered_serial_c VMT initializer.
- */
-#define __bs_vmt_init(ns)                                                   \
-  __drv_vmt_init(ns)
-
-/**
- * @brief       Class @p hal_buffered_serial_c virtual methods table.
- */
-struct hal_buffered_serial_vmt {
-  __bs_methods
-};
-
-/**
- * @brief       Structure representing a HAL buffered serial driver class.
- */
-struct hal_buffered_serial {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct hal_buffered_serial_vmt *vmt;
-  __bs_data
-};
-
-/**
- * @memberof    hal_buffered_serial_c
- *
- * @brief       Access macro for hal_buffered_serial_c interfaces.
- *
- * @param[in]     ip            Pointer to the class instance.
- * @param         ifns          Implemented interface namespace.
- * @return                      A void pointer to the interface within the
- *                              class instance.
- *
- * @api
- */
-#define bsGetIf(ip, ifns)                                                   \
-  boGetIf(ip, ifns, bs)
 /** @} */
 
 /*===========================================================================*/
@@ -188,7 +180,7 @@ CC_FORCE_INLINE
 static inline void bsAddFlagsI(void *ip, eventflags_t flags) {
   hal_buffered_serial_c *self = (hal_buffered_serial_c *)ip;
 
-  osalEventBroadcastFlagsI(&self->bs.event, flags);
+  osalEventBroadcastFlagsI(&self->event, flags);
 }
 /** @} */
 

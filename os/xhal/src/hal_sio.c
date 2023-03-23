@@ -78,15 +78,15 @@ static void __sio_drv_stop_impl(void *ip) {
   hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
 
   sio_lld_stop(siop);
-  siop->sio.cb      = NULL;
-  siop->sio.enabled = (sioevents_t)0;
+  siop->cb      = NULL;
+  siop->enabled = (sioevents_t)0;
 
 #if SIO_USE_SYNCHRONIZATION == TRUE
   /* Informing waiting threads, if any.*/
-  osalThreadResumeI(&siop->sio.sync_rx, MSG_RESET);
-  osalThreadResumeI(&siop->sio.sync_rxidle, MSG_RESET);
-  osalThreadResumeI(&siop->sio.sync_tx, MSG_RESET);
-  osalThreadResumeI(&siop->sio.sync_txend, MSG_RESET);
+  osalThreadResumeI(&siop->sync_rx, MSG_RESET);
+  osalThreadResumeI(&siop->sync_rxidle, MSG_RESET);
+  osalThreadResumeI(&siop->sync_tx, MSG_RESET);
+  osalThreadResumeI(&siop->sync_txend, MSG_RESET);
   osalOsRescheduleS();
 #endif
 }
@@ -263,8 +263,11 @@ void sioInit(void) {
  * @brief       VMT structure of SIO driver class.
  * @note        It is public because accessed by the inlined constructor.
  */
-const struct hal_sio_driver_vmt __sio_vmt = {
-  __sio_vmt_init(sio)
+const struct hal_sio_driver_vmt __hal_sio_driver_vmt = {
+  .dispose                                  = xxx,
+  .start                                    = xxx,
+  .stop                                     = xxx,
+  .configure                                = xxx
 };
 
 /**
@@ -293,20 +296,20 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
   /* Implementation of interface asynchronous_channel_i.*/
   {
     static const struct asynchronous_channel_vmt sio_chn_vmt = {
-      __chn_vmt_init(sio, offsetof(hal_sio_driver_c, sio.chn))
+      __asynchronous_channel_vmt_init(sio, offsetof(hal_sio_driver_c, sio.chn))
     };
     oopIfObjectInit(&self->sio.chn, &sio_chn_vmt);
   }
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
 
   /* Initialization code.*/
-  self->sio.enabled     = (sioevents_t)0;
-  self->sio.cb          = NULL;
+  self->enabled     = (sioevents_t)0;
+  self->cb          = NULL;
 #if SIO_USE_SYNCHRONIZATION == TRUE
-  self->sio.sync_rx     = NULL;
-  self->sio.sync_rxidle = NULL;
-  self->sio.sync_tx     = NULL;
-  self->sio.sync_txend  = NULL;
+  self->sync_rx     = NULL;
+  self->sync_rxidle = NULL;
+  self->sync_tx     = NULL;
+  self->sync_txend  = NULL;
 #endif
 
   /* Optional, user-defined initializer.*/
@@ -526,7 +529,7 @@ msg_t sioSynchronizeRX(void *ip, sysinterval_t timeout) {
     is constant.*/
   while (sioIsRXEmptyX(self)) {
   /*lint -restore*/
-    msg = osalThreadSuspendTimeoutS(&self->sio.sync_rx, timeout);
+    msg = osalThreadSuspendTimeoutS(&self->sync_rx, timeout);
     if (msg != MSG_OK) {
       break;
     }
@@ -576,7 +579,7 @@ msg_t sioSynchronizeRXIdle(void *ip, sysinterval_t timeout) {
     is constant.*/
   while (!sioIsRXIdleX(self)) {
   /*lint -restore*/
-    msg = osalThreadSuspendTimeoutS(&self->sio.sync_rxidle, timeout);
+    msg = osalThreadSuspendTimeoutS(&self->sync_rxidle, timeout);
     if (msg != MSG_OK) {
       break;
     }
@@ -621,7 +624,7 @@ msg_t sioSynchronizeTX(void *ip, sysinterval_t timeout) {
     is constant.*/
   while (sioIsTXFullX(self)) {
   /*lint -restore*/
-    msg = osalThreadSuspendTimeoutS(&self->sio.sync_tx, timeout);
+    msg = osalThreadSuspendTimeoutS(&self->sync_tx, timeout);
     if (msg != MSG_OK) {
       break;
     }
@@ -663,7 +666,7 @@ msg_t sioSynchronizeTXEnd(void *ip, sysinterval_t timeout) {
     which is constant.*/
   if (sioIsTXOngoingX(self)) {
   /*lint -restore*/
-    msg = osalThreadSuspendTimeoutS(&self->sio.sync_txend, timeout);
+    msg = osalThreadSuspendTimeoutS(&self->sync_txend, timeout);
   }
   else {
     msg = MSG_OK;

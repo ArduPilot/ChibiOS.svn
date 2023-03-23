@@ -63,7 +63,7 @@
         </param>
         <param name="f">callback function to be associated</param>
         <xclass />
-        <implementation><![CDATA[(siop)->sio.cb = (f)]]></implementation>
+        <implementation><![CDATA[(siop)->cb = (f)]]></implementation>
       </macro>
       <macro name="sioIsRXEmptyX">
         <brief>Determines the state of the RX FIFO.</brief>
@@ -125,7 +125,7 @@
         <xclass />
         <implementation><![CDATA[
 do {
-  (siop)->sio.enabled = (mask);
+  (siop)->enabled = (mask);
   sio_lld_update_enable_flags(siop);
 } while (false)]]></implementation>
       </macro>
@@ -139,7 +139,7 @@ do {
         <xclass />
         <implementation><![CDATA[
 do {
-  (siop)->sio.enabled |= (mask);
+  (siop)->enabled |= (mask);
   sio_lld_update_enable_flags(siop);
 } while (false)]]></implementation>
       </macro>
@@ -153,7 +153,7 @@ do {
         <xclass />
         <implementation><![CDATA[
 do {
-  (siop)->sio.enabled &= ~(mask);
+  (siop)->enabled &= ~(mask);
   sio_lld_update_enable_flags(siop);
 } while (false)]]></implementation>
       </macro>
@@ -164,7 +164,7 @@ do {
         </param>
         <return>The enabled event flags.</return>
         <xclass />
-        <implementation><![CDATA[(siop)->sio.enabled]]></implementation>
+        <implementation><![CDATA[(siop)->enabled]]></implementation>
       </macro>
       <macro name="sioGetAndClearErrorsX">
         <brief>Gets and clears SIO error flags.</brief>
@@ -278,8 +278,8 @@ do {
           <notapi />
           <implementation><![CDATA[
 do {
-  if ((siop)->sio.cb != NULL) {
-    (siop)->sio.cb(siop);
+  if ((siop)->cb != NULL) {
+    (siop)->cb(siop);
   }
 } while (false)]]></implementation>
         </macro>
@@ -293,8 +293,8 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sio.sync_rx, SIO_MSG_ERRORS);
-  osalThreadResumeI(&(siop)->sio.sync_rxidle, SIO_MSG_ERRORS);
+  osalThreadResumeI(&(siop)->sync_rx, SIO_MSG_ERRORS);
+  osalThreadResumeI(&(siop)->sync_rxidle, SIO_MSG_ERRORS);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -307,7 +307,7 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sio.sync_rx, MSG_OK);
+  osalThreadResumeI(&(siop)->sync_rx, MSG_OK);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -320,7 +320,7 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sio.sync_rxidle, MSG_OK);
+  osalThreadResumeI(&(siop)->sync_rxidle, MSG_OK);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -333,7 +333,7 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sio.sync_tx, MSG_OK);
+  osalThreadResumeI(&(siop)->sync_tx, MSG_OK);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -346,7 +346,7 @@ do {
             <implementation><![CDATA[
 do {
   osalSysLockFromISR();
-  osalThreadResumeI(&(siop)->sio.sync_txend, MSG_OK);
+  osalThreadResumeI(&(siop)->sync_txend, MSG_OK);
   osalSysUnlockFromISR();
 } while (false)]]></implementation>
           </macro>
@@ -460,13 +460,13 @@ sio_lld_driver_fields;]]></verbatim>
         <methods>
           <objinit callsuper="true">
             <implementation><![CDATA[
-self->sio.enabled     = (sioevents_t)0;
-self->sio.cb          = NULL;
+self->enabled     = (sioevents_t)0;
+self->cb          = NULL;
 #if SIO_USE_SYNCHRONIZATION == TRUE
-self->sio.sync_rx     = NULL;
-self->sio.sync_rxidle = NULL;
-self->sio.sync_tx     = NULL;
-self->sio.sync_txend  = NULL;
+self->sync_rx     = NULL;
+self->sync_rxidle = NULL;
+self->sync_tx     = NULL;
+self->sync_txend  = NULL;
 #endif
 
 /* Optional, user-defined initializer.*/
@@ -615,7 +615,7 @@ msg = MSG_OK;
   is constant.*/
 while (sioIsRXEmptyX(self)) {
 /*lint -restore*/
-  msg = osalThreadSuspendTimeoutS(&self->sio.sync_rx, timeout);
+  msg = osalThreadSuspendTimeoutS(&self->sync_rx, timeout);
   if (msg != MSG_OK) {
     break;
   }
@@ -664,7 +664,7 @@ msg = MSG_OK;
   is constant.*/
 while (!sioIsRXIdleX(self)) {
 /*lint -restore*/
-  msg = osalThreadSuspendTimeoutS(&self->sio.sync_rxidle, timeout);
+  msg = osalThreadSuspendTimeoutS(&self->sync_rxidle, timeout);
   if (msg != MSG_OK) {
     break;
   }
@@ -708,7 +708,7 @@ msg = MSG_OK;
   is constant.*/
 while (sioIsTXFullX(self)) {
 /*lint -restore*/
-  msg = osalThreadSuspendTimeoutS(&self->sio.sync_tx, timeout);
+  msg = osalThreadSuspendTimeoutS(&self->sync_tx, timeout);
   if (msg != MSG_OK) {
     break;
   }
@@ -748,7 +748,7 @@ osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
   which is constant.*/
 if (sioIsTXOngoingX(self)) {
 /*lint -restore*/
-  msg = osalThreadSuspendTimeoutS(&self->sio.sync_txend, timeout);
+  msg = osalThreadSuspendTimeoutS(&self->sync_txend, timeout);
 }
 else {
   msg = MSG_OK;
@@ -813,15 +813,15 @@ return msg;]]></implementation>
 hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
 
 sio_lld_stop(siop);
-siop->sio.cb      = NULL;
-siop->sio.enabled = (sioevents_t)0;
+siop->cb      = NULL;
+siop->enabled = (sioevents_t)0;
 
 #if SIO_USE_SYNCHRONIZATION == TRUE
 /* Informing waiting threads, if any.*/
-osalThreadResumeI(&siop->sio.sync_rx, MSG_RESET);
-osalThreadResumeI(&siop->sio.sync_rxidle, MSG_RESET);
-osalThreadResumeI(&siop->sio.sync_tx, MSG_RESET);
-osalThreadResumeI(&siop->sio.sync_txend, MSG_RESET);
+osalThreadResumeI(&siop->sync_rx, MSG_RESET);
+osalThreadResumeI(&siop->sync_rxidle, MSG_RESET);
+osalThreadResumeI(&siop->sync_tx, MSG_RESET);
+osalThreadResumeI(&siop->sync_txend, MSG_RESET);
 osalOsRescheduleS();
 #endif]]></implementation>
       </function>

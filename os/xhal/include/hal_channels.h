@@ -164,14 +164,11 @@ typedef eventflags_t chnflags_t;
 
 /**
  * @interface   asynchronous_channel_i
- * @extends     sequential_stream_i
+ * @extends     base_interface_i, sequential_stream_i.
  *
  * @brief       Base I/O channel interface.
  * @details     This header defines an abstract interface useful to access
  *              generic I/O serial devices in a standardized way.
- * @note        The interface namespace is <tt>chn</tt>, access to an
- *              implemented interface is done using:
- *              <tt>&<objp>-><classnamespace>.chn</tt>.
  *
  * @name        Interface @p asynchronous_channel_i structures
  * @{
@@ -183,9 +180,19 @@ typedef eventflags_t chnflags_t;
 typedef struct asynchronous_channel asynchronous_channel_i;
 
 /**
- * @brief       Interface @p asynchronous_channel_i methods as a structure.
+ * @brief       Interface @p asynchronous_channel_i virtual methods table.
  */
-struct chn_methods {
+struct asynchronous_channel_vmt {
+  /* Memory offset between this interface structure and begin of
+     the implementing class structure.*/
+  size_t instance_offset;
+  /* From base_interface_i.*/
+  /* From sequential_stream_i.*/
+  size_t (*write)(void *ip, const uint8_t *bp, size_t n);
+  size_t (*read)(void *ip, uint8_t *bp, size_t n);
+  msg_t (*put)(void *ip, uint8_t b);
+  msg_t (*get)(void *ip);
+  /* From asynchronous_channel_i.*/
   size_t (*writet)(void *ip, const uint8_t *bp, size_t n, sysinterval_t timeout);
   size_t (*readt)(void *ip, uint8_t *bp, size_t n, sysinterval_t timeout);
   msg_t (*putt)(void *ip, uint8_t b, sysinterval_t timeout);
@@ -195,36 +202,7 @@ struct chn_methods {
 };
 
 /**
- * @brief       Interface @p asynchronous_channel_i methods.
- */
-#define __chn_methods                                                       \
-  __stm_methods                                                             \
-  struct chn_methods        chn;
-
-/**
- * @brief       Interface @p asynchronous_channel_i VMT initializer.
- *
- * @param         ns            Namespace of the implementing class.
- * @param[in]     off           VMT offset to be stored.
- */
-#define __chn_vmt_init(ns, off)                                             \
-  __stm_vmt_init(ns, off)                                                   \
-  .chn.writet                               = __##ns##_chn_writet_impl,     \
-  .chn.readt                                = __##ns##_chn_readt_impl,      \
-  .chn.putt                                 = __##ns##_chn_putt_impl,       \
-  .chn.gett                                 = __##ns##_chn_gett_impl,       \
-  .chn.getclr                               = __##ns##_chn_getclr_impl,     \
-  .chn.ctl                                  = __##ns##_chn_ctl_impl,
-
-/**
- * @brief       Interface @p asynchronous_channel_i virtual methods table.
- */
-struct asynchronous_channel_vmt {
-  __chn_methods
-};
-
-/**
- * @brief       Structure representing a base I/O channel.
+ * @brief       Structure representing a base I/O channel interface.
  */
 struct asynchronous_channel {
   /**
@@ -281,7 +259,7 @@ static inline size_t chnWriteTimeout(void *ip, const uint8_t *bp, size_t n,
                                      sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
 
-  return self->vmt->chn.writet(ip, bp, n, timeout);
+  return self->vmt->writet(ip, bp, n, timeout);
 }
 
 /**
@@ -311,7 +289,7 @@ static inline size_t chnReadTimeout(void *ip, uint8_t *bp, size_t n,
                                     sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
 
-  return self->vmt->chn.readt(ip, bp, n, timeout);
+  return self->vmt->readt(ip, bp, n, timeout);
 }
 
 /**
@@ -343,7 +321,7 @@ CC_FORCE_INLINE
 static inline msg_t chnPutTimeout(void *ip, uint8_t b, sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
 
-  return self->vmt->chn.putt(ip, b, timeout);
+  return self->vmt->putt(ip, b, timeout);
 }
 
 /**
@@ -372,7 +350,7 @@ CC_FORCE_INLINE
 static inline msg_t chnGetTimeout(void *ip, sysinterval_t timeout) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
 
-  return self->vmt->chn.gett(ip, timeout);
+  return self->vmt->gett(ip, timeout);
 }
 
 /**
@@ -393,7 +371,7 @@ CC_FORCE_INLINE
 static inline chnflags_t chnGetAndClearFlags(void *ip, chnflags_t mask) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
 
-  return self->vmt->chn.getclr(ip, mask);
+  return self->vmt->getclr(ip, mask);
 }
 
 /**
@@ -417,7 +395,7 @@ CC_FORCE_INLINE
 static inline msg_t chnControl(void *ip, unsigned int operation, void *arg) {
   asynchronous_channel_i *self = (asynchronous_channel_i *)ip;
 
-  return self->vmt->chn.ctl(ip, operation, arg);
+  return self->vmt->ctl(ip, operation, arg);
 }
 /** @} */
 

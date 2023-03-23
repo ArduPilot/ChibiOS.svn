@@ -121,13 +121,9 @@ struct hal_regent {
 
 /**
  * @class       hal_base_driver_c
- * @extends     base_object_c
+ * @extends     base_object_c.
  *
  * @brief       Ancestor class of stateful HAL drivers.
- * @note        The class namespace is <tt>drv</tt>, access to class fields is
- *              done using: <tt><objp>->drv.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p hal_base_driver_c structures
  * @{
@@ -139,18 +135,25 @@ struct hal_regent {
 typedef struct hal_base_driver hal_base_driver_c;
 
 /**
- * @brief       Class @p hal_base_driver_c methods as a structure.
+ * @brief       Class @p hal_base_driver_c virtual methods table.
  */
-struct drv_methods {
+struct hal_base_driver_vmt {
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From hal_base_driver_c.*/
   msg_t (*start)(void *ip);
   void (*stop)(void *ip);
   msg_t (*configure)(void *ip, const void *config);
 };
 
 /**
- * @brief       Class @p hal_base_driver_c data as a structure.
+ * @brief       Structure representing a HAL base driver class.
  */
-struct drv_data {
+struct hal_base_driver {
+  /**
+   * @brief       Virtual Methods Table.
+   */
+  const struct hal_base_driver_vmt *vmt;
   /**
    * @brief       Driver state.
    */
@@ -183,47 +186,6 @@ struct drv_data {
    */
   hal_regent_t              regent;
 #endif /* HAL_USE_REGISTRY == TRUE */
-};
-
-/**
- * @brief       Class @p hal_base_driver_c methods.
- */
-#define __drv_methods                                                       \
-  __bo_methods                                                              \
-  struct drv_methods        drv;
-
-/**
- * @brief       Class @p hal_base_driver_c data.
- */
-#define __drv_data                                                          \
-  __bo_data                                                                 \
-  struct drv_data           drv;
-
-/**
- * @brief       Class @p hal_base_driver_c VMT initializer.
- */
-#define __drv_vmt_init(ns)                                                  \
-  __bo_vmt_init(ns)                                                         \
-  .drv.start                                = __##ns##_drv_start_impl,      \
-  .drv.stop                                 = __##ns##_drv_stop_impl,       \
-  .drv.configure                            = __##ns##_drv_configure_impl,
-
-/**
- * @brief       Class @p hal_base_driver_c virtual methods table.
- */
-struct hal_base_driver_vmt {
-  __drv_methods
-};
-
-/**
- * @brief       Structure representing a HAL base driver class.
- */
-struct hal_base_driver {
-  /**
-   * @brief       Virtual Methods Table.
-   */
-  const struct hal_base_driver_vmt *vmt;
-  __drv_data
 };
 /** @} */
 
@@ -277,7 +239,7 @@ CC_FORCE_INLINE
 static inline msg_t __drv_start(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  return self->vmt->drv.start(ip);
+  return self->vmt->start(ip);
 }
 
 /**
@@ -294,7 +256,7 @@ CC_FORCE_INLINE
 static inline void __drv_stop(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  self->vmt->drv.stop(ip);
+  self->vmt->stop(ip);
 }
 
 /**
@@ -317,7 +279,7 @@ CC_FORCE_INLINE
 static inline msg_t drvConfigureX(void *ip, const void *config) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  return self->vmt->drv.configure(ip, config);
+  return self->vmt->configure(ip, config);
 }
 /** @} */
 
@@ -340,7 +302,7 @@ CC_FORCE_INLINE
 static inline driver_state_t drvGetStateX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  return self->drv.state;
+  return self->state;
 }
 
 /**
@@ -358,7 +320,7 @@ CC_FORCE_INLINE
 static inline void drvSetStateX(void *ip, driver_state_t state) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  self->drv.state = state;
+  self->state = state;
 }
 
 /**
@@ -376,7 +338,7 @@ CC_FORCE_INLINE
 static inline void *drvGetOwnerX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  return self->drv.owner;
+  return self->owner;
 }
 
 /**
@@ -394,7 +356,7 @@ CC_FORCE_INLINE
 static inline void drvSetOwnerX(void *ip, void *owner) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  self->drv.owner = owner;
+  self->owner = owner;
 }
 
 /**
@@ -414,7 +376,7 @@ static inline const char *drvGetNameX(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
 #if HAL_USE_REGISTRY == TRUE
-  return self->drv.name;
+  return self->name;
 #else
   return "unk";
 #endif
@@ -437,7 +399,7 @@ static inline void drvSetNameX(void *ip, const char *name) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
 #if HAL_USE_REGISTRY == TRUE
-  self->drv.name = name;
+  self->name = name;
 #else
   (void)name;
 #endif
@@ -458,7 +420,7 @@ CC_FORCE_INLINE
 static inline void drvLock(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  osalMutexLock(&self->drv.mutex);
+  osalMutexLock(&self->mutex);
 }
 
 /**
@@ -475,7 +437,7 @@ CC_FORCE_INLINE
 static inline void drvUnlock(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  osalMutexUnlock(&self->drv.mutex);
+  osalMutexUnlock(&self->mutex);
 }
 #endif /* HAL_USE_MUTUAL_EXCLUSION == TRUE */
 /** @} */

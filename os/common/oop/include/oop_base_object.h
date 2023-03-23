@@ -118,10 +118,6 @@
  * @details     This abstract class is the common ancestor of all classes used
  *              in ChibiOS. This class just defines the position of the VMT
  *              pointer inside the structure.
- * @note        The class namespace is <tt>bo</tt>, access to class fields is
- *              done using: <tt><objp>->bo.<fieldname></tt><br>Note that fields
- *              of ancestor classes are in their own namespace in order to
- *              avoid field naming conflicts.
  *
  * @name        Class @p base_object_c structures
  * @{
@@ -133,35 +129,11 @@
 typedef struct base_object base_object_c;
 
 /**
- * @brief       Class @p base_object_c methods as a structure.
- */
-struct base_object_methods {
-  void (*dispose)(void *ip);
-};
-
-/**
- * @brief       Class @p base_object_c methods.
- */
-#define __base_object_methods                                               \
-  struct base_object_methods bo;
-
-/**
- * @brief       Class @p base_object_c data.
- */
-#define __base_object_data                                                  \
-  /* No data.*/
-
-/**
- * @brief       Class @p base_object_c VMT initializer.
- */
-#define __base_object_vmt_init(ns)                                          \
-  .bo.dispose                               = __##ns##_bo_dispose_impl,
-
-/**
  * @brief       Class @p base_object_c virtual methods table.
  */
 struct base_object_vmt {
-  __base_object_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
 };
 
 /**
@@ -172,7 +144,6 @@ struct base_object {
    * @brief       Virtual Methods Table.
    */
   const struct base_object_vmt *vmt;
-  __base_object_data
 };
 /** @} */
 
@@ -212,7 +183,7 @@ CC_FORCE_INLINE
 static inline void boDispose(void *ip) {
   base_object_c *self = (base_object_c *)ip;
 
-  self->vmt->bo.dispose(ip);
+  self->vmt->dispose(ip);
 }
 /** @} */
 

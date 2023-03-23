@@ -67,10 +67,10 @@ hal_regent_t                hal_registry;
  */
 static void drv_reg_insert(hal_base_driver_c *drvp) {
 
-  drvp->drv.regent.next       = &hal_registry;
-  drvp->drv.regent.prev       = hal_registry.prev;
-  drvp->drv.regent.prev->next = &drvp->drv.regent;
-  hal_registry.prev           = &drvp->drv.regent;
+  drvp->regent.next       = &hal_registry;
+  drvp->regent.prev       = hal_registry.prev;
+  drvp->regent.prev->next = &drvp->regent;
+  hal_registry.prev       = &drvp->regent;
 }
 
 /**
@@ -81,8 +81,8 @@ static void drv_reg_insert(hal_base_driver_c *drvp) {
  */
 static void drv_reg_remove(hal_base_driver_c *drvp) {
 
-  drvp->drv.regent.prev->next = drvp->drv.regent.next;
-  drvp->drv.regent.next->prev = drvp->drv.regent.prev;
+  drvp->regent.prev->next = drvp->regent.next;
+  drvp->regent.next->prev = drvp->regent.prev;
 }
 #endif /* HAL_USE_REGISTRY == TRUE */
 
@@ -137,7 +137,7 @@ hal_base_driver_c *drvRegGetFirstX(void) {
 hal_base_driver_c *drvRegGetNextX(hal_base_driver_c *drvp) {
   hal_regent_t *rep;
 
-  rep = drvp->drv.regent.next;
+  rep = drvp->regent.next;
   if (rep == &hal_registry) {
     return NULL;
   }
@@ -218,13 +218,13 @@ void *__drv_objinit_impl(void *ip, const void *vmt) {
   __bo_objinit_impl(self, vmt);
 
   /* Initialization code.*/
-  self->drv.state   = HAL_DRV_STATE_STOP;
-  self->drv.opencnt = 0U;
-  self->drv.owner   = NULL;
-  osalMutexObjectInit(&self->drv.mutex);
+  self->state   = HAL_DRV_STATE_STOP;
+  self->opencnt = 0U;
+  self->owner   = NULL;
+  osalMutexObjectInit(&self->mutex);
 #if HAL_USE_REGISTRY == TRUE
-  self->drv.id      = 0U;
-  self->drv.name    = "unk";
+  self->id      = 0U;
+  self->name    = "unk";
   drv_reg_insert(self);
 #endif
 
@@ -281,15 +281,15 @@ msg_t drvOpen(void *ip) {
 
   osalSysLock();
 
-  if (self->drv.opencnt == 0U) {
+  if (self->opencnt == 0U) {
     /* Physically starting the peripheral.*/
     msg = __drv_start(self);
     if (msg == HAL_RET_SUCCESS) {
-      self->drv.opencnt++;
-      self->drv.state = HAL_DRV_STATE_READY;
+      self->opencnt++;
+      self->state = HAL_DRV_STATE_READY;
     }
     else {
-      self->drv.state = HAL_DRV_STATE_STOP;
+      self->state = HAL_DRV_STATE_STOP;
     }
   }
   else {
@@ -320,10 +320,10 @@ void drvClose(void *ip) {
 
   osalSysLock();
 
-  osalDbgAssert(self->drv.opencnt > 0U, "not opened");
+  osalDbgAssert(self->opencnt > 0U, "not opened");
 
-  if (--self->drv.opencnt == 0U) {
-    self->drv.state = HAL_DRV_STATE_STOP;
+  if (--self->opencnt == 0U) {
+    self->state = HAL_DRV_STATE_STOP;
     __drv_stop(self);
   }
 

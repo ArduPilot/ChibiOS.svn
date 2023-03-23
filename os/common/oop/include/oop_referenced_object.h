@@ -56,16 +56,12 @@ typedef unsigned int object_references_t;
 
 /**
  * @class       referenced_object_c
- * @extends     base_object_c
+ * @extends     base_object_c.
  *
  * @brief       Common ancestor class of all reference-counted objects.
  * @details     Base class for objects that implement a reference counter and
  *              are disposed when the number of references reaches zero. This
  *              class extends @p base_object_c class.
- * @note        The class namespace is <tt>ro</tt>, access to class fields is
- *              done using: <tt><objp>->ro.<fieldname></tt><br>Note that fields
- *              of ancestor classes are in their own namespace in order to
- *              avoid field naming conflicts.
  *
  * @name        Class @p referenced_object_c structures
  * @{
@@ -77,50 +73,14 @@ typedef unsigned int object_references_t;
 typedef struct referenced_object referenced_object_c;
 
 /**
- * @brief       Class @p referenced_object_c methods as a structure.
- */
-struct referenced_object_methods {
-  void * (*addref)(void *ip);
-  object_references_t (*release)(void *ip);
-};
-
-/**
- * @brief       Class @p referenced_object_c data as a structure.
- */
-struct referenced_object_data {
-  /**
-   * @brief       Number of references to the object.
-   */
-  object_references_t       references;
-};
-
-/**
- * @brief       Class @p referenced_object_c methods.
- */
-#define __referenced_object_methods                                         \
-  __base_object_methods                                                     \
-  struct referenced_object_methods ro;
-
-/**
- * @brief       Class @p referenced_object_c data.
- */
-#define __referenced_object_data                                            \
-  __base_object_data                                                        \
-  struct referenced_object_data ro;
-
-/**
- * @brief       Class @p referenced_object_c VMT initializer.
- */
-#define __referenced_object_vmt_init(ns)                                    \
-  __base_object_vmt_init(ns)                                                \
-  .ro.addref                                = __##ns##_ro_addref_impl,      \
-  .ro.release                               = __##ns##_ro_release_impl,
-
-/**
  * @brief       Class @p referenced_object_c virtual methods table.
  */
 struct referenced_object_vmt {
-  __referenced_object_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
 };
 
 /**
@@ -131,7 +91,10 @@ struct referenced_object {
    * @brief       Virtual Methods Table.
    */
   const struct referenced_object_vmt *vmt;
-  __referenced_object_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
 };
 /** @} */
 
@@ -174,7 +137,7 @@ CC_FORCE_INLINE
 static inline void *roAddRef(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  return self->vmt->ro.addref(ip);
+  return self->vmt->addref(ip);
 }
 
 /**
@@ -192,7 +155,7 @@ CC_FORCE_INLINE
 static inline object_references_t roRelease(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  return self->vmt->ro.release(ip);
+  return self->vmt->release(ip);
 }
 /** @} */
 

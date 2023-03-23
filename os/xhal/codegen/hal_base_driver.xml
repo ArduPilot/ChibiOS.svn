@@ -5,6 +5,9 @@
   <brief>Common driver base abstract class.</brief>
   <details><![CDATA[This abstract class is the common ancestor of all HAL
     stateful HAL drivers.]]></details>
+  <imports>
+    <import>oop_base_object.xml</import>
+  </imports>
   <public>
     <definitions_early>
       <group description="Common driver states">
@@ -87,13 +90,13 @@
         <methods>
           <objinit callsuper="true">
             <implementation><![CDATA[
-self->drv.state   = HAL_DRV_STATE_STOP;
-self->drv.opencnt = 0U;
-self->drv.owner   = NULL;
-osalMutexObjectInit(&self->drv.mutex);
+self->state   = HAL_DRV_STATE_STOP;
+self->opencnt = 0U;
+self->owner   = NULL;
+osalMutexObjectInit(&self->mutex);
 #if HAL_USE_REGISTRY == TRUE
-self->drv.id      = 0U;
-self->drv.name    = "unk";
+self->id      = 0U;
+self->name    = "unk";
 drv_reg_insert(self);
 #endif]]></implementation>
           </objinit>
@@ -145,15 +148,15 @@ osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-if (self->drv.opencnt == 0U) {
+if (self->opencnt == 0U) {
   /* Physically starting the peripheral.*/
   msg = __drv_start(self);
   if (msg == HAL_RET_SUCCESS) {
-    self->drv.opencnt++;
-    self->drv.state = HAL_DRV_STATE_READY;
+    self->opencnt++;
+    self->state = HAL_DRV_STATE_READY;
   }
   else {
-    self->drv.state = HAL_DRV_STATE_STOP;
+    self->state = HAL_DRV_STATE_STOP;
   }
 }
 else {
@@ -177,10 +180,10 @@ osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-osalDbgAssert(self->drv.opencnt > 0U, "not opened");
+osalDbgAssert(self->opencnt > 0U, "not opened");
 
-if (--self->drv.opencnt == 0U) {
-  self->drv.state = HAL_DRV_STATE_STOP;
+if (--self->opencnt == 0U) {
+  self->state = HAL_DRV_STATE_STOP;
   __drv_stop(self);
 }
 
@@ -194,7 +197,7 @@ osalSysUnlock();]]></implementation>
               <api />
               <implementation><![CDATA[
 
-return self->drv.state;]]></implementation>
+return self->state;]]></implementation>
             </method>
             <method name="drvSetStateX" ctype="void">
               <brief>Driver state set.</brief>
@@ -204,7 +207,7 @@ return self->drv.state;]]></implementation>
               <api />
               <implementation><![CDATA[
 
-self->drv.state = state;]]></implementation>
+self->state = state;]]></implementation>
             </method>
             <method name="drvGetOwnerX" ctype="void *">
               <brief>Driver owner get.</brief>
@@ -212,7 +215,7 @@ self->drv.state = state;]]></implementation>
               <api />
               <implementation><![CDATA[
 
-return self->drv.owner;]]></implementation>
+return self->owner;]]></implementation>
             </method>
             <method name="drvSetOwnerX" ctype="void">
               <brief>Driver owner set.</brief>
@@ -222,7 +225,7 @@ return self->drv.owner;]]></implementation>
               <api />
               <implementation><![CDATA[
 
-self->drv.owner = owner;]]></implementation>
+self->owner = owner;]]></implementation>
             </method>
             <method name="drvGetNameX" ctype="const char *">
               <brief>Driver name get.</brief>
@@ -232,7 +235,7 @@ self->drv.owner = owner;]]></implementation>
               <implementation><![CDATA[
 
 #if HAL_USE_REGISTRY == TRUE
-return self->drv.name;
+return self->name;
 #else
 return "unk";
 #endif]]></implementation>
@@ -247,7 +250,7 @@ return "unk";
               <implementation><![CDATA[
 
 #if HAL_USE_REGISTRY == TRUE
-self->drv.name = name;
+self->name = name;
 #else
 (void)name;
 #endif]]></implementation>
@@ -258,14 +261,14 @@ self->drv.name = name;
                 <api />
                 <implementation><![CDATA[
 
-osalMutexLock(&self->drv.mutex);]]></implementation>
+osalMutexLock(&self->mutex);]]></implementation>
               </method>
               <method name="drvUnlock" ctype="void">
                 <brief>Driver unlock.</brief>
                 <api />
                 <implementation><![CDATA[
 
-osalMutexUnlock(&self->drv.mutex);]]></implementation>
+osalMutexUnlock(&self->mutex);]]></implementation>
               </method>
             </condition>
           </inline>
@@ -322,7 +325,7 @@ return oopGetOwner(hal_base_driver_c, drv.regent, rep);]]></implementation>
           <implementation><![CDATA[
 hal_regent_t *rep;
 
-rep = drvp->drv.regent.next;
+rep = drvp->regent.next;
 if (rep == &hal_registry) {
   return NULL;
 }
@@ -394,10 +397,10 @@ return drvp;]]></implementation>
           </param>
           <implementation><![CDATA[
 
-drvp->drv.regent.next       = &hal_registry;
-drvp->drv.regent.prev       = hal_registry.prev;
-drvp->drv.regent.prev->next = &drvp->drv.regent;
-hal_registry.prev           = &drvp->drv.regent;]]></implementation>
+drvp->regent.next       = &hal_registry;
+drvp->regent.prev       = hal_registry.prev;
+drvp->regent.prev->next = &drvp->regent;
+hal_registry.prev       = &drvp->regent;]]></implementation>
         </function>
         <function name="drv_reg_remove" ctype="void">
           <brief>Driver removal from the HAL registry.</brief>
@@ -406,8 +409,8 @@ hal_registry.prev           = &drvp->drv.regent;]]></implementation>
           </param>
           <implementation><![CDATA[
 
-drvp->drv.regent.prev->next = drvp->drv.regent.next;
-drvp->drv.regent.next->prev = drvp->drv.regent.prev;
+drvp->regent.prev->next = drvp->regent.next;
+drvp->regent.next->prev = drvp->regent.prev;
 ]]></implementation>
         </function>
       </condition>

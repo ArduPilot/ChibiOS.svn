@@ -92,9 +92,6 @@
  * @details     There are no methods in this interface. This interface is just
  *              meant to be the common ancestor of all interfaces used in
  *              ChibiOS.
- * @note        The interface namespace is <tt>bi</tt>, access to an
- *              implemented interface is done using:
- *              <tt>&<objp>-><classnamespace>.bi</tt>.
  *
  * @name        Interface @p base_interface_i structures
  * @{
@@ -106,31 +103,17 @@
 typedef struct base_interface base_interface_i;
 
 /**
- * @brief       Interface @p base_interface_i methods.
- */
-#define __base_interface_methods                                            \
-  /* Memory offset between this interface structure and begin of
-     the implementing class structure.*/                                    \
-  size_t instance_offset;
-
-/**
- * @brief       Interface @p base_interface_i VMT initializer.
- *
- * @param         ns            Namespace of the implementing class.
- * @param[in]     off           VMT offset to be stored.
- */
-#define __base_interface_vmt_init(ns, off)                                  \
-  .instance_offset                          = off,
-
-/**
  * @brief       Interface @p base_interface_i virtual methods table.
  */
 struct base_interface_vmt {
-  __base_interface_methods
+  /* Memory offset between this interface structure and begin of
+     the implementing class structure.*/
+  size_t instance_offset;
+  /* From base_interface_i.*/
 };
 
 /**
- * @brief       Structure representing a base interface.
+ * @brief       Structure representing a base interface interface.
  */
 struct base_interface {
   /**

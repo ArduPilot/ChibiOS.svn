@@ -80,7 +80,7 @@ void *__ro_objinit_impl(void *ip, const void *vmt) {
   __bo_objinit_impl(self, vmt);
 
   /* Initialization code.*/
-  self->ro.references = (object_references_t)1;
+  self->references = (object_references_t)1;
 
   return self;
 }
@@ -115,9 +115,9 @@ void __ro_dispose_impl(void *ip) {
 void *__ro_addref_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  self->ro.references++;
+  self->references++;
 
-  oopAssert(self->ro.references != (object_references_t)0, "overflow");
+  oopAssert(self->references != (object_references_t)0, "overflow");
 
   return self;
 }
@@ -132,13 +132,13 @@ void *__ro_addref_impl(void *ip) {
 object_references_t __ro_release_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
-  oopAssert(self->ro.references > 0U, "zero references");
+  oopAssert(self->references > 0U, "zero references");
 
-  if (--self->ro.references == 0U) {
+  if (--self->references == 0U) {
     boDispose(self);
   }
 
-  return self->ro.references;
+  return self->references;
 }
 /** @} */
 

@@ -29,7 +29,7 @@
         </fields>
         <methods>
           <objinit callsuper="true">
-            <implementation><![CDATA[self->ro.references = (object_references_t)1;]]></implementation>
+            <implementation><![CDATA[self->references = (object_references_t)1;]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
@@ -42,9 +42,9 @@
               <return>A new reference pointer.</return>
               <implementation><![CDATA[
 
-self->ro.references++;
+self->references++;
 
-oopAssert(self->ro.references != (object_references_t)0, "overflow");
+oopAssert(self->references != (object_references_t)0, "overflow");
 
 return self;]]></implementation>
             </method>
@@ -56,13 +56,13 @@ return self;]]></implementation>
               <return>The value of the reference counter.</return>
               <implementation><![CDATA[
 
-oopAssert(self->ro.references > 0U, "zero references");
+oopAssert(self->references > 0U, "zero references");
 
-if (--self->ro.references == 0U) {
+if (--self->references == 0U) {
   boDispose(self);
 }
 
-return self->ro.references;]]></implementation>
+return self->references;]]></implementation>
             </method>
           </virtual>
         </methods>

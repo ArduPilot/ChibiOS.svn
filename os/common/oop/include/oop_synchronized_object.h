@@ -56,16 +56,12 @@
 
 /**
  * @class       synchronized_object_c
- * @extends     referenced_object_c
+ * @extends     base_object_c, referenced_object_c.
  *
  * @brief       Common ancestor class of all reference-counted, synchronized
  *              objects.
  * @details     Base class for objects that require a synchronization
  *              mechanism. This class extends @p referenced_object_c class.
- * @note        The class namespace is <tt>so</tt>, access to class fields is
- *              done using: <tt><objp>->so.<fieldname></tt><br>Note that fields
- *              of ancestor classes are in their own namespace in order to
- *              avoid field naming conflicts.
  *
  * @name        Class @p synchronized_object_c structures
  * @{
@@ -77,40 +73,15 @@
 typedef struct synchronized_object synchronized_object_c;
 
 /**
- * @brief       Class @p synchronized_object_c data as a structure.
- */
-struct synchronized_object_data {
-  /**
-   * @brief       Embedded synchronization mutex.
-   */
-  mutex_t                   mutex;
-};
-
-/**
- * @brief       Class @p synchronized_object_c methods.
- */
-#define __synchronized_object_methods                                       \
-  __referenced_object_methods                                               \
-  /* No methods.*/
-
-/**
- * @brief       Class @p synchronized_object_c data.
- */
-#define __synchronized_object_data                                          \
-  __referenced_object_data                                                  \
-  struct synchronized_object_data so;
-
-/**
- * @brief       Class @p synchronized_object_c VMT initializer.
- */
-#define __synchronized_object_vmt_init(ns)                                  \
-  __referenced_object_vmt_init(ns)
-
-/**
  * @brief       Class @p synchronized_object_c virtual methods table.
  */
 struct synchronized_object_vmt {
-  __synchronized_object_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From synchronized_object_c.*/
 };
 
 /**
@@ -121,7 +92,14 @@ struct synchronized_object {
    * @brief       Virtual Methods Table.
    */
   const struct synchronized_object_vmt *vmt;
-  __synchronized_object_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Embedded synchronization mutex.
+   */
+  mutex_t                   mutex;
 };
 /** @} */
 

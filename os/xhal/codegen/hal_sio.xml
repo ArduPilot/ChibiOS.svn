@@ -760,6 +760,20 @@ return msg;]]></implementation>
               </method>
             </condition>
           </regular>
+          <override>
+            <method shortname="start">
+              <implementation><![CDATA[
+/********/]]></implementation>
+            </method>
+            <method shortname="stop">
+              <implementation><![CDATA[
+/********/]]></implementation>
+            </method>
+            <method shortname="configure">
+              <implementation><![CDATA[
+/********/]]></implementation>
+            </method>
+          </override>
         </methods>
       </class>
     </types>

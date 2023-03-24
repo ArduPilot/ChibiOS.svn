@@ -21,19 +21,19 @@
 <#--
   -- Global flag for generated code.
   -->
-[#assign generated = false /]
+[#assign generated = false]
 
-[#assign class_suffix = "_c" /]
-[#assign interface_suffix = "_i" /]
-[#assign xmlcache = {} /]
-[#assign classescache={} /]
-[#assign ifscache={} /]
+[#assign class_suffix = "_c"]
+[#assign interface_suffix = "_i"]
+[#assign xmlcache = {}]
+[#assign classescache={}]
+[#assign ifscache={}]
 
 [#--
   -- Resets global variables.
   --]
 [#macro ResetState]
-  [#assign generated = false /]
+  [#assign generated = false]
 [/#macro]
 
 [#--
@@ -42,11 +42,11 @@
 [#function LoadXML xmlname=""]
   [#attempt]
     [#-- Trying the default path.--]
-    [#return pp.loadData("xml", xmlname) /]
+    [#return pp.loadData("xml", xmlname)]
   [#recover]
     [#list xml.instance.paths.path as path]
       [#attempt]
-        [#return pp.loadData("xml", path[0]?ensure_ends_with("/") + xmlname) /]
+        [#return pp.loadData("xml", path[0]?ensure_ends_with("/") + xmlname)]
       [#recover]
       [/#attempt]
     [/#list]
@@ -60,19 +60,19 @@
   --]
 [#macro ImportModulePublicClasses node=[]]
   [#list node.public.types.interface as interface]
-    [#assign ifscache = ifscache + {GetNodeName(interface):interface} /]
+    [#assign ifscache = ifscache + {GetNodeName(interface):interface}]
   [/#list]
   [#list node.public.types.class as class]
-    [#assign classescache = classescache + {GetNodeName(class):class} /]
+    [#assign classescache = classescache + {GetNodeName(class):class}]
   [/#list]
   [#list node.imports.import as import]
-    [#local xmlname = import?trim /]
+    [#local xmlname = import?trim]
     [#if xmlcache[xmlname]??]
         [#-- Already in cache, no need to reimport.--]
     [#else]
-      [#local xmldoc = LoadXML(xmlname) /]
+      [#local xmldoc = LoadXML(xmlname)]
       [@ImportModulePublicClasses node=xmldoc.module /]
-      [#assign xmlcache = xmlcache + {xmlname:xmldoc} /]
+      [#assign xmlcache = xmlcache + {xmlname:xmldoc}]
     [/#if]
   [/#list]
 [/#macro]
@@ -82,10 +82,10 @@
   --]
 [#macro ImportModulePrivateClasses node=[]]
   [#list node.public.types.interface as interface]
-    [#assign ifscache = ifscache + {GetNodeName(interface):interface} /]
+    [#assign ifscache = ifscache + {GetNodeName(interface):interface}]
   [/#list]
   [#list node.public.types.class as class]
-    [#assign classescache = classescache + {GetNodeName(class):class} /]
+    [#assign classescache = classescache + {GetNodeName(class):class}]
   [/#list]
 [/#macro]
 
@@ -101,128 +101,128 @@
   -- Returns the name attribute from an XML node.
   --]
 [#function GetNodeName node=[] default="no-name"]
-  [#return (node.@name[0]!default)?trim /]
+  [#return (node.@name[0]!default)?trim]
 [/#function]
 
 [#--
   -- Returns the namespace attribute from an XML node.
   --]
 [#function GetNodeNamespace node=[] default="no-namespace"]
-  [#return (node.@namespace[0]!default)?trim /]
+  [#return (node.@namespace[0]!default)?trim]
 [/#function]
 
 [#--
   -- Returns the ancestorname attribute from an XML node.
   --]
 [#function GetNodeAncestorName node=[] default=""]
-  [#return (node.@ancestorname[0]!default)?trim /]
+  [#return (node.@ancestorname[0]!default)?trim]
 [/#function]
 
 [#--
   -- Returns the ancestornamespace attribute from an XML node.
   --]
 [#function GetNodeAncestorNamespace node=[] default=""]
-  [#return (node.@ancestornamespace[0]!default)?trim /]
+  [#return (node.@ancestornamespace[0]!default)?trim]
 [/#function]
 
 [#--
   -- Returns the descr attribute from an XML node.
   --]
 [#function GetNodeDescription node=[] default="no-descr"]
-  [#return (node.@descr[0]!default)?trim /]
+  [#return (node.@descr[0]!default)?trim]
 [/#function]
 
 [#--
   -- Returns the interface C type from an XML node.
   --]
 [#function GetInterfaceCType node=[] default=""]
-  [#local if = node /]
-  [#local ifname  = GetNodeName(if default) /]
+  [#local if = node]
+  [#local ifname  = GetNodeName(if default)]
   [#if ifname?length > 0]
-    [#local ifctype = ifname + interface_suffix /]
+    [#local ifctype = ifname + interface_suffix]
   [#else ]
-    [#local ifctype = default /]
+    [#local ifctype = default]
   [/#if]
-  [#return ifctype /]
+  [#return ifctype]
 [/#function]
 
 [#--
   -- Returns the interface ancestor C type from an XML node.
   --]
 [#function GetInterfaceAncestorCType node=[] default=""]
-  [#local if = node /]
-  [#local ancestorname  = GetNodeAncestorName(if default) /]
+  [#local if = node]
+  [#local ancestorname  = GetNodeAncestorName(if default)]
   [#if ancestorname?length > 0]
-    [#local ancestorctype = ancestorname + interface_suffix /]
+    [#local ancestorctype = ancestorname + interface_suffix]
   [#else ]
-    [#local ancestorctype = default /]
+    [#local ancestorctype = default]
   [/#if]
-  [#return ancestorctype /]
+  [#return ancestorctype]
 [/#function]
 
 [#--
   -- Returns the class C type from an XML node.
   --]
 [#function GetClassCType node=[] default=""]
-  [#local class = node /]
-  [#local classname  = GetNodeName(class default) /]
+  [#local class = node]
+  [#local classname  = GetNodeName(class default)]
   [#if classname?length > 0]
-    [#local classctype = classname + class_suffix /]
+    [#local classctype = classname + class_suffix]
   [#else ]
-    [#local classctype = default /]
+    [#local classctype = default]
   [/#if]
-  [#return classctype /]
+  [#return classctype]
 [/#function]
 
 [#--
   -- Returns the class ancestor C type from an XML node.
   --]
 [#function GetClassAncestorCType node=[] default=""]
-  [#local class = node /]
-  [#local ancestorname  = GetNodeAncestorName(class default) /]
+  [#local class = node]
+  [#local ancestorname  = GetNodeAncestorName(class default)]
   [#if ancestorname?length > 0]
-    [#local ancestorctype = ancestorname + class_suffix /]
+    [#local ancestorctype = ancestorname + class_suffix]
   [#else ]
-    [#local ancestorctype = default /]
+    [#local ancestorctype = default]
   [/#if]
-  [#return ancestorctype /]
+  [#return ancestorctype]
 [/#function]
 
 [#--
   -- Returns the class type from an XML node.
   --]
 [#function GetClassType node=[] default="no-type"]
-  [#local class = node /]
-  [#local classtype = (class.@type[0]!default)?trim /]
-  [#return classtype /]
+  [#local class = node]
+  [#local classtype = (class.@type[0]!default)?trim]
+  [#return classtype]
 [/#function]
 
 [#--
   -- Returns the method short name from an XML node.
   --]
 [#function GetMethodShortName node=[] default=""]
-  [#local method = node /]
-  [#local methodsname = (method.@shortname[0]!default)?trim /]
+  [#local method = node]
+  [#local methodsname = (method.@shortname[0]!default)?trim]
     [#if methodsname?length == 0]
-      [#local methodsname = GetNodeName(method default)?lower_case /]
+      [#local methodsname = GetNodeName(method default)?lower_case]
     [/#if]
-  [#return methodsname /]
+  [#return methodsname]
 [/#function]
 
 [#--
   -- Returns the method return C type from an XML node.
   --]
 [#function GetMethodCType node=[] default="void"]
-  [#local method = node /]
-  [#local methodctype = (method.@ctype[0]!default)?trim /]
-  [#return methodctype /]
+  [#local method = node]
+  [#local methodctype = (method.@ctype[0]!default)?trim]
+  [#return methodctype]
 [/#function]
 
 [#--
   -- Returns the method short name from an XML node.
   --]
 [#function GetObjinitCallsuper node=[] default="true"]
-  [#return (node.@callsuper[0]!default)?trim /]
+  [#return (node.@callsuper[0]!default)?trim]
 [/#function]
 
 [#--
@@ -230,15 +230,15 @@
   --]
 [#function GetClassAncestorsSequence ancestorname=""]
   [#if ancestorname?length == 0]
-    [#return [] /]
+    [#return []]
   [/#if]
   [#attempt]
-    [#local ancestorclass = classescache[ancestorname] /]
+    [#local ancestorclass = classescache[ancestorname]]
   [#recover]
-    [#stop ">>>> Unknown class '" + ancestorname + "'" /]
+    [#stop ">>>> Unknown class '" + ancestorname + "'"]
   [/#attempt]
   [#return GetClassAncestorsSequence(GetNodeAncestorName(ancestorclass)) +
-           [ancestorclass] /]
+           [ancestorclass]]
 [/#function]
 
 [#--
@@ -246,54 +246,89 @@
   --]
 [#function GetInterfaceAncestorsSequence ifname=""]
   [#if ifname?length == 0]
-    [#return [] /]
+    [#return []]
   [/#if]
   [#attempt]
-    [#local ancestorif = ifscache[ifname] /]
+    [#local ancestorif = ifscache[ifname]]
   [#recover]
-    [#stop ">>>> Unknown interface '" + ifname + "'" /]
+    [#stop ">>>> Unknown interface '" + ifname + "'"]
   [/#attempt]
   [#return GetInterfaceAncestorsSequence(GetNodeAncestorName(ancestorif)) +
-           [ancestorif] /]
+           [ancestorif]]
 [/#function]
 
 [#--
   -- Returns a sequence of class ancestors CTypes.
   --]
 [#function GetClassAncestorsCTypes ancestors=[]]
-  [#local names = [] /]
+  [#local names = []]
   [#list ancestors as ancestor]
-    [#local names = names + [GetClassCType(ancestor)] /]
+    [#local names = names + [GetClassCType(ancestor)]]
   [/#list]
-  [#return names /]
+  [#return names]
 [/#function]
 
 [#--
   -- Returns a sequence of interface ancestors CTypes.
   --]
 [#function GetInterfaceAncestorsCTypes ancestors=[]]
-  [#local names = [] /]
+  [#local names = []]
   [#list ancestors as ancestor]
-    [#local names = names + [GetInterfaceCType(ancestor)] /]
+    [#local names = names + [GetInterfaceCType(ancestor)]]
   [/#list]
-  [#return names /]
+  [#return names]
+[/#function]
+
+[#--
+  -- Returns the closest method implementation name searching in the specified
+  -- set of classes.
+  --]
+[#function GetMethodNearestImplementation classes=[] method=[]]
+  [#local shortname = GetMethodShortName(method)]
+  [#list classes?reverse as class]
+    [#local classname      = GetNodeName(class)
+            classnamespace = GetNodeNamespace(class)]
+    [#-- The dispose method is a special clase, it is always generated for
+         each class so picking the current class one. --]
+    [#if shortname == "dispose"]
+      [#return "__" + classnamespace + "_" + shortname + "_impl"]
+    [/#if]
+    [#-- First checking among the current class overrides.--]
+    [#local m = class["methods/override/method[@shortname='" + shortname + "']"]]
+    [#if m[0]??]
+      [#return "__" + classnamespace + "_" + shortname + "_impl"]
+    [/#if]
+    [#-- Checking if we reached the class where the method was declared.--]
+    [#local m = class["methods/virtual/method[@shortname='" + shortname + "']"]]
+    [#if m[0]??]
+      [#-- If the methods has an original implementation then returning it
+           else we return NULL but the system has to generate an error
+           because the method has no implementation in any ancestor.--]
+      [#if m.implementation[0]??]
+        [#return "__" + classnamespace + "_" + shortname + "_impl"]
+      [#else]
+        [#return "NULL /* Method not found.*/"]
+      [/#if]
+    [/#if]
+  [/#list]
+  [#return "NULL"]
 [/#function]
 
 [#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassFromNode node=[]]
-  [#local class = node /]
+  [#local class = node]
   [#local classname         = GetNodeName(class)
           classnamespace    = GetNodeNamespace(class)
           classctype        = GetClassCType(class)
           classdescr        = GetNodeDescription(class)
-          ancestorname      = GetNodeAncestorName(class, "") /]
-  [#local ancestors = GetClassAncestorsSequence(ancestorname) /]
+          ancestorname      = GetNodeAncestorName(class, "")]
+  [#local ancestors = GetClassAncestorsSequence(ancestorname)]
 /**
   [@doxygen.EmitTagVerbatim indent="" tag="class" text=classctype /]
   [#if ancestorname?length > 0]
-    [#local ancestorsctypes = GetClassAncestorsCTypes(ancestors) /]
+    [#local ancestorsctypes = GetClassAncestorsCTypes(ancestors)]
     [@doxygen.EmitTagFormattedNoCap indent="" tag="extends"
                                     text=ancestorsctypes?join(", ") /]
   [/#if]
@@ -333,7 +368,7 @@ struct ${classname?lower_case} {
 [@ccode.Indent 1 /]/**
 [@doxygen.EmitBrief ccode.indentation "Virtual Methods Table." /]
 [@ccode.Indent 1 /] */
-  [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N" /]
+  [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N"]
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   [#list ancestors as ancestor]
     [@GenerateClassInterfaceFields node=ancestor.implements /]
@@ -351,17 +386,17 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   -- This macro generates an interface wrapper from an XML node.
   --]
 [#macro GenerateInterfaceFromNode node=[]]
-  [#local if = node /]
+  [#local if = node]
   [#local ifname            = GetNodeName(if)
           ifnamespace       = GetNodeNamespace(if)
           ifctype           = GetInterfaceCType(if)
           ifdescr           = GetNodeDescription(if)
-          ancestorname      = GetNodeAncestorName(if, "") /]
-  [#local ancestors = GetInterfaceAncestorsSequence(ancestorname) /]
+          ancestorname      = GetNodeAncestorName(if, "")]
+  [#local ancestors = GetInterfaceAncestorsSequence(ancestorname)]
 /**
  * @interface   ${ifctype}
   [#if ancestorname?length > 0]
-    [#local ancestorsctypes = GetInterfaceAncestorsCTypes(ancestors) /]
+    [#local ancestorsctypes = GetInterfaceAncestorsCTypes(ancestors)]
     [@doxygen.EmitTagFormattedNoCap indent="" tag="extends"
                                     text=ancestorsctypes?join(", ") /]
   [/#if]
@@ -403,7 +438,7 @@ struct ${ifname?lower_case} {
 [@ccode.Indent 1 /]/**
 [@doxygen.EmitBrief ccode.indentation "Virtual Methods Table." /]
 [@ccode.Indent 1 /] */
-  [#local vmtctype  = "const struct " + ifname?lower_case + "_vmt$I*$N" /]
+  [#local vmtctype  = "const struct " + ifname?lower_case + "_vmt$I*$N"]
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 };
 /** @} */
@@ -433,7 +468,7 @@ ${funcptr}
           classctype     = GetClassCType(node)
           classdescr     = GetNodeDescription(node) /]
   [#if classtype == "regular"]
-    [#assign generated = true /]
+    [#assign generated = true]
 /**
 [@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
 [@doxygen.EmitNote "" "It is public because accessed by the inlined constructor." /]
@@ -447,7 +482,7 @@ const struct ${classname}_vmt __${classname}_vmt = {
     [/#list]
   [/#list]
   [#list methods as method]
-    [#local methodimpl = "xxx"]
+    [#local methodimpl = GetMethodNearestImplementation(classes method)]
     [#local s = (ccode.indentation + "." +
                  GetMethodShortName(method))?right_pad(ccode.initializers_align) +
                  "= " + methodimpl]
@@ -468,12 +503,12 @@ ${s}
 [#macro GenerateVMTInitializers methods=[] namespace="no-namespace"]
   [#list methods.* as node]
     [#if node?node_name == "method"]
-      [#local method = node /]
-      [#local methodsname    = GetMethodShortName(method) /]
+      [#local method = node]
+      [#local methodsname    = GetMethodShortName(method)]
       [#local s = ("  ." + namespace + "." + methodsname)?right_pad(ccode.initializers_align) +
-                  ("= __##ns##_" + namespace + "_" + methodsname + "_impl,") /]
+                  ("= __##ns##_" + namespace + "_" + methodsname + "_impl,")]
       [#if node?has_next]
-        [#local s = (s + " ")?right_pad(ccode.backslash_align) + "\\" /]
+        [#local s = (s + " ")?right_pad(ccode.backslash_align) + "\\"]
       [/#if]
 ${s}
     [/#if]
@@ -503,8 +538,8 @@ CC_FORCE_INLINE
                                   node=method /] {
 [@ccode.Indent 1 /]${ctype} *self = (${ctype} *)ip;
 
-      [#local callname   = "self->vmt->" [#-- + namespace + "."--] + methodsname /]
-      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method) /]
+      [#local callname   = "self->vmt->" [#-- + namespace + "."--] + methodsname]
+      [#local callparams = ccode.MakeCallParamsSequence(["ip"] method)]
       [#if methodretctype == "void"]
 [@ccode.GenerateFunctionCall ccode.indentation "" callname callparams /]
       [#else]
@@ -566,21 +601,21 @@ ${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_al
 [#macro GenerateClassMethods methods=[] classctype="no-ctype" inline=false]
   [#list methods.* as node]
     [#if node?node_name == "method"]
-      [#local method = node /]
+      [#local method = node]
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
-              methodimpl     = method.implementation[0]!"" /]
-      [#assign generated = true /]
+              methodimpl     = method.implementation[0]!""]
+      [#assign generated = true]
 [@doxygen.EmitFullCommentFromNode indent="" node=method
                                   extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + classctype + " instance."
                                   memberof=classctype /]
       [#if inline]
 CC_FORCE_INLINE
-        [#local modifiers = ["static", "inline"] /]
+        [#local modifiers = ["static", "inline"]]
       [#else]
-        [#local modifiers = [] /]
+        [#local modifiers = []]
       [/#if]
 [@ccode.GeneratePrototypeFromNode modifiers = modifiers
                                   params    = ["void *ip"]
@@ -590,8 +625,8 @@ CC_FORCE_INLINE
                               ccode=methodimpl /]
 }
     [#elseif node?node_name == "condition"]
-      [#local condition = node /]
-      [#local condcheck = (condition.@check[0]!"1")?trim /]
+      [#local condition = node]
+      [#local condcheck = (condition.@check[0]!"1")?trim]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateClassMethods condition classctype inline /]
 #endif /* ${condcheck} */
@@ -612,7 +647,7 @@ CC_FORCE_INLINE
           classctype        = GetClassCType(node)
           classdescr        = GetNodeDescription(node) /]
   [#if classtype == "regular"]
-    [#assign generated = true /]
+    [#assign generated = true]
 /**
 [@doxygen.EmitTagVerbatim "" "name" "Default constructor of " + classctype /]
  * @{
@@ -637,12 +672,12 @@ CC_FORCE_INLINE
                                   modifiers = ["static", "inline"]
                                   params    = [classctype + " *self"]
                                   node      = node.methods.objinit[0] /] {
-    [#local vmtname = "__" + classnamespace + "_vmt" /]
+    [#local vmtname = "__" + classnamespace + "_vmt"]
 [@ccode.Indent 1 /]static const struct ${classname}_vmt ${vmtname} = {
 [@ccode.Indent 2 /]__${classname}_vmt_init(${classnamespace})
 [@ccode.Indent 1 /]};
 
-    [#local params = ccode.MakeCallParamsSequence(["self", "&" + vmtname], node.methods.objinit[0]) /]
+    [#local params = ccode.MakeCallParamsSequence(["self", "&" + vmtname], node.methods.objinit[0])]
 [@ccode.GenerateFunctionCall indent      = ccode.indentation
                              destination = "return"
                              name        = "__" + classnamespace + "_objinit_impl"
@@ -663,7 +698,7 @@ CC_FORCE_INLINE
           classctype        = GetClassCType(node)
           classdescr        = GetNodeDescription(node) /]
   [#if classtype == "regular"]
-    [#assign generated = true /]
+    [#assign generated = true]
 /**
 [@doxygen.EmitTagVerbatim "" "name" "Default constructor of " + classctype /]
  * @{
@@ -690,7 +725,7 @@ CC_FORCE_INLINE
                                   node      = node.methods.objinit[0] /] {
 [@ccode.Indent 1 /]extern const struct ${classname}_vmt __${classnamespace}_vmt;
 
-    [#local params = ccode.MakeCallParamsSequence(["self", "&__" + classnamespace + "_vmt"], node.methods.objinit[0]) /]
+    [#local params = ccode.MakeCallParamsSequence(["self", "&__" + classnamespace + "_vmt"], node.methods.objinit[0])]
 [@ccode.GenerateFunctionCall indent      = ccode.indentation
                              destination = "return"
                              name        = "__" + classnamespace + "_objinit_impl"
@@ -718,7 +753,7 @@ CC_FORCE_INLINE
   --]
 [#macro GenerateClassInlineMethods class=[]]
   [#if class.methods.inline.*?size > 0]
-    [#local classctype = GetClassCType(class) /]
+    [#local classctype = GetClassCType(class)]
 /**
 [@doxygen.EmitTagVerbatim "" "name" "Inline methods of " + classctype /]
  * @{
@@ -735,17 +770,17 @@ CC_FORCE_INLINE
 [#macro GenerateClassRegularMethodsPrototypes node=[]]
   [#list node.* as this]
     [#if this?node_name == "method"]
-      [#local method = this /]
+      [#local method = this]
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
-              methodretctype = GetMethodCType(method) /]
+              methodretctype = GetMethodCType(method)]
 [@ccode.GeneratePrototypeFromNode indent    = ccode.indentation
                                   modifiers = []
                                   params    = ["void *ip"]
                                   node=method /];
     [#elseif this?node_name == "condition"]
-      [#local condition = this /]
-      [#local condcheck = (condition.@check[0]!"1")?trim /]
+      [#local condition = this]
+      [#local condcheck = (condition.@check[0]!"1")?trim]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateClassRegularMethodsPrototypes condition /]
 #endif /* ${condcheck} */
@@ -758,7 +793,7 @@ CC_FORCE_INLINE
   --]
 [#macro GenerateClassVirtualMethodsPrototypes class=[]]
   [#local classname        = GetNodeName(class)
-          classnamespace   = GetNodeNamespace(class) /]
+          classnamespace   = GetNodeNamespace(class)]
 [@ccode.GeneratePrototypeFromNode indent    = ccode.indentation
                                   name      = "__" + classnamespace + "_objinit_impl"
                                   ctype     = "void *"
@@ -772,7 +807,7 @@ CC_FORCE_INLINE
                           params    = ["void *ip"] /];
   [#list class.methods.virtual.* as node]
     [#if node?node_name == "method"]
-      [#local method=node /]
+      [#local method=node]
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
@@ -792,7 +827,7 @@ CC_FORCE_INLINE
   -- This macro generates regular method prototypes from a class XML node.
   --]
 [#macro GenerateClassMethodsPrototypes class=[]]
-    [#local classctype = GetClassCType(class) /]
+    [#local classctype = GetClassCType(class)]
 [@ccode.Indent 1 /]/* Methods of ${classctype}.*/
 [@GenerateClassVirtualMethodsPrototypes class /]
 [@GenerateClassRegularMethodsPrototypes class.methods.regular /]
@@ -815,7 +850,7 @@ CC_FORCE_INLINE
                                     ctype=ifctype /]
 
     [#elseif this?node_name == "condition"]
-      [#local condcheck = (this.@check[0]!"1")?trim /]
+      [#local condcheck = (this.@check[0]!"1")?trim]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateClassInterfaceFields this /]
 #endif /* ${condcheck} */
@@ -827,13 +862,13 @@ CC_FORCE_INLINE
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassWrapper node=[]]
-  [#local class = node /]
+  [#local class = node]
   [#local classname         = GetNodeName(class)
           classnamespace    = GetNodeNamespace(class)
           classctype        = GetClassCType(class)
           classdescr        = GetNodeDescription(class)
           ancestorname      = GetNodeAncestorName(class, "")
-          ancestorctype     = GetClassAncestorCType(class) /]
+          ancestorctype     = GetClassAncestorCType(class)]
 /**
 [@doxygen.EmitTagVerbatim indent="" tag="class" text=classctype /]
   [#if ancestorctype?length > 0]
@@ -860,7 +895,7 @@ CC_FORCE_INLINE
  */
 typedef struct ${classname} ${classctype};
 
-  [#local methodsstruct = classname + "_methods" /]
+  [#local methodsstruct = classname + "_methods"]
   [#if node.methods.virtual?size > 0]
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " methods as a structure." /]
@@ -870,7 +905,7 @@ struct ${methodsstruct} {
 };
 
   [/#if]
-  [#local datastruct = classname + "_data" /]
+  [#local datastruct = classname + "_data"]
   [#if class.fields.*?size > 0]
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " data as a structure." /]
@@ -884,7 +919,7 @@ struct ${datastruct} {
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " methods." /]
  */
-  [#local methodsdefine = "__" + classname + "_methods" /]
+  [#local methodsdefine = "__" + classname + "_methods"]
 #define ${methodsdefine?right_pad(68) + "\\"}
   [#if ancestorname?length > 0]
 ${("  __" + ancestorname + "_methods")?right_pad(76)}\
@@ -902,7 +937,7 @@ ${("  __" + ancestorname + "_methods")?right_pad(76)}\
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " data." /]
  */
-  [#local datadefine = "__" + classname + "_data" /]
+  [#local datadefine = "__" + classname + "_data"]
 #define ${datadefine?right_pad(68) + "\\"}
   [#if ancestorname?length > 0]
 ${("  __" + ancestorname + "_data")?right_pad(76)}\
@@ -920,13 +955,13 @@ ${("  __" + ancestorname + "_data")?right_pad(76)}\
 /**
 [@doxygen.EmitBrief "" "Class @p " + classctype + " VMT initializer." /]
  */
-  [#local vmtinitsdefine = "__" + classname + "_vmt_init(ns)" /]
+  [#local vmtinitsdefine = "__" + classname + "_vmt_init(ns)"]
 #define ${vmtinitsdefine?right_pad(68) + "\\"}
   [#if ancestorname?length > 0]
     [#-- Case where there is an ancestor.--]
-    [#local s = "  __" + ancestorname + "_vmt_init(ns)" /]
+    [#local s = "  __" + ancestorname + "_vmt_init(ns)"]
     [#if node.methods.virtual?size > 0]
-      [#local s = (s + " ")?right_pad(76) + "\\" /]
+      [#local s = (s + " ")?right_pad(76) + "\\"]
     [/#if]
 ${s}
 [@GenerateVMTInitializers methods=node.methods.virtual namespace=classnamespace /]
@@ -953,7 +988,7 @@ struct ${classname?lower_case} {
 [@ccode.Indent 1 /]/**
 [@doxygen.EmitBrief ccode.indentation "Virtual Methods Table." /]
 [@ccode.Indent 1 /] */
-  [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N" /]
+  [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N"]
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   ${datadefine}
 };
@@ -977,13 +1012,13 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateInterfaceWrapper node=[]]
-  [#local if = node /]
+  [#local if = node]
   [#local ifname            = GetNodeName(if)
           ifnamespace       = GetNodeNamespace(if)
           ifctype           = GetInterfaceCType(if)
           ifdescr           = GetNodeDescription(if)
           ancestorname      = GetNodeAncestorName(if, "")
-          ancestorctype     = GetInterfaceAncestorCType(if) /]
+          ancestorctype     = GetInterfaceAncestorCType(if)]
 /**
  * @interface   ${ifctype}
   [#if ancestorctype?length > 0]
@@ -1008,7 +1043,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
  */
 typedef struct ${ifname} ${ifctype};
 
-  [#local methodsstruct = ifname + "_methods" /]
+  [#local methodsstruct = ifname + "_methods"]
   [#if node.methods.method?size > 0]
 /**
 [@doxygen.EmitBrief "" "Interface @p " + ifctype + " methods as a structure." /]
@@ -1021,7 +1056,7 @@ struct ${methodsstruct} {
 /**
 [@doxygen.EmitBrief "" "Interface @p " + ifctype + " methods." /]
  */
-  [#local methodsdefine = "__" + ifname + "_methods" /]
+  [#local methodsdefine = "__" + ifname + "_methods"]
 ${("#define " + methodsdefine)?right_pad(ccode.backslash_align) + "\\"}
   [#if ancestorname?length > 0]
 ${(ccode.indentation + "__" + ancestorname +
@@ -1045,12 +1080,12 @@ ${(ccode.indentation + "size_t instance_offset;")}
 [@doxygen.EmitParam "" "ns" "" "Namespace of the implementing class." /]
 [@doxygen.EmitParam "" "off" "in" "VMT offset to be stored." /]
  */
-  [#local vmtinitsdefine = "__" + ifname + "_vmt_init(ns, off)" /]
+  [#local vmtinitsdefine = "__" + ifname + "_vmt_init(ns, off)"]
 #define ${vmtinitsdefine?right_pad(68) + "\\"}
   [#if ancestorname?length > 0]
-    [#local s = "  __" + ancestorname + "_vmt_init(ns, off)" /]
+    [#local s = "  __" + ancestorname + "_vmt_init(ns, off)"]
     [#if node.methods?size > 0]
-      [#local s = (s + " ")?right_pad(76) + "\\" /]
+      [#local s = (s + " ")?right_pad(76) + "\\"]
     [/#if]
 ${s}
 [@GenerateVMTInitializers methods=node.methods namespace=ifnamespace /]
@@ -1072,7 +1107,7 @@ struct ${ifname?lower_case} {
 [@ccode.Indent 1 /]/**
 [@doxygen.EmitBrief ccode.indentation "Virtual Methods Table." /]
 [@ccode.Indent 1 /] */
-  [#local vmtctype  = "const struct " + ifname?lower_case + "_vmt$I*$N" /]
+  [#local vmtctype  = "const struct " + ifname?lower_case + "_vmt$I*$N"]
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 };
 /** @} */
@@ -1098,7 +1133,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 
       [/#if]
     [#elseif this?node_name == "condition"]
-      [#local condcheck = (this.@check[0]!"1")?trim /]
+      [#local condcheck = (this.@check[0]!"1")?trim]
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateClassInterfacesInitialization this classctype classnamespace /]
 #endif /* ${condcheck} */
@@ -1111,14 +1146,14 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   -- This macro generates class method implementations from an XML node.
   --]
 [#macro GenerateClassMethodsImplementations modifiers=[] node=[]]
-  [#local class = node /]
+  [#local class = node]
   [#local classname         = GetNodeName(class)
           classnamespace    = GetNodeNamespace(class)
           classctype        = GetClassCType(class)
           classdescr        = GetNodeDescription(class)
           ancestorname      = GetNodeAncestorName(class, "")
-          ancestornamespace = GetNodeAncestorNamespace(class) /]
-  [#assign generated = true /]
+          ancestornamespace = GetNodeAncestorNamespace(class)]
+  [#assign generated = true]
 /**
 [@doxygen.EmitTagVerbatim "" "name" "Methods implementations of " + classctype /]
  * @{
@@ -1208,11 +1243,11 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 }
   [#list class.methods.virtual.* as node]
     [#if node?node_name == "method"]
-      [#local method=node /]
+      [#local method=node]
       [#local methodname     = GetNodeName(method)
               methodsname    = GetMethodShortName(method)
               methodretctype = GetMethodCType(method)
-              methodimpl     = method.implementation[0]!"" /]
+              methodimpl     = method.implementation[0]!""]
       [#if methodimpl?length > 0]
 
 /**
@@ -1248,9 +1283,9 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
           classnamespace = GetNodeNamespace(node)
           classtype      = GetClassType(node)
           classctype     = GetClassCType(node)
-          classdescr     = GetNodeDescription(node) /]
+          classdescr     = GetNodeDescription(node)]
   [#if classtype == "regular"]
-    [#assign generated = true /]
+    [#assign generated = true]
 /**
 [@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
 [@doxygen.EmitNote "" "It is public because accessed by the inlined constructor." /]
@@ -1266,9 +1301,9 @@ const struct ${classname}_vmt __${classnamespace}_vmt = {
   -- This macro generates regular methods from an XML node.
   --]
 [#macro GenerateClassRegularMethods node=[]]
-  [#local class = node /]
+  [#local class = node]
   [#if class.methods.regular.*?size > 0]
-    [#local classctype = GetClassCType(class) /]
+    [#local classctype = GetClassCType(class)]
 /**
 [@doxygen.EmitTagVerbatim "" "name" "Regular methods of " + classctype /]
  * @{

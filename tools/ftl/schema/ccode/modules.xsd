@@ -852,26 +852,10 @@
   </xs:complexType>
   <xs:complexType name="overrideMethodsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="method" type="overrideMethodType"
-        maxOccurs="1" minOccurs="1">
+      <xs:element name="method" type="overrideMethodType" maxOccurs="1"
+        minOccurs="1">
       </xs:element>
     </xs:choice>
-  </xs:complexType>
-  <xs:complexType name="overrideMethodType">
-    <xs:complexContent>
-      <xs:extension base="ParameterizedItemType">
-        <xs:sequence>
-          <xs:element name="implementation" type="xs:string"
-            maxOccurs="1" minOccurs="0">
-          </xs:element>
-        </xs:sequence>
-        <xs:attribute name="namespace" type="namespaceType"
-          use="required"></xs:attribute>
-        <xs:attribute name="shortname" type="shortnameType"
-          use="required"></xs:attribute>
-        <xs:attribute name="ctype" type="ctypeType" use="required"></xs:attribute>
-      </xs:extension>
-    </xs:complexContent>
   </xs:complexType>
   <xs:complexType name="importsType">
     <xs:sequence>
@@ -898,5 +882,12 @@
         </xs:simpleType>
       </xs:element>
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="overrideMethodType">
+    <xs:sequence>
+      <xs:element name="implementation" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="shortname" type="shortnameType" use="required"></xs:attribute>
   </xs:complexType>
 </xs:schema>

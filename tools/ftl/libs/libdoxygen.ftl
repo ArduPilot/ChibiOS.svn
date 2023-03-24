@@ -21,9 +21,9 @@
 <#--
   -- Coding style global settings.
   -->
-[#assign doxygen_boundary = 80 /]
-[#assign near_align = 16 /]
-[#assign middle_align = 32 /]
+[#assign doxygen_boundary = 80]
+[#assign near_align = 16]
+[#assign middle_align = 32]
 
 [#--
   -- Ouputs a formatted text starting from a "rich text" node containing
@@ -39,7 +39,7 @@
               ln = pn /]
     [/#if]
     [#if node?node_type == "text"]
-      [#local text = node?trim?cap_first /]
+      [#local text = node?trim?cap_first]
       [#if text?matches("^.*[a-zA-Z0-9]$")]
 [@utils.FormatStringAsText l1 ln utils.WithDot(text) limit /]
       [#else]
@@ -47,9 +47,9 @@
       [/#if]
     [#elseif node?node_type == "element"]
       [#if node?node_name == "verbatim"]
-        [#local lines = node?string?split("^", "rm") /]
+        [#local lines = node?string?split("^", "rm")]
         [#list lines as line]
-          [#local s = line?chop_linebreak /]
+          [#local s = line?chop_linebreak]
           [#if (line_index > 0) || (s?trim?length > 0)]
             [#if line?is_first]
 ${l1 + s}
@@ -132,7 +132,7 @@ ${s}
   --]
 [#macro EmitParam indent="" name="no-name" dir="boh" text="no-text"]
   [#if text?trim?length == 0]
-    [#local text="missing description" /]
+    [#local text="missing description"]
   [/#if]
   [#if dir == "in"]
 [@utils.FormatStringAsText indent + (" * @param[in]     " + name + " ")?right_pad(middle_align)
@@ -228,15 +228,15 @@ ${s}
     [#local name = param.@name[0]!"no-name"
             dir  = param.@dir[0]!"no-dir" /]
     [#if dir == "in"]
-      [#local p1 = indent + (" * @param[in]     " + name + " ")?right_pad(middle_align) /]
+      [#local p1 = indent + (" * @param[in]     " + name + " ")?right_pad(middle_align)]
     [#elseif dir == "out"]
-      [#local p1 = indent + (" * @param[out]    " + name + " ")?right_pad(middle_align) /]
+      [#local p1 = indent + (" * @param[out]    " + name + " ")?right_pad(middle_align)]
     [#elseif dir == "both"]
-      [#local p1 = indent + (" * @param[in,out] " + name + " ")?right_pad(middle_align) /]
+      [#local p1 = indent + (" * @param[in,out] " + name + " ")?right_pad(middle_align)]
     [#else]
-      [#local p1 = indent + (" * @param         " + name + " ")?right_pad(middle_align) /]
+      [#local p1 = indent + (" * @param         " + name + " ")?right_pad(middle_align)]
     [/#if]
-    [#local pn = indent + " *"?right_pad(middle_align) /]
+    [#local pn = indent + " *"?right_pad(middle_align)]
 [@EmitRichTextFromNode p1 pn param /]
   [/#list]
 [/#macro]

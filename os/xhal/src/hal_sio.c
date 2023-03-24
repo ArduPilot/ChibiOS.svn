@@ -264,10 +264,10 @@ void sioInit(void) {
  * @note        It is public because accessed by the inlined constructor.
  */
 const struct hal_sio_driver_vmt __hal_sio_driver_vmt = {
-  .dispose                                  = xxx,
-  .start                                    = xxx,
-  .stop                                     = xxx,
-  .configure                                = xxx
+  .dispose                                  = __sio_dispose_impl,
+  .start                                    = __sio_start_impl,
+  .stop                                     = __sio_stop_impl,
+  .configure                                = __sio_configure_impl
 };
 
 /**

@@ -199,59 +199,8 @@ hal_base_driver_c *drvOpenByName(const char *name, msg_t *msgp) {
  * @name        Methods implementations of hal_base_driver_c
  * @{
  */
-/**
- * @memberof    hal_base_driver_c
- * @protected
- *
- * @brief       Implementation of object creation.
- * @note        This function is meant to be used by derived classes.
- *
- * @param[out]    ip            Pointer to a @p hal_base_driver_c instance to
- *                              be initialized.
- * @param[in]     vmt           VMT pointer for the new object.
- * @return                      A new reference to the object.
- */
-void *__drv_objinit_impl(void *ip, const void *vmt) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
-  /* Initialization of the ancestors-defined parts.*/
-  __bo_objinit_impl(self, vmt);
 
-  /* Initialization code.*/
-  self->state   = HAL_DRV_STATE_STOP;
-  self->opencnt = 0U;
-  self->owner   = NULL;
-  osalMutexObjectInit(&self->mutex);
-#if HAL_USE_REGISTRY == TRUE
-  self->id      = 0U;
-  self->name    = "unk";
-  drv_reg_insert(self);
-#endif
-
-  return self;
-}
-
-/**
- * @memberof    hal_base_driver_c
- * @protected
- *
- * @brief       Implementation of object finalization.
- * @note        This function is meant to be used by derived classes.
- *
- * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance to
- *                              be disposed.
- */
-void __drv_dispose_impl(void *ip) {
-  hal_base_driver_c *self = (hal_base_driver_c *)ip;
-
-  /* Finalization code.*/
-#if HAL_USE_REGISTRY == TRUE
-  drv_reg_remove(self);
-#endif
-
-  /* Finalization of the ancestors-defined parts.*/
-  __bo_dispose_impl(self);
-}
 /** @} */
 
 /**

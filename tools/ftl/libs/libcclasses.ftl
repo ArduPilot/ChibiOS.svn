@@ -226,9 +226,10 @@
 [/#function]
 
 [#--
-  -- Returns a sequence of class ancestors nodes.
+  -- Returns a sequence of class ancestors classes from an XML node.
   --]
-[#function GetClassAncestorsSequence ancestorname=""]
+[#function GetClassAncestorsSequence class=[]]
+  [#local ancestorname = GetNodeAncestorName(class)]
   [#if ancestorname?length == 0]
     [#return []]
   [/#if]
@@ -237,24 +238,23 @@
   [#recover]
     [#stop ">>>> Unknown class '" + ancestorname + "'"]
   [/#attempt]
-  [#return GetClassAncestorsSequence(GetNodeAncestorName(ancestorclass)) +
-           [ancestorclass]]
+  [#return GetClassAncestorsSequence(ancestorclass) + [ancestorclass]]
 [/#function]
 
 [#--
-  -- Returns a sequence of interface ancestors nodes.
+  -- Returns a sequence of interface ancestors interfaces from an XML node.
   --]
-[#function GetInterfaceAncestorsSequence ifname=""]
-  [#if ifname?length == 0]
+[#function GetInterfaceAncestorsSequence if=[]]
+  [#local ancestorname = GetNodeAncestorName(if)]
+  [#if ancestorname?length == 0]
     [#return []]
   [/#if]
   [#attempt]
-    [#local ancestorif = ifscache[ifname]]
+    [#local ancestorif = ifscache[ancestorname]]
   [#recover]
-    [#stop ">>>> Unknown interface '" + ifname + "'"]
+    [#stop ">>>> Unknown interface '" + ancestorname + "'"]
   [/#attempt]
-  [#return GetInterfaceAncestorsSequence(GetNodeAncestorName(ancestorif)) +
-           [ancestorif]]
+  [#return GetInterfaceAncestorsSequence(ancestorif) + [ancestorif]]
 [/#function]
 
 [#--
@@ -315,6 +315,21 @@
 [/#function]
 
 [#--
+  -- Returns the class in the sequence of ancestors owning the specified
+  -- virtual method. Fails if the method is not defined anywere in the
+  -- sequence.
+  --]
+[#function GetVirtualMethodOwnerClass ancestors=[] shortname=""]
+  [#list ancestors as ancestor]
+    [#local m = ancestor["methods/virtual/method[@shortname='" + shortname + "']"]]
+    [#if m[0]??]
+      [#return [ancestor, m]]
+    [/#if]]
+  [/#list]
+  [#stop ">>>> Undefined method '" + shortname + "'"]
+[/#function]
+
+[#--
   -- This macro generates a class wrapper from an XML node.
   --]
 [#macro GenerateClassFromNode node=[]]
@@ -324,7 +339,7 @@
           classctype        = GetClassCType(class)
           classdescr        = GetNodeDescription(class)
           ancestorname      = GetNodeAncestorName(class, "")]
-  [#local ancestors = GetClassAncestorsSequence(ancestorname)]
+  [#local ancestors = GetClassAncestorsSequence(class)]
 /**
   [@doxygen.EmitTagVerbatim indent="" tag="class" text=classctype /]
   [#if ancestorname?length > 0]
@@ -392,7 +407,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
           ifctype           = GetInterfaceCType(if)
           ifdescr           = GetNodeDescription(if)
           ancestorname      = GetNodeAncestorName(if, "")]
-  [#local ancestors = GetInterfaceAncestorsSequence(ancestorname)]
+  [#local ancestors = GetInterfaceAncestorsSequence(if)]
 /**
  * @interface   ${ifctype}
   [#if ancestorname?length > 0]
@@ -444,8 +459,78 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 /** @} */
 [/#macro]
 
+[#macro GenerateClassMethodImplementationsFromNode modifiers=[] node=[]]
+  [#local class = node]
+  [#local classname         = GetNodeName(class)
+          classnamespace    = GetNodeNamespace(class)
+          classctype        = GetClassCType(class)
+          classdescr        = GetNodeDescription(class)
+          ancestorname      = GetNodeAncestorName(class, "")
+          ancestornamespace = GetNodeAncestorNamespace(class)]
+  [#assign generated = true]
+/**
+[@doxygen.EmitTagVerbatim "" "name" "Methods implementations of " + classctype /]
+ * @{
+ */
+  [#-- List of class ancestors.--]
+  [#local ancestors = GetClassAncestorsSequence(class)]
+  [#-- Scanning for al method overrides defined in the current class then
+       checking in which class the virtual method is defined.--]
+  [#list class.methods.override.method as method]
+    [#local shortname      = GetMethodShortName(method)]
+    [#local found          = GetVirtualMethodOwnerClass(ancestors, shortname)]
+    [#local ancestorclass  = found[0]]
+    [#local ancestormethod = found[1]]
+    [#local methodname     = GetNodeName(ancestormethod)
+            methodsname    = GetMethodShortName(ancestormethod)
+            methodretctype = GetMethodCType(ancestormethod)]
+/**
+[@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+ *
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to a @p " + classctype + " instance." /]
+[@doxygen.EmitParamFromNode node=ancestormethod /]
+[@doxygen.EmitReturnFromNode node=ancestormethod /]
+ */
+
+  [/#list]
+  [#-- Scanning for all virtual methods defined in the current class.--]
+  [#list class.methods.virtual.method as method]
+    [#local methodname     = GetNodeName(method)
+            methodsname    = GetMethodShortName(method)
+            methodretctype = GetMethodCType(method)
+            methodimpl     = method.implementation[0]!""]
+    [#if methodimpl?length > 0]
+/**
+[@doxygen.EmitBrief "" "Implementation of method @p " + methodname + "()." /]
+[@doxygen.EmitNote  "" "This function is meant to be used by derived classes." /]
+ *
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to a @p " + classctype + " instance." /]
+[@doxygen.EmitParamFromNode node=method /]
+[@doxygen.EmitReturnFromNode node=method /]
+ */
+[@ccode.GeneratePrototypeFromNode indent    = ""
+                                  name      = "__" + classnamespace + "_" + methodsname + "_impl"
+                                  modifiers = modifiers
+                                  params    = ["void *ip"]
+                                  node      = method /] {
+[@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
+[@ccode.GenerateIndentedCCode indent = ccode.indentation
+                              ccode  = methodimpl /]
+}
+    [/#if]
+    [#if method?has_next]
+
+    [/#if]
+  [/#list]
+/** @} */
+
+[/#macro]
+
 [#--
-  -- This macro generates virtual methods pointers from an XML node.
+  -- This macro generates virtual methods pointers from a sequence of XML nodes.
   --]
 [#macro GenerateVMTPointers methods=[] ipctype="void *"]
   [#list methods.method as method]
@@ -474,7 +559,7 @@ ${funcptr}
 [@doxygen.EmitNote "" "It is public because accessed by the inlined constructor." /]
  */
 const struct ${classname}_vmt __${classname}_vmt = {
-  [#local classes = GetClassAncestorsSequence(classname) + [node]]
+  [#local classes = GetClassAncestorsSequence(node) + [node]]
   [#local methods = []]
   [#list classes as class]
     [#list class.methods.virtual.method as method]
@@ -1319,6 +1404,6 @@ const struct ${classname}_vmt __${classnamespace}_vmt = {
   --]
 [#macro GenerateClassWrapperCode class=[]]
 [@GenerateClassVMTFromNode node=class /]
-[@GenerateClassMethodsImplementations node=class /]
+[@GenerateClassMethodImplementationsFromNode node=class /]
 [@GenerateClassRegularMethods node=class /]
 [/#macro]

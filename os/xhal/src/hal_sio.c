@@ -275,70 +275,28 @@ const struct hal_sio_driver_vmt __hal_sio_driver_vmt = {
  * @{
  */
 /**
- * @memberof    hal_sio_driver_c
- * @protected
- *
- * @brief       Implementation of object creation.
+ * @brief       Implementation of method @p __drv_start().
  * @note        This function is meant to be used by derived classes.
  *
- * @param[out]    ip            Pointer to a @p hal_sio_driver_c instance to be
- *                              initialized.
- * @param[in]     vmt           VMT pointer for the new object.
- * @return                      A new reference to the object.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
+ * @return                      The operation status.
  */
-void *__sio_objinit_impl(void *ip, const void *vmt) {
-  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
-
-  /* Initialization of the ancestors-defined parts.*/
-  __drv_objinit_impl(self, vmt);
-
-#if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
-  /* Implementation of interface asynchronous_channel_i.*/
-  {
-    static const struct asynchronous_channel_vmt sio_chn_vmt = {
-      __asynchronous_channel_vmt_init(sio, offsetof(hal_sio_driver_c, sio.chn))
-    };
-    oopIfObjectInit(&self->sio.chn, &sio_chn_vmt);
-  }
-#endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
-
-  /* Initialization code.*/
-  self->enabled     = (sioevents_t)0;
-  self->cb          = NULL;
-#if SIO_USE_SYNCHRONIZATION == TRUE
-  self->sync_rx     = NULL;
-  self->sync_rxidle = NULL;
-  self->sync_tx     = NULL;
-  self->sync_txend  = NULL;
-#endif
-
-  /* Optional, user-defined initializer.*/
-#if defined(SIO_DRIVER_EXT_INIT_HOOK)
-  SIO_DRIVER_EXT_INIT_HOOK(self);
-#endif
-
-  return self;
-}
 
 /**
- * @memberof    hal_sio_driver_c
- * @protected
- *
- * @brief       Implementation of object finalization.
+ * @brief       Implementation of method @p __drv_stop().
  * @note        This function is meant to be used by derived classes.
  *
- * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance to be
- *                              disposed.
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  */
-void __sio_dispose_impl(void *ip) {
-  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
 
-  /* No finalization code.*/
-  (void)self;
+/**
+ * @brief       Implementation of method @p drvConfigureX().
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
+ * @param[in]     config        New driver configuration.
+ */
 
-  /* Finalization of the ancestors-defined parts.*/
-  __drv_dispose_impl(self);
-}
 /** @} */
 
 /**

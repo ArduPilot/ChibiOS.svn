@@ -27,8 +27,7 @@
     </definitions_early>
     <types>
       <interface name="sequential_stream" namespace="stm"
-        ancestorname="base_interface" ancestornamespace="bi"
-        descr="sequential stream">
+        ancestorname="base_interface" descr="sequential stream">
         <brief>Sequential data streams interface.</brief>
         <details>
           <![CDATA[This module define an interface for generic sequential data

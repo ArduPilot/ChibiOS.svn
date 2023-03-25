@@ -76,7 +76,7 @@
 void *__so_objinit_impl(void *ip, const void *vmt) {
   synchronized_object_c *self = (synchronized_object_c *)ip;
 
-  /* Initialization of the ancestors-defined parts.*/xxxxxxxxxxx
+  /* Initialization of the ancestors-defined parts.*/
   __ro_objinit_impl(self, vmt);
 
   /* Initialization code.*/

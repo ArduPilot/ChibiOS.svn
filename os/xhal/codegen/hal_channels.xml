@@ -122,8 +122,7 @@
         <basetype ctype="eventflags_t" />
       </typedef>
       <interface name="asynchronous_channel" namespace="chn"
-        ancestorname="sequential_stream" ancestornamespace="stm"
-        descr="base I/O channel">
+        ancestorname="sequential_stream" descr="base I/O channel">
         <brief>Base I/O channel interface.</brief>
         <details><![CDATA[This header defines an abstract interface useful
          to access generic I/O serial devices in a standardized way.]]></details>

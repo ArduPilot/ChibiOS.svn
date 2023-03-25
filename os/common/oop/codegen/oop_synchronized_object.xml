@@ -19,8 +19,7 @@
     </definitions_late>
     <types>
       <class type="abstract" name="synchronized_object" namespace="so"
-        ancestorname="referenced_object" ancestornamespace="ro"
-        descr="synchronized object">
+        ancestorname="referenced_object" descr="synchronized object">
         <brief>Common ancestor class of all reference-counted, synchronized objects.</brief>
         <details><![CDATA[Base class for objects that require a synchronization mechanism.
           This class extends @p referenced_object_c class.]]></details>

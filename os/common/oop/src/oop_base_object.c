@@ -61,6 +61,45 @@
  * @name        Methods implementations of base_object_c
  * @{
  */
+/**
+ * @memberof    base_object_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p base_object_c instance to be
+ *                              initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @return                      A new reference to the object.
+ */
+void *__bo_objinit_impl(void *ip, const void *vmt) {
+  base_object_c *self = (base_object_c *)ip;
+
+  /* This is a root class, initializing the VMT pointer here.*/
+  self->vmt = (struct base_object_vmt *)vmt;
+
+  /* No initialization code.*/
+
+  return self;
+}
+
+/**
+ * @memberof    base_object_c
+ * @protected
+ *
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p base_object_c instance to be
+ *                              disposed.
+ */
+void __bo_dispose_impl(void *ip) {
+  base_object_c *self = (base_object_c *)ip;
+
+  /* No finalization code.*/
+  (void)self;
+}
 /** @} */
 
 /** @} */

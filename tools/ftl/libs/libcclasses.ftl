@@ -119,13 +119,6 @@
 [/#function]
 
 [#--
-  -- Returns the ancestornamespace attribute from an XML node.
-  --]
-[#function GetNodeAncestorNamespace node=[] default=""]
-  [#return (node.@ancestornamespace[0]!default)?trim]
-[/#function]
-
-[#--
   -- Returns the descr attribute from an XML node.
   --]
 [#function GetNodeDescription node=[] default="no-descr"]
@@ -223,6 +216,17 @@
   --]
 [#function GetObjinitCallsuper node=[] default="true"]
   [#return (node.@callsuper[0]!default)?trim]
+[/#function]
+
+[#--
+  -- Returns the ancestor of the specified class. 
+  --]
+[#function GetAncestorClass class=[]]
+  [#attempt]
+    [#return classescache[GetNodeAncestorName(class)]]
+  [#recover]
+    [#stop ">>>> Unknown class '" + ancestorname + "'"]
+  [/#attempt]
 [/#function]
 
 [#--
@@ -469,8 +473,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
           classnamespace    = GetNodeNamespace(class)
           classctype        = GetClassCType(class)
           classdescr        = GetNodeDescription(class)
-          ancestorname      = GetNodeAncestorName(class, "")
-          ancestornamespace = GetNodeAncestorNamespace(class)]
+          ancestorname      = GetNodeAncestorName(class, "")]
   [#assign generated = true]
 /**
 [@doxygen.EmitTagVerbatim "" "name" "Methods implementations of " + classctype /]
@@ -504,11 +507,12 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@ccode.Indent 1 /]self->vmt = (struct base_object_vmt *)vmt;
 
   [#else]
+    [#local ancestor = GetAncestorClass(class)]
     [#if GetObjinitCallsuper(class.methods.objinit[0]) == "true"]
 [@ccode.Indent 1 /]/* Initialization of the ancestors-defined parts.*/
 [@ccode.GenerateFunctionCall indent      = ccode.indentation
                              destination = ""
-                             name        = "__" + ancestornamespace + "_objinit_impl"
+                             name        = "__" + GetNodeNamespace(ancestor) + "_objinit_impl"
                              params      = ["self", "vmt"] /]
 
     [/#if]
@@ -556,9 +560,10 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [@ccode.Indent 1 /](void)self;
   [/#if]
   [#if ancestorname?length > 0]
+    [#local ancestor = GetAncestorClass(class)]
 
 [@ccode.Indent 1 /]/* Finalization of the ancestors-defined parts.*/
-[@ccode.Indent 1 /]__${ancestornamespace}_dispose_impl(self);
+[@ccode.Indent 1 /]__${GetNodeNamespace(ancestor)}_dispose_impl(self);
   [/#if]
 }
   [#-- Scanning for al method overrides defined in the current class then

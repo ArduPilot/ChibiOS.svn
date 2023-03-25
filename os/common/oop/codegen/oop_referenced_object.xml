@@ -16,8 +16,7 @@
         <basetype ctype="unsigned int" />
       </typedef>
       <class type="abstract" name="referenced_object" namespace="ro"
-        ancestorname="base_object" ancestornamespace="bo"
-        descr="referenced object">
+        ancestorname="base_object" descr="referenced object">
         <brief>Common ancestor class of all reference-counted objects.</brief>
         <details><![CDATA[Base class for objects that implement a reference
                  counter and are disposed when the number of references

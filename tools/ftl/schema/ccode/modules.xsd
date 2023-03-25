@@ -215,7 +215,6 @@
         </xs:attribute>
                 <xs:attribute name="ancestorname" type="identifierType">
         </xs:attribute>
-        <xs:attribute name="ancestornamespace" type="namespaceType"></xs:attribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

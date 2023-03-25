@@ -762,16 +762,42 @@ return msg;]]></implementation>
           </regular>
           <override>
             <method shortname="start">
-              <implementation><![CDATA[
-/********/]]></implementation>
+        <implementation><![CDATA[
+msg_t msg;
+
+msg = sio_lld_start(self);
+if (msg == HAL_RET_SUCCESS) {
+#if SIO_USE_SYNCHRONIZATION == TRUE
+  /* If synchronization is enabled then all events by default.*/
+  sioWriteEnableFlagsX(self, SIO_EV_ALL_EVENTS);
+#else
+  /* If synchronization is disabled then no events by default.*/
+  sioWriteEnableFlagsX(self, SIO_EV_NONE);
+#endif
+}
+
+return msg;]]></implementation>
             </method>
             <method shortname="stop">
-              <implementation><![CDATA[
-/********/]]></implementation>
+        <implementation><![CDATA[
+
+sio_lld_stop(self);
+self->cb      = NULL;
+self->enabled = (sioevents_t)0;
+
+#if SIO_USE_SYNCHRONIZATION == TRUE
+/* Informing waiting threads, if any.*/
+osalThreadResumeI(&self->sync_rx, MSG_RESET);
+osalThreadResumeI(&self->sync_rxidle, MSG_RESET);
+osalThreadResumeI(&self->sync_tx, MSG_RESET);
+osalThreadResumeI(&self->sync_txend, MSG_RESET);
+osalOsRescheduleS();
+#endif]]></implementation>
             </method>
             <method shortname="configure">
-              <implementation><![CDATA[
-/********/]]></implementation>
+        <implementation><![CDATA[
+
+return sio_lld_configure(self, (const hal_sio_config_t *)config);]]></implementation>
             </method>
           </override>
         </methods>
@@ -796,57 +822,6 @@ sio_lld_init();]]></implementation>
       <include style="regular">hal.h</include>
     </includes_always>
     <functions>
-      <function name="__sio_bo_dispose_impl" ctype="void">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-
-__sio_dispose_impl(ip);]]></implementation>
-      </function>
-      <function name="__sio_drv_start_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
-msg_t msg;
-
-msg = sio_lld_start(siop);
-if (msg == HAL_RET_SUCCESS) {
-#if SIO_USE_SYNCHRONIZATION == TRUE
-  /* If synchronization is enabled then all events by default.*/
-  sioWriteEnableFlagsX(siop, SIO_EV_ALL_EVENTS);
-#else
-  /* If synchronization is disabled then no events by default.*/
-  sioWriteEnableFlagsX(siop, SIO_EV_NONE);
-#endif
-}
-
-return msg;]]></implementation>
-      </function>
-      <function name="__sio_drv_stop_impl" ctype="void">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
-
-sio_lld_stop(siop);
-siop->cb      = NULL;
-siop->enabled = (sioevents_t)0;
-
-#if SIO_USE_SYNCHRONIZATION == TRUE
-/* Informing waiting threads, if any.*/
-osalThreadResumeI(&siop->sync_rx, MSG_RESET);
-osalThreadResumeI(&siop->sync_rxidle, MSG_RESET);
-osalThreadResumeI(&siop->sync_tx, MSG_RESET);
-osalThreadResumeI(&siop->sync_txend, MSG_RESET);
-osalOsRescheduleS();
-#endif]]></implementation>
-      </function>
-      <function name="__sio_drv_configure_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="config" ctype="const void *" />
-        <implementation><![CDATA[
-hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
-
-return sio_lld_configure(siop, (const hal_sio_config_t *)config);]]></implementation>
-      </function>
       <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
         <function name="sio_sync_write" ctype="size_t">
           <param name="siop" ctype="hal_sio_driver_c *" />

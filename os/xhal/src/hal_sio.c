@@ -51,52 +51,6 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-static void __sio_bo_dispose_impl(void *ip) {
-
-  __sio_dispose_impl(ip);
-}
-
-static msg_t __sio_drv_start_impl(void *ip) {
-  hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
-  msg_t msg;
-
-  msg = sio_lld_start(siop);
-  if (msg == HAL_RET_SUCCESS) {
-#if SIO_USE_SYNCHRONIZATION == TRUE
-    /* If synchronization is enabled then all events by default.*/
-    sioWriteEnableFlagsX(siop, SIO_EV_ALL_EVENTS);
-#else
-    /* If synchronization is disabled then no events by default.*/
-    sioWriteEnableFlagsX(siop, SIO_EV_NONE);
-#endif
-  }
-
-  return msg;
-}
-
-static void __sio_drv_stop_impl(void *ip) {
-  hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
-
-  sio_lld_stop(siop);
-  siop->cb      = NULL;
-  siop->enabled = (sioevents_t)0;
-
-#if SIO_USE_SYNCHRONIZATION == TRUE
-  /* Informing waiting threads, if any.*/
-  osalThreadResumeI(&siop->sync_rx, MSG_RESET);
-  osalThreadResumeI(&siop->sync_rxidle, MSG_RESET);
-  osalThreadResumeI(&siop->sync_tx, MSG_RESET);
-  osalThreadResumeI(&siop->sync_txend, MSG_RESET);
-  osalOsRescheduleS();
-#endif
-}
-
-static msg_t __sio_drv_configure_impl(void *ip, const void *config) {
-  hal_sio_driver_c *siop = (hal_sio_driver_c *)ip;
-
-  return sio_lld_configure(siop, (const hal_sio_config_t *)config);
-}
-
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
 static size_t sio_sync_write(hal_sio_driver_c *siop, const uint8_t *bp,
                              size_t n, sysinterval_t timeout) {
@@ -275,28 +229,137 @@ const struct hal_sio_driver_vmt __hal_sio_driver_vmt = {
  * @{
  */
 /**
- * @brief       Implementation of method @p __drv_start().
+ * @memberof    hal_sio_driver_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
  * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p hal_sio_driver_c instance to be
+ *                              initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @return                      A new reference to the object.
+ */
+void *__sio_objinit_impl(void *ip, const void *vmt) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
+
+  /* Initialization of the ancestors-defined parts.*/
+  __drv_objinit_impl(self, vmt);
+
+#if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
+  /* Implementation of interface asynchronous_channel_i.*/
+  {
+    static const struct asynchronous_channel_vmt sio_chn_vmt = {
+      __asynchronous_channel_vmt_init(sio, offsetof(hal_sio_driver_c, sio.chn))
+    };
+    oopIfObjectInit(&self->sio.chn, &sio_chn_vmt);
+  }
+#endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
+
+  /* Initialization code.*/
+  self->enabled     = (sioevents_t)0;
+  self->cb          = NULL;
+#if SIO_USE_SYNCHRONIZATION == TRUE
+  self->sync_rx     = NULL;
+  self->sync_rxidle = NULL;
+  self->sync_tx     = NULL;
+  self->sync_txend  = NULL;
+#endif
+
+  /* Optional, user-defined initializer.*/
+#if defined(SIO_DRIVER_EXT_INIT_HOOK)
+  SIO_DRIVER_EXT_INIT_HOOK(self);
+#endif
+
+  return self;
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @protected
+ *
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance to be
+ *                              disposed.
+ */
+void __sio_dispose_impl(void *ip) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
+
+  /* No finalization code.*/
+  (void)self;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __drv_dispose_impl(self);
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p __drv_start().
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @return                      The operation status.
  */
+void __sio_start_impl(void *ip) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
+  msg_t msg;
+
+  msg = sio_lld_start(self);
+  if (msg == HAL_RET_SUCCESS) {
+#if SIO_USE_SYNCHRONIZATION == TRUE
+    /* If synchronization is enabled then all events by default.*/
+    sioWriteEnableFlagsX(self, SIO_EV_ALL_EVENTS);
+#else
+    /* If synchronization is disabled then no events by default.*/
+    sioWriteEnableFlagsX(self, SIO_EV_NONE);
+#endif
+  }
+
+  return msg;
+}
 
 /**
- * @brief       Implementation of method @p __drv_stop().
- * @note        This function is meant to be used by derived classes.
+ * @memberof    hal_sio_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p __drv_stop().
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  */
+void __sio_stop_impl(void *ip) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
+
+  sio_lld_stop(self);
+  self->cb      = NULL;
+  self->enabled = (sioevents_t)0;
+
+#if SIO_USE_SYNCHRONIZATION == TRUE
+  /* Informing waiting threads, if any.*/
+  osalThreadResumeI(&self->sync_rx, MSG_RESET);
+  osalThreadResumeI(&self->sync_rxidle, MSG_RESET);
+  osalThreadResumeI(&self->sync_tx, MSG_RESET);
+  osalThreadResumeI(&self->sync_txend, MSG_RESET);
+  osalOsRescheduleS();
+#endif
+}
 
 /**
- * @brief       Implementation of method @p drvConfigureX().
- * @note        This function is meant to be used by derived classes.
+ * @memberof    hal_sio_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p drvConfigureX().
  *
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param[in]     config        New driver configuration.
  */
+void __sio_configure_impl(void *ip) {
+  hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
 
+  return sio_lld_configure(self, (const hal_sio_config_t *)config);
+}
 /** @} */
 
 /**

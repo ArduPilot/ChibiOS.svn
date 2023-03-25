@@ -631,6 +631,9 @@ extern "C" {
   /* Methods of hal_sio_driver_c.*/
   void *__sio_objinit_impl(void *ip, const void *vmt);
   void __sio_dispose_impl(void *ip);
+  void __sio_start_impl(void *ip);
+  void __sio_stop_impl(void *ip);
+  void __sio_configure_impl(void *ip);
   void sioWriteEnableFlags(void *ip, sioevents_t mask);
   void sioSetEnableFlags(void *ip, sioevents_t mask);
   void sioClearEnableFlags(void *ip, sioevents_t mask);

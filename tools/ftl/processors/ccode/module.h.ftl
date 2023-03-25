@@ -111,7 +111,7 @@
 extern "C" {
 #endif
   [#list module.public.types.class as class]
-[@cclasses.GenerateClassMethodsPrototypes class /]
+[@cclasses.GenerateClassMethodsPrototypesFromNode class /]
   [/#list]
   [#if module.public.functions[0]??]
   /* Regular functions.*/

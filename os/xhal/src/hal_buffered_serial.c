@@ -130,6 +130,74 @@ static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
  * @name        Methods implementations of hal_buffered_serial_c
  * @{
  */
+/**
+ * @memberof    hal_buffered_serial_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p hal_buffered_serial_c instance
+ *                              to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     ib            Pointer to the input buffer.
+ * @param[in]     ibsize        Size of the input buffer.
+ * @param[in]     inotify       Pointer to a callback function that is invoked
+ *                              when some data is read from the input queue.
+ *                              The value can be @p NULL
+ * @param[in]     iarg          Parameter for the input notification callback.
+ * @param[in]     ob            Pointer to the output buffer.
+ * @param[in]     obsize        Size of the output buffer.
+ * @param[in]     onotify       Pointer to a callback function that is invoked
+ *                              when some data is written to the output queue.
+ *                              The value can be @p NULL
+ * @param[in]     oarg          Parameter for the output notification callback.
+ * @return                      A new reference to the object.
+ */
+void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
+                        qnotify_t inotify, void *iarg, uint8_t *ob,
+                        size_t obsize, qnotify_t onotify, void *oarg) {
+  hal_buffered_serial_c *self = (hal_buffered_serial_c *)ip;
+
+  /* Initialization of the ancestors-defined parts.*/
+  __drv_objinit_impl(self, vmt);
+
+  /* Implementation of interface asynchronous_channel_i.*/
+  {
+    static const struct asynchronous_channel_vmt bs_chn_vmt = {
+      __asynchronous_channel_vmt_init(bs, offsetof(hal_buffered_serial_c, bs.chn))
+    };
+    oopIfObjectInit(&self->bs.chn, &bs_chn_vmt);
+  }
+
+  /* Initialization code.*/
+
+  osalEventObjectInit(&self->event);
+  iqObjectInit(&self->iqueue, ib, ibsize, inotify, iarg);
+  oqObjectInit(&self->oqueue, ob, obsize, onotify, oarg);
+
+  return self;
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @protected
+ *
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p hal_buffered_serial_c instance
+ *                              to be disposed.
+ */
+void __bs_dispose_impl(void *ip) {
+  hal_buffered_serial_c *self = (hal_buffered_serial_c *)ip;
+
+  /* No finalization code.*/
+  (void)self;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __drv_dispose_impl(self);
+}
 /** @} */
 
 /**

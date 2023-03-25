@@ -219,6 +219,28 @@
 [/#function]
 
 [#--
+  -- Get class by name.
+  --]
+[#function GetClassByName classname=""]
+  [#attempt]
+    [#return classescache[classname]]
+  [#recover]
+    [#stop ">>>> Unknown class '" + classname + "'"]
+  [/#attempt]
+[/#function]
+
+[#--
+  -- Get interface by name.
+  --]
+[#function GetInterfaceByName ifname=""]
+  [#attempt]
+    [#return ifscache[ifname]]
+  [#recover]
+    [#stop ">>>> Unknown interface '" + ifname + "'"]
+  [/#attempt]
+[/#function]
+
+[#--
   -- Returns the ancestor of the specified class. 
   --]
 [#function GetAncestorClass class=[]]
@@ -245,6 +267,21 @@
   [#return GetClassAncestorsSequence(ancestorclass) + [ancestorclass]]
 [/#function]
 
+[#-- 
+  -- Returns a sequence of class virtual methods, including those from
+  -- ancestors.
+  --]
+[#function GetClassVirtualMethodsSequence node=[]]
+  [#local classes = GetClassAncestorsSequence(node) + [node]]
+  [#local methods = []]
+  [#list classes as class]
+    [#list class.methods.virtual.method as method]
+      [#local methods = methods + method]
+    [/#list]
+  [/#list]
+  [#return methods]
+[/#function]
+
 [#--
   -- Returns a sequence of interface ancestors interfaces from an XML node.
   --]
@@ -259,6 +296,21 @@
     [#stop ">>>> Unknown interface '" + ancestorname + "'"]
   [/#attempt]
   [#return GetInterfaceAncestorsSequence(ancestorif) + [ancestorif]]
+[/#function]
+
+[#-- 
+  -- Returns a sequence of interface methods, including those from
+  -- ancestors.
+  --]
+[#function GetInterfaceMethodsSequence node=[]]
+  [#local ifs = GetInterfaceAncestorsSequence(node) + [node]]
+  [#local methods = []]
+  [#list ifs as if]
+    [#list if.methods.method as method]
+      [#local methods = methods + method]
+    [/#list]
+  [/#list]
+  [#return methods]
 [/#function]
 
 [#--
@@ -518,7 +570,9 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
     [/#if]
   [/#if]
   [#if class.implements.*?size > 0]
-[@GenerateClassInterfacesInitialization class.implements classctype classnamespace /]
+[@GenerateClassInterfacesInitFromNode node           = class.implements
+                                      classctype     = classctype
+                                      classnamespace = classnamespace /]
   [/#if]
   [#if (class.methods.objinit[0].implementation[0])?? &&
        (class.methods.objinit[0].implementation[0]?trim?length > 0)]
@@ -754,13 +808,7 @@ ${funcptr}
 [@doxygen.EmitNote "" "It is public because accessed by the inlined constructor." /]
  */
 const struct ${classname}_vmt __${classname}_vmt = {
-  [#local classes = GetClassAncestorsSequence(node) + [node]]
-  [#local methods = []]
-  [#list classes as class]
-    [#list class.methods.virtual.method as method]
-      [#local methods = methods + method]
-    [/#list]
-  [/#list]
+  [#local methods = GetClassVirtualMethodsSequence(node)]
   [#list methods as method]
     [#local methodimpl = GetMethodNearestImplementation(classes method)]
     [#local s = (ccode.indentation + "." +
@@ -775,6 +823,52 @@ ${s}
 };
 
   [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates class method implementations from an XML node.
+  --]
+[#macro GenerateClassInterfacesInitFromNode node=[] classctype="no-ctype" classnamespace="no-namespace"]
+  [#list node.* as this]
+    [#if this?node_name == "ifref"]
+      [#local ifname      = GetNodeName(this)]
+      [#local if          = GetInterfaceByName(ifname)]
+      [#local ifnamespace = GetNodeNamespace(if)
+              ifctype     = GetInterfaceCType(if) /]
+[@ccode.Indent 1 /]/* Initialization of interface ${ifctype}.*/
+[@ccode.Indent 1 /]{
+[@ccode.Indent 2 /]static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
+      [#local s = (ccode.indentation + ccode.indentation + ccode.indentation +
+                   ".instance_offset")?right_pad(ccode.initializers_align) + "= " +
+                   "offsetof(" + classctype + ", " + classnamespace + "." + ifnamespace + ")"]
+${s},
+      [#local methods = GetInterfaceMethodsSequence(if)]
+      [#list methods as method]
+        [#local s = (ccode.indentation + ccode.indentation + ccode.indentation + "." +
+                     GetMethodShortName(method))?right_pad(ccode.initializers_align) + "= " +
+                     "__" + classnamespace + "_" + ifnamespace + "_" + GetMethodShortName(method)]
+        [#if method?has_next]
+${s},
+        [#else]
+${s}
+        [/#if]
+      [/#list]
+[@ccode.Indent 2 /]};
+[@ccode.Indent 2 /]oopIfObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
+[@ccode.Indent 1 /]}
+      [#if node?node_name != "condition"]
+
+      [/#if]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateClassInterfacesInitFromNode node=this
+                                      classctype=classctype
+                                      classnamespace=classnamespace /]
+#endif /* ${condcheck} */
+
+    [/#if]
+  [/#list]
 [/#macro]
 
 [#--

@@ -218,10 +218,10 @@ void sioInit(void) {
  * @note        It is public because accessed by the inlined constructor.
  */
 const struct hal_sio_driver_vmt __hal_sio_driver_vmt = {
-  .dispose                                  = __sio_dispose_impl,
-  .start                                    = __sio_start_impl,
-  .stop                                     = __sio_stop_impl,
-  .configure                                = __sio_configure_impl
+  .dispose                  = NULL,
+  .start                    = NULL,
+  .stop                     = NULL,
+  .configure                = NULL
 };
 
 /**
@@ -247,10 +247,20 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
   __drv_objinit_impl(self, vmt);
 
 #if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
-  /* Implementation of interface asynchronous_channel_i.*/
+  /* Initialization of interface asynchronous_channel_i.*/
   {
     static const struct asynchronous_channel_vmt sio_chn_vmt = {
-      __asynchronous_channel_vmt_init(sio, offsetof(hal_sio_driver_c, sio.chn))
+      .instance_offset      = offsetof(hal_sio_driver_c, sio.chn),
+      .write                = __sio_chn_write,
+      .read                 = __sio_chn_read,
+      .put                  = __sio_chn_put,
+      .get                  = __sio_chn_get,
+      .writet               = __sio_chn_writet,
+      .readt                = __sio_chn_readt,
+      .putt                 = __sio_chn_putt,
+      .gett                 = __sio_chn_gett,
+      .getclr               = __sio_chn_getclr,
+      .ctl                  = __sio_chn_ctl
     };
     oopIfObjectInit(&self->sio.chn, &sio_chn_vmt);
   }

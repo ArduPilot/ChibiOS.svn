@@ -162,10 +162,20 @@ void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
   /* Initialization of the ancestors-defined parts.*/
   __drv_objinit_impl(self, vmt);
 
-  /* Implementation of interface asynchronous_channel_i.*/
+  /* Initialization of interface asynchronous_channel_i.*/
   {
     static const struct asynchronous_channel_vmt bs_chn_vmt = {
-      __asynchronous_channel_vmt_init(bs, offsetof(hal_buffered_serial_c, bs.chn))
+      .instance_offset      = offsetof(hal_buffered_serial_c, bs.chn),
+      .write                = __bs_chn_write,
+      .read                 = __bs_chn_read,
+      .put                  = __bs_chn_put,
+      .get                  = __bs_chn_get,
+      .writet               = __bs_chn_writet,
+      .readt                = __bs_chn_readt,
+      .putt                 = __bs_chn_putt,
+      .gett                 = __bs_chn_gett,
+      .getclr               = __bs_chn_getclr,
+      .ctl                  = __bs_chn_ctl
     };
     oopIfObjectInit(&self->bs.chn, &bs_chn_vmt);
   }

@@ -420,12 +420,11 @@ SIO_CONFIG_EXT_FIELDS]]></verbatim>
         </fields>
       </struct>
       <class type="regular" name="hal_sio_driver" namespace="sio"
-        ancestorname="hal_base_driver" ancestornamespace="drv"
-        descr="SIO driver">
+        ancestorname="hal_base_driver" descr="SIO driver">
         <brief>Class of a SIO (Serial I/O) driver.</brief>
         <implements>
           <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
-            <ifref name="asynchronous_channel" namespace="chn"/>
+            <if name="asynchronous_channel"/>
           </condition>
         </implements>
         <fields>

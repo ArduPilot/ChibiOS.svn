@@ -8,11 +8,10 @@
   <public>
     <types>
       <class type="abstract" name="hal_buffered_serial" namespace="bs"
-        ancestorname="hal_base_driver" ancestornamespace="drv"
-        descr="HAL buffered serial driver">
+        ancestorname="hal_base_driver" descr="HAL buffered serial driver">
         <brief>Ancestor class of serial buffered drivers.</brief>
         <implements>
-          <ifref name="asynchronous_channel" namespace="chn" />
+          <if name="asynchronous_channel" />
         </implements>
         <fields>
           <field name="iqueue" ctype="input_queue_t">

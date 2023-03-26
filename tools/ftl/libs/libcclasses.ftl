@@ -442,13 +442,13 @@ struct ${classname?lower_case} {
   [#local vmtctype  = "const struct " + classname?lower_case + "_vmt$I*$N"]
 ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   [#list ancestors as ancestor]
-    [@GenerateClassInterfaceFields node=ancestor.implements /]
-    [@ccode.GenerateStructureFieldsFromNode indent=ccode.indentation
-                                            fields=ancestor.fields /]
+    [@GenerateClassInterfaceFieldsFromNode node = ancestor.implements /]
+    [@ccode.GenerateStructureFieldsFromNode indent = ccode.indentation
+                                            fields = ancestor.fields /]
   [/#list]
-  [@GenerateClassInterfaceFields node=class.implements /]
-  [@ccode.GenerateStructureFieldsFromNode indent=ccode.indentation
-                                          fields=class.fields /]
+  [@GenerateClassInterfaceFieldsFromNode node = class.implements /]
+  [@ccode.GenerateStructureFieldsFromNode indent = ccode.indentation
+                                          fields = class.fields /]
 };
 /** @} */
 [/#macro]
@@ -830,7 +830,7 @@ ${s}
   --]
 [#macro GenerateClassInterfacesInitFromNode node=[] classctype="no-ctype" classnamespace="no-namespace"]
   [#list node.* as this]
-    [#if this?node_name == "ifref"]
+    [#if this?node_name == "if"]
       [#local ifname      = GetNodeName(this)]
       [#local if          = GetInterfaceByName(ifname)]
       [#local ifnamespace = GetNodeNamespace(if)
@@ -867,6 +867,31 @@ ${s}
                                       classnamespace=classnamespace /]
 #endif /* ${condcheck} */
 
+    [/#if]
+  [/#list]
+[/#macro]
+
+[#--
+  -- This macro generates class interface fields from an XML node.
+  --]
+[#macro GenerateClassInterfaceFieldsFromNode node=[]]
+  [#list node.* as this]
+    [#if this?node_name == "if"]
+      [#local ifname      = GetNodeName(this)
+              ifctype     = GetInterfaceCType(this) /]
+      [#local if = GetInterfaceByName(ifname)]
+[@ccode.Indent 1 /]/**
+[@doxygen.EmitBrief ccode.indentation "Implemented interface @p " + ifctype + "." /]
+[@ccode.Indent 1 /] */
+[@ccode.GenerateVariableDeclaration indent = ccode.indentation
+                                    name   = GetNodeNamespace(if)
+                                    ctype  = ifctype /]
+
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim]
+#if (${condcheck}) || defined (__DOXYGEN__)
+[@GenerateClassInterfaceFieldsFromNode this /]
+#endif /* ${condcheck} */
     [/#if]
   [/#list]
 [/#macro]
@@ -916,7 +941,7 @@ CC_FORCE_INLINE
   --]
 [#macro GenerateClassImplementsTags node=[]]
   [#list node.* as this]
-    [#if this?node_name == "ifref"]
+    [#if this?node_name == "if"]
     [#local refname      = GetNodeName(this)
             refnamespace = GetNodeNamespace(this)
             refctype     = GetInterfaceCType(this) /]
@@ -1121,31 +1146,6 @@ CC_FORCE_INLINE
 [/#macro]
 
 [#--
-  -- This macro generates class interface fields from an XML node.
-  --]
-[#macro GenerateClassInterfaceFields node=[]]
-  [#list node.* as this]
-    [#if this?node_name == "ifref"]
-      [#local ifname      = GetNodeName(this)
-              ifnamespace = GetNodeNamespace(this)
-              ifctype     = GetInterfaceCType(this) /]
-[@ccode.Indent 1 /]/**
-[@doxygen.EmitBrief ccode.indentation "Implemented interface @p " + ifctype + "." /]
-[@ccode.Indent 1 /] */
-[@ccode.GenerateVariableDeclaration indent=ccode.indentation
-                                    name=ifnamespace
-                                    ctype=ifctype /]
-
-    [#elseif this?node_name == "condition"]
-      [#local condcheck = (this.@check[0]!"1")?trim]
-#if (${condcheck}) || defined (__DOXYGEN__)
-[@GenerateClassInterfaceFields this /]
-#endif /* ${condcheck} */
-    [/#if]
-  [/#list]
-[/#macro]
-
-[#--
   -- This macro generates interface virtual methods as inline functions
   -- from an XML node.
   --]
@@ -1267,7 +1267,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   --]
 [#macro GenerateClassInterfacesInitialization node=[] classctype="no-ctype" classnamespace="no-namespace"]
   [#list node.* as this]
-    [#if this?node_name == "ifref"]
+    [#if this?node_name == "if"]
       [#local ifname      = GetNodeName(this)
               ifnamespace = GetNodeNamespace(this)
               ifctype     = GetInterfaceCType(this) /]

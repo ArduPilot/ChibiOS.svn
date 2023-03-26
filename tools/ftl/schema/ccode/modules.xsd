@@ -6,8 +6,9 @@
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
         <xs:sequence>
-                    <xs:element name="imports" type="importsType" maxOccurs="unbounded" minOccurs="0"></xs:element>
-                    <xs:element name="public" type="publicType" maxOccurs="1"
+          <xs:element name="imports" type="importsType"
+            maxOccurs="unbounded" minOccurs="0"></xs:element>
+          <xs:element name="public" type="publicType" maxOccurs="1"
             minOccurs="1">
           </xs:element>
           <xs:element name="private" type="privateType" maxOccurs="1"
@@ -202,10 +203,12 @@
             minOccurs="1">
           </xs:element>
         </xs:sequence>
-        <xs:attribute name="type" type="classTypeType" use="required"></xs:attribute>
-        <xs:attribute name="namespace" type="namespaceType" use="required">
+        <xs:attribute name="type" type="classTypeType"
+          use="required"></xs:attribute>
+        <xs:attribute name="namespace" type="namespaceType"
+          use="required">
         </xs:attribute>
-                <xs:attribute name="descr" use="required">
+        <xs:attribute name="descr" use="required">
           <xs:simpleType>
             <xs:restriction base="xs:string">
               <xs:minLength value="1"></xs:minLength>
@@ -213,7 +216,7 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:attribute>
-                <xs:attribute name="ancestorname" type="identifierType">
+        <xs:attribute name="ancestorname" type="identifierType">
         </xs:attribute>
       </xs:extension>
     </xs:complexContent>
@@ -397,7 +400,7 @@
   </xs:complexType>
   <xs:complexType name="includeType">
     <xs:simpleContent>
-            <xs:extension base="xs:string">
+      <xs:extension base="xs:string">
         <xs:attribute name="style" use="required">
           <xs:simpleType>
             <xs:restriction base="xs:string">
@@ -438,7 +441,8 @@
           <xs:element name="assert" type="assertType"
             maxOccurs="unbounded" minOccurs="0"></xs:element>
         </xs:sequence>
-        <xs:attribute name="default" type="xs:string" use="required"></xs:attribute>
+        <xs:attribute name="default" type="xs:string"
+          use="required"></xs:attribute>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -520,10 +524,10 @@
   </xs:complexType>
   <xs:complexType name="instanceType">
     <xs:sequence>
-            <xs:element name="paths" type="pathsType" maxOccurs="1"
-              minOccurs="0">
-            </xs:element>
-            <xs:element name="modules" type="modulesType" maxOccurs="1"
+      <xs:element name="paths" type="pathsType" maxOccurs="1"
+        minOccurs="0">
+      </xs:element>
+      <xs:element name="modules" type="modulesType" maxOccurs="1"
         minOccurs="1">
       </xs:element>
     </xs:sequence>
@@ -590,7 +594,8 @@
   <xs:complexType name="assertType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute name="invalid" type="xs:string" use="required"></xs:attribute>
+        <xs:attribute name="invalid" type="xs:string"
+          use="required"></xs:attribute>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -665,7 +670,8 @@
         maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
-    <xs:attribute name="description" use="required" type="descriptionType">
+    <xs:attribute name="description" use="required"
+      type="descriptionType">
     </xs:attribute>
   </xs:complexType>
   <xs:complexType name="conditionalMacrosType">
@@ -718,10 +724,10 @@
       <xs:element name="verbatim" type="xs:string" maxOccurs="1"
         minOccurs="1"></xs:element>
     </xs:choice>
-    <xs:attribute name="description" use="required" type="descriptionType">
+    <xs:attribute name="description" use="required"
+      type="descriptionType">
     </xs:attribute>
   </xs:complexType>
-  <xs:attribute name="NewAttribute" type="xs:string"></xs:attribute>
   <xs:complexType name="interfaceType">
     <xs:complexContent>
       <xs:extension base="DocumentedItem">
@@ -793,22 +799,20 @@
   </xs:simpleType>
   <xs:complexType name="implementsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="ifref" type="ifrefType" maxOccurs="1"
+      <xs:element name="if" type="ifType" maxOccurs="1"
         minOccurs="1"></xs:element>
       <xs:element name="condition" type="conditionalIfrefType"
         maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
   </xs:complexType>
-  <xs:complexType name="ifrefType">
+  <xs:complexType name="ifType">
     <xs:attribute name="name" type="identifierType" use="required">
     </xs:attribute>
-    <xs:attribute name="namespace" type="namespaceType"
-      use="required"></xs:attribute>
   </xs:complexType>
   <xs:complexType name="conditionalIfrefType">
     <xs:choice maxOccurs="unbounded" minOccurs="1">
-      <xs:element name="ifref" type="ifrefType" maxOccurs="1"
+      <xs:element name="if" type="ifType" maxOccurs="1"
         minOccurs="1"></xs:element>
       <xs:element name="condition" type="conditionalIfrefType"
         maxOccurs="1" minOccurs="1">
@@ -850,8 +854,8 @@
   </xs:complexType>
   <xs:complexType name="overrideMethodsType">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
-      <xs:element name="method" type="overrideMethodType" maxOccurs="1"
-        minOccurs="1">
+      <xs:element name="method" type="overrideMethodType"
+        maxOccurs="1" minOccurs="1">
       </xs:element>
     </xs:choice>
   </xs:complexType>
@@ -867,8 +871,6 @@
       </xs:element>
     </xs:sequence>
   </xs:complexType>
-
-
   <xs:complexType name="pathsType">
     <xs:sequence>
       <xs:element name="path" maxOccurs="unbounded" minOccurs="0">
@@ -881,11 +883,12 @@
       </xs:element>
     </xs:sequence>
   </xs:complexType>
-
   <xs:complexType name="overrideMethodType">
     <xs:sequence>
-      <xs:element name="implementation" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+      <xs:element name="implementation" type="xs:string"
+        maxOccurs="1" minOccurs="1"></xs:element>
     </xs:sequence>
-    <xs:attribute name="shortname" type="shortnameType" use="required"></xs:attribute>
+    <xs:attribute name="shortname" type="shortnameType"
+      use="required"></xs:attribute>
   </xs:complexType>
 </xs:schema>

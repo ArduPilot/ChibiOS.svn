@@ -542,13 +542,9 @@ ${indent}};
 [@doxygen.EmitFullCommentFromNode indent this /]
 [@GenerateUnionFromNode indent this /]
     [#elseif this?node_name == "class"]
-[@cclasses.GenerateClassFromNode this /]
-[#--
-[@cclasses.GenerateClassWrapper this /]  --]
+[@cclasses.GenerateClass this /]
     [#elseif this?node_name == "interface"]
-[@cclasses.GenerateInterfaceFromNode this /]
-[#--
-[@cclasses.GenerateInterfaceWrapper this /]  --]
+[@cclasses.GenerateInterface this /]
     [#elseif this?node_name == "verbatim"]
       [#local ccode = (this[0]!"")?trim]
 [@GenerateIndentedCCode indent ccode /]

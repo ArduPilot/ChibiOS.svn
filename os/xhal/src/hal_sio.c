@@ -251,16 +251,16 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
   {
     static const struct asynchronous_channel_vmt sio_chn_vmt = {
       .instance_offset      = offsetof(hal_sio_driver_c, sio.chn),
-      .write                = __sio_chn_write,
-      .read                 = __sio_chn_read,
-      .put                  = __sio_chn_put,
-      .get                  = __sio_chn_get,
-      .writet               = __sio_chn_writet,
-      .readt                = __sio_chn_readt,
-      .putt                 = __sio_chn_putt,
-      .gett                 = __sio_chn_gett,
-      .getclr               = __sio_chn_getclr,
-      .ctl                  = __sio_chn_ctl
+      .write                = __sio_chn_write_impl,
+      .read                 = NULL /* Missing implementation.*/,
+      .put                  = NULL /* Missing implementation.*/,
+      .get                  = NULL /* Missing implementation.*/,
+      .writet               = NULL /* Missing implementation.*/,
+      .readt                = NULL /* Missing implementation.*/,
+      .putt                 = NULL /* Missing implementation.*/,
+      .gett                 = NULL /* Missing implementation.*/,
+      .getclr               = NULL /* Missing implementation.*/,
+      .ctl                  = NULL /* Missing implementation.*/
     };
     oopIfObjectInit(&self->sio.chn, &sio_chn_vmt);
   }

@@ -807,6 +807,11 @@
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="ifType">
+    <xs:sequence>
+      <xs:element name="method" type="ifMethodType" maxOccurs="unbounded"
+        minOccurs="1">
+      </xs:element>
+    </xs:sequence>
     <xs:attribute name="name" type="identifierType" use="required">
     </xs:attribute>
   </xs:complexType>
@@ -890,5 +895,12 @@
     </xs:sequence>
     <xs:attribute name="shortname" type="shortnameType"
       use="required"></xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ifMethodType">
+    <xs:sequence>
+      <xs:element name="implementation" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="shortname" type="shortnameType"></xs:attribute>
   </xs:complexType>
 </xs:schema>

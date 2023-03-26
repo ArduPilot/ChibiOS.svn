@@ -111,7 +111,7 @@
 extern "C" {
 #endif
   [#list module.public.types.class as class]
-[@cclasses.GenerateClassMethodsPrototypesFromNode class /]
+[@cclasses.GenerateClassMethodsPrototypes class /]
   [/#list]
   [#if module.public.functions[0]??]
   /* Regular functions.*/
@@ -132,8 +132,8 @@ extern "C" {
   [#-- Scanning all classes.--]
   [#list module.public.types.class as class]
 [@cclasses.GenerateClassPublicConstructorDestructor class /]
-[@cclasses.GenerateClassVirtualMethodsFromNode node=class /]
-[@cclasses.GenerateClassInlineMethodsFromNode node=class /]
+[@cclasses.GenerateClassVirtualMethods node=class /]
+[@cclasses.GenerateClassInlineMethods node=class /]
   [/#list]
   [#if module_condition?length > 0]
 #endif /* ${module_condition} */

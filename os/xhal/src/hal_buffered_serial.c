@@ -166,16 +166,16 @@ void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
   {
     static const struct asynchronous_channel_vmt bs_chn_vmt = {
       .instance_offset      = offsetof(hal_buffered_serial_c, bs.chn),
-      .write                = __bs_chn_write,
-      .read                 = __bs_chn_read,
-      .put                  = __bs_chn_put,
-      .get                  = __bs_chn_get,
-      .writet               = __bs_chn_writet,
-      .readt                = __bs_chn_readt,
-      .putt                 = __bs_chn_putt,
-      .gett                 = __bs_chn_gett,
-      .getclr               = __bs_chn_getclr,
-      .ctl                  = __bs_chn_ctl
+      .write                = NULL /* Missing implementation.*/,
+      .read                 = NULL /* Missing implementation.*/,
+      .put                  = NULL /* Missing implementation.*/,
+      .get                  = NULL /* Missing implementation.*/,
+      .writet               = NULL /* Missing implementation.*/,
+      .readt                = NULL /* Missing implementation.*/,
+      .putt                 = NULL /* Missing implementation.*/,
+      .gett                 = NULL /* Missing implementation.*/,
+      .getclr               = NULL /* Missing implementation.*/,
+      .ctl                  = NULL /* Missing implementation.*/
     };
     oopIfObjectInit(&self->bs.chn, &bs_chn_vmt);
   }

@@ -424,7 +424,11 @@ SIO_CONFIG_EXT_FIELDS]]></verbatim>
         <brief>Class of a SIO (Serial I/O) driver.</brief>
         <implements>
           <condition check="SIO_USE_STREAMS_INTERFACE == TRUE">
-            <if name="asynchronous_channel"/>
+            <if name="asynchronous_channel">
+              <method shortname="write">
+                <implementation><![CDATA[
+/******************/]]></implementation>
+              </method></if>
           </condition>
         </implements>
         <fields>

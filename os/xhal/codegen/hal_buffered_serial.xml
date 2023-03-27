@@ -11,7 +11,65 @@
         ancestorname="hal_base_driver" descr="HAL buffered serial driver">
         <brief>Ancestor class of serial buffered drivers.</brief>
         <implements>
-          <if name="asynchronous_channel" />
+          <if name="asynchronous_channel">
+            <method shortname="write">
+              <implementation><![CDATA[
+
+return oqWriteTimeout(&self->oqueue, bp, n, TIME_INFINITE);]]></implementation>
+            </method>
+            <method shortname="read">
+              <implementation><![CDATA[
+
+return iqReadTimeout(&self->iqueue, bp, n, TIME_INFINITE);]]></implementation>
+            </method>
+            <method shortname="put">
+              <implementation><![CDATA[
+
+return oqPutTimeout(&self->oqueue, b, TIME_INFINITE);]]></implementation>
+            </method>
+            <method shortname="get">
+              <implementation><![CDATA[
+
+return iqGetTimeout(&self->iqueue, TIME_INFINITE);]]></implementation>
+            </method>
+            <method shortname="writet">
+              <implementation><![CDATA[
+
+return oqWriteTimeout(&self->oqueue, bp, n, timeout);]]></implementation>
+            </method>
+            <method shortname="readt">
+              <implementation><![CDATA[
+
+return iqReadTimeout(&self->iqueue, bp, n, timeout);]]></implementation>
+            </method>
+            <method shortname="putt">
+              <implementation><![CDATA[
+
+return oqPutTimeout(&self->oqueue, b, timeout);]]></implementation>
+            </method>
+            <method shortname="gett">
+              <implementation><![CDATA[
+
+return iqGetTimeout(&self->iqueue, timeout);]]></implementation>
+            </method>
+            <method shortname="getclr">
+              <implementation><![CDATA[
+
+(void)self;
+(void)mask;
+
+return 0;]]></implementation>
+            </method>
+            <method shortname="ctl">
+              <implementation><![CDATA[
+
+(void)self;
+(void)operation;
+(void)arg;
+
+return 0;]]></implementation>
+            </method>
+          </if>
         </implements>
         <fields>
           <field name="iqueue" ctype="input_queue_t">
@@ -27,28 +85,34 @@
         <methods>
           <objinit callsuper="true">
             <param name="ib" ctype="uint8_t *" dir="in">
-              pointer to the input buffer
+              pointer to the input
+              buffer
             </param>
             <param name="ibsize" ctype="size_t" dir="in">
-              size of the input buffer
+              size of the input
+              buffer
             </param>
             <param name="inotify" ctype="qnotify_t" dir="in"><![CDATA[pointer
               to a callback function that is invoked when some data is read
               from the input queue. The value can be @p NULL]]></param>
             <param name="iarg" ctype="void *" dir="in">
-              parameter for the input notification callback
+              parameter for the input
+              notification callback
             </param>
             <param name="ob" ctype="uint8_t *" dir="in">
-              pointer to the output buffer
+              pointer to the output
+              buffer
             </param>
             <param name="obsize" ctype="size_t" dir="in">
-              size of the output buffer
+              size of the output
+              buffer
             </param>
             <param name="onotify" ctype="qnotify_t" dir="in"><![CDATA[pointer
               to a callback function that is invoked when some data is written
               to the output queue. The value can be @p NULL]]></param>
             <param name="oarg" ctype="void *" dir="in">
-              parameter for the output notification callback
+              parameter for the output
+              notification callback
             </param>
             <implementation><![CDATA[
 
@@ -114,7 +178,8 @@ return b;]]></implementation>
                 ISRs in order to notify I/O conditions such as data events,
                 errors, signal changes etc.]]></details>
               <param name="flags" ctype="eventflags_t" dir="in">Event flags to
-                be added.</param>
+                be added.
+              </param>
               <implementation><![CDATA[
 
 osalEventBroadcastFlagsI(&self->event, flags);]]></implementation>
@@ -128,101 +193,5 @@ osalEventBroadcastFlagsI(&self->event, flags);]]></implementation>
     <includes>
       <include style="regular">hal.h</include>
     </includes>
-    <functions>
-      <function name="__bs_stm_write_impl" ctype="size_t">
-        <param name="ip" ctype="void *" />
-        <param name="bp" ctype="const uint8_t *" dir="in" />
-        <param name="n" ctype="size_t" dir="in" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-return oqWriteTimeout(&bsp->oqueue, bp, n, TIME_INFINITE);]]></implementation>
-      </function>
-      <function name="__bs_stm_read_impl" ctype="size_t">
-        <param name="ip" ctype="void *" />
-        <param name="bp" ctype="uint8_t *" dir="in" />
-        <param name="n" ctype="size_t" dir="in" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-return iqReadTimeout(&bsp->iqueue, bp, n, TIME_INFINITE);]]></implementation>
-      </function>
-      <function name="__bs_stm_put_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="b" ctype="uint8_t" dir="in" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-return oqPutTimeout(&bsp->oqueue, b, TIME_INFINITE);]]></implementation>
-      </function>
-      <function name="__bs_stm_get_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-return iqGetTimeout(&bsp->iqueue, TIME_INFINITE);]]></implementation>
-      </function>
-      <function name="__bs_chn_writet_impl" ctype="size_t">
-        <param name="ip" ctype="void *" />
-        <param name="bp" ctype="const uint8_t *" dir="in" />
-        <param name="n" ctype="size_t" dir="in" />
-        <param name="timeout" ctype="sysinterval_t" dir="in" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-return oqWriteTimeout(&bsp->oqueue, bp, n, timeout);]]></implementation>
-      </function>
-      <function name="__bs_chn_readt_impl" ctype="size_t">
-        <param name="ip" ctype="void *" />
-        <param name="bp" ctype="uint8_t *" dir="in" />
-        <param name="n" ctype="size_t" dir="in" />
-        <param name="timeout" ctype="sysinterval_t" dir="in" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-return iqReadTimeout(&bsp->iqueue, bp, n, timeout);]]></implementation>
-      </function>
-      <function name="__bs_chn_putt_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="b" ctype="uint8_t" dir="in" />
-        <param name="timeout" ctype="sysinterval_t" dir="in" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-return oqPutTimeout(&bsp->oqueue, b, timeout);]]></implementation>
-      </function>
-      <function name="__bs_chn_gett_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="timeout" ctype="sysinterval_t" dir="in" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-return iqGetTimeout(&bsp->iqueue, timeout);]]></implementation>
-      </function>
-      <function name="__bs_chn_getclr_impl" ctype="eventflags_t">
-        <param name="ip" ctype="void *" />
-        <param name="mask" ctype="eventflags_t" dir="in" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-(void)bsp;
-(void)mask;
-
-return 0;]]></implementation>
-      </function>
-      <function name="__bs_chn_ctl_impl" ctype="msg_t">
-        <param name="ip" ctype="void *" />
-        <param name="operation" ctype="unsigned int" dir="in" />
-        <param name="arg" ctype="void *" dir="both" />
-        <implementation><![CDATA[
-hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-(void)bsp;
-(void)operation;
-(void)arg;
-
-return 0;]]></implementation>
-      </function>
-    </functions>
   </private>
 </module>

@@ -49,75 +49,6 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-static size_t __bs_stm_write_impl(void *ip, const uint8_t *bp, size_t n) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  return oqWriteTimeout(&bsp->oqueue, bp, n, TIME_INFINITE);
-}
-
-static size_t __bs_stm_read_impl(void *ip, uint8_t *bp, size_t n) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  return iqReadTimeout(&bsp->iqueue, bp, n, TIME_INFINITE);
-}
-
-static msg_t __bs_stm_put_impl(void *ip, uint8_t b) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  return oqPutTimeout(&bsp->oqueue, b, TIME_INFINITE);
-}
-
-static msg_t __bs_stm_get_impl(void *ip) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  return iqGetTimeout(&bsp->iqueue, TIME_INFINITE);
-}
-
-static size_t __bs_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
-                                   sysinterval_t timeout) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  return oqWriteTimeout(&bsp->oqueue, bp, n, timeout);
-}
-
-static size_t __bs_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
-                                  sysinterval_t timeout) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  return iqReadTimeout(&bsp->iqueue, bp, n, timeout);
-}
-
-static msg_t __bs_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  return oqPutTimeout(&bsp->oqueue, b, timeout);
-}
-
-static msg_t __bs_chn_gett_impl(void *ip, sysinterval_t timeout) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  return iqGetTimeout(&bsp->iqueue, timeout);
-}
-
-static eventflags_t __bs_chn_getclr_impl(void *ip, eventflags_t mask) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  (void)bsp;
-  (void)mask;
-
-  return 0;
-}
-
-static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
-  hal_buffered_serial_c *bsp = oopIfGetOwner(hal_buffered_serial_c, ip);
-
-  (void)bsp;
-  (void)operation;
-  (void)arg;
-
-  return 0;
-}
-
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
@@ -130,6 +61,215 @@ static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
  * @name        Interfaces implementation of hal_buffered_serial_c
  * @{
  */
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmWrite().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The returned
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
+ */
+static size_t __bs_chn_write_impl(void *ip, const uint8_t *bp, size_t n) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  return oqWriteTimeout(&self->oqueue, bp, n, TIME_INFINITE);
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmRead().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[out]    bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The returned
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
+ */
+static size_t __bs_chn_read_impl(void *ip, uint8_t *bp, size_t n) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  return iqReadTimeout(&self->iqueue, bp, n, TIME_INFINITE);
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmPut().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     b             The byte value to be written to the stream.
+ * @return                      The operation status.
+ */
+static msg_t __bs_chn_put_impl(void *ip, uint8_t b) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  return oqPutTimeout(&self->oqueue, b, TIME_INFINITE);
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmGet().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @return                      A byte value from the stream.
+ */
+static msg_t __bs_chn_get_impl(void *ip) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  return iqGetTimeout(&self->iqueue, TIME_INFINITE);
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnWriteTimeout().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @param[in]     timeout       The number of ticks before the operation
+ *                              timeouts, the following special values are
+ *                              allowed:
+ *                              - @a TIME_IMMEDIATE immediate timeout.
+ *                              - @a TIME_INFINITE no timeout.
+ *                              .
+ * @return                      The number of bytes transferred.
+ */
+static size_t __bs_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
+                                   sysinterval_t timeout) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  return oqWriteTimeout(&self->oqueue, bp, n, timeout);
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnReadTimeout().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @param[in]     timeout       The number of ticks before the operation
+ *                              timeouts, the following special values are
+ *                              allowed:
+ *                              - @a TIME_IMMEDIATE immediate timeout.
+ *                              - @a TIME_INFINITE no timeout.
+ *                              .
+ * @return                      The number of bytes transferred.
+ */
+static size_t __bs_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
+                                  sysinterval_t timeout) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  return iqReadTimeout(&self->iqueue, bp, n, timeout);
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnPutTimeout().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     b             The byte value to be written to the channel.
+ * @param[in]     timeout       The number of ticks before the operation
+ *                              timeouts, the following special values are
+ *                              allowed:
+ *                              - @a TIME_IMMEDIATE immediate timeout.
+ *                              - @a TIME_INFINITE no timeout.
+ *                              .
+ * @return                      The operation status.
+ */
+static msg_t __bs_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  return oqPutTimeout(&self->oqueue, b, timeout);
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnGetTimeout().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     timeout       The number of ticks before the operation
+ *                              timeouts, the following special values are
+ *                              allowed:
+ *                              - @a TIME_IMMEDIATE immediate timeout.
+ *                              - @a TIME_INFINITE no timeout.
+ *                              .
+ * @return                      A byte value from the channel.
+ */
+static msg_t __bs_chn_gett_impl(void *ip, sysinterval_t timeout) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  return iqGetTimeout(&self->iqueue, timeout);
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnGetAndClearFlags().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     mask          Mask of flags to be returned and cleared.
+ * @return                      The cleared event flags.
+ */
+static chnflags_t __bs_chn_getclr_impl(void *ip, chnflags_t mask) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  (void)self;
+  (void)mask;
+
+  return 0;
+}
+
+/**
+ * @memberof    hal_buffered_serial_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnControl().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     operation     Control operation code
+ * @param[in,out] arg           Operation argument.
+ * @return                      The operation status.
+ */
+static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
+  hal_buffered_serial_c *self = oopIfGetOwner(hal_buffered_serial_c, ip);
+
+  (void)self;
+  (void)operation;
+  (void)arg;
+
+  return 0;
+}
 /** @} */
 
 /**
@@ -146,18 +286,18 @@ static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
  * @param[out]    ip            Pointer to a @p hal_buffered_serial_c instance
  *                              to be initialized.
  * @param[in]     vmt           VMT pointer for the new object.
- * @param[in]     ib            Pointer to the input buffer.
- * @param[in]     ibsize        Size of the input buffer.
+ * @param[in]     ib            Pointer to the input buffer
+ * @param[in]     ibsize        Size of the input buffer
  * @param[in]     inotify       Pointer to a callback function that is invoked
  *                              when some data is read from the input queue.
  *                              The value can be @p NULL
- * @param[in]     iarg          Parameter for the input notification callback.
- * @param[in]     ob            Pointer to the output buffer.
- * @param[in]     obsize        Size of the output buffer.
+ * @param[in]     iarg          Parameter for the input notification callback
+ * @param[in]     ob            Pointer to the output buffer
+ * @param[in]     obsize        Size of the output buffer
  * @param[in]     onotify       Pointer to a callback function that is invoked
  *                              when some data is written to the output queue.
  *                              The value can be @p NULL
- * @param[in]     oarg          Parameter for the output notification callback.
+ * @param[in]     oarg          Parameter for the output notification callback
  * @return                      A new reference to the object.
  */
 void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
@@ -172,16 +312,16 @@ void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
   {
     static const struct asynchronous_channel_vmt bs_chn_vmt = {
       .instance_offset      = offsetof(hal_buffered_serial_c, chn),
-      .write                = NULL /* Missing implementation.*/,
-      .read                 = NULL /* Missing implementation.*/,
-      .put                  = NULL /* Missing implementation.*/,
-      .get                  = NULL /* Missing implementation.*/,
-      .writet               = NULL /* Missing implementation.*/,
-      .readt                = NULL /* Missing implementation.*/,
-      .putt                 = NULL /* Missing implementation.*/,
-      .gett                 = NULL /* Missing implementation.*/,
-      .getclr               = NULL /* Missing implementation.*/,
-      .ctl                  = NULL /* Missing implementation.*/
+      .write                = __bs_chn_write_impl,
+      .read                 = __bs_chn_read_impl,
+      .put                  = __bs_chn_put_impl,
+      .get                  = __bs_chn_get_impl,
+      .writet               = __bs_chn_writet_impl,
+      .readt                = __bs_chn_readt_impl,
+      .putt                 = __bs_chn_putt_impl,
+      .gett                 = __bs_chn_gett_impl,
+      .getclr               = __bs_chn_getclr_impl,
+      .ctl                  = __bs_chn_ctl_impl
     };
     oopIfObjectInit(&self->chn, &bs_chn_vmt);
   }

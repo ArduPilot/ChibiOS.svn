@@ -27,18 +27,17 @@
         <api />
         <implementation><![CDATA[(c *)(((size_t)(p)) - (size_t)offsetof(c, m))]]></implementation>
       </macro>
-      <macro name="boGetIf">
+      <macro name="oopGetIf">
         <brief>Returns a pointer to one of the implemented interfaces.</brief>
         <note><![CDATA[The interface pointer is returned as a <tt>void *</tt>
           in order to be directly usable as any of the interface's ancestors
           pointers.]]></note>
         <param name="ip" dir="in">Pointer to the class instance.</param>
         <param name="ifns">Implemented interface namespace.</param>
-        <param name="cns">Implementing class namespace.</param>
         <return>A void pointer to the interface within the class instance.
         </return>
         <api />
-        <implementation><![CDATA[(void *)(&(ip)->cns.ifns)]]></implementation>
+        <implementation><![CDATA[(void *)(&(ip)->ifns)]]></implementation>
       </macro>
       <condition check="defined(OOP_USE_CHIBIOS)">
         <macro name="oopAssert">

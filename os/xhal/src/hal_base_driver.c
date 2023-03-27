@@ -121,7 +121,7 @@ hal_base_driver_c *drvRegGetFirstX(void) {
     return NULL;
   }
 
-  return oopGetOwner(hal_base_driver_c, drv.regent, rep);
+  return oopGetOwner(hal_base_driver_c, regent, rep);
 }
 
 /**
@@ -142,7 +142,7 @@ hal_base_driver_c *drvRegGetNextX(hal_base_driver_c *drvp) {
     return NULL;
   }
 
-  return oopGetOwner(hal_base_driver_c, drv.regent, rep);
+  return oopGetOwner(hal_base_driver_c, regent, rep);
 }
 
 /**

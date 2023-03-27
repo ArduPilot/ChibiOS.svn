@@ -57,7 +57,7 @@ int main(void) {
   if (drvOpen(&LPSIOD1) != HAL_RET_SUCCESS) {
     chSysHalt("SIO failure");
   }
-  stream = sioGetIf(&LPSIOD1, chn);
+  stream = oopGetIf(&LPSIOD1, chn);
 
   /*
    * Creates the blinker thread.

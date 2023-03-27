@@ -648,7 +648,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
                                   name      = "__" + classnamespace + "_" + methodsname + "_impl"
                                   modifiers = modifiers
                                   params    = ["void *ip"]
-                                  node      = method /] {
+                                  node      = ancestormethod /] {
 [@ccode.Indent 1 /]${classctype} *self = (${classctype} *)ip;
 [@ccode.GenerateIndentedCCode indent = ccode.indentation
                               ccode  = methodimpl /]
@@ -861,7 +861,7 @@ CC_FORCE_INLINE
                                   name      = "__" + classnamespace + "_" + methodsname + "_impl"
                                   modifiers = []
                                   params    = ["void *ip"]
-                                  node      = method /];
+                                  node      = ancestormethod /];
   [/#list]
   [#-- Scanning for all virtual methods defined in the current class.--]
   [#list class.methods.virtual.method as method]
@@ -943,9 +943,10 @@ ${funcptr}
 [@doxygen.EmitNote "" "It is public because accessed by the inlined constructor." /]
  */
 const struct ${classname}_vmt __${classname}_vmt = {
+  [#local classes = GetClassAncestorsSequence(node) + [node]]
   [#local methods = GetClassVirtualMethodsSequence(node)]
   [#list methods as method]
-    [#local methodimpl = GetMethodNearestImplementation(classes method)]
+    [#local methodimpl = GetMethodNearestImplementation(classes, method)]
     [#local s = (ccode.indentation + "." +
                  GetMethodShortName(method))?right_pad(ccode.initializers_align) +
                  "= " + methodimpl]
@@ -975,7 +976,7 @@ ${s}
 [@ccode.Indent 2 /]static const struct ${ifname}_vmt ${classnamespace}_${ifnamespace}_vmt = {
       [#local s = (ccode.indentation + ccode.indentation + ccode.indentation +
                    ".instance_offset")?right_pad(ccode.initializers_align) + "= " +
-                   "offsetof(" + classctype + ", " + classnamespace + "." + ifnamespace + ")"]
+                   "offsetof(" + classctype + ", " + ifnamespace + ")"]
 ${s},
       [#local methods = GetInterfaceMethodsSequence(if)]
       [#list methods as method]
@@ -996,7 +997,7 @@ ${s}
         [/#if]
       [/#list]
 [@ccode.Indent 2 /]};
-[@ccode.Indent 2 /]oopIfObjectInit(&self->${classnamespace}.${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
+[@ccode.Indent 2 /]oopIfObjectInit(&self->${ifnamespace}, &${classnamespace}_${ifnamespace}_vmt);
 [@ccode.Indent 1 /]}
       [#if node?node_name != "condition"]
 
@@ -1052,30 +1053,6 @@ ${s}
 [@GenerateClassImplementsTags this /]
     [/#if]
   [/#list]
-[/#macro]
-
-[#--
-  -- This macro generates interface access macros from an XML node.
-  --]
-[#macro GenerateClassInterfaceMacros node=[]]
-  [#if node.implements.*?size > 0]
-    [#local classnamespace = GetNodeNamespace(node)
-            classctype     = GetClassCType(node) /]
-
-/**
-[@doxygen.EmitTagVerbatim indent "memberof" classctype /]
- *
-[@doxygen.EmitBrief "" "Access macro for " + classctype + " interfaces." /]
- *
-[@doxygen.EmitParam "" "ip" "in" "Pointer to the class instance." /]
-[@doxygen.EmitParam "" "ifns" "" "Implemented interface namespace." /]
-[@doxygen.EmitReturn "" "A void pointer to the interface within the class instance." /]
- *
- * @api
- */
-${("#define " + classnamespace + "GetIf(ip, ifns)")?right_pad(ccode.backslash_align) + "\\"}
-[@ccode.Indent 1 /]boGetIf(ip, ifns, ${classnamespace})
-  [/#if]
 [/#macro]
 
 [#--
@@ -1164,9 +1141,9 @@ CC_FORCE_INLINE
                                   modifiers = ["static", "inline"]
                                   params    = [classctype + " *self"]
                                   node      = node.methods.objinit[0] /] {
-[@ccode.Indent 1 /]extern const struct ${classname}_vmt __${classnamespace}_vmt;
+[@ccode.Indent 1 /]extern const struct ${classname}_vmt __${classname}_vmt;
 
-    [#local params = ccode.MakeCallParamsSequence(["self", "&__" + classnamespace + "_vmt"], node.methods.objinit[0])]
+    [#local params = ccode.MakeCallParamsSequence(["self", "&__" + classname + "_vmt"], node.methods.objinit[0])]
 [@ccode.GenerateFunctionCall indent      = ccode.indentation
                              destination = "return"
                              name        = "__" + classnamespace + "_objinit_impl"
@@ -1294,10 +1271,89 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 /** @} */
 [/#macro]
 
+[#macro GenerateInterfacesImplementations node=[]
+                                          classnamespace="no-namespace"
+                                          classctype="no-ctype"]
+  [#list node.* as this]
+    [#if this?node_name == "if"]
+      [#local if          = GetInterfaceByName(GetNodeName(this))
+              ifctype     = GetInterfaceCType(if)
+              ifnamespace = GetNodeNamespace(if)]
+      [#list this.method as methodref]
+        [#local methodsname  = GetMethodShortName(methodref)]
+        [#local ifmethods    = GetInterfaceMethodsSequence(if)]
+        [#local foundmethods = ifmethods?filter(m -> GetMethodShortName(m) == methodsname)]
+        [#if !foundmethods[0]??]
+          [#stop ">>>> Method + '" + methodsname + "' not found."]
+        [/#if]
+        [#local method     = foundmethods[0]]
+        [#local methodname = GetNodeName(method)]
+/**
+[@doxygen.EmitTagVerbatim "" "memberof" classctype /]
+ * @private
+ *
+[@doxygen.EmitBrief "" "Implementation of interface method @p " + methodname + "()." /]
+ *
+[@doxygen.EmitParam name="ip" dir="both"
+                    text="Pointer to the @p " + ifctype + " class interface." /]
+[@doxygen.EmitParamFromNode node=method /]
+[@doxygen.EmitReturnFromNode node=method /]
+ */
+[@ccode.GeneratePrototypeFromNode indent    = ""
+                                  name      = "__" + classnamespace + "_" +
+                                              ifnamespace + "_" + methodsname + "_impl"
+                                  modifiers = ["static"]
+                                  params    = ["void *ip"]
+                                  node      = method /] {
+[@ccode.Indent 1 /]${classctype} *self = oopIfGetOwner(${classctype}, ip);
+[@ccode.GenerateIndentedCCode indent = ccode.indentation
+                              ccode  = methodref.implementation[0] /]
+}
+        [#if methodref?has_next]
+
+        [/#if]
+      [/#list]
+    [#elseif this?node_name == "condition"]
+      [#local condcheck = (this.@check[0]!"1")?trim]
+#if (${condcheck}) || defined (__DOXYGEN__)
+      [@GenerateInterfacesImplementations node           = this
+                                          classnamespace = classnamespace
+                                          classctype     = classctype /]
+#endif /* ${condcheck} */
+    [/#if]
+    [#if this?has_next]
+
+    [#elseif (this?parent?node_name != "condition") &&
+             (this?parent?node_name != "implements")]
+
+    [/#if]
+  [/#list]
+[/#macro]
+
 [#--
-  -- This macro generates a class wrapper (.c part) from an XML node.
+  -- This macro generates a class interfaces implementatios from an XML node.
   --]
-[#macro GenerateClassWrapperCode class=[]]
+[#macro GenerateClassInterfacesImplementations node=[]]
+  [#local classnamespace = GetNodeNamespace(node)
+          classctype     = GetClassCType(node)]
+  [#if node.implements.*?size > 0]
+/**
+[@doxygen.EmitTagVerbatim "" "name" "Interfaces implementation of " + classctype /]
+ * @{
+ */
+  [@GenerateInterfacesImplementations node           = node.implements
+                                      classnamespace = classnamespace
+                                      classctype     = classctype /]
+/** @} */
+
+  [/#if]
+[/#macro]
+
+[#--
+  -- This macro generates the class code from an XML node.
+  --]
+[#macro GenerateClassCode class=[]]
+[@GenerateClassInterfacesImplementations node=class /]
 [@GenerateClassVMT node=class /]
 [@GenerateClassImplementations node=class /]
 [@GenerateClassRegularMethods node=class /]

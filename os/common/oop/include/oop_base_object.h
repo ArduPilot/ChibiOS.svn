@@ -76,14 +76,13 @@
  *
  * @param[in]     ip            Pointer to the class instance.
  * @param         ifns          Implemented interface namespace.
- * @param         cns           Implementing class namespace.
  * @return                      A void pointer to the interface within the
  *                              class instance.
  *
  * @api
  */
-#define boGetIf(ip, ifns, cns)                                              \
-  (void *)(&(ip)->cns.ifns)
+#define oopGetIf(ip, ifns)                                                  \
+  (void *)(&(ip)->ifns)
 
 #if (defined(OOP_USE_CHIBIOS)) || defined (__DOXYGEN__)
 /**

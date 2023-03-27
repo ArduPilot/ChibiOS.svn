@@ -127,6 +127,12 @@ static msg_t __bs_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
 /*===========================================================================*/
 
 /**
+ * @name        Interfaces implementation of hal_buffered_serial_c
+ * @{
+ */
+/** @} */
+
+/**
  * @name        Methods implementations of hal_buffered_serial_c
  * @{
  */
@@ -165,7 +171,7 @@ void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
   /* Initialization of interface asynchronous_channel_i.*/
   {
     static const struct asynchronous_channel_vmt bs_chn_vmt = {
-      .instance_offset      = offsetof(hal_buffered_serial_c, bs.chn),
+      .instance_offset      = offsetof(hal_buffered_serial_c, chn),
       .write                = NULL /* Missing implementation.*/,
       .read                 = NULL /* Missing implementation.*/,
       .put                  = NULL /* Missing implementation.*/,
@@ -177,7 +183,7 @@ void *__bs_objinit_impl(void *ip, const void *vmt, uint8_t *ib, size_t ibsize,
       .getclr               = NULL /* Missing implementation.*/,
       .ctl                  = NULL /* Missing implementation.*/
     };
-    oopIfObjectInit(&self->bs.chn, &bs_chn_vmt);
+    oopIfObjectInit(&self->chn, &bs_chn_vmt);
   }
 
   /* Initialization code.*/

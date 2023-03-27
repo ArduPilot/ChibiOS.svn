@@ -124,7 +124,7 @@
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
 /*===========================================================================*/
 
-[@cclasses.GenerateClassWrapperCode class /]
+[@cclasses.GenerateClassCode class /]
     [/#list]
     [#-- Dropping the file if nothing has been generated inside.--]
     [#if (ccode.generated == false) && (cclasses.generated == false)]

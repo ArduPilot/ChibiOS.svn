@@ -427,8 +427,91 @@ SIO_CONFIG_EXT_FIELDS]]></verbatim>
             <if name="asynchronous_channel">
               <method shortname="write">
                 <implementation><![CDATA[
-/******************/]]></implementation>
-              </method></if>
+
+return sio_sync_write(self, bp, n, TIME_INFINITE);]]></implementation>
+              </method>
+              <method shortname="read">
+                <implementation><![CDATA[
+
+return sio_sync_read(self, bp, n, TIME_INFINITE);]]></implementation>
+              </method>
+              <method shortname="put">
+                <implementation><![CDATA[
+msg_t msg;
+
+msg = sioSynchronizeTX(self, TIME_INFINITE);
+if (msg != MSG_OK) {
+  return msg;
+}
+
+sioPutX(self, b);
+return MSG_OK;]]></implementation>
+              </method>
+              <method shortname="get">
+                <implementation><![CDATA[
+msg_t msg;
+
+msg = sioSynchronizeRX(self, TIME_INFINITE);
+if (msg != MSG_OK) {
+  return msg;
+}
+
+return sioGetX(self);]]></implementation>
+              </method>
+              <method shortname="writet">
+                <implementation><![CDATA[
+
+return sio_sync_write(self, bp, n, timeout);]]></implementation>
+              </method>
+              <method shortname="readt">
+                <implementation><![CDATA[
+
+return sio_sync_read(self, bp, n, timeout);]]></implementation>
+              </method>
+              <method shortname="putt">
+                <implementation><![CDATA[
+msg_t msg;
+
+msg = sioSynchronizeTX(self, timeout);
+if (msg != MSG_OK) {
+  return msg;
+}
+
+sioPutX(self, b);
+return MSG_OK;]]></implementation>
+              </method>
+              <method shortname="gett">
+                <implementation><![CDATA[
+msg_t msg;
+
+msg = sioSynchronizeRX(self, timeout);
+if (msg != MSG_OK) {
+  return msg;
+}
+
+return sioGetX(self);]]></implementation>
+              </method>
+              <method shortname="getclr">
+                <implementation><![CDATA[
+
+return (chnflags_t)sioGetAndClearEventsX(self, (sioevents_t)mask);]]></implementation>
+              </method>
+              <method shortname="ctl">
+                <implementation><![CDATA[
+
+switch (operation) {
+case CHN_CTL_NOP:
+  osalDbgCheck(arg == NULL);
+  break;
+case CHN_CTL_INVALID:
+  return HAL_RET_UNKNOWN_CTL;
+default:
+  /* Delegating to the LLD if supported.*/
+  return sio_lld_control(self, operation, arg);
+}
+return HAL_RET_SUCCESS;]]></implementation>
+              </method>
+            </if>
           </condition>
         </implements>
         <fields>
@@ -491,7 +574,7 @@ SIO_DRIVER_EXT_INIT_HOOK(self);
 osalDbgCheck(self != NULL);
 
 osalSysLock();
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 sioWriteEnableFlagsX(self, mask);
 osalSysUnlock();]]></implementation>
             </method>
@@ -505,7 +588,7 @@ osalSysUnlock();]]></implementation>
 osalDbgCheck(self != NULL);
 
 osalSysLock();
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 sioSetEnableFlagsX(self, mask);
 osalSysUnlock();]]></implementation>
             </method>
@@ -519,7 +602,7 @@ osalSysUnlock();]]></implementation>
 osalDbgCheck(self != NULL);
 
 osalSysLock();
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 sioClearEnableFlagsX(self, mask);
 osalSysUnlock();]]></implementation>
             </method>
@@ -534,7 +617,7 @@ sioevents_t errors;
 osalDbgCheck(self != NULL);
 
 osalSysLock();
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 errors = sioGetAndClearErrorsX(self);
 osalSysUnlock();
 
@@ -553,7 +636,7 @@ sioevents_t events;
 osalDbgCheck(self != NULL);
 
 osalSysLock();
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 events = sioGetAndClearEventsX(self, mask);
 osalSysUnlock();
 
@@ -569,7 +652,7 @@ sioevents_t events;
 osalDbgCheck(self != NULL);
 
 osalSysLock();
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 events = sioGetEventsX(self);
 osalSysUnlock();
 
@@ -604,7 +687,7 @@ osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 
 /* Checking for errors before going to sleep.*/
 if (sioHasRXErrorsX(self)) {
@@ -653,7 +736,7 @@ osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 
 /* Checking for errors before going to sleep.*/
 if (sioHasRXErrorsX(self)) {
@@ -703,7 +786,7 @@ osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 
 msg = MSG_OK;
 /*lint -save -e506 -e681 [2.1] Silencing this error because it is
@@ -744,7 +827,7 @@ osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 
 /*lint -save -e506 -e774 [2.1, 14.3] Silencing this error because
   it is tested with a template implementation of sio_lld_is_tx_ongoing()
@@ -873,129 +956,6 @@ while (i < n) {
   bp += read;
 }
 return i;]]></implementation>
-        </function>
-        <function name="__sio_stm_write_impl" ctype="size_t">
-          <param name="ip" ctype="void *" />
-          <param name="bp" ctype="const uint8_t *" />
-          <param name="n" ctype="size_t" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-return sio_sync_write(siop, bp, n, TIME_INFINITE);]]></implementation>
-        </function>
-        <function name="__sio_stm_read_impl" ctype="size_t">
-          <param name="ip" ctype="void *" />
-          <param name="bp" ctype="uint8_t *" />
-          <param name="n" ctype="size_t" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-return sio_sync_read(siop, bp, n, TIME_INFINITE);]]></implementation>
-        </function>
-        <function name="__sio_stm_put_impl" ctype="msg_t">
-          <param name="ip" ctype="void *" />
-          <param name="b" ctype="uint8_t" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-msg_t msg;
-
-msg = sioSynchronizeTX(siop, TIME_INFINITE);
-if (msg != MSG_OK) {
-  return msg;
-}
-
-sioPutX(siop, b);
-return MSG_OK;]]></implementation>
-        </function>
-        <function name="__sio_stm_get_impl" ctype="msg_t">
-          <param name="ip" ctype="void *" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-msg_t msg;
-
-msg = sioSynchronizeRX(siop, TIME_INFINITE);
-if (msg != MSG_OK) {
-  return msg;
-}
-
-return sioGetX(siop);]]></implementation>
-        </function>
-        <function name="__sio_chn_writet_impl" ctype="size_t">
-          <param name="ip" ctype="void *" />
-          <param name="bp" ctype="const uint8_t *" />
-          <param name="n" ctype="size_t" />
-          <param name="timeout" ctype="sysinterval_t" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-return sio_sync_write(siop, bp, n, timeout);]]></implementation>
-        </function>
-        <function name="__sio_chn_readt_impl" ctype="size_t">
-          <param name="ip" ctype="void *" />
-          <param name="bp" ctype="uint8_t *" />
-          <param name="n" ctype="size_t" />
-          <param name="timeout" ctype="sysinterval_t" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-return sio_sync_read(siop, bp, n, timeout);]]></implementation>
-        </function>
-        <function name="__sio_chn_putt_impl" ctype="msg_t">
-          <param name="ip" ctype="void *" />
-          <param name="b" ctype="uint8_t" />
-          <param name="timeout" ctype="sysinterval_t" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-msg_t msg;
-
-msg = sioSynchronizeTX(siop, timeout);
-if (msg != MSG_OK) {
-  return msg;
-}
-
-sioPutX(siop, b);
-return MSG_OK;]]></implementation>
-        </function>
-        <function name="__sio_chn_gett_impl" ctype="msg_t">
-          <param name="ip" ctype="void *" />
-          <param name="timeout" ctype="sysinterval_t" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-msg_t msg;
-
-msg = sioSynchronizeRX(siop, timeout);
-if (msg != MSG_OK) {
-  return msg;
-}
-
-return sioGetX(siop);]]></implementation>
-        </function>
-        <function name="__sio_chn_getclr_impl" ctype="chnflags_t">
-          <param name="ip" ctype="void *" />
-          <param name="mask" ctype="chnflags_t" dir="in" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-return (chnflags_t)sioGetAndClearEventsX(siop, (sioevents_t)mask);]]></implementation>
-        </function>
-        <function name="__sio_chn_ctl_impl" ctype="msg_t">
-          <param name="ip" ctype="void *" />
-          <param name="operation" ctype="unsigned int" />
-          <param name="arg" ctype="void *" />
-          <implementation><![CDATA[
-hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-switch (operation) {
-case CHN_CTL_NOP:
-  osalDbgCheck(arg == NULL);
-  break;
-case CHN_CTL_INVALID:
-  return HAL_RET_UNKNOWN_CTL;
-default:
-  /* Delegating to the LLD if supported.*/
-  return sio_lld_control(siop, operation, arg);
-}
-return HAL_RET_SUCCESS;]]></implementation>
         </function>
       </condition>
     </functions>

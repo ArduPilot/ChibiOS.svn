@@ -93,104 +93,6 @@ static size_t sio_sync_read(hal_sio_driver_c *siop, uint8_t *bp, size_t n,
   }
   return i;
 }
-
-static size_t __sio_stm_write_impl(void *ip, const uint8_t *bp, size_t n) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-  return sio_sync_write(siop, bp, n, TIME_INFINITE);
-}
-
-static size_t __sio_stm_read_impl(void *ip, uint8_t *bp, size_t n) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-  return sio_sync_read(siop, bp, n, TIME_INFINITE);
-}
-
-static msg_t __sio_stm_put_impl(void *ip, uint8_t b) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-  msg_t msg;
-
-  msg = sioSynchronizeTX(siop, TIME_INFINITE);
-  if (msg != MSG_OK) {
-    return msg;
-  }
-
-  sioPutX(siop, b);
-  return MSG_OK;
-}
-
-static msg_t __sio_stm_get_impl(void *ip) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-  msg_t msg;
-
-  msg = sioSynchronizeRX(siop, TIME_INFINITE);
-  if (msg != MSG_OK) {
-    return msg;
-  }
-
-  return sioGetX(siop);
-}
-
-static size_t __sio_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
-                                    sysinterval_t timeout) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-  return sio_sync_write(siop, bp, n, timeout);
-}
-
-static size_t __sio_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
-                                   sysinterval_t timeout) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-  return sio_sync_read(siop, bp, n, timeout);
-}
-
-static msg_t __sio_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-  msg_t msg;
-
-  msg = sioSynchronizeTX(siop, timeout);
-  if (msg != MSG_OK) {
-    return msg;
-  }
-
-  sioPutX(siop, b);
-  return MSG_OK;
-}
-
-static msg_t __sio_chn_gett_impl(void *ip, sysinterval_t timeout) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-  msg_t msg;
-
-  msg = sioSynchronizeRX(siop, timeout);
-  if (msg != MSG_OK) {
-    return msg;
-  }
-
-  return sioGetX(siop);
-}
-
-static chnflags_t __sio_chn_getclr_impl(void *ip, chnflags_t mask) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-  return (chnflags_t)sioGetAndClearEventsX(siop, (sioevents_t)mask);
-}
-
-static msg_t __sio_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
-  hal_sio_driver_c *siop = oopIfGetOwner(hal_sio_driver_c, ip);
-
-  switch (operation) {
-  case CHN_CTL_NOP:
-    osalDbgCheck(arg == NULL);
-    break;
-  case CHN_CTL_INVALID:
-    return HAL_RET_UNKNOWN_CTL;
-  default:
-    /* Delegating to the LLD if supported.*/
-    return sio_lld_control(siop, operation, arg);
-  }
-  return HAL_RET_SUCCESS;
-}
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
 
 /*===========================================================================*/
@@ -214,14 +116,260 @@ void sioInit(void) {
 /*===========================================================================*/
 
 /**
+ * @name        Interfaces implementation of hal_sio_driver_c
+ * @{
+ */
+#if (SIO_USE_STREAMS_INTERFACE == TRUE) || defined (__DOXYGEN__)
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmWrite().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The returned
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
+ */
+static size_t __sio_chn_write_impl(void *ip, const uint8_t *bp, size_t n) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+
+  return sio_sync_write(self, bp, n, TIME_INFINITE);
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmRead().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[out]    bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The returned
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
+ */
+static size_t __sio_chn_read_impl(void *ip, uint8_t *bp, size_t n) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+
+  return sio_sync_read(self, bp, n, TIME_INFINITE);
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmPut().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     b             The byte value to be written to the stream.
+ * @return                      The operation status.
+ */
+static msg_t __sio_chn_put_impl(void *ip, uint8_t b) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+  msg_t msg;
+
+  msg = sioSynchronizeTX(self, TIME_INFINITE);
+  if (msg != MSG_OK) {
+    return msg;
+  }
+
+  sioPutX(self, b);
+  return MSG_OK;
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmGet().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @return                      A byte value from the stream.
+ */
+static msg_t __sio_chn_get_impl(void *ip) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+  msg_t msg;
+
+  msg = sioSynchronizeRX(self, TIME_INFINITE);
+  if (msg != MSG_OK) {
+    return msg;
+  }
+
+  return sioGetX(self);
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnWriteTimeout().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @param[in]     timeout       The number of ticks before the operation
+ *                              timeouts, the following special values are
+ *                              allowed:
+ *                              - @a TIME_IMMEDIATE immediate timeout.
+ *                              - @a TIME_INFINITE no timeout.
+ *                              .
+ * @return                      The number of bytes transferred.
+ */
+static size_t __sio_chn_writet_impl(void *ip, const uint8_t *bp, size_t n,
+                                    sysinterval_t timeout) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+
+  return sio_sync_write(self, bp, n, timeout);
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnReadTimeout().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @param[in]     timeout       The number of ticks before the operation
+ *                              timeouts, the following special values are
+ *                              allowed:
+ *                              - @a TIME_IMMEDIATE immediate timeout.
+ *                              - @a TIME_INFINITE no timeout.
+ *                              .
+ * @return                      The number of bytes transferred.
+ */
+static size_t __sio_chn_readt_impl(void *ip, uint8_t *bp, size_t n,
+                                   sysinterval_t timeout) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+
+  return sio_sync_read(self, bp, n, timeout);
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnPutTimeout().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     b             The byte value to be written to the channel.
+ * @param[in]     timeout       The number of ticks before the operation
+ *                              timeouts, the following special values are
+ *                              allowed:
+ *                              - @a TIME_IMMEDIATE immediate timeout.
+ *                              - @a TIME_INFINITE no timeout.
+ *                              .
+ * @return                      The operation status.
+ */
+static msg_t __sio_chn_putt_impl(void *ip, uint8_t b, sysinterval_t timeout) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+  msg_t msg;
+
+  msg = sioSynchronizeTX(self, timeout);
+  if (msg != MSG_OK) {
+    return msg;
+  }
+
+  sioPutX(self, b);
+  return MSG_OK;
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnGetTimeout().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     timeout       The number of ticks before the operation
+ *                              timeouts, the following special values are
+ *                              allowed:
+ *                              - @a TIME_IMMEDIATE immediate timeout.
+ *                              - @a TIME_INFINITE no timeout.
+ *                              .
+ * @return                      A byte value from the channel.
+ */
+static msg_t __sio_chn_gett_impl(void *ip, sysinterval_t timeout) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+  msg_t msg;
+
+  msg = sioSynchronizeRX(self, timeout);
+  if (msg != MSG_OK) {
+    return msg;
+  }
+
+  return sioGetX(self);
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnGetAndClearFlags().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     mask          Mask of flags to be returned and cleared.
+ * @return                      The cleared event flags.
+ */
+static chnflags_t __sio_chn_getclr_impl(void *ip, chnflags_t mask) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+
+  return (chnflags_t)sioGetAndClearEventsX(self, (sioevents_t)mask);
+}
+
+/**
+ * @memberof    hal_sio_driver_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p chnControl().
+ *
+ * @param[in,out] ip            Pointer to the @p asynchronous_channel_i class
+ *                              interface.
+ * @param[in]     operation     Control operation code
+ * @param[in,out] arg           Operation argument.
+ * @return                      The operation status.
+ */
+static msg_t __sio_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
+  hal_sio_driver_c *self = oopIfGetOwner(hal_sio_driver_c, ip);
+
+  switch (operation) {
+  case CHN_CTL_NOP:
+    osalDbgCheck(arg == NULL);
+    break;
+  case CHN_CTL_INVALID:
+    return HAL_RET_UNKNOWN_CTL;
+  default:
+    /* Delegating to the LLD if supported.*/
+    return sio_lld_control(self, operation, arg);
+  }
+  return HAL_RET_SUCCESS;
+}
+#endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
+/** @} */
+
+/**
  * @brief       VMT structure of SIO driver class.
  * @note        It is public because accessed by the inlined constructor.
  */
 const struct hal_sio_driver_vmt __hal_sio_driver_vmt = {
-  .dispose                  = NULL,
-  .start                    = NULL,
-  .stop                     = NULL,
-  .configure                = NULL
+  .dispose                  = __sio_dispose_impl,
+  .start                    = __sio_start_impl,
+  .stop                     = __sio_stop_impl,
+  .configure                = __sio_configure_impl
 };
 
 /**
@@ -250,19 +398,19 @@ void *__sio_objinit_impl(void *ip, const void *vmt) {
   /* Initialization of interface asynchronous_channel_i.*/
   {
     static const struct asynchronous_channel_vmt sio_chn_vmt = {
-      .instance_offset      = offsetof(hal_sio_driver_c, sio.chn),
+      .instance_offset      = offsetof(hal_sio_driver_c, chn),
       .write                = __sio_chn_write_impl,
-      .read                 = NULL /* Missing implementation.*/,
-      .put                  = NULL /* Missing implementation.*/,
-      .get                  = NULL /* Missing implementation.*/,
-      .writet               = NULL /* Missing implementation.*/,
-      .readt                = NULL /* Missing implementation.*/,
-      .putt                 = NULL /* Missing implementation.*/,
-      .gett                 = NULL /* Missing implementation.*/,
-      .getclr               = NULL /* Missing implementation.*/,
-      .ctl                  = NULL /* Missing implementation.*/
+      .read                 = __sio_chn_read_impl,
+      .put                  = __sio_chn_put_impl,
+      .get                  = __sio_chn_get_impl,
+      .writet               = __sio_chn_writet_impl,
+      .readt                = __sio_chn_readt_impl,
+      .putt                 = __sio_chn_putt_impl,
+      .gett                 = __sio_chn_gett_impl,
+      .getclr               = __sio_chn_getclr_impl,
+      .ctl                  = __sio_chn_ctl_impl
     };
-    oopIfObjectInit(&self->sio.chn, &sio_chn_vmt);
+    oopIfObjectInit(&self->chn, &sio_chn_vmt);
   }
 #endif /* SIO_USE_STREAMS_INTERFACE == TRUE */
 
@@ -313,7 +461,7 @@ void __sio_dispose_impl(void *ip) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @return                      The operation status.
  */
-void __sio_start_impl(void *ip) {
+msg_t __sio_start_impl(void *ip) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
   msg_t msg;
 
@@ -365,7 +513,7 @@ void __sio_stop_impl(void *ip) {
  * @param[in,out] ip            Pointer to a @p hal_sio_driver_c instance.
  * @param[in]     config        New driver configuration.
  */
-void __sio_configure_impl(void *ip) {
+msg_t __sio_configure_impl(void *ip, const void *config) {
   hal_sio_driver_c *self = (hal_sio_driver_c *)ip;
 
   return sio_lld_configure(self, (const hal_sio_config_t *)config);
@@ -393,7 +541,7 @@ void sioWriteEnableFlags(void *ip, sioevents_t mask) {
   osalDbgCheck(self != NULL);
 
   osalSysLock();
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
   sioWriteEnableFlagsX(self, mask);
   osalSysUnlock();
 }
@@ -415,7 +563,7 @@ void sioSetEnableFlags(void *ip, sioevents_t mask) {
   osalDbgCheck(self != NULL);
 
   osalSysLock();
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
   sioSetEnableFlagsX(self, mask);
   osalSysUnlock();
 }
@@ -437,7 +585,7 @@ void sioClearEnableFlags(void *ip, sioevents_t mask) {
   osalDbgCheck(self != NULL);
 
   osalSysLock();
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
   sioClearEnableFlagsX(self, mask);
   osalSysUnlock();
 }
@@ -460,7 +608,7 @@ sioevents_t sioGetAndClearErrors(void *ip) {
   osalDbgCheck(self != NULL);
 
   osalSysLock();
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
   errors = sioGetAndClearErrorsX(self);
   osalSysUnlock();
 
@@ -486,7 +634,7 @@ sioevents_t sioGetAndClearEvents(void *ip, sioevents_t mask) {
   osalDbgCheck(self != NULL);
 
   osalSysLock();
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
   events = sioGetAndClearEventsX(self, mask);
   osalSysUnlock();
 
@@ -511,7 +659,7 @@ sioevents_t sioGetEvents(void *ip) {
   osalDbgCheck(self != NULL);
 
   osalSysLock();
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
   events = sioGetEventsX(self);
   osalSysUnlock();
 
@@ -546,7 +694,7 @@ msg_t sioSynchronizeRX(void *ip, sysinterval_t timeout) {
 
   osalSysLock();
 
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 
   /* Checking for errors before going to sleep.*/
   if (sioHasRXErrorsX(self)) {
@@ -596,7 +744,7 @@ msg_t sioSynchronizeRXIdle(void *ip, sysinterval_t timeout) {
 
   osalSysLock();
 
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 
   /* Checking for errors before going to sleep.*/
   if (sioHasRXErrorsX(self)) {
@@ -647,7 +795,7 @@ msg_t sioSynchronizeTX(void *ip, sysinterval_t timeout) {
 
   osalSysLock();
 
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 
   msg = MSG_OK;
   /*lint -save -e506 -e681 [2.1] Silencing this error because it is
@@ -690,7 +838,7 @@ msg_t sioSynchronizeTXEnd(void *ip, sysinterval_t timeout) {
 
   osalSysLock();
 
-  osalDbgAssert(self->drv.state == HAL_DRV_STATE_READY, "invalid state");
+  osalDbgAssert(self->state == HAL_DRV_STATE_READY, "invalid state");
 
   /*lint -save -e506 -e774 [2.1, 14.3] Silencing this error because
     it is tested with a template implementation of sio_lld_is_tx_ongoing()

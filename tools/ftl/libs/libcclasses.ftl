@@ -222,33 +222,31 @@
   -- Get class by name.
   --]
 [#function GetClassByName classname=""]
-  [#attempt]
+  [#if classescache[classname]??]
     [#return classescache[classname]]
-  [#recover]
-    [#stop ">>>> Unknown class '" + classname + "'"]
-  [/#attempt]
+  [/#if]
+  [#stop ">>>> Unknown class '" + classname + "'"]
 [/#function]
 
 [#--
   -- Get interface by name.
   --]
 [#function GetInterfaceByName ifname=""]
-  [#attempt]
+  [#if ifscache[ifname]??]
     [#return ifscache[ifname]]
-  [#recover]
-    [#stop ">>>> Unknown interface '" + ifname + "'"]
-  [/#attempt]
+  [/#if]
+  [#stop ">>>> Unknown interface '" + ifname + "'"]
 [/#function]
 
 [#--
   -- Returns the ancestor of the specified class. 
   --]
 [#function GetAncestorClass class=[]]
-  [#attempt]
-    [#return classescache[GetNodeAncestorName(class)]]
-  [#recover]
-    [#stop ">>>> Unknown class '" + ancestorname + "'"]
-  [/#attempt]
+  [#local ancestorname = GetNodeAncestorName(class)]
+  [#if classescache[ancestorname]??]
+    [#return classescache[ancestorname]]
+  [/#if]
+  [#stop ">>>> Unknown class '" + ancestorname + "'"]
 [/#function]
 
 [#--
@@ -259,12 +257,11 @@
   [#if ancestorname?length == 0]
     [#return []]
   [/#if]
-  [#attempt]
+  [#if classescache[ancestorname]??]
     [#local ancestorclass = classescache[ancestorname]]
-  [#recover]
-    [#stop ">>>> Unknown class '" + ancestorname + "'"]
-  [/#attempt]
-  [#return GetClassAncestorsSequence(ancestorclass) + [ancestorclass]]
+    [#return GetClassAncestorsSequence(ancestorclass) + [ancestorclass]]
+  [/#if]
+  [#stop ">>>> Unknown class '" + ancestorname + "'"]
 [/#function]
 
 [#-- 
@@ -290,12 +287,11 @@
   [#if ancestorname?length == 0]
     [#return []]
   [/#if]
-  [#attempt]
+  [#if ifscache[ancestorname]??]
     [#local ancestorif = ifscache[ancestorname]]
-  [#recover]
-    [#stop ">>>> Unknown interface '" + ancestorname + "'"]
-  [/#attempt]
-  [#return GetInterfaceAncestorsSequence(ancestorif) + [ancestorif]]
+    [#return GetClassAncestorsSequence(ancestorif) + [ancestorif]]
+  [/#if]
+  [#stop ">>>> Unknown interface '" + ancestorname + "'"]
 [/#function]
 
 [#-- 

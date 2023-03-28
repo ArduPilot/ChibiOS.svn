@@ -20,9 +20,8 @@
       </config>
     </configs>
     <types>
-      <class type="regular" name="vfs_overlay_dir_node"
-        namespace="ovldir" ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
-        descr="VFS overlay directory node">
+      <class type="regular" name="vfs_overlay_dir_node" namespace="ovldir"
+        ancestorname="vfs_directory_node" descr="VFS overlay directory node">
         <fields>
           <field name="index" ctype="unsigned"></field>
           <field name="overlaid_root" ctype="vfs_directory_node_c$I*"></field>
@@ -32,8 +31,7 @@
             <param name="driver" ctype="vfs_overlay_driver_c *" dir="in">
               Pointer to the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
@@ -47,15 +45,16 @@ self->ovldir.overlaid_root = NULL;]]></implementation>
         </methods>
       </class>
       <class type="regular" name="vfs_overlay_driver" namespace="ovldrv"
-        ancestorname="vfs_driver" ancestornamespace="vfsdrv"
-        descr="VFS overlay driver">
+        ancestorname="vfs_driver" descr="VFS overlay driver">
         <fields>
           <field name="overlaid_drv" ctype="vfs_driver_c$I*"></field>
           <field name="path_prefix" ctype="const char$I*"></field>
           <field name="path_cwd" ctype="char$I*"></field>
           <field name="next_driver" ctype="unsigned"></field>
-          <field name="names" ctype="const char$I*$N[DRV_CFG_OVERLAY_DRV_MAX]"></field>
-          <field name="drivers" ctype="vfs_driver_c$I*$N[DRV_CFG_OVERLAY_DRV_MAX]"></field>
+          <field name="names"
+            ctype="const char$I*$N[DRV_CFG_OVERLAY_DRV_MAX]"></field>
+          <field name="drivers"
+            ctype="vfs_driver_c$I*$N[DRV_CFG_OVERLAY_DRV_MAX]"></field>
         </fields>
         <methods>
           <objinit callsuper="true">
@@ -93,16 +92,19 @@ else {
 }
 
 return ret;]]></implementation>
-            </method></regular>
+            </method>
+          </regular>
         </methods>
       </class>
       <struct name="vfs_overlay_driver_static_struct">
-        <brief>Structure representing the global state of @p vfs_overlay_driver_c.</brief>
+        <brief>Structure representing the global state of @p
+          vfs_overlay_driver_c.</brief>
         <fields>
           <field name="dir_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of directory nodes.</brief>
           </field>
-          <field name="dir_nodes" ctype="vfs_overlay_dir_node_c$I$N[DRV_CFG_OVERLAY_DIR_NODES_NUM]">
+          <field name="dir_nodes"
+            ctype="vfs_overlay_dir_node_c$I$N[DRV_CFG_OVERLAY_DIR_NODES_NUM]">
             <brief>Static storage of directory nodes.</brief>
           </field>
         </fields>
@@ -131,7 +133,8 @@ chPoolLoadArray(&vfs_overlay_driver_static.dir_nodes_pool,
       <include style="regular">vfs.h</include>
     </includes_always>
     <variables>
-      <variable name="vfs_overlay_driver_static" ctype="struct vfs_overlay_driver_static_struct">
+      <variable name="vfs_overlay_driver_static"
+        ctype="struct vfs_overlay_driver_static_struct">
         <brief>Global state of @p vfs_overlay_driver_c</brief>
       </variable>
     </variables>

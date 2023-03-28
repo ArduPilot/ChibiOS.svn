@@ -25,8 +25,7 @@
     </configs>
     <types>
       <class type="regular" name="vfs_fatfs_driver" namespace="ffdrv"
-        ancestorname="vfs_driver" ancestornamespace="vfsdrv"
-        descr="VFS fatfs driver">
+        ancestorname="vfs_driver" descr="VFS fatfs driver">
         <fields></fields>
         <methods>
           <objinit callsuper="true">
@@ -84,8 +83,7 @@
         <param name="name" ctype="const char *" dir="in"><![CDATA[Name to
                 be assigned to the volume, see FatFS @p f_mount() documentation
                 because there are several options.]]></param>
-        <param name="mountnow" ctype="bool" dir="in">
-          Immediate mount option.
+        <param name="mountnow" ctype="bool" dir="in"> Immediate mount option.
         </param>
         <return>The operation result.</return>
         <api />
@@ -110,8 +108,8 @@ return translate_error(res);]]></implementation>
       </function>
       <function name="ffdrvUnmount" ctype="msg_t">
         <brief>Unmounts a FatFS volume.</brief>
-        <param name="name" ctype="const char *" dir="in">
-          Name of the volume to be unmounted.
+        <param name="name" ctype="const char *" dir="in"> Name of the volume to
+          be unmounted.
         </param>
         <return>The operation result.</return>
         <api />
@@ -141,8 +139,7 @@ return translate_error(res);]]></implementation>
     </includes>
     <types>
       <class type="regular" name="vfs_fatfs_dir_node" namespace="ffdir"
-        ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
-        descr="VFS fatfs directory node">
+        ancestorname="vfs_directory_node" descr="VFS fatfs directory node">
         <fields>
           <field name="dir" ctype="DIR">
             <brief>FatFS inner @p DIR structure.</brief>
@@ -150,11 +147,10 @@ return translate_error(res);]]></implementation>
         </fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implementation>
@@ -165,10 +161,14 @@ self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></impleme
         </methods>
       </class>
       <class type="regular" name="vfs_fatfs_file_node" namespace="fffile"
-        ancestorname="vfs_file_node" ancestornamespace="vfsfile"
-        descr="VFS fatfs file node">
+        ancestorname="vfs_file_node" descr="VFS fatfs file node">
         <implements>
-          <ifref name="sequential_stream" namespace="stm" />
+          <if name="sequential_stream">
+            <method>
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+          </if>
         </implements>
         <fields>
           <field name="file" ctype="FIL">
@@ -177,11 +177,10 @@ self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></impleme
         </fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implementation>

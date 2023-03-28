@@ -36,8 +36,7 @@
         </fields>
       </struct>
       <class type="regular" name="vfs_streams_dir_node" namespace="stmdir"
-      ancestorname="vfs_directory_node" ancestornamespace="vfsdir" descr="VFS
-      streams directory node">
+        ancestorname="vfs_directory_node" descr="VFS streams directory node">
         <fields>
           <field name="index" ctype="unsigned">
             <brief>Current directory entry during scanning.</brief>
@@ -45,11 +44,10 @@
         </fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
@@ -61,7 +59,7 @@ self->stmdir.index = 0U;]]></implementation>
         </methods>
       </class>
       <class type="regular" name="vfs_streams_file_node"
-        namespace="stmfile" ancestorname="vfs_file_node" ancestornamespace="vfsfile"
+        namespace="stmfile" ancestorname="vfs_file_node"
         descr="VFS streams file node">
         <fields>
           <field name="stm" ctype="sequential_stream_i$I*">
@@ -70,14 +68,13 @@ self->stmdir.index = 0U;]]></implementation>
         </fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
-            <param name="stream" ctype="sequential_stream_i *" dir="in">
-              Stream to be associated.
+            <param name="stream" ctype="sequential_stream_i *" dir="in"> Stream
+              to be associated.
             </param>
             <implementation><![CDATA[
 self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
@@ -89,17 +86,16 @@ self->stmfile.stm = stream;]]></implementation>
         </methods>
       </class>
       <class type="regular" name="vfs_streams_driver" namespace="stmdrv"
-        ancestorname="vfs_driver" ancestornamespace="vfsdrv"
-        descr="VFS streams driver">
+        ancestorname="vfs_driver" descr="VFS streams driver">
         <fields>
           <field name="streams" ctype="const drv_streams_element_t$I*">
-            <brief>Pointer to the stream elements to be exposed.</brief></field>
+            <brief>Pointer to the stream elements to be exposed.</brief>
+          </field>
         </fields>
         <methods>
           <objinit callsuper="true">
             <param name="streams" ctype="const drv_streams_element_t *"
-              dir="in">
-              Pointer to a @p vfs_streams_driver_c structure.
+              dir="in"> Pointer to a @p vfs_streams_driver_c structure.
             </param>
             <implementation><![CDATA[
 self->stmdrv.streams  = streams;]]></implementation>
@@ -140,7 +136,8 @@ self->stmdrv.streams  = streams;]]></implementation>
     </includes_always>
     <types>
       <struct name="vfs_streams_driver_static_struct">
-        <brief>Structure representing the global state of @p vfs_streams_driver_c.</brief>
+        <brief>Structure representing the global state of @p
+          vfs_streams_driver_c.</brief>
         <fields>
           <field name="dir_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of directory nodes.</brief>
@@ -148,17 +145,20 @@ self->stmdrv.streams  = streams;]]></implementation>
           <field name="file_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of file nodes.</brief>
           </field>
-          <field name="dir_nodes" ctype="vfs_streams_dir_node_c$I$N[DRV_CFG_STREAMS_DIR_NODES_NUM]">
+          <field name="dir_nodes"
+            ctype="vfs_streams_dir_node_c$I$N[DRV_CFG_STREAMS_DIR_NODES_NUM]">
             <brief>Static storage of directory nodes.</brief>
           </field>
-          <field name="file_nodes" ctype="vfs_streams_file_node_c$I$N[DRV_CFG_STREAMS_FILE_NODES_NUM]">
+          <field name="file_nodes"
+            ctype="vfs_streams_file_node_c$I$N[DRV_CFG_STREAMS_FILE_NODES_NUM]">
             <brief>Static storage of file nodes.</brief>
           </field>
         </fields>
       </struct>
     </types>
     <variables>
-      <variable name="vfs_streams_driver_static" ctype="struct vfs_streams_driver_static_struct">
+      <variable name="vfs_streams_driver_static"
+        ctype="struct vfs_streams_driver_static_struct">
         <brief>Global state of @p vfs_streams_driver_c</brief>
       </variable>
     </variables>

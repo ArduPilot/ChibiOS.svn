@@ -3,6 +3,10 @@
   xsi:noNamespaceSchemaLocation="http://www.chibios.org/xml/schema/ccode/modules.xsd"
   name="vfsnodes" descr="VFS Nodes" editcode="false">
   <brief>Common ancestor class of all reference-counted objects.</brief>
+  <imports>
+    <import>oop_referenced_object.xml</import>
+    <import>oop_sequential_stream.xml</import>
+  </imports>
   <public>
     <includes>
       <include style="regular">oop_sequential_stream.h</include>
@@ -22,16 +26,16 @@
         <define name="VFS_MODE_S_IXUSR" value="S_IXUSR" />
       </group>
       <group description="Node helpers">
-        <define name="VFS_MODE_S_ISREG" value="S_ISREG(mode)" >
+        <define name="VFS_MODE_S_ISREG" value="S_ISREG(mode)">
           <param name="mode" />
         </define>
-        <define name="VFS_MODE_S_ISDIR" value="S_ISDIR(mode)" >
+        <define name="VFS_MODE_S_ISDIR" value="S_ISDIR(mode)">
           <param name="mode" />
         </define>
-        <define name="VFS_MODE_S_ISCHR" value="S_ISCHR(mode)" >
+        <define name="VFS_MODE_S_ISCHR" value="S_ISCHR(mode)">
           <param name="mode" />
         </define>
-        <define name="VFS_MODE_S_ISFIFO" value="S_ISFIFO(mode)" >
+        <define name="VFS_MODE_S_ISFIFO" value="S_ISFIFO(mode)">
           <param name="mode" />
         </define>
       </group>
@@ -92,8 +96,7 @@
         </fields>
       </struct>
       <class type="abstract" name="vfs_node" namespace="vfsnode"
-        ancestorname="referenced_object" ancestornamespace="ro"
-        descr="VFS node">
+        ancestorname="referenced_object" descr="VFS node">
         <brief>Common ancestor class of all VFS nodes.</brief>
         <fields>
           <field name="driver" ctype="vfs_driver_c$I*">
@@ -105,11 +108,10 @@
         </fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __ro_objinit_impl(self, vmt);
@@ -123,8 +125,8 @@ self->vfsnode.mode   = mode;]]></implementation>
           <virtual>
             <method name="vfsNodeStat" shortname="stat" ctype="msg_t">
               <brief>Returns information about the node.</brief>
-              <param name="sp" ctype="vfs_stat_t *" dir="out">
-                Pointer to a @p vfs_stat_t structure.
+              <param name="sp" ctype="vfs_stat_t *" dir="out"> Pointer to a @p
+                vfs_stat_t structure.
               </param>
               <return>The operation result.</return>
               <api />
@@ -139,18 +141,16 @@ return CH_RET_SUCCESS;]]></implementation>
         </methods>
       </class>
       <class type="abstract" name="vfs_directory_node" namespace="vfsdir"
-        ancestorname="vfs_node" ancestornamespace="vfsnode"
-        descr="VFS directory node">
+        ancestorname="vfs_node" descr="VFS directory node">
         <brief>Ancestor class of all VFS directory nodes classes.</brief>
         <fields>
         </fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __vfsnode_objinit_impl(ip, vmt, driver, mode);]]></implementation>
@@ -159,10 +159,12 @@ self = __vfsnode_objinit_impl(ip, vmt, driver, mode);]]></implementation>
             <implementation><![CDATA[ ]]></implementation>
           </dispose>
           <virtual>
-            <method name="vfsDirReadFirst" shortname="first" ctype="msg_t">
+            <method name="vfsDirReadFirst" shortname="first"
+              ctype="msg_t">
               <brief>First directory entry.</brief>
               <param name="dip" ctype="vfs_direntry_info_t *" dir="out">Pointer
-                to a @p vfs_direntry_info_t structure.</param>
+                to a @p vfs_direntry_info_t structure.
+              </param>
               <return>The operation result.</return>
               <api />
               <implementation>
@@ -175,7 +177,8 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             <method name="vfsDirReadNext" shortname="next" ctype="msg_t">
               <brief>Next directory entry.</brief>
               <param name="dip" ctype="vfs_direntry_info_t *" dir="out">Pointer
-                to a @p vfs_direntry_info_t structure.</param>
+                to a @p vfs_direntry_info_t structure.
+              </param>
               <return>The operation result.</return>
               <api />
               <implementation>
@@ -189,18 +192,16 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
         </methods>
       </class>
       <class type="abstract" name="vfs_file_node" namespace="vfsfile"
-        ancestorname="vfs_node" ancestornamespace="vfsnode"
-        descr="VFS file node">
+        ancestorname="vfs_node" descr="VFS file node">
         <brief>Ancestor class of all VFS file nodes classes.</brief>
         <fields>
         </fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __vfsnode_objinit_impl(ip, vmt, driver, mode);]]></implementation>
@@ -211,8 +212,10 @@ self = __vfsnode_objinit_impl(ip, vmt, driver, mode);]]></implementation>
           <virtual>
             <method name="vfsFileRead" shortname="read" ctype="ssize_t">
               <brief>File node read.</brief>
-              <param name="buf" ctype="uint8_t *" dir="out">Pointer to the data buffer.</param>
-              <param name="n" ctype="size_t" dir="in">Maximum amount of data to be transferred.</param>
+              <param name="buf" ctype="uint8_t *" dir="out">Pointer to the data
+                buffer.</param>
+              <param name="n" ctype="size_t" dir="in">Maximum amount of data to
+                be transferred.</param>
               <return>The transferred number of bytes or an error.</return>
               <api />
               <implementation>
@@ -225,8 +228,10 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
             <method name="vfsFileWrite" shortname="write" ctype="ssize_t">
               <brief>File node read.</brief>
-              <param name="buf" ctype="const uint8_t *" dir="in">Pointer to the data buffer.</param>
-              <param name="n" ctype="size_t" dir="in">Maximum amount of data to be transferred.</param>
+              <param name="buf" ctype="const uint8_t *" dir="in">Pointer to the
+                data buffer.</param>
+              <param name="n" ctype="size_t" dir="in">Maximum amount of data to
+                be transferred.</param>
               <return>The transferred number of bytes or an error.</return>
               <api />
               <implementation>
@@ -237,10 +242,13 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsFileSetPosition" shortname="setpos" ctype="msg_t">
+            <method name="vfsFileSetPosition" shortname="setpos"
+              ctype="msg_t">
               <brief>Changes the current file position.</brief>
-              <param name="offset" ctype="vfs_offset_t" dir="in">Offset to be applied.</param>
-              <param name="whence" ctype="vfs_seekmode_t" dir="in">Seek mode to be used.</param>
+              <param name="offset" ctype="vfs_offset_t" dir="in">Offset to be
+                applied.</param>
+              <param name="whence" ctype="vfs_seekmode_t" dir="in">Seek mode to
+                be used.</param>
               <return>The operation result.</return>
               <api />
               <implementation>
@@ -251,7 +259,8 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsFileGetPosition" shortname="getpos" ctype="vfs_offset_t">
+            <method name="vfsFileGetPosition" shortname="getpos"
+              ctype="vfs_offset_t">
               <brief>Returns the current file position.</brief>
               <return>The current file position.</return>
               <api />
@@ -261,7 +270,8 @@ return CH_RET_ENOSYS;<![CDATA[]]></implementation>
 
 return CH_RET_ENOSYS;<![CDATA[]]></implementation>
             </method>
-            <method name="vfsFileGetStream" shortname="getstream" ctype="sequential_stream_i *">
+            <method name="vfsFileGetStream" shortname="getstream"
+              ctype="sequential_stream_i *">
               <brief>Returns the inner HAL stream associated to the file.</brief>
               <return>Pointer to the HAL stream interface.</return>
               <api />

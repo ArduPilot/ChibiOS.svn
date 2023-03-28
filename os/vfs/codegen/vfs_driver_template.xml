@@ -21,16 +21,15 @@
     </configs>
     <types>
       <class type="regular" name="vfs_template_dir_node"
-        namespace="tmpldir" ancestorname="vfs_directory_node" ancestornamespace="vfsdir"
+        namespace="tmpldir" ancestorname="vfs_directory_node"
         descr="VFS template directory node">
         <fields></fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implementation>
@@ -41,10 +40,15 @@ self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></impleme
         </methods>
       </class>
       <class type="regular" name="vfs_template_file_node"
-        namespace="tmplfile" ancestorname="vfs_file_node" ancestornamespace="vfsfile"
+        namespace="tmplfile" ancestorname="vfs_file_node"
         descr="VFS template file node">
         <implements>
-          <ifref name="sequential_stream" namespace="stm" />
+          <if name="sequential_stream">
+            <method>
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+          </if>
         </implements>
         <fields>
           <field name="stm" ctype="sequential_stream_i">
@@ -53,11 +57,10 @@ self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></impleme
         </fields>
         <methods>
           <objinit callsuper="false">
-            <param name="driver" ctype="vfs_driver_c *" dir="in">
-              Pointer to the controlling driver.
+            <param name="driver" ctype="vfs_driver_c *" dir="in"> Pointer to
+              the controlling driver.
             </param>
-            <param name="mode" ctype="vfs_mode_t" dir="in">
-              Node mode flags.
+            <param name="mode" ctype="vfs_mode_t" dir="in"> Node mode flags.
             </param>
             <implementation><![CDATA[
 self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implementation>
@@ -68,8 +71,7 @@ self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implem
         </methods>
       </class>
       <class type="regular" name="vfs_template_driver" namespace="tmpldrv"
-        ancestorname="vfs_driver" ancestornamespace="vfsdrv"
-        descr="VFS template driver">
+        ancestorname="vfs_driver" descr="VFS template driver">
         <fields></fields>
         <methods>
           <objinit callsuper="true">
@@ -111,7 +113,8 @@ chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
     </includes_always>
     <types>
       <struct name="vfs_template_driver_static_struct">
-        <brief>Structure representing the global state of @p vfs_template_driver_c.</brief>
+        <brief>Structure representing the global state of @p
+          vfs_template_driver_c.</brief>
         <fields>
           <field name="fs_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of file system objects.</brief>
@@ -125,28 +128,32 @@ chPoolLoadArray(&vfs_template_driver_static.file_nodes_pool,
           <field name="file_nodes_pool" ctype="memory_pool_t">
             <brief>Pool of file nodes.</brief>
           </field>
-          <field name="dir_nodes" ctype="vfs_template_dir_node_c$I$N[DRV_CFG_TEMPLATE_DIR_NODES_NUM]">
+          <field name="dir_nodes"
+            ctype="vfs_template_dir_node_c$I$N[DRV_CFG_TEMPLATE_DIR_NODES_NUM]">
             <brief>Static storage of directory nodes.</brief>
           </field>
-          <field name="file_nodes" ctype="vfs_template_file_node_c$I$N[DRV_CFG_TEMPLATE_FILE_NODES_NUM]">
+          <field name="file_nodes"
+            ctype="vfs_template_file_node_c$I$N[DRV_CFG_TEMPLATE_FILE_NODES_NUM]">
             <brief>Static storage of file nodes.</brief>
           </field>
         </fields>
       </struct>
     </types>
     <variables>
-      <variable name="vfs_template_driver_static" ctype="struct vfs_template_driver_static_struct">
+      <variable name="vfs_template_driver_static"
+        ctype="struct vfs_template_driver_static_struct">
         <brief>Global state of @p vfs_template_driver_c</brief>
       </variable>
     </variables>
     <functions>
       <function name="__tmpldir_ro_addref_impl" ctype="void *">
-        <param name="ip" ctype="void *"/>
+        <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
 return __ro_addref_impl(ip);]]></implementation>
       </function>
-      <function name="__tmpldir_ro_release_impl" ctype="object_references_t">
+      <function name="__tmpldir_ro_release_impl"
+        ctype="object_references_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
@@ -174,12 +181,13 @@ return __vfsdir_first_impl(ip, dip);]]></implementation>
 return __vfsdir_next_impl(ip, dip);]]></implementation>
       </function>
       <function name="__tmplfile_ro_addref_impl" ctype="void *">
-        <param name="ip" ctype="void *"/>
+        <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
 return __ro_addref_impl(ip);]]></implementation>
       </function>
-      <function name="__tmplfile_ro_release_impl" ctype="object_references_t">
+      <function name="__tmplfile_ro_release_impl"
+        ctype="object_references_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
@@ -216,13 +224,15 @@ return __vfsfile_write_impl(ip, buf, size);]]></implementation>
 
 return __vfsfile_setpos_impl(ip, offset, whence);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsfile_getpos_impl" ctype="vfs_offset_t">
+      <function name="__tmplfile_vfsfile_getpos_impl"
+        ctype="vfs_offset_t">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 
 return __vfsfile_getpos_impl(ip);]]></implementation>
       </function>
-      <function name="__tmplfile_vfsfile_getstream_impl" ctype="sequential_stream_i *">
+      <function name="__tmplfile_vfsfile_getstream_impl"
+        ctype="sequential_stream_i *">
         <param name="ip" ctype="void *" />
         <implementation><![CDATA[
 

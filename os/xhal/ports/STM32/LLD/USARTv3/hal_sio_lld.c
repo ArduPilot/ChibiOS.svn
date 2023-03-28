@@ -210,7 +210,7 @@ __STATIC_INLINE uint32_t  usart_isr2evt(uint32_t isr) {
   return __sio_reloc_field(isr, USART_ISR_PFNO_Msk, USART_ISR_PFNO_Pos, SIO_EV_ALL_ERRORS_POS)  |
          __sio_reloc_field(isr, USART_ISR_TXE_Msk,  USART_ISR_TXE_Pos,  SIO_EV_TX_NOTFULL_POS)  |
          __sio_reloc_field(isr, USART_ISR_RXNE_Msk, USART_ISR_RXNE_Pos, SIO_EV_RX_NOTEMPTY_POS) |
-         __sio_reloc_field(isr, USART_ISR_TXE_Msk,  USART_ISR_TXE_Pos,  SIO_EV_TX_NOTFULL_POS)  |
+         __sio_reloc_field(isr, USART_ISR_TC_Msk,   USART_ISR_TC_Pos,   SIO_EV_TX_END_POS)  |
          __sio_reloc_field(isr, USART_ISR_IDLE_Msk, USART_ISR_IDLE_Pos, SIO_EV_RX_IDLE_POS)     |
          __sio_reloc_field(isr, USART_ISR_LBDF_Msk, USART_ISR_LBDF_Pos, SIO_EV_RX_BREAK_POS);
 }

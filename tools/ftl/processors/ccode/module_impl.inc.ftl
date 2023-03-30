@@ -59,8 +59,8 @@
 [@ccode.GenerateFunctionsFromNode modifiers=["static"]
                                   node=module.private.functions /]
       [#list module.private.types.class as class]
-[@cclasses.GenerateClassMethodsImplementations modifiers=["static"]
-                                               node=class /]
+[@cclasses.GenerateClassImplementations modifiers=["static"]
+                                        node=class /]
 [@cclasses.GenerateClassRegularMethods node=class /]
 [@cclasses.GenerateClassPrivateConstructorDestructor node=class /]
       [/#list]
@@ -77,7 +77,7 @@
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
 /*===========================================================================*/
 
-[@cclasses.GenerateClassWrapperCode class /]
+[@cclasses.GenerateClassCode class /]
   [/#list]
     [/#if]
   [/#if]

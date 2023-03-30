@@ -116,8 +116,8 @@
             <implementation><![CDATA[
 self = __ro_objinit_impl(self, vmt);
 
-self->vfsnode.driver = driver;
-self->vfsnode.mode   = mode;]]></implementation>
+self->driver = driver;
+self->mode   = mode;]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[ ]]></implementation>
@@ -132,7 +132,7 @@ self->vfsnode.mode   = mode;]]></implementation>
               <api />
               <implementation><![CDATA[
 
-sp->mode = self->vfsnode.mode;
+sp->mode = self->mode;
 sp->size = (vfs_offset_t)0;
 
 return CH_RET_SUCCESS;]]></implementation>

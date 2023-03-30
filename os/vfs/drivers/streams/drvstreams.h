@@ -100,12 +100,9 @@ struct drv_streams_element {
 
 /**
  * @class       vfs_streams_dir_node_c
- * @extends     vfs_directory_node_c
+ * @extends     base_object_c, referenced_object_c, vfs_node_c,
+ *              vfs_directory_node_c.
  *
- * @note        The class namespace is <tt>stmdir</tt>, access to class fields
- *              is done using: <tt><objp>->stmdir.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p vfs_streams_dir_node_c structures
  * @{
@@ -117,40 +114,20 @@ struct drv_streams_element {
 typedef struct vfs_streams_dir_node vfs_streams_dir_node_c;
 
 /**
- * @brief       Class @p vfs_streams_dir_node_c data as a structure.
- */
-struct stmdir_data {
-  /**
-   * @brief       Current directory entry during scanning.
-   */
-  unsigned                  index;
-};
-
-/**
- * @brief       Class @p vfs_streams_dir_node_c methods.
- */
-#define __stmdir_methods                                                    \
-  __vfsdir_methods                                                          \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_streams_dir_node_c data.
- */
-#define __stmdir_data                                                       \
-  __vfsdir_data                                                             \
-  struct stmdir_data        stmdir;
-
-/**
- * @brief       Class @p vfs_streams_dir_node_c VMT initializer.
- */
-#define __stmdir_vmt_init(ns)                                               \
-  __vfsdir_vmt_init(ns)
-
-/**
  * @brief       Class @p vfs_streams_dir_node_c virtual methods table.
  */
 struct vfs_streams_dir_node_vmt {
-  __stmdir_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From vfs_node_c.*/
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
+  /* From vfs_directory_node_c.*/
+  msg_t (*first)(void *ip, vfs_direntry_info_t *dip);
+  msg_t (*next)(void *ip, vfs_direntry_info_t *dip);
+  /* From vfs_streams_dir_node_c.*/
 };
 
 /**
@@ -161,18 +138,30 @@ struct vfs_streams_dir_node {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_streams_dir_node_vmt *vmt;
-  __stmdir_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
+  /**
+   * @brief       Current directory entry during scanning.
+   */
+  unsigned                  index;
 };
 /** @} */
 
 /**
  * @class       vfs_streams_file_node_c
- * @extends     vfs_file_node_c
+ * @extends     base_object_c, referenced_object_c, vfs_node_c,
+ *              vfs_file_node_c.
  *
- * @note        The class namespace is <tt>stmfile</tt>, access to class fields
- *              is done using: <tt><objp>->stmfile.<fieldname></tt><br>Note
- *              that fields of ancestor classes are in their own namespace in
- *              order to avoid field naming conflicts.
  *
  * @name        Class @p vfs_streams_file_node_c structures
  * @{
@@ -184,40 +173,23 @@ struct vfs_streams_dir_node {
 typedef struct vfs_streams_file_node vfs_streams_file_node_c;
 
 /**
- * @brief       Class @p vfs_streams_file_node_c data as a structure.
- */
-struct stmfile_data {
-  /**
-   * @brief       Stream interface for this file.
-   */
-  sequential_stream_i       *stm;
-};
-
-/**
- * @brief       Class @p vfs_streams_file_node_c methods.
- */
-#define __stmfile_methods                                                   \
-  __vfsfile_methods                                                         \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_streams_file_node_c data.
- */
-#define __stmfile_data                                                      \
-  __vfsfile_data                                                            \
-  struct stmfile_data       stmfile;
-
-/**
- * @brief       Class @p vfs_streams_file_node_c VMT initializer.
- */
-#define __stmfile_vmt_init(ns)                                              \
-  __vfsfile_vmt_init(ns)
-
-/**
  * @brief       Class @p vfs_streams_file_node_c virtual methods table.
  */
 struct vfs_streams_file_node_vmt {
-  __stmfile_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From vfs_node_c.*/
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
+  /* From vfs_file_node_c.*/
+  ssize_t (*read)(void *ip, uint8_t *buf, size_t n);
+  ssize_t (*write)(void *ip, const uint8_t *buf, size_t n);
+  msg_t (*setpos)(void *ip, vfs_offset_t offset, vfs_seekmode_t whence);
+  vfs_offset_t (*getpos)(void *ip);
+  sequential_stream_i * (*getstream)(void *ip);
+  /* From vfs_streams_file_node_c.*/
 };
 
 /**
@@ -228,18 +200,29 @@ struct vfs_streams_file_node {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_streams_file_node_vmt *vmt;
-  __stmfile_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
+  /**
+   * @brief       Stream interface for this file.
+   */
+  sequential_stream_i       *stm;
 };
 /** @} */
 
 /**
  * @class       vfs_streams_driver_c
- * @extends     vfs_driver_c
+ * @extends     base_object_c, vfs_driver_c.
  *
- * @note        The class namespace is <tt>stmdrv</tt>, access to class fields
- *              is done using: <tt><objp>->stmdrv.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p vfs_streams_driver_c structures
  * @{
@@ -251,40 +234,22 @@ struct vfs_streams_file_node {
 typedef struct vfs_streams_driver vfs_streams_driver_c;
 
 /**
- * @brief       Class @p vfs_streams_driver_c data as a structure.
- */
-struct stmdrv_data {
-  /**
-   * @brief       Pointer to the stream elements to be exposed.
-   */
-  const drv_streams_element_t *streams;
-};
-
-/**
- * @brief       Class @p vfs_streams_driver_c methods.
- */
-#define __stmdrv_methods                                                    \
-  __vfsdrv_methods                                                          \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_streams_driver_c data.
- */
-#define __stmdrv_data                                                       \
-  __vfsdrv_data                                                             \
-  struct stmdrv_data        stmdrv;
-
-/**
- * @brief       Class @p vfs_streams_driver_c VMT initializer.
- */
-#define __stmdrv_vmt_init(ns)                                               \
-  __vfsdrv_vmt_init(ns)
-
-/**
  * @brief       Class @p vfs_streams_driver_c virtual methods table.
  */
 struct vfs_streams_driver_vmt {
-  __stmdrv_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From vfs_driver_c.*/
+  msg_t (*setcwd)(void *ip, const char *path);
+  msg_t (*getcwd)(void *ip, char *buf, size_t size);
+  msg_t (*stat)(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t (*opendir)(void *ip, const char *path, vfs_directory_node_c **vdnpp);
+  msg_t (*openfile)(void *ip, const char *path, int flags, vfs_file_node_c **vfnpp);
+  msg_t (*unlink)(void *ip, const char *path);
+  msg_t (*rename)(void *ip, const char *oldpath, const char *newpath);
+  msg_t (*mkdir)(void *ip, const char *path, vfs_mode_t mode);
+  msg_t (*rmdir)(void *ip, const char *path);
+  /* From vfs_streams_driver_c.*/
 };
 
 /**
@@ -295,7 +260,10 @@ struct vfs_streams_driver {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_streams_driver_vmt *vmt;
-  __stmdrv_data
+  /**
+   * @brief       Pointer to the stream elements to be exposed.
+   */
+  const drv_streams_element_t *streams;
 };
 /** @} */
 
@@ -310,14 +278,40 @@ extern "C" {
   void *__stmdir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
                               vfs_mode_t mode);
   void __stmdir_dispose_impl(void *ip);
+  void *__stmdir_addref_impl(void *ip);
+  object_references_t __stmdir_release_impl(void *ip);
+  msg_t __stmdir_stat_impl(void *ip, vfs_stat_t *sp);
+  msg_t __stmdir_first_impl(void *ip, vfs_direntry_info_t *dip);
+  msg_t __stmdir_next_impl(void *ip, vfs_direntry_info_t *dip);
   /* Methods of vfs_streams_file_node_c.*/
   void *__stmfile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
                                vfs_mode_t mode, sequential_stream_i *stream);
   void __stmfile_dispose_impl(void *ip);
+  void *__stmfile_addref_impl(void *ip);
+  object_references_t __stmfile_release_impl(void *ip);
+  msg_t __stmfile_stat_impl(void *ip, vfs_stat_t *sp);
+  ssize_t __stmfile_read_impl(void *ip, uint8_t *buf, size_t n);
+  ssize_t __stmfile_write_impl(void *ip, const uint8_t *buf, size_t n);
+  msg_t __stmfile_setpos_impl(void *ip, vfs_offset_t offset,
+                              vfs_seekmode_t whence);
+  vfs_offset_t __stmfile_getpos_impl(void *ip);
+  sequential_stream_i *__stmfile_getstream_impl(void *ip);
   /* Methods of vfs_streams_driver_c.*/
   void *__stmdrv_objinit_impl(void *ip, const void *vmt,
                               const drv_streams_element_t *streams);
   void __stmdrv_dispose_impl(void *ip);
+  msg_t __stmdrv_setcwd_impl(void *ip, const char *path);
+  msg_t __stmdrv_getcwd_impl(void *ip, char *buf, size_t size);
+  msg_t __stmdrv_stat_impl(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t __stmdrv_opendir_impl(void *ip, const char *path,
+                              vfs_directory_node_c **vdnpp);
+  msg_t __stmdrv_openfile_impl(void *ip, const char *path, int flags,
+                               vfs_file_node_c **vfnpp);
+  msg_t __stmdrv_unlink_impl(void *ip, const char *path);
+  msg_t __stmdrv_rename_impl(void *ip, const char *oldpath,
+                             const char *newpath);
+  msg_t __stmdrv_mkdir_impl(void *ip, const char *path, vfs_mode_t mode);
+  msg_t __stmdrv_rmdir_impl(void *ip, const char *path);
   /* Regular functions.*/
   void __drv_streams_init(void);
 #ifdef __cplusplus
@@ -349,9 +343,9 @@ CC_FORCE_INLINE
 static inline vfs_streams_dir_node_c *stmdirObjectInit(vfs_streams_dir_node_c *self,
                                                        vfs_driver_c *driver,
                                                        vfs_mode_t mode) {
-  extern const struct vfs_streams_dir_node_vmt __stmdir_vmt;
+  extern const struct vfs_streams_dir_node_vmt __vfs_streams_dir_node_vmt;
 
-  return __stmdir_objinit_impl(self, &__stmdir_vmt, driver, mode);
+  return __stmdir_objinit_impl(self, &__vfs_streams_dir_node_vmt, driver, mode);
 }
 /** @} */
 
@@ -378,9 +372,10 @@ static inline vfs_streams_file_node_c *stmfileObjectInit(vfs_streams_file_node_c
                                                          vfs_driver_c *driver,
                                                          vfs_mode_t mode,
                                                          sequential_stream_i *stream) {
-  extern const struct vfs_streams_file_node_vmt __stmfile_vmt;
+  extern const struct vfs_streams_file_node_vmt __vfs_streams_file_node_vmt;
 
-  return __stmfile_objinit_impl(self, &__stmfile_vmt, driver, mode, stream);
+  return __stmfile_objinit_impl(self, &__vfs_streams_file_node_vmt, driver,
+                                mode, stream);
 }
 /** @} */
 
@@ -403,9 +398,9 @@ static inline vfs_streams_file_node_c *stmfileObjectInit(vfs_streams_file_node_c
 CC_FORCE_INLINE
 static inline vfs_streams_driver_c *stmdrvObjectInit(vfs_streams_driver_c *self,
                                                      const drv_streams_element_t *streams) {
-  extern const struct vfs_streams_driver_vmt __stmdrv_vmt;
+  extern const struct vfs_streams_driver_vmt __vfs_streams_driver_vmt;
 
-  return __stmdrv_objinit_impl(self, &__stmdrv_vmt, streams);
+  return __stmdrv_objinit_impl(self, &__vfs_streams_driver_vmt, streams);
 }
 /** @} */
 

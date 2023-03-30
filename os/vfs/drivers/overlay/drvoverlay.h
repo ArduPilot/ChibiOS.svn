@@ -81,12 +81,9 @@
 
 /**
  * @class       vfs_overlay_dir_node_c
- * @extends     vfs_directory_node_c
+ * @extends     base_object_c, referenced_object_c, vfs_node_c,
+ *              vfs_directory_node_c.
  *
- * @note        The class namespace is <tt>ovldir</tt>, access to class fields
- *              is done using: <tt><objp>->ovldir.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p vfs_overlay_dir_node_c structures
  * @{
@@ -98,38 +95,20 @@
 typedef struct vfs_overlay_dir_node vfs_overlay_dir_node_c;
 
 /**
- * @brief       Class @p vfs_overlay_dir_node_c data as a structure.
- */
-struct ovldir_data {
-  unsigned                  index;
-  vfs_directory_node_c      *overlaid_root;
-};
-
-/**
- * @brief       Class @p vfs_overlay_dir_node_c methods.
- */
-#define __ovldir_methods                                                    \
-  __vfsdir_methods                                                          \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_overlay_dir_node_c data.
- */
-#define __ovldir_data                                                       \
-  __vfsdir_data                                                             \
-  struct ovldir_data        ovldir;
-
-/**
- * @brief       Class @p vfs_overlay_dir_node_c VMT initializer.
- */
-#define __ovldir_vmt_init(ns)                                               \
-  __vfsdir_vmt_init(ns)
-
-/**
  * @brief       Class @p vfs_overlay_dir_node_c virtual methods table.
  */
 struct vfs_overlay_dir_node_vmt {
-  __ovldir_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From vfs_node_c.*/
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
+  /* From vfs_directory_node_c.*/
+  msg_t (*first)(void *ip, vfs_direntry_info_t *dip);
+  msg_t (*next)(void *ip, vfs_direntry_info_t *dip);
+  /* From vfs_overlay_dir_node_c.*/
 };
 
 /**
@@ -140,18 +119,27 @@ struct vfs_overlay_dir_node {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_overlay_dir_node_vmt *vmt;
-  __ovldir_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
+  unsigned                  index;
+  vfs_directory_node_c      *overlaid_root;
 };
 /** @} */
 
 /**
  * @class       vfs_overlay_driver_c
- * @extends     vfs_driver_c
+ * @extends     base_object_c, vfs_driver_c.
  *
- * @note        The class namespace is <tt>ovldrv</tt>, access to class fields
- *              is done using: <tt><objp>->ovldrv.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p vfs_overlay_driver_c structures
  * @{
@@ -163,42 +151,22 @@ struct vfs_overlay_dir_node {
 typedef struct vfs_overlay_driver vfs_overlay_driver_c;
 
 /**
- * @brief       Class @p vfs_overlay_driver_c data as a structure.
- */
-struct ovldrv_data {
-  vfs_driver_c              *overlaid_drv;
-  const char                *path_prefix;
-  char                      *path_cwd;
-  unsigned                  next_driver;
-  const char                *names[DRV_CFG_OVERLAY_DRV_MAX];
-  vfs_driver_c              *drivers[DRV_CFG_OVERLAY_DRV_MAX];
-};
-
-/**
- * @brief       Class @p vfs_overlay_driver_c methods.
- */
-#define __ovldrv_methods                                                    \
-  __vfsdrv_methods                                                          \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_overlay_driver_c data.
- */
-#define __ovldrv_data                                                       \
-  __vfsdrv_data                                                             \
-  struct ovldrv_data        ovldrv;
-
-/**
- * @brief       Class @p vfs_overlay_driver_c VMT initializer.
- */
-#define __ovldrv_vmt_init(ns)                                               \
-  __vfsdrv_vmt_init(ns)
-
-/**
  * @brief       Class @p vfs_overlay_driver_c virtual methods table.
  */
 struct vfs_overlay_driver_vmt {
-  __ovldrv_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From vfs_driver_c.*/
+  msg_t (*setcwd)(void *ip, const char *path);
+  msg_t (*getcwd)(void *ip, char *buf, size_t size);
+  msg_t (*stat)(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t (*opendir)(void *ip, const char *path, vfs_directory_node_c **vdnpp);
+  msg_t (*openfile)(void *ip, const char *path, int flags, vfs_file_node_c **vfnpp);
+  msg_t (*unlink)(void *ip, const char *path);
+  msg_t (*rename)(void *ip, const char *oldpath, const char *newpath);
+  msg_t (*mkdir)(void *ip, const char *path, vfs_mode_t mode);
+  msg_t (*rmdir)(void *ip, const char *path);
+  /* From vfs_overlay_driver_c.*/
 };
 
 /**
@@ -209,7 +177,12 @@ struct vfs_overlay_driver {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_overlay_driver_vmt *vmt;
-  __ovldrv_data
+  vfs_driver_c              *overlaid_drv;
+  const char                *path_prefix;
+  char                      *path_cwd;
+  unsigned                  next_driver;
+  const char                *names[DRV_CFG_OVERLAY_DRV_MAX];
+  vfs_driver_c              *drivers[DRV_CFG_OVERLAY_DRV_MAX];
 };
 /** @} */
 
@@ -239,11 +212,28 @@ extern "C" {
   void *__ovldir_objinit_impl(void *ip, const void *vmt,
                               vfs_overlay_driver_c *driver, vfs_mode_t mode);
   void __ovldir_dispose_impl(void *ip);
+  void *__ovldir_addref_impl(void *ip);
+  object_references_t __ovldir_release_impl(void *ip);
+  msg_t __ovldir_stat_impl(void *ip, vfs_stat_t *sp);
+  msg_t __ovldir_first_impl(void *ip, vfs_direntry_info_t *dip);
+  msg_t __ovldir_next_impl(void *ip, vfs_direntry_info_t *dip);
   /* Methods of vfs_overlay_driver_c.*/
   void *__ovldrv_objinit_impl(void *ip, const void *vmt,
                               vfs_driver_c *overlaid_drv,
                               const char *path_prefix);
   void __ovldrv_dispose_impl(void *ip);
+  msg_t __ovldrv_setcwd_impl(void *ip, const char *path);
+  msg_t __ovldrv_getcwd_impl(void *ip, char *buf, size_t size);
+  msg_t __ovldrv_stat_impl(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t __ovldrv_opendir_impl(void *ip, const char *path,
+                              vfs_directory_node_c **vdnpp);
+  msg_t __ovldrv_openfile_impl(void *ip, const char *path, int flags,
+                               vfs_file_node_c **vfnpp);
+  msg_t __ovldrv_unlink_impl(void *ip, const char *path);
+  msg_t __ovldrv_rename_impl(void *ip, const char *oldpath,
+                             const char *newpath);
+  msg_t __ovldrv_mkdir_impl(void *ip, const char *path, vfs_mode_t mode);
+  msg_t __ovldrv_rmdir_impl(void *ip, const char *path);
   msg_t ovldrvRegisterDriver(void *ip, vfs_driver_c *vdp, const char *name);
   /* Regular functions.*/
   void __drv_overlay_init(void);
@@ -276,9 +266,9 @@ CC_FORCE_INLINE
 static inline vfs_overlay_dir_node_c *ovldirObjectInit(vfs_overlay_dir_node_c *self,
                                                        vfs_overlay_driver_c *driver,
                                                        vfs_mode_t mode) {
-  extern const struct vfs_overlay_dir_node_vmt __ovldir_vmt;
+  extern const struct vfs_overlay_dir_node_vmt __vfs_overlay_dir_node_vmt;
 
-  return __ovldir_objinit_impl(self, &__ovldir_vmt, driver, mode);
+  return __ovldir_objinit_impl(self, &__vfs_overlay_dir_node_vmt, driver, mode);
 }
 /** @} */
 
@@ -304,9 +294,10 @@ CC_FORCE_INLINE
 static inline vfs_overlay_driver_c *ovldrvObjectInit(vfs_overlay_driver_c *self,
                                                      vfs_driver_c *overlaid_drv,
                                                      const char *path_prefix) {
-  extern const struct vfs_overlay_driver_vmt __ovldrv_vmt;
+  extern const struct vfs_overlay_driver_vmt __vfs_overlay_driver_vmt;
 
-  return __ovldrv_objinit_impl(self, &__ovldrv_vmt, overlaid_drv, path_prefix);
+  return __ovldrv_objinit_impl(self, &__vfs_overlay_driver_vmt, overlaid_drv,
+                               path_prefix);
 }
 /** @} */
 

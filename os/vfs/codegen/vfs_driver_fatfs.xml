@@ -5,6 +5,10 @@
   name="drvfatfs" descr="VFS FatFS Driver"
   check="VFS_CFG_ENABLE_DRV_FATFS == TRUE" sourcepath="drivers/fatfs"
   headerpath="drivers/fatfs" editcode="true">
+  <imports>
+    <import>vfs_nodes.xml</import>
+    <import>vfs_drivers.xml</import>
+  </imports>
   <public>
     <includes>
       <include style="regular">oop_sequential_stream.h</include>
@@ -34,6 +38,35 @@
           <dispose>
             <implementation><![CDATA[]]></implementation>
           </dispose>
+          <override>
+            <method shortname="setcwd">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="getcwd">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="stat">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="opendir">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="openfile">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="unlink">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="rename">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="mkdir">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="rmdir">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+          </override>
         </methods>
       </class>
     </types>
@@ -158,6 +191,23 @@ self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></impleme
           <dispose>
             <implementation><![CDATA[]]></implementation>
           </dispose>
+          <override>
+            <method shortname="addref">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="release">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="stat">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="first">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="next">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+          </override>
         </methods>
       </class>
       <class type="regular" name="vfs_fatfs_file_node" namespace="fffile"
@@ -188,6 +238,40 @@ self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implem
           <dispose>
             <implementation><![CDATA[]]></implementation>
           </dispose>
+          <override>
+            <method shortname="addref">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="release">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="stat">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="read">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="write">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="setpos">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="getpos">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="getstream">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+          </override>
         </methods>
       </class>
       <struct name="vfs_fatfs_driver_static_struct">

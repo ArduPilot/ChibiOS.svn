@@ -135,6 +135,9 @@ void __vfsdrv_dispose_impl(void *ip) {
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvChangeCurrentDirectory().
  * @note        This function is meant to be used by derived classes.
  *
@@ -152,6 +155,9 @@ msg_t __vfsdrv_setcwd_impl(void *ip, const char *path) {
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvGetCurrentDirectory().
  * @note        This function is meant to be used by derived classes.
  *
@@ -171,6 +177,9 @@ msg_t __vfsdrv_getcwd_impl(void *ip, char *buf, size_t size) {
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvStat().
  * @note        This function is meant to be used by derived classes.
  *
@@ -190,6 +199,9 @@ msg_t __vfsdrv_stat_impl(void *ip, const char *path, vfs_stat_t *sp) {
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvOpenDirectory().
  * @note        This function is meant to be used by derived classes.
  *
@@ -211,6 +223,9 @@ msg_t __vfsdrv_opendir_impl(void *ip, const char *path,
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvOpenFile().
  * @note        This function is meant to be used by derived classes.
  *
@@ -234,6 +249,9 @@ msg_t __vfsdrv_openfile_impl(void *ip, const char *path, int flags,
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvUnlink().
  * @note        This function is meant to be used by derived classes.
  *
@@ -251,6 +269,9 @@ msg_t __vfsdrv_unlink_impl(void *ip, const char *path) {
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvRename().
  * @note        This function is meant to be used by derived classes.
  *
@@ -270,6 +291,9 @@ msg_t __vfsdrv_rename_impl(void *ip, const char *oldpath, const char *newpath) {
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvMkdir().
  * @note        This function is meant to be used by derived classes.
  *
@@ -289,6 +313,9 @@ msg_t __vfsdrv_mkdir_impl(void *ip, const char *path, vfs_mode_t mode) {
 }
 
 /**
+ * @memberof    vfs_driver_c
+ * @protected
+ *
  * @brief       Implementation of method @p vfsDrvRmdir().
  * @note        This function is meant to be used by derived classes.
  *

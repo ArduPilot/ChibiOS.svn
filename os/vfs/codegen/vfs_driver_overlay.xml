@@ -5,6 +5,10 @@
   name="drvoverlay" descr="VFS Template Driver"
   check="VFS_CFG_ENABLE_DRV_OVERLAY == TRUE" sourcepath="drivers/overlay"
   headerpath="drivers/overlay" editcode="true">
+  <imports>
+    <import>vfs_nodes.xml</import>
+    <import>vfs_drivers.xml</import>
+  </imports>
   <public>
     <includes>
       <include style="regular">oop_sequential_stream.h</include>
@@ -36,12 +40,29 @@
             <implementation><![CDATA[
 self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
 
-self->ovldir.index         = 0U;
-self->ovldir.overlaid_root = NULL;]]></implementation>
+self->index         = 0U;
+self->overlaid_root = NULL;]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[]]></implementation>
           </dispose>
+          <override>
+            <method shortname="addref">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="release">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="stat">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="first">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="next">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+          </override>
         </methods>
       </class>
       <class type="regular" name="vfs_overlay_driver" namespace="ovldrv"
@@ -63,10 +84,10 @@ self->ovldir.overlaid_root = NULL;]]></implementation>
             <param name="path_prefix" ctype="const char *" dir="in"><![CDATA[Prefix to be
               added to the paths or @p NULL, it must be a normalized absolute path.]]></param>
             <implementation><![CDATA[
-self->ovldrv.overlaid_drv = overlaid_drv;
-self->ovldrv.path_prefix  = path_prefix;
-self->ovldrv.path_cwd     = NULL;
-self->ovldrv.next_driver  = 0U;]]></implementation>
+self->overlaid_drv = overlaid_drv;
+self->path_prefix  = path_prefix;
+self->path_cwd     = NULL;
+self->next_driver  = 0U;]]></implementation>
           </objinit>
           <dispose>
             <implementation><![CDATA[]]></implementation>
@@ -81,19 +102,48 @@ self->ovldrv.next_driver  = 0U;]]></implementation>
               <implementation><![CDATA[
 msg_t ret;
 
-if (self->ovldrv.next_driver >= DRV_CFG_OVERLAY_DRV_MAX) {
+if (self->next_driver >= DRV_CFG_OVERLAY_DRV_MAX) {
   ret = CH_RET_ENOMEM;
 }
 else {
-  self->ovldrv.names[self->ovldrv.next_driver]   = name;
-  self->ovldrv.drivers[self->ovldrv.next_driver] = vdp;
-  self->ovldrv.next_driver++;
+  self->names[self->next_driver]   = name;
+  self->drivers[self->next_driver] = vdp;
+  self->next_driver++;
   ret = CH_RET_SUCCESS;
 }
 
 return ret;]]></implementation>
             </method>
           </regular>
+          <override>
+            <method shortname="setcwd">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="getcwd">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="stat">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="opendir">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="openfile">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="unlink">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="rename">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="mkdir">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+            <method shortname="rmdir">
+              <implementation><![CDATA[]]></implementation>
+            </method>
+          </override>
         </methods>
       </class>
       <struct name="vfs_overlay_driver_static_struct">

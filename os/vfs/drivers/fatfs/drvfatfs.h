@@ -93,12 +93,8 @@
 
 /**
  * @class       vfs_fatfs_driver_c
- * @extends     vfs_driver_c
+ * @extends     base_object_c, vfs_driver_c.
  *
- * @note        The class namespace is <tt>ffdrv</tt>, access to class fields
- *              is done using: <tt><objp>->ffdrv.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p vfs_fatfs_driver_c structures
  * @{
@@ -110,30 +106,22 @@
 typedef struct vfs_fatfs_driver vfs_fatfs_driver_c;
 
 /**
- * @brief       Class @p vfs_fatfs_driver_c methods.
- */
-#define __ffdrv_methods                                                     \
-  __vfsdrv_methods                                                          \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_fatfs_driver_c data.
- */
-#define __ffdrv_data                                                        \
-  __vfsdrv_data                                                             \
-  /* No data.*/
-
-/**
- * @brief       Class @p vfs_fatfs_driver_c VMT initializer.
- */
-#define __ffdrv_vmt_init(ns)                                                \
-  __vfsdrv_vmt_init(ns)
-
-/**
  * @brief       Class @p vfs_fatfs_driver_c virtual methods table.
  */
 struct vfs_fatfs_driver_vmt {
-  __ffdrv_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From vfs_driver_c.*/
+  msg_t (*setcwd)(void *ip, const char *path);
+  msg_t (*getcwd)(void *ip, char *buf, size_t size);
+  msg_t (*stat)(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t (*opendir)(void *ip, const char *path, vfs_directory_node_c **vdnpp);
+  msg_t (*openfile)(void *ip, const char *path, int flags, vfs_file_node_c **vfnpp);
+  msg_t (*unlink)(void *ip, const char *path);
+  msg_t (*rename)(void *ip, const char *oldpath, const char *newpath);
+  msg_t (*mkdir)(void *ip, const char *path, vfs_mode_t mode);
+  msg_t (*rmdir)(void *ip, const char *path);
+  /* From vfs_fatfs_driver_c.*/
 };
 
 /**
@@ -144,7 +132,6 @@ struct vfs_fatfs_driver {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_fatfs_driver_vmt *vmt;
-  __ffdrv_data
 };
 /** @} */
 
@@ -161,6 +148,17 @@ extern "C" {
   /* Methods of vfs_fatfs_driver_c.*/
   void *__ffdrv_objinit_impl(void *ip, const void *vmt);
   void __ffdrv_dispose_impl(void *ip);
+  msg_t __ffdrv_setcwd_impl(void *ip, const char *path);
+  msg_t __ffdrv_getcwd_impl(void *ip, char *buf, size_t size);
+  msg_t __ffdrv_stat_impl(void *ip, const char *path, vfs_stat_t *sp);
+  msg_t __ffdrv_opendir_impl(void *ip, const char *path,
+                             vfs_directory_node_c **vdnpp);
+  msg_t __ffdrv_openfile_impl(void *ip, const char *path, int flags,
+                              vfs_file_node_c **vfnpp);
+  msg_t __ffdrv_unlink_impl(void *ip, const char *path);
+  msg_t __ffdrv_rename_impl(void *ip, const char *oldpath, const char *newpath);
+  msg_t __ffdrv_mkdir_impl(void *ip, const char *path, vfs_mode_t mode);
+  msg_t __ffdrv_rmdir_impl(void *ip, const char *path);
   /* Regular functions.*/
   void __drv_fatfs_init(void);
   msg_t ffdrvMount(const char *name, bool mountnow);
@@ -190,9 +188,9 @@ extern "C" {
  */
 CC_FORCE_INLINE
 static inline vfs_fatfs_driver_c *ffdrvObjectInit(vfs_fatfs_driver_c *self) {
-  extern const struct vfs_fatfs_driver_vmt __ffdrv_vmt;
+  extern const struct vfs_fatfs_driver_vmt __vfs_fatfs_driver_vmt;
 
-  return __ffdrv_objinit_impl(self, &__ffdrv_vmt);
+  return __ffdrv_objinit_impl(self, &__vfs_fatfs_driver_vmt);
 }
 /** @} */
 

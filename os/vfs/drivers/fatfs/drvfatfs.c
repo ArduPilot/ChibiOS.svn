@@ -57,12 +57,9 @@ struct vfs_fatfs_driver_static_nc_struct __nocache_vfs_fatfs_driver_static;
 
 /**
  * @class       vfs_fatfs_dir_node_c
- * @extends     vfs_directory_node_c
+ * @extends     base_object_c, referenced_object_c, vfs_node_c,
+ *              vfs_directory_node_c.
  *
- * @note        The class namespace is <tt>ffdir</tt>, access to class fields
- *              is done using: <tt><objp>->ffdir.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p vfs_fatfs_dir_node_c structures
  * @{
@@ -74,40 +71,20 @@ struct vfs_fatfs_driver_static_nc_struct __nocache_vfs_fatfs_driver_static;
 typedef struct vfs_fatfs_dir_node vfs_fatfs_dir_node_c;
 
 /**
- * @brief       Class @p vfs_fatfs_dir_node_c data as a structure.
- */
-struct ffdir_data {
-  /**
-   * @brief       FatFS inner @p DIR structure.
-   */
-  DIR                       dir;
-};
-
-/**
- * @brief       Class @p vfs_fatfs_dir_node_c methods.
- */
-#define __ffdir_methods                                                     \
-  __vfsdir_methods                                                          \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_fatfs_dir_node_c data.
- */
-#define __ffdir_data                                                        \
-  __vfsdir_data                                                             \
-  struct ffdir_data         ffdir;
-
-/**
- * @brief       Class @p vfs_fatfs_dir_node_c VMT initializer.
- */
-#define __ffdir_vmt_init(ns)                                                \
-  __vfsdir_vmt_init(ns)
-
-/**
  * @brief       Class @p vfs_fatfs_dir_node_c virtual methods table.
  */
 struct vfs_fatfs_dir_node_vmt {
-  __ffdir_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From vfs_node_c.*/
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
+  /* From vfs_directory_node_c.*/
+  msg_t (*first)(void *ip, vfs_direntry_info_t *dip);
+  msg_t (*next)(void *ip, vfs_direntry_info_t *dip);
+  /* From vfs_fatfs_dir_node_c.*/
 };
 
 /**
@@ -118,19 +95,31 @@ struct vfs_fatfs_dir_node {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_fatfs_dir_node_vmt *vmt;
-  __ffdir_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
+  /**
+   * @brief       FatFS inner @p DIR structure.
+   */
+  DIR                       dir;
 };
 /** @} */
 
 /**
  * @class       vfs_fatfs_file_node_c
- * @extends     vfs_file_node_c
+ * @extends     base_object_c, referenced_object_c, vfs_node_c,
+ *              vfs_file_node_c.
  * @implements  sequential_stream_i
  *
- * @note        The class namespace is <tt>fffile</tt>, access to class fields
- *              is done using: <tt><objp>->fffile.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p vfs_fatfs_file_node_c structures
  * @{
@@ -142,44 +131,23 @@ struct vfs_fatfs_dir_node {
 typedef struct vfs_fatfs_file_node vfs_fatfs_file_node_c;
 
 /**
- * @brief       Class @p vfs_fatfs_file_node_c data as a structure.
- */
-struct fffile_data {
-  /**
-   * @brief       Implemented interface @p sequential_stream_i.
-   */
-  sequential_stream_i       stm;
-  /**
-   * @brief       FatFS inner @p FIL structure.
-   */
-  FIL                       file;
-};
-
-/**
- * @brief       Class @p vfs_fatfs_file_node_c methods.
- */
-#define __fffile_methods                                                    \
-  __vfsfile_methods                                                         \
-  /* No methods.*/
-
-/**
- * @brief       Class @p vfs_fatfs_file_node_c data.
- */
-#define __fffile_data                                                       \
-  __vfsfile_data                                                            \
-  struct fffile_data        fffile;
-
-/**
- * @brief       Class @p vfs_fatfs_file_node_c VMT initializer.
- */
-#define __fffile_vmt_init(ns)                                               \
-  __vfsfile_vmt_init(ns)
-
-/**
  * @brief       Class @p vfs_fatfs_file_node_c virtual methods table.
  */
 struct vfs_fatfs_file_node_vmt {
-  __fffile_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From vfs_node_c.*/
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
+  /* From vfs_file_node_c.*/
+  ssize_t (*read)(void *ip, uint8_t *buf, size_t n);
+  ssize_t (*write)(void *ip, const uint8_t *buf, size_t n);
+  msg_t (*setpos)(void *ip, vfs_offset_t offset, vfs_seekmode_t whence);
+  vfs_offset_t (*getpos)(void *ip);
+  sequential_stream_i * (*getstream)(void *ip);
+  /* From vfs_fatfs_file_node_c.*/
 };
 
 /**
@@ -190,23 +158,27 @@ struct vfs_fatfs_file_node {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_fatfs_file_node_vmt *vmt;
-  __fffile_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
+  /**
+   * @brief       Implemented interface @p sequential_stream_i.
+   */
+  sequential_stream_i       stm;
+  /**
+   * @brief       FatFS inner @p FIL structure.
+   */
+  FIL                       file;
 };
-
-/**
- * @memberof    vfs_fatfs_file_node_c
- *
- * @brief       Access macro for vfs_fatfs_file_node_c interfaces.
- *
- * @param[in]     ip            Pointer to the class instance.
- * @param         ifns          Implemented interface namespace.
- * @return                      A void pointer to the interface within the
- *                              class instance.
- *
- * @api
- */
-#define fffileGetIf(ip, ifns)                                               \
-  boGetIf(ip, ifns, fffile)
 /** @} */
 
 /**

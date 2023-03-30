@@ -151,13 +151,9 @@ struct vfs_stat {
 
 /**
  * @class       vfs_node_c
- * @extends     referenced_object_c
+ * @extends     base_object_c, referenced_object_c.
  *
  * @brief       Common ancestor class of all VFS nodes.
- * @note        The class namespace is <tt>vfsnode</tt>, access to class fields
- *              is done using: <tt><objp>->vfsnode.<fieldname></tt><br>Note
- *              that fields of ancestor classes are in their own namespace in
- *              order to avoid field naming conflicts.
  *
  * @name        Class @p vfs_node_c structures
  * @{
@@ -169,52 +165,16 @@ struct vfs_stat {
 typedef struct vfs_node vfs_node_c;
 
 /**
- * @brief       Class @p vfs_node_c methods as a structure.
- */
-struct vfsnode_methods {
-  msg_t (*stat)(void *ip, vfs_stat_t *sp);
-};
-
-/**
- * @brief       Class @p vfs_node_c data as a structure.
- */
-struct vfsnode_data {
-  /**
-   * @brief       Driver handling this node.
-   */
-  vfs_driver_c              *driver;
-  /**
-   * @brief       Node mode information.
-   */
-  vfs_mode_t                mode;
-};
-
-/**
- * @brief       Class @p vfs_node_c methods.
- */
-#define __vfsnode_methods                                                   \
-  __ro_methods                                                              \
-  struct vfsnode_methods    vfsnode;
-
-/**
- * @brief       Class @p vfs_node_c data.
- */
-#define __vfsnode_data                                                      \
-  __ro_data                                                                 \
-  struct vfsnode_data       vfsnode;
-
-/**
- * @brief       Class @p vfs_node_c VMT initializer.
- */
-#define __vfsnode_vmt_init(ns)                                              \
-  __ro_vmt_init(ns)                                                         \
-  .vfsnode.stat                             = __##ns##_vfsnode_stat_impl,
-
-/**
  * @brief       Class @p vfs_node_c virtual methods table.
  */
 struct vfs_node_vmt {
-  __vfsnode_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From vfs_node_c.*/
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
 };
 
 /**
@@ -225,19 +185,26 @@ struct vfs_node {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_node_vmt *vmt;
-  __vfsnode_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
 };
 /** @} */
 
 /**
  * @class       vfs_directory_node_c
- * @extends     vfs_node_c
+ * @extends     base_object_c, referenced_object_c, vfs_node_c.
  *
  * @brief       Ancestor class of all VFS directory nodes classes.
- * @note        The class namespace is <tt>vfsdir</tt>, access to class fields
- *              is done using: <tt><objp>->vfsdir.<fieldname></tt><br>Note that
- *              fields of ancestor classes are in their own namespace in order
- *              to avoid field naming conflicts.
  *
  * @name        Class @p vfs_directory_node_c structures
  * @{
@@ -249,40 +216,19 @@ struct vfs_node {
 typedef struct vfs_directory_node vfs_directory_node_c;
 
 /**
- * @brief       Class @p vfs_directory_node_c methods as a structure.
- */
-struct vfsdir_methods {
-  msg_t (*first)(void *ip, vfs_direntry_info_t *dip);
-  msg_t (*next)(void *ip, vfs_direntry_info_t *dip);
-};
-
-/**
- * @brief       Class @p vfs_directory_node_c methods.
- */
-#define __vfsdir_methods                                                    \
-  __vfsnode_methods                                                         \
-  struct vfsdir_methods     vfsdir;
-
-/**
- * @brief       Class @p vfs_directory_node_c data.
- */
-#define __vfsdir_data                                                       \
-  __vfsnode_data                                                            \
-  /* No data.*/
-
-/**
- * @brief       Class @p vfs_directory_node_c VMT initializer.
- */
-#define __vfsdir_vmt_init(ns)                                               \
-  __vfsnode_vmt_init(ns)                                                    \
-  .vfsdir.first                             = __##ns##_vfsdir_first_impl,   \
-  .vfsdir.next                              = __##ns##_vfsdir_next_impl,
-
-/**
  * @brief       Class @p vfs_directory_node_c virtual methods table.
  */
 struct vfs_directory_node_vmt {
-  __vfsdir_methods
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From vfs_node_c.*/
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
+  /* From vfs_directory_node_c.*/
+  msg_t (*first)(void *ip, vfs_direntry_info_t *dip);
+  msg_t (*next)(void *ip, vfs_direntry_info_t *dip);
 };
 
 /**
@@ -293,19 +239,26 @@ struct vfs_directory_node {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_directory_node_vmt *vmt;
-  __vfsdir_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
 };
 /** @} */
 
 /**
  * @class       vfs_file_node_c
- * @extends     vfs_node_c
+ * @extends     base_object_c, referenced_object_c, vfs_node_c.
  *
  * @brief       Ancestor class of all VFS file nodes classes.
- * @note        The class namespace is <tt>vfsfile</tt>, access to class fields
- *              is done using: <tt><objp>->vfsfile.<fieldname></tt><br>Note
- *              that fields of ancestor classes are in their own namespace in
- *              order to avoid field naming conflicts.
  *
  * @name        Class @p vfs_file_node_c structures
  * @{
@@ -317,46 +270,22 @@ struct vfs_directory_node {
 typedef struct vfs_file_node vfs_file_node_c;
 
 /**
- * @brief       Class @p vfs_file_node_c methods as a structure.
+ * @brief       Class @p vfs_file_node_c virtual methods table.
  */
-struct vfsfile_methods {
+struct vfs_file_node_vmt {
+  /* From base_object_c.*/
+  void (*dispose)(void *ip);
+  /* From referenced_object_c.*/
+  void * (*addref)(void *ip);
+  object_references_t (*release)(void *ip);
+  /* From vfs_node_c.*/
+  msg_t (*stat)(void *ip, vfs_stat_t *sp);
+  /* From vfs_file_node_c.*/
   ssize_t (*read)(void *ip, uint8_t *buf, size_t n);
   ssize_t (*write)(void *ip, const uint8_t *buf, size_t n);
   msg_t (*setpos)(void *ip, vfs_offset_t offset, vfs_seekmode_t whence);
   vfs_offset_t (*getpos)(void *ip);
   sequential_stream_i * (*getstream)(void *ip);
-};
-
-/**
- * @brief       Class @p vfs_file_node_c methods.
- */
-#define __vfsfile_methods                                                   \
-  __vfsnode_methods                                                         \
-  struct vfsfile_methods    vfsfile;
-
-/**
- * @brief       Class @p vfs_file_node_c data.
- */
-#define __vfsfile_data                                                      \
-  __vfsnode_data                                                            \
-  /* No data.*/
-
-/**
- * @brief       Class @p vfs_file_node_c VMT initializer.
- */
-#define __vfsfile_vmt_init(ns)                                              \
-  __vfsnode_vmt_init(ns)                                                    \
-  .vfsfile.read                             = __##ns##_vfsfile_read_impl,   \
-  .vfsfile.write                            = __##ns##_vfsfile_write_impl,  \
-  .vfsfile.setpos                           = __##ns##_vfsfile_setpos_impl, \
-  .vfsfile.getpos                           = __##ns##_vfsfile_getpos_impl, \
-  .vfsfile.getstream                        = __##ns##_vfsfile_getstream_impl,
-
-/**
- * @brief       Class @p vfs_file_node_c virtual methods table.
- */
-struct vfs_file_node_vmt {
-  __vfsfile_methods
 };
 
 /**
@@ -367,7 +296,18 @@ struct vfs_file_node {
    * @brief       Virtual Methods Table.
    */
   const struct vfs_file_node_vmt *vmt;
-  __vfsfile_data
+  /**
+   * @brief       Number of references to the object.
+   */
+  object_references_t       references;
+  /**
+   * @brief       Driver handling this node.
+   */
+  vfs_driver_c              *driver;
+  /**
+   * @brief       Node mode information.
+   */
+  vfs_mode_t                mode;
 };
 /** @} */
 
@@ -427,7 +367,7 @@ CC_FORCE_INLINE
 static inline msg_t vfsNodeStat(void *ip, vfs_stat_t *sp) {
   vfs_node_c *self = (vfs_node_c *)ip;
 
-  return self->vmt->vfsnode.stat(ip, sp);
+  return self->vmt->stat(ip, sp);
 }
 /** @} */
 
@@ -451,7 +391,7 @@ CC_FORCE_INLINE
 static inline msg_t vfsDirReadFirst(void *ip, vfs_direntry_info_t *dip) {
   vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
 
-  return self->vmt->vfsdir.first(ip, dip);
+  return self->vmt->first(ip, dip);
 }
 
 /**
@@ -470,7 +410,7 @@ CC_FORCE_INLINE
 static inline msg_t vfsDirReadNext(void *ip, vfs_direntry_info_t *dip) {
   vfs_directory_node_c *self = (vfs_directory_node_c *)ip;
 
-  return self->vmt->vfsdir.next(ip, dip);
+  return self->vmt->next(ip, dip);
 }
 /** @} */
 
@@ -495,7 +435,7 @@ CC_FORCE_INLINE
 static inline ssize_t vfsFileRead(void *ip, uint8_t *buf, size_t n) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.read(ip, buf, n);
+  return self->vmt->read(ip, buf, n);
 }
 
 /**
@@ -515,7 +455,7 @@ CC_FORCE_INLINE
 static inline ssize_t vfsFileWrite(void *ip, const uint8_t *buf, size_t n) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.write(ip, buf, n);
+  return self->vmt->write(ip, buf, n);
 }
 
 /**
@@ -536,7 +476,7 @@ static inline msg_t vfsFileSetPosition(void *ip, vfs_offset_t offset,
                                        vfs_seekmode_t whence) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.setpos(ip, offset, whence);
+  return self->vmt->setpos(ip, offset, whence);
 }
 
 /**
@@ -554,7 +494,7 @@ CC_FORCE_INLINE
 static inline vfs_offset_t vfsFileGetPosition(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.getpos(ip);
+  return self->vmt->getpos(ip);
 }
 
 /**
@@ -572,7 +512,7 @@ CC_FORCE_INLINE
 static inline sequential_stream_i *vfsFileGetStream(void *ip) {
   vfs_file_node_c *self = (vfs_file_node_c *)ip;
 
-  return self->vmt->vfsfile.getstream(ip);
+  return self->vmt->getstream(ip);
 }
 /** @} */
 

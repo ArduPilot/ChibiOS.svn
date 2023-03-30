@@ -589,10 +589,9 @@ static void *__fffile_objinit_impl(void *ip, const void *vmt,
  *                              to be disposed.
  */
 static void __fffile_dispose_impl(void *ip) {
-  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
 
   /* Finalization of the ancestors-defined parts.*/
-  __vfsfile_dispose_impl(self);
+  __vfsfile_dispose_impl(ip);
 
   /* Last because it corrupts the object.*/
   chPoolFree(&vfs_fatfs_driver_static.file_nodes_pool, ip);

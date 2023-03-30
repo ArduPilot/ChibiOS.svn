@@ -58,27 +58,30 @@
       [#-- Generating local C functions.--]
 [@ccode.GenerateFunctionsFromNode modifiers=["static"]
                                   node=module.private.functions /]
-      [#list module.private.types.class as class]
-[@cclasses.GenerateClassImplementations modifiers=["static"]
-                                        node=class /]
-[@cclasses.GenerateClassRegularMethods node=class /]
-[@cclasses.GenerateClassPrivateConstructorDestructor node=class /]
-      [/#list]
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
-     [#-- Generating global C functions.--]
+      [#-- Generating global C functions.--]
 [@ccode.GenerateFunctionsFromNode modifiers=[]
                                   node=module.public.functions /]
-     [#-- Generating methods.--]
-  [#list module.public.types.class as class]
+      [#-- Generating private classes code.--]
+      [#list module.private.types.class as class]
 /*===========================================================================*/
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
 /*===========================================================================*/
 
-[@cclasses.GenerateClassCode class /]
-  [/#list]
+[@cclasses.GenerateClassCode class=class modifiers=["static"] /]
+[@cclasses.GenerateClassPrivateConstructor node=class /]
+      [/#list]
+      [#-- Generating public classes code.--]
+      [#list module.public.types.class as class]
+/*===========================================================================*/
+/* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
+/*===========================================================================*/
+
+[@cclasses.GenerateClassCode class=class modifiers=[] /]
+      [/#list]
     [/#if]
   [/#if]
 [/#list]

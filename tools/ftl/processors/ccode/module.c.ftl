@@ -105,26 +105,27 @@
 
     [#-- Generating local C functions.--]
 [@ccode.GenerateFunctionsFromNode modifiers=["static"] node=module.private.functions /]
-    [#-- Generating local constructors/destructors implementations,
-         virtual methods implementations, virtual methods, regular
-         methods, constructors with VMTs.--]
-    [#list module.private.types.class as class]
-[@cclasses.GenerateClassMethodsImplementations modifiers=["static"] node=class /]
-[@cclasses.GenerateClassRegularMethods node=class /]
-[@cclasses.GenerateClassPrivateConstructorDestructor node=class /]
-    [/#list]
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
 [@ccode.GenerateFunctionsFromNode node=module.public.functions /]
-    [#-- Scanning all classes.--]
+    [#-- Generating private classes code.--]
+    [#list module.private.types.class as class]
+/*===========================================================================*/
+/* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
+/*===========================================================================*/
+
+[@cclasses.GenerateClassCode class=class modifiers=["static"] /]
+[@cclasses.GenerateClassPrivateConstructor node=class /]
+    [/#list]
+    [#-- Generating public classes code.--]
     [#list module.public.types.class as class]
 /*===========================================================================*/
 /* Module class ${"\"" + (cclasses.GetClassCType(class) + "\"" + " methods.")?right_pad(60)}*/
 /*===========================================================================*/
 
-[@cclasses.GenerateClassCode class /]
+[@cclasses.GenerateClassCode class=class /]
     [/#list]
     [#-- Dropping the file if nothing has been generated inside.--]
     [#if (ccode.generated == false) && (cclasses.generated == false)]

@@ -515,7 +515,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
   -- Generates implementation functions for constructor, destructor,
   -- overidden virtual methods and virtual methods.
   --]
-[#macro GenerateClassImplementations modifiers=[] node=[]]
+[#macro GenerateClassImplementations node=[] modifiers=[]]
   [#local class = node]
   [#local classname         = GetNodeName(class)
           classnamespace    = GetNodeNamespace(class)
@@ -688,7 +688,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [#--
   -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateMethods node=[] classctype="no-ctype" inline=false]
+[#macro GenerateMethods node=[] classctype="no-ctype" modifiers=[]]
   [#list node.* as node]
     [#if node?node_name == "method"]
       [#local method = node]
@@ -701,11 +701,8 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
                                   extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + classctype + " instance."
                                   memberof=classctype /]
-      [#if inline]
+      [#if modifiers?contains("static") && modifiers?contains("inline")]
 CC_FORCE_INLINE
-        [#local modifiers = ["static", "inline"]]
-      [#else]
-        [#local modifiers = []]
       [/#if]
 [@ccode.GeneratePrototypeFromNode modifiers = modifiers
                                   params    = ["void *ip"]
@@ -720,7 +717,7 @@ CC_FORCE_INLINE
 #if (${condcheck}) || defined (__DOXYGEN__)
 [@GenerateMethods node       = condition
                   classctype = classctype
-                  inline     = inline /]
+                  modifiers  = modifiers /]
 #endif /* ${condcheck} */
     [/#if]
     [#if node?has_next]
@@ -732,7 +729,7 @@ CC_FORCE_INLINE
 [#--
   -- This macro generates regular methods from an XML node.
   --]
-[#macro GenerateClassRegularMethods node=[]]
+[#macro GenerateClassRegularMethods node=[] modifiers=[]]
   [#local class = node]
   [#if class.methods.regular.*?size > 0]
     [#local classctype = GetClassCType(class)]
@@ -742,7 +739,7 @@ CC_FORCE_INLINE
  */
 [@GenerateMethods node       = class.methods.regular
                   classctype = classctype
-                  inline     = false /]
+                  modifiers  = [] /]
 /** @} */
 
   [/#if]
@@ -761,7 +758,7 @@ CC_FORCE_INLINE
  */
 [@GenerateMethods node       = class.methods.inline
                   classctype = classctype
-                  inline     = true /]
+                  modifiers  = ["static", "inline"] /]
 /** @} */
 
   [/#if]
@@ -926,7 +923,7 @@ ${funcptr}
 [#--
   -- This macro generates a class VMT structure from an XML node.
   --]
-[#macro GenerateClassVMT node=[]]
+[#macro GenerateClassVMT node=[] modifiers=[]]
   [#local classname      = GetNodeName(node)
           classnamespace = GetNodeNamespace(node)
           classtype      = GetClassType(node)
@@ -938,6 +935,9 @@ ${funcptr}
 [@doxygen.EmitBrief "" "VMT structure of " + classdescr + " class." /]
 [@doxygen.EmitNote "" "It is public because accessed by the inlined constructor." /]
  */
+  [#if modifiers?size > 0]
+${modifiers?join(" ") + " "}[#rt]
+  [/#if]
 const struct ${classname}_vmt __${classname}_vmt = {
   [#local classes = GetClassAncestorsSequence(node) + [node]]
   [#local methods = GetClassVirtualMethodsSequence(node)]
@@ -1054,7 +1054,7 @@ ${s}
 [#--
   -- This macro generates private constructor and destructor from an XML node.
   --]
-[#macro GenerateClassPrivateConstructorDestructor node=[]]
+[#macro GenerateClassPrivateConstructor node=[]]
   [#local classname         = GetNodeName(node)
           classnamespace    = GetNodeNamespace(node)
           classtype         = GetClassType(node)
@@ -1079,19 +1079,14 @@ ${s}
  *
  * @objinit
  */
-CC_FORCE_INLINE
 [@ccode.GeneratePrototypeFromNode indent    = ""
-                                  name      = classnamespace + "_object_init"
+                                  name      = classnamespace + "ObjectInit"
                                   ctype     = classctype + " *"
-                                  modifiers = ["static", "inline"]
+                                  modifiers = ["static"]
                                   params    = [classctype + " *self"]
                                   node      = node.methods.objinit[0] /] {
-    [#local vmtname = "__" + classnamespace + "_vmt"]
-[@ccode.Indent 1 /]static const struct ${classname}_vmt ${vmtname} = {
-[@ccode.Indent 2 /]__${classname}_vmt_init(${classnamespace})
-[@ccode.Indent 1 /]};
 
-    [#local params = ccode.MakeCallParamsSequence(["self", "&" + vmtname], node.methods.objinit[0])]
+    [#local params = ccode.MakeCallParamsSequence(["self", "&__" + classname + "_vmt"], node.methods.objinit[0])]
 [@ccode.GenerateFunctionCall indent      = ccode.indentation
                              destination = "return"
                              name        = "__" + classnamespace + "_objinit_impl"
@@ -1105,7 +1100,7 @@ CC_FORCE_INLINE
 [#--
   -- This macro generates public constructor and destructor from an XML node.
   --]
-[#macro GenerateClassPublicConstructorDestructor node=[]]
+[#macro GenerateClassPublicConstructor node=[]]
   [#local classname         = GetNodeName(node)
           classnamespace    = GetNodeNamespace(node)
           classtype         = GetClassType(node)
@@ -1280,7 +1275,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
         [#local ifmethods    = GetInterfaceMethodsSequence(if)]
         [#local foundmethods = ifmethods?filter(m -> GetMethodShortName(m) == methodsname)]
         [#if !foundmethods[0]??]
-          [#stop ">>>> Method + '" + methodsname + "' not found."]
+          [#stop ">>>> Method '" + methodsname + "' not found."]
         [/#if]
         [#local method     = foundmethods[0]]
         [#local methodname = GetNodeName(method)]
@@ -1329,7 +1324,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [#--
   -- This macro generates a class interfaces implementatios from an XML node.
   --]
-[#macro GenerateClassInterfacesImplementations node=[]]
+[#macro GenerateClassInterfacesImplementations node=[] private=false]
   [#local classnamespace = GetNodeNamespace(node)
           classctype     = GetClassCType(node)]
   [#if node.implements.*?size > 0]
@@ -1348,9 +1343,9 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
 [#--
   -- This macro generates the class code from an XML node.
   --]
-[#macro GenerateClassCode class=[]]
+[#macro GenerateClassCode class=[] modifiers=[]]
 [@GenerateClassInterfacesImplementations node=class /]
-[@GenerateClassVMT node=class /]
-[@GenerateClassImplementations node=class /]
-[@GenerateClassRegularMethods node=class /]
+[@GenerateClassImplementations node=class modifiers=modifiers /]
+[@GenerateClassVMT node=class modifiers=modifiers /]
+[@GenerateClassRegularMethods node=class modifiers=modifiers /]
 [/#macro]

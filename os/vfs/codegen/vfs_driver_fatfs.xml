@@ -214,7 +214,19 @@ self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></impleme
         ancestorname="vfs_file_node" descr="VFS fatfs file node">
         <implements>
           <if name="sequential_stream">
-            <method>
+            <method shortname="write">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="read">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="put">
+              <implementation><![CDATA[
+]]></implementation>
+            </method>
+            <method shortname="get">
               <implementation><![CDATA[
 ]]></implementation>
             </method>

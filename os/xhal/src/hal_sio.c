@@ -362,17 +362,6 @@ static msg_t __sio_chn_ctl_impl(void *ip, unsigned int operation, void *arg) {
 /** @} */
 
 /**
- * @brief       VMT structure of SIO driver class.
- * @note        It is public because accessed by the inlined constructor.
- */
-const struct hal_sio_driver_vmt __hal_sio_driver_vmt = {
-  .dispose                  = __sio_dispose_impl,
-  .start                    = __sio_start_impl,
-  .stop                     = __sio_stop_impl,
-  .configure                = __sio_configure_impl
-};
-
-/**
  * @name        Methods implementations of hal_sio_driver_c
  * @{
  */
@@ -519,6 +508,17 @@ msg_t __sio_configure_impl(void *ip, const void *config) {
   return sio_lld_configure(self, (const hal_sio_config_t *)config);
 }
 /** @} */
+
+/**
+ * @brief       VMT structure of SIO driver class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct hal_sio_driver_vmt __hal_sio_driver_vmt = {
+  .dispose                  = __sio_dispose_impl,
+  .start                    = __sio_start_impl,
+  .stop                     = __sio_stop_impl,
+  .configure                = __sio_configure_impl
+};
 
 /**
  * @name        Regular methods of hal_sio_driver_c

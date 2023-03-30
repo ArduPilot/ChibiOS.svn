@@ -5,6 +5,10 @@
   <brief>Common ancestor of drivers based on circular I/O buffers.</brief>
   <details><![CDATA[This class implements a channel interface and links
     it to two circular I/O queues.]]></details>
+  <imports>
+    <import>hal_base_driver.xml</import>
+    <import>hal_channels.xml</import>
+  </imports>
   <public>
     <types>
       <class type="abstract" name="hal_buffered_serial" namespace="bs"

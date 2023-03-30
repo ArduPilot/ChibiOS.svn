@@ -21,13 +21,6 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-static vfs_fatfs_dir_node_c *ffdir_object_init(vfs_fatfs_dir_node_c *self,
-                                               vfs_driver_c *driver,
-                                               vfs_mode_t mode);
-static vfs_fatfs_file_node_c *fffile_object_init(vfs_fatfs_file_node_c *self,
-                                                 vfs_driver_c *driver,
-                                                 vfs_mode_t mode);
-
 static BYTE translate_oflag(int oflag) {
 
   switch (oflag & VO_SUPPORTED_FLAGS_MASK) {
@@ -120,628 +113,6 @@ static msg_t translate_error(FRESULT res) {
 
   return msg;
 }
-
-static void __ffdir_dispose_impl(void *ip);
-static void __ffdir_bo_dispose_impl(void *ip) {
-
-  /* Disposing self.*/
-  __ffdir_dispose_impl(ip);
-
-  /* Last because it corrupts the object.*/
-  chPoolFree(&vfs_fatfs_driver_static.dir_nodes_pool, ip);
-}
-
-static void *__ffdir_ro_addref_impl(void *ip) {
-
-  chSysLock();
-  ip = __ro_addref_impl(ip);
-  chSysUnlock();
-
-  return ip;
-}
-
-static object_references_t __ffdir_ro_release_impl(void *ip) {
-  object_references_t references;
-
-  chSysLock();
-  references = __ro_release_impl(ip);
-  chSysUnlock();
-
-  return references;
-}
-
-static msg_t __ffdir_vfsnode_stat_impl(void *ip, vfs_stat_t *sp) {
-
-  return __vfsnode_stat_impl(ip, sp);
-}
-
-static msg_t __ffdir_vfsdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
-  msg_t ret;
-
-  do {
-    vfs_fatfs_dir_node_c *ffdnp = (vfs_fatfs_dir_node_c *)ip;
-    FRESULT res;
-    FILINFO *fip;
-
-    fip = (FILINFO *)chPoolAlloc(&vfs_fatfs_driver_static.info_nodes_pool);
-    if (fip != NULL) {
-
-      res = f_readdir(&ffdnp->ffdir.dir, fip);
-      if (res == FR_OK) {
-        if (fip->fname[0] == '\0') {
-          ret = (msg_t)0;
-        }
-        else {
-          dip->mode = translate_mode(fip->fattrib);
-          dip->size = (vfs_offset_t)fip->fsize;
-          strncpy(dip->name, fip->fname, VFS_CFG_NAMELEN_MAX);
-          dip->name[VFS_CFG_NAMELEN_MAX] = '\0';
-          ret = (msg_t)1;
-        }
-      }
-      else {
-        ret = translate_error(res);
-      }
-
-      chPoolFree(&vfs_fatfs_driver_static.info_nodes_pool, (void *)fip);
-    }
-    else {
-      ret = CH_RET_ENOMEM;
-      break;
-    }
-  }
-  while (false);
-
-  return ret;
-}
-
-static msg_t __ffdir_vfsdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
-  vfs_fatfs_dir_node_c *ffdnp = (vfs_fatfs_dir_node_c *)ip;
-  msg_t ret;
-  FRESULT res;
-
-  res = f_rewinddir(&ffdnp->ffdir.dir);
-  if (res == FR_OK) {
-    ret = __ffdir_vfsdir_next_impl(ip, dip);
-  }
-  else {
-    ret = translate_error(res);
-  }
-
-  return ret;
-}
-
-static void __fffile_dispose_impl(void *ip);
-static void __fffile_bo_dispose_impl(void *ip) {
-
-  /* Disposing self.*/
-  __fffile_dispose_impl(ip);
-
-  /* Last because it corrupts the object.*/
-  chPoolFree(&vfs_fatfs_driver_static.file_nodes_pool, ip);
-}
-
-static void *__fffile_ro_addref_impl(void *ip) {
-
-  chSysLock();
-  ip = __ro_addref_impl(ip);
-  chSysUnlock();
-
-  return ip;
-}
-
-static object_references_t __fffile_ro_release_impl(void *ip) {
-  object_references_t references;
-
-  chSysLock();
-  references = __ro_release_impl(ip);
-  chSysUnlock();
-
-  return references;
-}
-
-static msg_t __fffile_vfsnode_stat_impl(void *ip, vfs_stat_t *sp) {
-  vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
-
-  sp->mode = fffnp->vfsnode.mode;
-  sp->size = (vfs_offset_t)fffnp->fffile.file.obj.objsize;
-
-  return CH_RET_SUCCESS;
-}
-
-static ssize_t __fffile_vfsfile_read_impl(void *ip, uint8_t *buf, size_t size) {
-  vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
-  FRESULT res;
-  UINT br;
-
-  res = f_read(&fffnp->fffile.file, (void *)buf, (UINT)size, &br);
-  if (res != FR_OK) {
-
-    return translate_error(res);
-  }
-
-  return (ssize_t)br;
-}
-
-static ssize_t __fffile_vfsfile_write_impl(void *ip, const uint8_t *buf,
-                                           size_t size) {
-  vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
-  FRESULT res;
-  UINT bw;
-
-  res = f_write(&fffnp->fffile.file, (const void *)buf, (UINT)size, &bw);
-  if (res != FR_OK) {
-
-    return translate_error(res);
-  }
-
-  return (ssize_t)bw;
-}
-
-static msg_t __fffile_vfsfile_setpos_impl(void *ip, vfs_offset_t offset,
-                                          vfs_seekmode_t whence) {
-  vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
-  vfs_offset_t finaloff;
-
-  chDbgCheck((whence == SEEK_SET) ||
-             (whence == SEEK_CUR) ||
-             (whence == SEEK_END));
-
-  switch (whence) {
-  case VFS_SEEK_CUR:
-    finaloff = offset + (vfs_offset_t)fffnp->fffile.file.fptr;
-    break;
-  case VFS_SEEK_END:
-    finaloff = offset + (vfs_offset_t)fffnp->fffile.file.obj.objsize;
-    break;
-  case VFS_SEEK_SET:
-  default:
-    finaloff = offset;
-    break;
-  }
-
-  if (finaloff < 0) {
-    return CH_RET_EOVERFLOW;
-  }
-
-  return translate_error(f_lseek(&fffnp->fffile.file, (FSIZE_t)finaloff));
-}
-
-static vfs_offset_t __fffile_vfsfile_getpos_impl(void *ip) {
-  vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
-
-  return (vfs_offset_t)f_tell(&fffnp->fffile.file);
-}
-
-static sequential_stream_i *__fffile_vfsfile_getstream_impl(void *ip) {
-  vfs_fatfs_file_node_c *fffnp = (vfs_fatfs_file_node_c *)ip;
-
-  return &fffnp->fffile.stm;
-}
-
-static void __ffdrv_bo_dispose_impl(void *ip) {
-
-  /* Disposing self.*/
-  __ffdrv_dispose_impl(ip);
-}
-
-static msg_t __ffdrv_vfsdrv_setcwd_impl(void *ip, const char *path) {
-#if FF_FS_RPATH >= 1
-
-  (void)ip;
-
-  return translate_error(f_chdir((const TCHAR *)path));
-#else
-
-  (void)ip;
-
-  if (strcmp(path, "/") != 0) {
-    return CH_RET_ENOENT;
-  }
-
-  return CH_RET_SUCCESS;
-#endif
-}
-
-static msg_t __ffdrv_vfsdrv_getcwd_impl(void *ip, char *buf, size_t size) {
-#if FF_FS_RPATH >= 2
-
-  (void)ip;
-
-  return translate_error(f_getcwd((TCHAR *)buf, (UINT)size));
-#else
-
-  (void)ip;
-
-  if (size < 2) {
-    return CH_RET_ERANGE;
-  }
-
-  buf[0] = '/';
-  buf[1] = '\0';
-
-  return CH_RET_SUCCESS;
-#endif
-}
-
-static msg_t __ffdrv_vfsdrv_stat_impl(void *ip, const char *path,
-                                      vfs_stat_t *sp) {
-  msg_t ret;
-
-  (void)ip;
-
-  do {
-    FRESULT res;
-    FILINFO *fip;
-
-    fip = (FILINFO *)chPoolAlloc(&vfs_fatfs_driver_static.info_nodes_pool);
-    if (fip != NULL) {
-
-      res = f_stat((const TCHAR *)path, fip);
-      if (res == FR_OK) {
-
-        sp->mode = translate_mode(fip->fattrib);
-        sp->size = (vfs_offset_t)fip->fsize;
-
-        ret = CH_RET_SUCCESS;
-      }
-      else {
-        ret = translate_error(res);
-      }
-
-      chPoolFree(&vfs_fatfs_driver_static.info_nodes_pool, (void *)fip);
-    }
-    else {
-      ret = CH_RET_ENOMEM;
-      break;
-    }
-  }
-  while (false);
-
-  return ret;
-}
-
-static msg_t __ffdrv_vfsdrv_opendir_impl(void *ip, const char *path,
-                                         vfs_directory_node_c **vdnpp) {
-  msg_t ret;
-
-  do {
-    vfs_fatfs_driver_c *drvp = (vfs_fatfs_driver_c *)ip;
-    vfs_fatfs_dir_node_c *ffdnp;
-    FRESULT res;
-
-    ffdnp = chPoolAlloc(&vfs_fatfs_driver_static.dir_nodes_pool);
-    if (ffdnp != NULL) {
-
-      res = f_opendir(&ffdnp->ffdir.dir, (const TCHAR *)path);
-      if (res == FR_OK) {
-
-        /* Node object initialization.*/
-        (void) ffdir_object_init(ffdnp,
-                                 (vfs_driver_c *)drvp,
-                                 translate_mode(ffdnp->ffdir.dir.obj.attr));
-/*        __ro_objinit_impl(ffdnp, &dir_node_vmt);
-        ffdnp->vfsnode.driver   = (vfs_driver_c *)drvp;
-        ffdnp->vfsnode.mode     = translate_mode(ffdnp->dir.obj.attr);*/
-
-        *vdnpp = (vfs_directory_node_c *)ffdnp;
-        ret = CH_RET_SUCCESS;
-        break;
-      }
-
-      chPoolFree(&vfs_fatfs_driver_static.dir_nodes_pool, (void *)ffdnp);
-    }
-    else {
-      ret = CH_RET_ENOMEM;
-      break;
-    }
-
-    ret = translate_error(res);
-  }
-  while (false);
-
-  return ret;
-}
-
-static msg_t __ffdrv_vfsdrv_openfile_impl(void *ip, const char *path,
-                                          int flags, vfs_file_node_c **vfnpp) {
-  msg_t ret;
-
-  do {
-    vfs_fatfs_driver_c *drvp = (vfs_fatfs_driver_c *)ip;
-    vfs_fatfs_file_node_c *fffnp;
-    FRESULT res;
-    BYTE mode;
-
-    mode = translate_oflag(flags);
-    if (mode == (BYTE)0) {
-      ret = CH_RET_EINVAL;
-      break;
-    }
-
-    fffnp = chPoolAlloc(&vfs_fatfs_driver_static.file_nodes_pool);
-    if (fffnp != NULL) {
-
-      res = f_open(&fffnp->fffile.file, (const TCHAR *)path, mode);
-      if (res == FR_OK) {
-
-        /* Node object initialization.*/
-        (void) fffile_object_init(fffnp,
-                                  (vfs_driver_c *)drvp,
-                                  translate_mode(fffnp->fffile.file.obj.attr));
-/*        __ro_objinit_impl(fffnp, &file_node_vmt);
-        fffnp->vfsnode.driver     = (vfs_driver_c *)drvp;
-        fffnp->vfsnode.mode       = translate_mode(fffnp->file.obj.attr);
-        fffnp->stream.vmt = &file_stream_vmt;*/
-
-        *vfnpp = (vfs_file_node_c *)fffnp;
-        ret = CH_RET_SUCCESS;
-        break;
-      }
-
-      chPoolFree(&vfs_fatfs_driver_static.file_nodes_pool, (void *)fffnp);
-    }
-    else {
-      ret = CH_RET_ENOMEM;
-      break;
-    }
-
-    ret = translate_error(res);
-  }
-  while (false);
-
-  return ret;
-}
-
-static msg_t __ffdrv_vfsdrv_unlink_impl(void *ip, const char *path) {
-
-  (void)ip;
-
-  return translate_error(f_unlink((const TCHAR *)path));
-}
-
-static msg_t __ffdrv_vfsdrv_rename_impl(void *ip, const char *oldpath,
-                                        const char *newpath) {
-
-  (void)ip;
-
-  return translate_error(f_rename((const TCHAR *)oldpath,
-                                  (const TCHAR *)newpath));
-}
-
-static msg_t __ffdrv_vfsdrv_mkdir_impl(void *ip, const char *path,
-                                       vfs_mode_t mode) {
-
-  (void)ip;
-  (void)mode; /* Not handled by FatFS.*/
-
-  return translate_error(f_mkdir((const TCHAR *)path));
-}
-
-static msg_t __ffdrv_vfsdrv_rmdir_impl(void *ip, const char *path) {
-
-  (void)ip;
-
-  return translate_error(f_rmdir((const TCHAR *)path));
-}
-
-static size_t __fffile_stm_write_impl(void *ip, const uint8_t *buf,
-                                      size_t size) {
-  vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
-  msg_t msg;
-
-  msg = vfsFileWrite((void *)self, buf, size);
-  if (CH_RET_IS_ERROR(msg)) {
-
-    return (size_t)0;
-  }
-
-  return (size_t)msg;
-}
-
-static size_t __fffile_stm_read_impl(void *ip, uint8_t *buf, size_t size) {
-  vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
-  msg_t msg;
-
-  msg = vfsFileRead((void *)self, buf, size);
-  if (CH_RET_IS_ERROR(msg)) {
-
-    return (size_t)0;
-  }
-
-  return (size_t)msg;
-}
-
-static msg_t __fffile_stm_put_impl(void *ip, uint8_t b) {
-  vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
-  msg_t msg;
-
-  msg = vfsFileWrite((void *)self, &b, (size_t)1);
-  if (CH_RET_IS_ERROR(msg)) {
-
-    return STM_TIMEOUT;
-  }
-
-  return msg;
-}
-
-static msg_t __fffile_stm_get_impl(void *ip) {
-  vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
-  msg_t msg;
-  uint8_t b;
-
-  msg = vfsFileRead((void *)self, &b, (size_t)1);
-  if (CH_RET_IS_ERROR(msg)) {
-
-    return STM_TIMEOUT;
-  }
-
-  return (msg_t)b;
-}
-
-/**
- * @name        Methods implementations of vfs_fatfs_dir_node_c
- * @{
- */
-/**
- * @memberof    vfs_fatfs_dir_node_c
- * @protected
- *
- * @brief       Implementation of object creation.
- * @note        This function is meant to be used by derived classes.
- *
- * @param[out]    ip            Pointer to a @p vfs_fatfs_dir_node_c instance
- *                              to be initialized.
- * @param[in]     vmt           VMT pointer for the new object.
- * @param[in]     driver        Pointer to the controlling driver.
- * @param[in]     mode          Node mode flags.
- * @return                      A new reference to the object.
- */
-static void *__ffdir_objinit_impl(void *ip, const void *vmt,
-                                  vfs_driver_c *driver, vfs_mode_t mode) {
-  vfs_fatfs_dir_node_c *self = (vfs_fatfs_dir_node_c *)ip;
-
-  /* Initialization code.*/
-  self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
-
-  return self;
-}
-
-/**
- * @memberof    vfs_fatfs_dir_node_c
- * @protected
- *
- * @brief       Implementation of object finalization.
- * @note        This function is meant to be used by derived classes.
- *
- * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance
- *                              to be disposed.
- */
-static void __ffdir_dispose_impl(void *ip) {
-  vfs_fatfs_dir_node_c *self = (vfs_fatfs_dir_node_c *)ip;
-
-  /* No finalization code.*/
-  (void)self;
-
-  /* Finalization of the ancestors-defined parts.*/
-  __vfsdir_dispose_impl(self);
-}
-/** @} */
-
-/**
- * @name        Default constructor of vfs_fatfs_dir_node_c
- * @{
- */
-/**
- * @memberof    vfs_fatfs_dir_node_c
- *
- * @brief       Default initialization function of @p vfs_fatfs_dir_node_c.
- *
- * @param[out]    self          Pointer to a @p vfs_fatfs_dir_node_c instance
- *                              to be initialized.
- * @param[in]     driver        Pointer to the controlling driver.
- * @param[in]     mode          Node mode flags.
- * @return                      Pointer to the initialized object.
- *
- * @objinit
- */
-CC_FORCE_INLINE
-static inline vfs_fatfs_dir_node_c *ffdir_object_init(vfs_fatfs_dir_node_c *self,
-                                                      vfs_driver_c *driver,
-                                                      vfs_mode_t mode) {
-  static const struct vfs_fatfs_dir_node_vmt __ffdir_vmt = {
-    __ffdir_vmt_init(ffdir)
-  };
-
-  return __ffdir_objinit_impl(self, &__ffdir_vmt, driver, mode);
-}
-/** @} */
-
-/**
- * @name        Methods implementations of vfs_fatfs_file_node_c
- * @{
- */
-/**
- * @memberof    vfs_fatfs_file_node_c
- * @protected
- *
- * @brief       Implementation of object creation.
- * @note        This function is meant to be used by derived classes.
- *
- * @param[out]    ip            Pointer to a @p vfs_fatfs_file_node_c instance
- *                              to be initialized.
- * @param[in]     vmt           VMT pointer for the new object.
- * @param[in]     driver        Pointer to the controlling driver.
- * @param[in]     mode          Node mode flags.
- * @return                      A new reference to the object.
- */
-static void *__fffile_objinit_impl(void *ip, const void *vmt,
-                                   vfs_driver_c *driver, vfs_mode_t mode) {
-  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
-
-  /* Implementation of interface sequential_stream_i.*/
-  {
-    static const struct sequential_stream_vmt fffile_stm_vmt = {
-      __stm_vmt_init(fffile, offsetof(vfs_fatfs_file_node_c, fffile.stm))
-    };
-    oopIfObjectInit(&self->fffile.stm, &fffile_stm_vmt);
-  }
-
-  /* Initialization code.*/
-  self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
-
-  return self;
-}
-
-/**
- * @memberof    vfs_fatfs_file_node_c
- * @protected
- *
- * @brief       Implementation of object finalization.
- * @note        This function is meant to be used by derived classes.
- *
- * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance
- *                              to be disposed.
- */
-static void __fffile_dispose_impl(void *ip) {
-  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
-
-  /* No finalization code.*/
-  (void)self;
-
-  /* Finalization of the ancestors-defined parts.*/
-  __vfsfile_dispose_impl(self);
-}
-/** @} */
-
-/**
- * @name        Default constructor of vfs_fatfs_file_node_c
- * @{
- */
-/**
- * @memberof    vfs_fatfs_file_node_c
- *
- * @brief       Default initialization function of @p vfs_fatfs_file_node_c.
- *
- * @param[out]    self          Pointer to a @p vfs_fatfs_file_node_c instance
- *                              to be initialized.
- * @param[in]     driver        Pointer to the controlling driver.
- * @param[in]     mode          Node mode flags.
- * @return                      Pointer to the initialized object.
- *
- * @objinit
- */
-CC_FORCE_INLINE
-static inline vfs_fatfs_file_node_c *fffile_object_init(vfs_fatfs_file_node_c *self,
-                                                        vfs_driver_c *driver,
-                                                        vfs_mode_t mode) {
-  static const struct vfs_fatfs_file_node_vmt __fffile_vmt = {
-    __fffile_vmt_init(fffile)
-  };
-
-  return __fffile_objinit_impl(self, &__fffile_vmt, driver, mode);
-}
-/** @} */
 
 /*===========================================================================*/
 /* Module exported functions.                                                */
@@ -836,16 +207,618 @@ msg_t ffdrvUnmount(const char *name) {
 }
 
 /*===========================================================================*/
-/* Module class "vfs_fatfs_driver_c" methods.                                */
+/* Module class "vfs_fatfs_dir_node_c" methods.                              */
+/*===========================================================================*/
+
+/* TODO automatic forward declarations of all method implementations.*/
+static msg_t __ffdir_next_impl(void *ip, vfs_direntry_info_t *dip);
+
+/**
+ * @name        Methods implementations of vfs_fatfs_dir_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_fatfs_dir_node_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p vfs_fatfs_dir_node_c instance
+ *                              to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
+ * @return                      A new reference to the object.
+ */
+static void *__ffdir_objinit_impl(void *ip, const void *vmt,
+                                  vfs_driver_c *driver, vfs_mode_t mode) {
+  vfs_fatfs_dir_node_c *self = (vfs_fatfs_dir_node_c *)ip;
+
+  /* Initialization code.*/
+  self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
+
+  return self;
+}
+
+/**
+ * @memberof    vfs_fatfs_dir_node_c
+ * @protected
+ *
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance
+ *                              to be disposed.
+ */
+static void __ffdir_dispose_impl(void *ip) {
+
+  /* Disposing self.*/
+  __ffdir_dispose_impl(ip);
+
+  /* Last because it corrupts the object.*/
+  chPoolFree(&vfs_fatfs_driver_static.dir_nodes_pool, ip);
+}
+
+/**
+ * @memberof    vfs_fatfs_dir_node_c
+ * @protected
+ *
+ * @brief       Override of method @p roAddRef().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance.
+ * @return                      A new reference pointer.
+ */
+static void *__ffdir_addref_impl(void *ip) {
+
+  chSysLock();
+  ip = __ro_addref_impl(ip);
+  chSysUnlock();
+
+  return ip;
+}
+
+/**
+ * @memberof    vfs_fatfs_dir_node_c
+ * @protected
+ *
+ * @brief       Override of method @p roRelease().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance.
+ * @return                      The value of the reference counter.
+ */
+static object_references_t __ffdir_release_impl(void *ip) {
+  object_references_t references;
+
+  chSysLock();
+  references = __ro_release_impl(ip);
+  chSysUnlock();
+
+  return references;
+}
+
+/**
+ * @memberof    vfs_fatfs_dir_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsNodeStat().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance.
+ * @param[out]    sp            Pointer to a @p vfs_stat_t structure.
+ * @return                      The operation result.
+ */
+static msg_t __ffdir_stat_impl(void *ip, vfs_stat_t *sp) {
+
+  return __vfsnode_stat_impl(ip, sp);
+}
+
+/**
+ * @memberof    vfs_fatfs_dir_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDirReadFirst().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance.
+ * @param[out]    dip           Pointer to a @p vfs_direntry_info_t structure.
+ * @return                      The operation result.
+ */
+static msg_t __ffdir_first_impl(void *ip, vfs_direntry_info_t *dip) {
+  vfs_fatfs_dir_node_c *self = (vfs_fatfs_dir_node_c *)ip;
+  msg_t ret;
+  FRESULT res;
+
+  res = f_rewinddir(&self->dir);
+  if (res == FR_OK) {
+    ret = __ffdir_next_impl(ip, dip);
+  }
+  else {
+    ret = translate_error(res);
+  }
+
+  return ret;
+}
+
+/**
+ * @memberof    vfs_fatfs_dir_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDirReadNext().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance.
+ * @param[out]    dip           Pointer to a @p vfs_direntry_info_t structure.
+ * @return                      The operation result.
+ */
+static msg_t __ffdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
+  vfs_fatfs_dir_node_c *self = (vfs_fatfs_dir_node_c *)ip;
+  msg_t ret;
+
+  do {
+    FRESULT res;
+    FILINFO *fip;
+
+    fip = (FILINFO *)chPoolAlloc(&vfs_fatfs_driver_static.info_nodes_pool);
+    if (fip != NULL) {
+
+      res = f_readdir(&self->dir, fip);
+      if (res == FR_OK) {
+        if (fip->fname[0] == '\0') {
+          ret = (msg_t)0;
+        }
+        else {
+          dip->mode = translate_mode(fip->fattrib);
+          dip->size = (vfs_offset_t)fip->fsize;
+          strncpy(dip->name, fip->fname, VFS_CFG_NAMELEN_MAX);
+          dip->name[VFS_CFG_NAMELEN_MAX] = '\0';
+          ret = (msg_t)1;
+        }
+      }
+      else {
+        ret = translate_error(res);
+      }
+
+      chPoolFree(&vfs_fatfs_driver_static.info_nodes_pool, (void *)fip);
+    }
+    else {
+      ret = CH_RET_ENOMEM;
+      break;
+    }
+  }
+  while (false);
+
+  return ret;
+}
+/** @} */
+
+/**
+ * @brief       VMT structure of VFS fatfs directory node class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+static const struct vfs_fatfs_dir_node_vmt __vfs_fatfs_dir_node_vmt = {
+  .dispose                  = __ffdir_dispose_impl,
+  .addref                   = __ffdir_addref_impl,
+  .release                  = __ffdir_release_impl,
+  .stat                     = __ffdir_stat_impl,
+  .first                    = __ffdir_first_impl,
+  .next                     = __ffdir_next_impl
+};
+
+/**
+ * @name        Default constructor of vfs_fatfs_dir_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_fatfs_dir_node_c
+ *
+ * @brief       Default initialization function of @p vfs_fatfs_dir_node_c.
+ *
+ * @param[out]    self          Pointer to a @p vfs_fatfs_dir_node_c instance
+ *                              to be initialized.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
+ * @return                      Pointer to the initialized object.
+ *
+ * @objinit
+ */
+static vfs_fatfs_dir_node_c *ffdirObjectInit(vfs_fatfs_dir_node_c *self,
+                                             vfs_driver_c *driver,
+                                             vfs_mode_t mode) {
+
+  return __ffdir_objinit_impl(self, &__vfs_fatfs_dir_node_vmt, driver, mode);
+}
+/** @} */
+
+/*===========================================================================*/
+/* Module class "vfs_fatfs_file_node_c" methods.                             */
 /*===========================================================================*/
 
 /**
- * @brief       VMT structure of VFS fatfs driver class.
+ * @name        Interfaces implementation of vfs_fatfs_file_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmWrite().
+ *
+ * @param[in,out] ip            Pointer to the @p sequential_stream_i class
+ *                              interface.
+ * @param[in]     bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The returned
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
+ */
+static size_t __fffile_stm_write_impl(void *ip, const uint8_t *bp, size_t n) {
+  vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
+  msg_t msg;
+
+  msg = vfsFileWrite((void *)self, bp, n);
+  if (CH_RET_IS_ERROR(msg)) {
+
+    return (size_t)0;
+  }
+
+  return (size_t)msg;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmRead().
+ *
+ * @param[in,out] ip            Pointer to the @p sequential_stream_i class
+ *                              interface.
+ * @param[out]    bp            Pointer to the data buffer.
+ * @param[in]     n             The maximum amount of data to be transferred.
+ * @return                      The number of bytes transferred. The returned
+ *                              value can be less than the specified number of
+ *                              bytes if an end-of-file condition has been met.
+ */
+static size_t __fffile_stm_read_impl(void *ip, uint8_t *bp, size_t n) {
+  vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
+  msg_t msg;
+
+  msg = vfsFileRead((void *)self, bp, n);
+  if (CH_RET_IS_ERROR(msg)) {
+
+    return (size_t)0;
+  }
+
+  return (size_t)msg;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmPut().
+ *
+ * @param[in,out] ip            Pointer to the @p sequential_stream_i class
+ *                              interface.
+ * @param[in]     b             The byte value to be written to the stream.
+ * @return                      The operation status.
+ */
+static msg_t __fffile_stm_put_impl(void *ip, uint8_t b) {
+  vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
+  msg_t msg;
+
+  msg = vfsFileWrite((void *)self, &b, (size_t)1);
+  if (CH_RET_IS_ERROR(msg)) {
+
+    return STM_TIMEOUT;
+  }
+
+  return msg;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @private
+ *
+ * @brief       Implementation of interface method @p stmGet().
+ *
+ * @param[in,out] ip            Pointer to the @p sequential_stream_i class
+ *                              interface.
+ * @return                      A byte value from the stream.
+ */
+static msg_t __fffile_stm_get_impl(void *ip) {
+  vfs_fatfs_file_node_c *self = oopIfGetOwner(vfs_fatfs_file_node_c, ip);
+  msg_t msg;
+  uint8_t b;
+
+  msg = vfsFileRead((void *)self, &b, (size_t)1);
+  if (CH_RET_IS_ERROR(msg)) {
+
+    return STM_TIMEOUT;
+  }
+
+  return (msg_t)b;
+}
+/** @} */
+
+/**
+ * @name        Methods implementations of vfs_fatfs_file_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Implementation of object creation.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[out]    ip            Pointer to a @p vfs_fatfs_file_node_c instance
+ *                              to be initialized.
+ * @param[in]     vmt           VMT pointer for the new object.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
+ * @return                      A new reference to the object.
+ */
+static void *__fffile_objinit_impl(void *ip, const void *vmt,
+                                   vfs_driver_c *driver, vfs_mode_t mode) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+
+  /* Initialization of interface sequential_stream_i.*/
+  {
+    static const struct sequential_stream_vmt fffile_stm_vmt = {
+      .instance_offset      = offsetof(vfs_fatfs_file_node_c, stm),
+      .write                = __fffile_stm_write_impl,
+      .read                 = __fffile_stm_read_impl,
+      .put                  = __fffile_stm_put_impl,
+      .get                  = __fffile_stm_get_impl
+    };
+    oopIfObjectInit(&self->stm, &fffile_stm_vmt);
+  }
+
+  /* Initialization code.*/
+  self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
+
+  return self;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Implementation of object finalization.
+ * @note        This function is meant to be used by derived classes.
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance
+ *                              to be disposed.
+ */
+static void __fffile_dispose_impl(void *ip) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+
+  /* Finalization of the ancestors-defined parts.*/
+  __vfsfile_dispose_impl(self);
+
+  /* Last because it corrupts the object.*/
+  chPoolFree(&vfs_fatfs_driver_static.file_nodes_pool, ip);
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Override of method @p roAddRef().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
+ * @return                      A new reference pointer.
+ */
+static void *__fffile_addref_impl(void *ip) {
+
+  chSysLock();
+  ip = __ro_addref_impl(ip);
+  chSysUnlock();
+
+  return ip;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Override of method @p roRelease().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
+ * @return                      The value of the reference counter.
+ */
+static object_references_t __fffile_release_impl(void *ip) {
+  object_references_t references;
+
+  chSysLock();
+  references = __ro_release_impl(ip);
+  chSysUnlock();
+
+  return references;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsNodeStat().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
+ * @param[out]    sp            Pointer to a @p vfs_stat_t structure.
+ * @return                      The operation result.
+ */
+static msg_t __fffile_stat_impl(void *ip, vfs_stat_t *sp) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+
+  sp->mode = self->mode;
+  sp->size = (vfs_offset_t)self->file.obj.objsize;
+
+  return CH_RET_SUCCESS;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsFileRead().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
+ * @param[out]    buf           Pointer to the data buffer.
+ * @param[in]     n             Maximum amount of data to be transferred.
+ * @return                      The transferred number of bytes or an error.
+ */
+static ssize_t __fffile_read_impl(void *ip, uint8_t *buf, size_t n) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+  FRESULT res;
+  UINT br;
+
+  res = f_read(&self->file, (void *)buf, (UINT)n, &br);
+  if (res != FR_OK) {
+
+    return translate_error(res);
+  }
+
+  return (ssize_t)br;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsFileWrite().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
+ * @param[in]     buf           Pointer to the data buffer.
+ * @param[in]     n             Maximum amount of data to be transferred.
+ * @return                      The transferred number of bytes or an error.
+ */
+static ssize_t __fffile_write_impl(void *ip, const uint8_t *buf, size_t n) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+  FRESULT res;
+  UINT bw;
+
+  res = f_write(&self->file, (const void *)buf, (UINT)n, &bw);
+  if (res != FR_OK) {
+
+    return translate_error(res);
+  }
+
+  return (ssize_t)bw;
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsFileSetPosition().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
+ * @param[in]     offset        Offset to be applied.
+ * @param[in]     whence        Seek mode to be used.
+ * @return                      The operation result.
+ */
+static msg_t __fffile_setpos_impl(void *ip, vfs_offset_t offset,
+                                  vfs_seekmode_t whence) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+  vfs_offset_t finaloff;
+
+  chDbgCheck((whence == SEEK_SET) ||
+             (whence == SEEK_CUR) ||
+             (whence == SEEK_END));
+
+  switch (whence) {
+  case VFS_SEEK_CUR:
+    finaloff = offset + (vfs_offset_t)self->file.fptr;
+    break;
+  case VFS_SEEK_END:
+    finaloff = offset + (vfs_offset_t)self->file.obj.objsize;
+    break;
+  case VFS_SEEK_SET:
+  default:
+    finaloff = offset;
+    break;
+  }
+
+  if (finaloff < 0) {
+    return CH_RET_EOVERFLOW;
+  }
+
+  return translate_error(f_lseek(&self->file, (FSIZE_t)finaloff));
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsFileGetPosition().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
+ * @return                      The current file position.
+ */
+static vfs_offset_t __fffile_getpos_impl(void *ip) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+
+  return (vfs_offset_t)f_tell(&self->file);
+}
+
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsFileGetStream().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
+ * @return                      Pointer to the HAL stream interface.
+ */
+static sequential_stream_i *__fffile_getstream_impl(void *ip) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+
+  return &self->stm;
+}
+/** @} */
+
+/**
+ * @brief       VMT structure of VFS fatfs file node class.
  * @note        It is public because accessed by the inlined constructor.
  */
-const struct vfs_fatfs_driver_vmt __ffdrv_vmt = {
-  __ffdrv_vmt_init(ffdrv)
+static const struct vfs_fatfs_file_node_vmt __vfs_fatfs_file_node_vmt = {
+  .dispose                  = __fffile_dispose_impl,
+  .addref                   = __fffile_addref_impl,
+  .release                  = __fffile_release_impl,
+  .stat                     = __fffile_stat_impl,
+  .read                     = __fffile_read_impl,
+  .write                    = __fffile_write_impl,
+  .setpos                   = __fffile_setpos_impl,
+  .getpos                   = __fffile_getpos_impl,
+  .getstream                = __fffile_getstream_impl
 };
+
+/**
+ * @name        Default constructor of vfs_fatfs_file_node_c
+ * @{
+ */
+/**
+ * @memberof    vfs_fatfs_file_node_c
+ *
+ * @brief       Default initialization function of @p vfs_fatfs_file_node_c.
+ *
+ * @param[out]    self          Pointer to a @p vfs_fatfs_file_node_c instance
+ *                              to be initialized.
+ * @param[in]     driver        Pointer to the controlling driver.
+ * @param[in]     mode          Node mode flags.
+ * @return                      Pointer to the initialized object.
+ *
+ * @objinit
+ */
+static vfs_fatfs_file_node_c *fffileObjectInit(vfs_fatfs_file_node_c *self,
+                                               vfs_driver_c *driver,
+                                               vfs_mode_t mode) {
+
+  return __fffile_objinit_impl(self, &__vfs_fatfs_file_node_vmt, driver, mode);
+}
+/** @} */
+
+/*===========================================================================*/
+/* Module class "vfs_fatfs_driver_c" methods.                                */
+/*===========================================================================*/
 
 /**
  * @name        Methods implementations of vfs_fatfs_driver_c
@@ -893,5 +866,311 @@ void __ffdrv_dispose_impl(void *ip) {
   /* Finalization of the ancestors-defined parts.*/
   __vfsdrv_dispose_impl(self);
 }
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvChangeCurrentDirectory().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[in]     path          Path of the new current directory.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_setcwd_impl(void *ip, const char *path) {
+#if FF_FS_RPATH >= 1
+
+  (void)ip;
+
+  return translate_error(f_chdir((const TCHAR *)path));
+#else
+
+  (void)ip;
+
+  if (strcmp(path, "/") != 0) {
+    return CH_RET_ENOENT;
+  }
+
+  return CH_RET_SUCCESS;
+#endif
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvGetCurrentDirectory().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[out]    buf           Buffer for the path string.
+ * @param[in]     size          Size of the buffer.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_getcwd_impl(void *ip, char *buf, size_t size) {
+#if FF_FS_RPATH >= 2
+
+  (void)ip;
+
+  return translate_error(f_getcwd((TCHAR *)buf, (UINT)size));
+#else
+
+  (void)ip;
+
+  if (size < 2) {
+    return CH_RET_ERANGE;
+  }
+
+  buf[0] = '/';
+  buf[1] = '\0';
+
+  return CH_RET_SUCCESS;
+#endif
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvStat().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[in]     path          Absolute path of the node to be examined.
+ * @param[out]    sp            Pointer to a @p vfs_stat_t structure.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_stat_impl(void *ip, const char *path, vfs_stat_t *sp) {
+  msg_t ret;
+
+  (void)ip;
+
+  do {
+    FRESULT res;
+    FILINFO *fip;
+
+    fip = (FILINFO *)chPoolAlloc(&vfs_fatfs_driver_static.info_nodes_pool);
+    if (fip != NULL) {
+
+      res = f_stat((const TCHAR *)path, fip);
+      if (res == FR_OK) {
+
+        sp->mode = translate_mode(fip->fattrib);
+        sp->size = (vfs_offset_t)fip->fsize;
+
+        ret = CH_RET_SUCCESS;
+      }
+      else {
+        ret = translate_error(res);
+      }
+
+      chPoolFree(&vfs_fatfs_driver_static.info_nodes_pool, (void *)fip);
+    }
+    else {
+      ret = CH_RET_ENOMEM;
+      break;
+    }
+  }
+  while (false);
+
+  return ret;
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvOpenDirectory().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[in]     path          Absolute path of the directory to be opened.
+ * @param[out]    vdnpp         Pointer to the pointer to the instantiated @p
+ *                              vfs_directory_node_c object.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_opendir_impl(void *ip, const char *path,
+                           vfs_directory_node_c **vdnpp) {
+  vfs_fatfs_driver_c *self = (vfs_fatfs_driver_c *)ip;
+  msg_t ret;
+
+  do {
+    vfs_fatfs_dir_node_c *ffdnp;
+    FRESULT res;
+
+    ffdnp = chPoolAlloc(&vfs_fatfs_driver_static.dir_nodes_pool);
+    if (ffdnp != NULL) {
+
+      res = f_opendir(&ffdnp->dir, (const TCHAR *)path);
+      if (res == FR_OK) {
+
+        /* Node object initialization.*/
+        (void) ffdirObjectInit(ffdnp,
+                               (vfs_driver_c *)self,
+                               translate_mode(ffdnp->dir.obj.attr));
+
+        *vdnpp = (vfs_directory_node_c *)ffdnp;
+        ret = CH_RET_SUCCESS;
+        break;
+      }
+
+      chPoolFree(&vfs_fatfs_driver_static.dir_nodes_pool, (void *)ffdnp);
+    }
+    else {
+      ret = CH_RET_ENOMEM;
+      break;
+    }
+
+    ret = translate_error(res);
+  }
+  while (false);
+
+  return ret;
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvOpenFile().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[in]     path          Absolute path of the directory to be opened.
+ * @param[in]     flags         File open flags.
+ * @param[out]    vfnpp         Pointer to the pointer to the instantiated @p
+ *                              vfs_file_node_c object.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_openfile_impl(void *ip, const char *path, int flags,
+                            vfs_file_node_c **vfnpp) {
+  vfs_fatfs_driver_c *self = (vfs_fatfs_driver_c *)ip;
+  msg_t ret;
+
+  do {
+    vfs_fatfs_file_node_c *fffnp;
+    FRESULT res;
+    BYTE mode;
+
+    mode = translate_oflag(flags);
+    if (mode == (BYTE)0) {
+      ret = CH_RET_EINVAL;
+      break;
+    }
+
+    fffnp = chPoolAlloc(&vfs_fatfs_driver_static.file_nodes_pool);
+    if (fffnp != NULL) {
+
+      res = f_open(&fffnp->file, (const TCHAR *)path, mode);
+      if (res == FR_OK) {
+
+        /* Node object initialization.*/
+        (void) fffileObjectInit(fffnp,
+                                (vfs_driver_c *)self,
+                                translate_mode(fffnp->file.obj.attr));
+
+        *vfnpp = (vfs_file_node_c *)fffnp;
+        ret = CH_RET_SUCCESS;
+        break;
+      }
+
+      chPoolFree(&vfs_fatfs_driver_static.file_nodes_pool, (void *)fffnp);
+    }
+    else {
+      ret = CH_RET_ENOMEM;
+      break;
+    }
+
+    ret = translate_error(res);
+  }
+  while (false);
+
+  return ret;
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvUnlink().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[in]     path          Path of the file to be unlinked.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_unlink_impl(void *ip, const char *path) {
+
+  (void)ip;
+
+  return translate_error(f_unlink((const TCHAR *)path));
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvRename().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[in]     oldpath       Path of the node to be renamed.
+ * @param[in]     newpath       New path of the renamed node.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_rename_impl(void *ip, const char *oldpath, const char *newpath) {
+
+  (void)ip;
+
+  return translate_error(f_rename((const TCHAR *)oldpath,
+                                  (const TCHAR *)newpath));
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvMkdir().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[in]     path          Path of the directory to be created.
+ * @param[in]     mode          Mode flags for the directory.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_mkdir_impl(void *ip, const char *path, vfs_mode_t mode) {
+
+  (void)ip;
+  (void)mode; /* Not handled by FatFS.*/
+
+  return translate_error(f_mkdir((const TCHAR *)path));
+}
+
+/**
+ * @memberof    vfs_fatfs_driver_c
+ * @protected
+ *
+ * @brief       Override of method @p vfsDrvRmdir().
+ *
+ * @param[in,out] ip            Pointer to a @p vfs_fatfs_driver_c instance.
+ * @param[in]     path          Path of the directory to be removed.
+ * @return                      The operation result.
+ */
+msg_t __ffdrv_rmdir_impl(void *ip, const char *path) {
+
+  (void)ip;
+
+  return translate_error(f_rmdir((const TCHAR *)path));
+}
 /** @} */
+
+/**
+ * @brief       VMT structure of VFS fatfs driver class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct vfs_fatfs_driver_vmt __vfs_fatfs_driver_vmt = {
+  .dispose                  = __ffdrv_dispose_impl,
+  .setcwd                   = __ffdrv_setcwd_impl,
+  .getcwd                   = __ffdrv_getcwd_impl,
+  .stat                     = __ffdrv_stat_impl,
+  .opendir                  = __ffdrv_opendir_impl,
+  .openfile                 = __ffdrv_openfile_impl,
+  .unlink                   = __ffdrv_unlink_impl,
+  .rename                   = __ffdrv_rename_impl,
+  .mkdir                    = __ffdrv_mkdir_impl,
+  .rmdir                    = __ffdrv_rmdir_impl
+};
 

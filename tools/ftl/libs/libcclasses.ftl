@@ -289,7 +289,7 @@
   [/#if]
   [#if ifscache[ancestorname]??]
     [#local ancestorif = ifscache[ancestorname]]
-    [#return GetClassAncestorsSequence(ancestorif) + [ancestorif]]
+    [#return GetInterfaceAncestorsSequence(ancestorif) + [ancestorif]]
   [/#if]
   [#stop ">>>> Unknown interface '" + ancestorname + "'"]
 [/#function]
@@ -701,7 +701,7 @@ ${ccode.MakeVariableDeclaration(ccode.indentation "vmt" vmtctype)}
                                   extraname="ip" extradir="both"
                                   extratext="Pointer to a @p " + classctype + " instance."
                                   memberof=classctype /]
-      [#if modifiers?contains("static") && modifiers?contains("inline")]
+      [#if modifiers?seq_contains("static") && modifiers?seq_contains("inline")]
 CC_FORCE_INLINE
       [/#if]
 [@ccode.GeneratePrototypeFromNode modifiers = modifiers

@@ -253,8 +253,8 @@ static void *__ffdir_objinit_impl(void *ip, const void *vmt,
  */
 static void __ffdir_dispose_impl(void *ip) {
 
-  /* Disposing self.*/
-  __ffdir_dispose_impl(ip);
+  /* Finalization of the ancestors-defined parts.*/
+  __vfsdir_dispose_impl(ip);
 
   /* Last because it corrupts the object.*/
   chPoolFree(&vfs_fatfs_driver_static.dir_nodes_pool, ip);

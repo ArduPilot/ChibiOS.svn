@@ -252,6 +252,10 @@ static void *__ffdir_objinit_impl(void *ip, const void *vmt,
  *                              to be disposed.
  */
 static void __ffdir_dispose_impl(void *ip) {
+  vfs_fatfs_dir_node_c *self = (vfs_fatfs_dir_node_c *)ip;
+
+  /* Closing directory.*/
+  (void) f_closedir(&self->dir);
 
   /* Finalization of the ancestors-defined parts.*/
   __vfsdir_dispose_impl(ip);
@@ -589,6 +593,10 @@ static void *__fffile_objinit_impl(void *ip, const void *vmt,
  *                              to be disposed.
  */
 static void __fffile_dispose_impl(void *ip) {
+  vfs_fatfs_file_node_c *self = (vfs_fatfs_file_node_c *)ip;
+
+  /* Closing file.*/
+  (void) f_close(&self->file);
 
   /* Finalization of the ancestors-defined parts.*/
   __vfsfile_dispose_impl(ip);

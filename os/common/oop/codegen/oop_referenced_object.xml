@@ -41,9 +41,10 @@
               <return>A new reference pointer.</return>
               <implementation><![CDATA[
 
+oopLock();
 self->references++;
-
 oopAssert(self->references != (object_references_t)0, "overflow");
+oopUnlock();
 
 return self;]]></implementation>
             </method>
@@ -55,10 +56,14 @@ return self;]]></implementation>
               <return>The value of the reference counter.</return>
               <implementation><![CDATA[
 
+oopLock();
 oopAssert(self->references > 0U, "zero references");
-
 if (--self->references == 0U) {
+  oopUnlock();
   boDispose(self);
+}
+else {
+  oopUnlock();
 }
 
 return self->references;]]></implementation>

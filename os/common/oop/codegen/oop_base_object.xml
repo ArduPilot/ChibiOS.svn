@@ -47,6 +47,18 @@
           <implementation><![CDATA[
 chDbgAssert(c, r)]]></implementation>
         </macro>
+        <macro name="oopLock">
+          <brief>Critical section enter.</brief>
+          <note><![CDATA[The critical section nature is not specified,
+                implementation depends on the choosen underlying OS.]]></note>
+          <implementation><![CDATA[chSysLock()]]></implementation>
+        </macro>
+        <macro name="oopUnlock">
+          <brief>Critical section leave.</brief>
+          <note><![CDATA[The critical section nature is not specified,
+                implementation depends on the choosen underlying OS.]]></note>
+          <implementation><![CDATA[chSysUnlock()]]></implementation>
+        </macro>
         <elseif check="defined(OOP_USE_NOTHING)" />
         <macro name="oopAssert">
           <param name="c" />
@@ -57,12 +69,24 @@ do {
   (void)r;
 } while (false)</implementation>
         </macro>
+        <macro name="oopLock">
+          <implementation><![CDATA[]]></implementation>
+        </macro>
+        <macro name="oopUnlock">
+          <implementation><![CDATA[]]></implementation>
+        </macro>
         <elseif />
         <macro name="oopAssert">
           <param name="c" />
           <param name="r" />
           <implementation><![CDATA[
 osalDbgAssert(c, r)]]></implementation>
+        </macro>
+        <macro name="oopLock">
+          <implementation><![CDATA[osalSysLock()]]></implementation>
+        </macro>
+        <macro name="oopUnlock">
+          <implementation><![CDATA[osalSysUnlock()]]></implementation>
         </macro>
       </condition>
     </macros>

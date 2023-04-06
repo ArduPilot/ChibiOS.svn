@@ -13,7 +13,7 @@
         description
       </xs:documentation>
     </xs:annotation>
-    <xs:attribute name="name" type="identifierType">
+    <xs:attribute name="name" type="identifierType" use="required">
     </xs:attribute>
   </xs:complexType>
   <xs:complexType name="DocumentedItem">

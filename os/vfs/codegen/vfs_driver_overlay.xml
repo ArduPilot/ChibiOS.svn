@@ -47,12 +47,6 @@ self->overlaid_root = NULL;]]></implementation>
             <implementation><![CDATA[]]></implementation>
           </dispose>
           <override>
-            <method shortname="addref">
-              <implementation><![CDATA[]]></implementation>
-            </method>
-            <method shortname="release">
-              <implementation><![CDATA[]]></implementation>
-            </method>
             <method shortname="stat">
               <implementation><![CDATA[]]></implementation>
             </method>

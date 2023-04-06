@@ -118,9 +118,10 @@ void __ro_dispose_impl(void *ip) {
 void *__ro_addref_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
+  oopLock();
   self->references++;
-
   oopAssert(self->references != (object_references_t)0, "overflow");
+  oopUnlock();
 
   return self;
 }
@@ -138,10 +139,14 @@ void *__ro_addref_impl(void *ip) {
 object_references_t __ro_release_impl(void *ip) {
   referenced_object_c *self = (referenced_object_c *)ip;
 
+  oopLock();
   oopAssert(self->references > 0U, "zero references");
-
   if (--self->references == 0U) {
+    oopUnlock();
     boDispose(self);
+  }
+  else {
+    oopUnlock();
   }
 
   return self->references;

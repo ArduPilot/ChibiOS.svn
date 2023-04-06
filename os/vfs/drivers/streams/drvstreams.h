@@ -278,8 +278,6 @@ extern "C" {
   void *__stmdir_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
                               vfs_mode_t mode);
   void __stmdir_dispose_impl(void *ip);
-  void *__stmdir_addref_impl(void *ip);
-  object_references_t __stmdir_release_impl(void *ip);
   msg_t __stmdir_stat_impl(void *ip, vfs_stat_t *sp);
   msg_t __stmdir_first_impl(void *ip, vfs_direntry_info_t *dip);
   msg_t __stmdir_next_impl(void *ip, vfs_direntry_info_t *dip);
@@ -287,8 +285,6 @@ extern "C" {
   void *__stmfile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
                                vfs_mode_t mode, sequential_stream_i *stream);
   void __stmfile_dispose_impl(void *ip);
-  void *__stmfile_addref_impl(void *ip);
-  object_references_t __stmfile_release_impl(void *ip);
   msg_t __stmfile_stat_impl(void *ip, vfs_stat_t *sp);
   ssize_t __stmfile_read_impl(void *ip, uint8_t *buf, size_t n);
   ssize_t __stmfile_write_impl(void *ip, const uint8_t *buf, size_t n);

@@ -94,16 +94,38 @@
 #define oopAssert(c, r)                                                     \
   chDbgAssert(c, r)
 
+/**
+ * @brief       Critical section enter.
+ * @note        The critical section nature is not specified, implementation
+ *              depends on the choosen underlying OS.
+ */
+#define oopLock()                                                           \
+  chSysLock()
+
+/**
+ * @brief       Critical section leave.
+ * @note        The critical section nature is not specified, implementation
+ *              depends on the choosen underlying OS.
+ */
+#define oopUnlock()                                                         \
+  chSysUnlock()
+
 #elif defined(OOP_USE_NOTHING)
 #define oopAssert(c, r)                                                     \
   do {                                                                      \
     (void)c;                                                                \
     (void)r;                                                                \
   } while (false)
+#define oopLock()
+#define oopUnlock()
 
 #else
 #define oopAssert(c, r)                                                     \
   osalDbgAssert(c, r)
+#define oopLock()                                                           \
+  osalSysLock()
+#define oopUnlock()                                                         \
+  osalSysUnlock()
 #endif /* defined(OOP_USE_CHIBIOS) */
 
 /*===========================================================================*/

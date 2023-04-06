@@ -54,19 +54,6 @@ void __drv_streams_init(void) {
 /*===========================================================================*/
 
 /**
- * @brief       VMT structure of VFS streams directory node class.
- * @note        It is public because accessed by the inlined constructor.
- */
-const struct vfs_streams_dir_node_vmt __vfs_streams_dir_node_vmt = {
-  .dispose                  = __stmdir_dispose_impl,
-  .addref                   = __stmdir_addref_impl,
-  .release                  = __stmdir_release_impl,
-  .stat                     = __stmdir_stat_impl,
-  .first                    = __stmdir_first_impl,
-  .next                     = __stmdir_next_impl
-};
-
-/**
  * @name        Methods implementations of vfs_streams_dir_node_c
  * @{
  */
@@ -112,45 +99,6 @@ void __stmdir_dispose_impl(void *ip) {
 
   /* Last because it corrupts the object.*/
   chPoolFree(&vfs_streams_driver_static.dir_nodes_pool, ip);
-}
-
-/**
- * @memberof    vfs_streams_dir_node_c
- * @protected
- *
- * @brief       Override of method @p roAddRef().
- *
- * @param[in,out] ip            Pointer to a @p vfs_streams_dir_node_c
- *                              instance.
- * @return                      A new reference pointer.
- */
-void *__stmdir_addref_impl(void *ip) {
-
-  chSysLock();
-  ip = __ro_addref_impl(ip);
-  chSysUnlock();
-
-  return ip;
-}
-
-/**
- * @memberof    vfs_streams_dir_node_c
- * @protected
- *
- * @brief       Override of method @p roRelease().
- *
- * @param[in,out] ip            Pointer to a @p vfs_streams_dir_node_c
- *                              instance.
- * @return                      The value of the reference counter.
- */
-object_references_t __stmdir_release_impl(void *ip) {
-  object_references_t references;
-
-  chSysLock();
-  references = __ro_release_impl(ip);
-  chSysUnlock();
-
-  return references;
 }
 
 /**
@@ -218,25 +166,22 @@ msg_t __stmdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
 }
 /** @} */
 
+/**
+ * @brief       VMT structure of VFS streams directory node class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct vfs_streams_dir_node_vmt __vfs_streams_dir_node_vmt = {
+  .dispose                  = __stmdir_dispose_impl,
+  .addref                   = __ro_addref_impl,
+  .release                  = __ro_release_impl,
+  .stat                     = __stmdir_stat_impl,
+  .first                    = __stmdir_first_impl,
+  .next                     = __stmdir_next_impl
+};
+
 /*===========================================================================*/
 /* Module class "vfs_streams_file_node_c" methods.                           */
 /*===========================================================================*/
-
-/**
- * @brief       VMT structure of VFS streams file node class.
- * @note        It is public because accessed by the inlined constructor.
- */
-const struct vfs_streams_file_node_vmt __vfs_streams_file_node_vmt = {
-  .dispose                  = __stmfile_dispose_impl,
-  .addref                   = __stmfile_addref_impl,
-  .release                  = __stmfile_release_impl,
-  .stat                     = __stmfile_stat_impl,
-  .read                     = __stmfile_read_impl,
-  .write                    = __stmfile_write_impl,
-  .setpos                   = __stmfile_setpos_impl,
-  .getpos                   = __stmfile_getpos_impl,
-  .getstream                = __stmfile_getstream_impl
-};
 
 /**
  * @name        Methods implementations of vfs_streams_file_node_c
@@ -262,7 +207,7 @@ void *__stmfile_objinit_impl(void *ip, const void *vmt, vfs_driver_c *driver,
   vfs_streams_file_node_c *self = (vfs_streams_file_node_c *)ip;
 
   /* Initialization code.*/
-  self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);
+  self = __vfsfile_objinit_impl(self, vmt, (vfs_driver_c *)driver, mode);
   self->stm = stream;
 
   return self;
@@ -285,45 +230,6 @@ void __stmfile_dispose_impl(void *ip) {
 
   /* Last because it corrupts the object.*/
   chPoolFree(&vfs_streams_driver_static.file_nodes_pool, ip);
-}
-
-/**
- * @memberof    vfs_streams_file_node_c
- * @protected
- *
- * @brief       Override of method @p roAddRef().
- *
- * @param[in,out] ip            Pointer to a @p vfs_streams_file_node_c
- *                              instance.
- * @return                      A new reference pointer.
- */
-void *__stmfile_addref_impl(void *ip) {
-
-  chSysLock();
-  ip = __ro_addref_impl(ip);
-  chSysUnlock();
-
-  return ip;
-}
-
-/**
- * @memberof    vfs_streams_file_node_c
- * @protected
- *
- * @brief       Override of method @p roRelease().
- *
- * @param[in,out] ip            Pointer to a @p vfs_streams_file_node_c
- *                              instance.
- * @return                      The value of the reference counter.
- */
-object_references_t __stmfile_release_impl(void *ip) {
-  object_references_t references;
-
-  chSysLock();
-  references = __ro_release_impl(ip);
-  chSysUnlock();
-
-  return references;
 }
 
 /**
@@ -428,26 +334,25 @@ sequential_stream_i *__stmfile_getstream_impl(void *ip) {
 }
 /** @} */
 
+/**
+ * @brief       VMT structure of VFS streams file node class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct vfs_streams_file_node_vmt __vfs_streams_file_node_vmt = {
+  .dispose                  = __stmfile_dispose_impl,
+  .addref                   = __ro_addref_impl,
+  .release                  = __ro_release_impl,
+  .stat                     = __stmfile_stat_impl,
+  .read                     = __stmfile_read_impl,
+  .write                    = __stmfile_write_impl,
+  .setpos                   = __stmfile_setpos_impl,
+  .getpos                   = __stmfile_getpos_impl,
+  .getstream                = __stmfile_getstream_impl
+};
+
 /*===========================================================================*/
 /* Module class "vfs_streams_driver_c" methods.                              */
 /*===========================================================================*/
-
-/**
- * @brief       VMT structure of VFS streams driver class.
- * @note        It is public because accessed by the inlined constructor.
- */
-const struct vfs_streams_driver_vmt __vfs_streams_driver_vmt = {
-  .dispose                  = __stmdrv_dispose_impl,
-  .setcwd                   = __stmdrv_setcwd_impl,
-  .getcwd                   = __stmdrv_getcwd_impl,
-  .stat                     = __stmdrv_stat_impl,
-  .opendir                  = __stmdrv_opendir_impl,
-  .openfile                 = __stmdrv_openfile_impl,
-  .unlink                   = __stmdrv_unlink_impl,
-  .rename                   = __stmdrv_rename_impl,
-  .mkdir                    = __stmdrv_mkdir_impl,
-  .rmdir                    = __stmdrv_rmdir_impl
-};
 
 /**
  * @name        Methods implementations of vfs_streams_driver_c
@@ -741,4 +646,21 @@ msg_t __stmdrv_rmdir_impl(void *ip, const char *path) {
   return __vfsdrv_rmdir_impl(ip, path);
 }
 /** @} */
+
+/**
+ * @brief       VMT structure of VFS streams driver class.
+ * @note        It is public because accessed by the inlined constructor.
+ */
+const struct vfs_streams_driver_vmt __vfs_streams_driver_vmt = {
+  .dispose                  = __stmdrv_dispose_impl,
+  .setcwd                   = __stmdrv_setcwd_impl,
+  .getcwd                   = __stmdrv_getcwd_impl,
+  .stat                     = __stmdrv_stat_impl,
+  .opendir                  = __stmdrv_opendir_impl,
+  .openfile                 = __stmdrv_openfile_impl,
+  .unlink                   = __stmdrv_unlink_impl,
+  .rename                   = __stmdrv_rename_impl,
+  .mkdir                    = __stmdrv_mkdir_impl,
+  .rmdir                    = __stmdrv_rmdir_impl
+};
 

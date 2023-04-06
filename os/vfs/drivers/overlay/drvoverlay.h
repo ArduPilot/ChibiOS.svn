@@ -212,8 +212,6 @@ extern "C" {
   void *__ovldir_objinit_impl(void *ip, const void *vmt,
                               vfs_overlay_driver_c *driver, vfs_mode_t mode);
   void __ovldir_dispose_impl(void *ip);
-  void *__ovldir_addref_impl(void *ip);
-  object_references_t __ovldir_release_impl(void *ip);
   msg_t __ovldir_stat_impl(void *ip, vfs_stat_t *sp);
   msg_t __ovldir_first_impl(void *ip, vfs_direntry_info_t *dip);
   msg_t __ovldir_next_impl(void *ip, vfs_direntry_info_t *dip);

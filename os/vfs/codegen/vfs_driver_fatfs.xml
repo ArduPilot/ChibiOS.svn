@@ -192,12 +192,6 @@ self = __vfsdir_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></impleme
             <implementation><![CDATA[]]></implementation>
           </dispose>
           <override>
-            <method shortname="addref">
-              <implementation><![CDATA[]]></implementation>
-            </method>
-            <method shortname="release">
-              <implementation><![CDATA[]]></implementation>
-            </method>
             <method shortname="stat">
               <implementation><![CDATA[]]></implementation>
             </method>
@@ -251,14 +245,6 @@ self = __vfsfile_objinit_impl(ip, vmt, (vfs_driver_c *)driver, mode);]]></implem
             <implementation><![CDATA[]]></implementation>
           </dispose>
           <override>
-            <method shortname="addref">
-              <implementation><![CDATA[
-]]></implementation>
-            </method>
-            <method shortname="release">
-              <implementation><![CDATA[
-]]></implementation>
-            </method>
             <method shortname="stat">
               <implementation><![CDATA[
 ]]></implementation>

@@ -268,43 +268,6 @@ static void __ffdir_dispose_impl(void *ip) {
  * @memberof    vfs_fatfs_dir_node_c
  * @protected
  *
- * @brief       Override of method @p roAddRef().
- *
- * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance.
- * @return                      A new reference pointer.
- */
-static void *__ffdir_addref_impl(void *ip) {
-
-  chSysLock();
-  ip = __ro_addref_impl(ip);
-  chSysUnlock();
-
-  return ip;
-}
-
-/**
- * @memberof    vfs_fatfs_dir_node_c
- * @protected
- *
- * @brief       Override of method @p roRelease().
- *
- * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance.
- * @return                      The value of the reference counter.
- */
-static object_references_t __ffdir_release_impl(void *ip) {
-  object_references_t references;
-
-  chSysLock();
-  references = __ro_release_impl(ip);
-  chSysUnlock();
-
-  return references;
-}
-
-/**
- * @memberof    vfs_fatfs_dir_node_c
- * @protected
- *
  * @brief       Override of method @p vfsNodeStat().
  *
  * @param[in,out] ip            Pointer to a @p vfs_fatfs_dir_node_c instance.
@@ -399,8 +362,8 @@ static msg_t __ffdir_next_impl(void *ip, vfs_direntry_info_t *dip) {
  */
 static const struct vfs_fatfs_dir_node_vmt __vfs_fatfs_dir_node_vmt = {
   .dispose                  = __ffdir_dispose_impl,
-  .addref                   = __ffdir_addref_impl,
-  .release                  = __ffdir_release_impl,
+  .addref                   = __ro_addref_impl,
+  .release                  = __ro_release_impl,
   .stat                     = __ffdir_stat_impl,
   .first                    = __ffdir_first_impl,
   .next                     = __ffdir_next_impl
@@ -609,43 +572,6 @@ static void __fffile_dispose_impl(void *ip) {
  * @memberof    vfs_fatfs_file_node_c
  * @protected
  *
- * @brief       Override of method @p roAddRef().
- *
- * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
- * @return                      A new reference pointer.
- */
-static void *__fffile_addref_impl(void *ip) {
-
-  chSysLock();
-  ip = __ro_addref_impl(ip);
-  chSysUnlock();
-
-  return ip;
-}
-
-/**
- * @memberof    vfs_fatfs_file_node_c
- * @protected
- *
- * @brief       Override of method @p roRelease().
- *
- * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
- * @return                      The value of the reference counter.
- */
-static object_references_t __fffile_release_impl(void *ip) {
-  object_references_t references;
-
-  chSysLock();
-  references = __ro_release_impl(ip);
-  chSysUnlock();
-
-  return references;
-}
-
-/**
- * @memberof    vfs_fatfs_file_node_c
- * @protected
- *
  * @brief       Override of method @p vfsNodeStat().
  *
  * @param[in,out] ip            Pointer to a @p vfs_fatfs_file_node_c instance.
@@ -788,8 +714,8 @@ static sequential_stream_i *__fffile_getstream_impl(void *ip) {
  */
 static const struct vfs_fatfs_file_node_vmt __vfs_fatfs_file_node_vmt = {
   .dispose                  = __fffile_dispose_impl,
-  .addref                   = __fffile_addref_impl,
-  .release                  = __fffile_release_impl,
+  .addref                   = __ro_addref_impl,
+  .release                  = __ro_release_impl,
   .stat                     = __fffile_stat_impl,
   .read                     = __fffile_read_impl,
   .write                    = __fffile_write_impl,

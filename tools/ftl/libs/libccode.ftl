@@ -313,11 +313,11 @@ ${s}
         [/#if]
       [/#if]
     [#elseif this?node_name == "verbatim"]
+      [#local ccode = (this[0]!"")?trim]
+[@GenerateIndentedCCode indent ccode /]
       [#if node?node_name?starts_with("definitions")]
 
       [/#if]
-      [#local ccode = (this[0]!"")?trim]
-[@GenerateIndentedCCode indent ccode /]
     [#elseif this?node_name == "group"]
       [#local groupdescription = (this.@description[0]!"no-description")?trim]
 /**

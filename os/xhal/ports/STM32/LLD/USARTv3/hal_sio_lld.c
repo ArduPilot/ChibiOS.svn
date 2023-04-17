@@ -53,8 +53,8 @@
                                              USART_CR3_EIE)
 
 /* This mask includes ORE, NE, FE, PE bits.*/
-#define USART_ISR_PFNO_Pos      USART_ISR_PE_Pos
-#define USART_ISR_PFNO_Msk      (0xFUL << USART_ISR_PFNO_Pos)
+#define USART_ISR_ONFP_Pos      USART_ISR_PE_Pos
+#define USART_ISR_ONFP_Msk      (0xFUL << USART_ISR_ONFP_Pos)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -197,7 +197,7 @@ __STATIC_INLINE void usart_enable_tx_end_irq(SIODriver *siop) {
 
 __STATIC_INLINE uint32_t  usart_evt2isr(sioevents_t flags) {
 
-  return __sio_reloc_field(flags, SIO_EV_ALL_ERRORS,  SIO_EV_ALL_ERRORS_POS,  USART_ISR_PFNO_Pos) |
+  return __sio_reloc_field(flags, SIO_EV_ALL_ERRORS,  SIO_EV_ALL_ERRORS_POS,  USART_ISR_ONFP_Pos) |
          __sio_reloc_field(flags, SIO_EV_TX_NOTFULL,  SIO_EV_TX_NOTFULL_POS,  USART_ISR_TXE_Pos)  |
          __sio_reloc_field(flags, SIO_EV_RX_NOTEMPTY, SIO_EV_RX_NOTEMPTY_POS, USART_ISR_RXNE_Pos) |
          __sio_reloc_field(flags, SIO_EV_TX_END,      SIO_EV_TX_END_POS,      USART_ISR_TC_Pos)   |
@@ -207,7 +207,7 @@ __STATIC_INLINE uint32_t  usart_evt2isr(sioevents_t flags) {
 
 __STATIC_INLINE uint32_t  usart_isr2evt(uint32_t isr) {
 
-  return __sio_reloc_field(isr, USART_ISR_PFNO_Msk, USART_ISR_PFNO_Pos, SIO_EV_ALL_ERRORS_POS)  |
+  return __sio_reloc_field(isr, USART_ISR_ONFP_Msk, USART_ISR_ONFP_Pos, SIO_EV_ALL_ERRORS_POS)  |
          __sio_reloc_field(isr, USART_ISR_TXE_Msk,  USART_ISR_TXE_Pos,  SIO_EV_TX_NOTFULL_POS)  |
          __sio_reloc_field(isr, USART_ISR_RXNE_Msk, USART_ISR_RXNE_Pos, SIO_EV_RX_NOTEMPTY_POS) |
          __sio_reloc_field(isr, USART_ISR_TC_Msk,   USART_ISR_TC_Pos,   SIO_EV_TX_END_POS)  |
@@ -567,7 +567,7 @@ sioevents_t sio_lld_get_and_clear_errors(SIODriver *siop) {
   usart_enable_rx_errors_irq(siop);
 
   /* Translating the status flags in SIO events.*/
-  errors = __sio_reloc_field(isr, USART_ISR_PFNO_Msk,  USART_ISR_PFNO_Pos,  SIO_EV_ALL_ERRORS_POS) |
+  errors = __sio_reloc_field(isr, USART_ISR_ONFP_Msk,  USART_ISR_ONFP_Pos,  SIO_EV_ALL_ERRORS_POS) |
            __sio_reloc_field(isr, USART_ISR_LBDF_Msk,  USART_ISR_LBDF_Pos,  SIO_EV_RX_BREAK_POS);
 
   return errors;
@@ -775,7 +775,6 @@ msg_t sio_lld_control(SIODriver *siop, unsigned int operation, void *arg) {
  */
 void sio_lld_serve_interrupt(SIODriver *siop) {
   USART_TypeDef *u = siop->usart;
-  sioevents_t events;
   uint32_t cr1, cr2, cr3, isr, isrmask;
 
   osalDbgAssert(siop->state == HAL_DRV_STATE_READY, "invalid state");
@@ -787,11 +786,11 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
 
   /* Calculating the mask of status bits that should be processed according
      to the state of the various CRx registers.*/
-  isrmask = __sio_reloc_field(cr1, USART_CR1_IDLEIE, USART_CR1_IDLEIE_Pos, USART_ISR_IDLE_Pos)    |
-            __sio_reloc_field(cr1, USART_CR1_TCIE,   USART_CR1_TCIE_Pos,   USART_ISR_TC_Pos)      |
-            __sio_reloc_field(cr1, USART_CR1_PEIE,   USART_CR1_PEIE_Pos,   USART_ISR_PE_Pos)      |
-            __sio_reloc_field(cr2, USART_CR2_LBDIE,  USART_CR2_LBDIE_Pos,  USART_ISR_LBDF_Pos)    |
-            __sio_reloc_field(cr3, USART_CR3_RXFTIE, USART_CR3_RXFTIE_Pos, USART_ISR_RXNE_Pos)    |
+  isrmask = __sio_reloc_field(cr1, USART_CR1_IDLEIE, USART_CR1_IDLEIE_Pos, USART_ISR_IDLE_Pos) |
+            __sio_reloc_field(cr1, USART_CR1_TCIE,   USART_CR1_TCIE_Pos,   USART_ISR_TC_Pos)   |
+            __sio_reloc_field(cr1, USART_CR1_PEIE,   USART_CR1_PEIE_Pos,   USART_ISR_PE_Pos)   |
+            __sio_reloc_field(cr2, USART_CR2_LBDIE,  USART_CR2_LBDIE_Pos,  USART_ISR_LBDF_Pos) |
+            __sio_reloc_field(cr3, USART_CR3_RXFTIE, USART_CR3_RXFTIE_Pos, USART_ISR_RXNE_Pos) |
             __sio_reloc_field(cr3, USART_CR3_TXFTIE, USART_CR3_TXFTIE_Pos, USART_ISR_TXE_Pos);
   if ((cr3 & USART_CR3_EIE) != 0U) {
     isrmask |= USART_ISR_NE | USART_ISR_FE | USART_ISR_ORE;
@@ -858,7 +857,7 @@ void sio_lld_serve_interrupt(SIODriver *siop) {
     }
 
     /* Physical transmission end.*/
-    if ((events & USART_ISR_TC) != 0U) {
+    if ((isr & USART_ISR_TC) != 0U) {
 
       /* Interrupt source disabled.*/
       cr1 &= ~USART_CR1_TCIE;

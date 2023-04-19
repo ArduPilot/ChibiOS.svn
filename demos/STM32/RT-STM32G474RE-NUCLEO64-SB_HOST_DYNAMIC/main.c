@@ -108,8 +108,8 @@ static NullStream nullstream;
 
 /* Stream to be exposed under /dev as files.*/
 static const drv_streams_element_t streams[] = {
-  {"VSD1", (BaseSequentialStream *)&SD1},
-  {"null", (BaseSequentialStream *)&nullstream},
+  {"VSD1", (sequential_stream_i *)&SD1},
+  {"null", (sequential_stream_i *)&nullstream},
   {NULL, NULL}
 };
 
@@ -301,10 +301,11 @@ int main(void) {
    * Initializing an overlay VFS object as a root, no overlaid driver,
    * registering a streams VFS driver on the VFS overlay root as "/dev".
    */
-  drvOverlayObjectInit(&root_overlay_driver, NULL, NULL);
-  ret = drvOverlayRegisterDriver(&root_overlay_driver,
-                                 drvStreamsObjectInit(&dev_driver, &streams[0]),
-                                 "dev");
+  ovldrvObjectInit(&root_overlay_driver, NULL, NULL);
+  ret = ovldrvRegisterDriver(&root_overlay_driver,
+                             (vfs_driver_c *)stmdrvObjectInit(&dev_driver,
+                                                              &streams[0]),
+                             "dev");
   if (CH_RET_IS_ERROR(ret)) {
     chSysHalt("VFS");
   }

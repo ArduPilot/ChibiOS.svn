@@ -18,6 +18,46 @@
 */
 
 /**
+ * @startuml {xhal_drvsm.png} "XHAL Drivers State Machine"
+ * hide empty description
+ *
+ * state RCLOSE <<choice>>
+ * state ACLOSE <<choice>>
+ * state STOP : cnt == 0
+ * state READY : cnt > 0
+ * state ACTIVE : cnt > 0
+ * state ERROR : cnt > 0
+ * note left of ACTIVE
+ *   This state is used by drivers
+ *   implementing asynchronous
+ *   operations.
+ * end note
+ * note left of ERROR
+ *   This state is used by drivers
+ *   requiring a persistent error
+ *   condition.
+ * end note
+ *
+ * [*] -> UNINIT
+ * UNINIT --> STOP : drvObjectInit()
+ * STOP --> READY : drvOpen()\ncall start()
+ * READY --> READY : drvOpen() cnt++
+ * READY -u-> RCLOSE : drvClose() cnt--
+ * RCLOSE --> STOP : [cnt == 0]\ncall stop()
+ * RCLOSE --> READY : [cnt > 0]
+ * READY --> ACTIVE : start operation
+ * ACTIVE --> ACTIVE : drvOpen() cnt++
+ * ACTIVE -[dotted]-> READY : asynchronous\nend operation\ncallback
+ * ACTIVE --> ACLOSE : drvClose() cnt--
+ * ACLOSE --> STOP : [cnt == 0]\ncall stop()\noperation forcibly aborted
+ * ACLOSE --> ACTIVE : [cnt > 0]
+ * ACTIVE -[dotted]-> ERROR : asynchronous\noperation error\ncallback
+ * ERROR --> ERROR : drvOpen() cnt++
+ * ERROR --> READY : error cleared
+ * ERROR --> RCLOSE : drvClose()
+ *
+ * @enduml
+ *
  * @startuml {xhal_arch.png} "XHAL Architecture"
  * package "Base OOP Package" {
  *   interface base_interface_i {

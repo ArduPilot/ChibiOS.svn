@@ -99,7 +99,7 @@ include $(CHIBIOS)/os/license/license.mk
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32g4xx.mk
 # Common files.
-include $(CHIBIOS)/os/common/utils/utils.mk
+include $(CHIBIOS)/os/common/oop/oop.mk
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32G4xx/platform.mk

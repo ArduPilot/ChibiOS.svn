@@ -971,8 +971,8 @@ static void sb_cleanup(void) {
   /* Closing all file descriptors.*/
   for (fd = 0U; fd < SB_CFG_FD_NUM; fd++) {
     if (sbp->io.vfs_nodes[fd] != NULL) {
-      vfsnodeRelease(NULL);
-      sbp->io.vfs_nodes[fd]->vmt->release(sbp->io.vfs_nodes[fd]);
+      vfsClose(sbp->io.vfs_nodes[fd]);
+//      sbp->io.vfs_nodes[fd]->vmt->release(sbp->io.vfs_nodes[fd]);
       sbp->io.vfs_nodes[fd] = NULL;
     }
   }

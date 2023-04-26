@@ -67,9 +67,9 @@
 #include "stm32_exti30_32.inc"
 #include "stm32_exti33.inc"
 
-#include "stm32_fdcan1.inc"
-#include "stm32_fdcan2.inc"
-#include "stm32_fdcan3.inc"
+//#include "stm32_fdcan1.inc"
+//#include "stm32_fdcan2.inc"
+//#include "stm32_fdcan3.inc"
 
 #include "stm32_usart1.inc"
 #include "stm32_usart2.inc"
@@ -114,9 +114,9 @@ void irqInit(void) {
   exti30_32_irq_init();
   exti33_irq_init();
 
-  fdcan1_irq_init();
-  fdcan2_irq_init();
-  fdcan3_irq_init();
+//  fdcan1_irq_init();
+//  fdcan2_irq_init();
+//  fdcan3_irq_init();
 
   tim1_tim15_tim16_tim17_irq_init();
   tim2_irq_init();
@@ -158,9 +158,9 @@ void irqDeinit(void) {
   exti30_32_irq_deinit();
   exti33_irq_deinit();
 
-  fdcan1_irq_deinit();
-  fdcan2_irq_deinit();
-  fdcan3_irq_deinit();
+//  fdcan1_irq_deinit();
+//  fdcan2_irq_deinit();
+//  fdcan3_irq_deinit();
 
   tim1_tim15_tim16_tim17_irq_deinit();
   tim2_irq_deinit();

@@ -63,9 +63,6 @@
           <field name="state" ctype="driver_state_t">
             <brief>Driver state.</brief>
           </field>
-          <field name="opencnt" ctype="unsigned int">
-            <brief>Open counter.</brief>
-          </field>
           <field name="owner" ctype="void$I*">
             <brief>Driver owner.</brief>
           </field>
@@ -90,7 +87,6 @@
           <objinit callsuper="true">
             <implementation><![CDATA[
 self->state   = HAL_DRV_STATE_STOP;
-self->opencnt = 0U;
 self->owner   = NULL;
 osalMutexObjectInit(&self->mutex);
 #if HAL_USE_REGISTRY == TRUE
@@ -131,46 +127,40 @@ drv_reg_remove(self);
             </method>
           </virtual>
           <regular>
-            <method name="drvOpen" ctype="msg_t">
-              <brief>Driver open.</brief>
-              <details><![CDATA[Returns a reference to the driver, on the
-                1st open the peripheral is physically initialized. An
-                implementation-dependent default configuration is used
-                for initialization.]]>
+            <method name="drvStart" ctype="msg_t">
+              <brief>Driver start.</brief>
+              <details><![CDATA[Starts driver operations, on the 1st
+                call the peripheral is physically initialized using a
+                default configuration, subsequent calls are ignored.]]>
               </details>
               <return>The operation status.</return>
+              <retval value="HAL_RET_SUCCESS">Operation successful.</retval>
               <api />
               <implementation><![CDATA[
-msg_t msg;
+msg_t msg = HAL_RET_SUCCESS;
 
 osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-if (self->opencnt == 0U) {
+osalDbgAssert(self->state != HAL_DRV_STATE_UNINIT, "not initialized");
+
+if (self->state == HAL_DRV_STATE_STOP) {
   /* Physically starting the peripheral.*/
   msg = __drv_start(self);
   if (msg == HAL_RET_SUCCESS) {
-    self->opencnt++;
     self->state = HAL_DRV_STATE_READY;
   }
-  else {
-    self->state = HAL_DRV_STATE_STOP;
-  }
-}
-else {
-  msg = HAL_RET_SUCCESS;
 }
 
 osalSysUnlock();
 
 return msg;]]></implementation>
             </method>
-            <method name="drvClose" ctype="void">
+            <method name="drvStop" ctype="void">
               <brief>Driver close.</brief>
-              <details><![CDATA[Releases a reference to the driver, when
-                the count reaches zero then the peripheral is physically
-                uninitialized.]]>
+              <details><![CDATA[Stops driver operations. The peripheral
+                is physically uninitialized.]]>
               </details>
               <api />
               <implementation><![CDATA[
@@ -179,11 +169,11 @@ osalDbgCheck(self != NULL);
 
 osalSysLock();
 
-osalDbgAssert(self->opencnt > 0U, "not opened");
+osalDbgAssert(self->state != HAL_DRV_STATE_UNINIT, "not initialized");
 
-if (--self->opencnt == 0U) {
-  self->state = HAL_DRV_STATE_STOP;
+if (self->state != HAL_DRV_STATE_STOP) {
   __drv_stop(self);
+  self->state = HAL_DRV_STATE_STOP;
 }
 
 osalSysUnlock();]]></implementation>
@@ -331,7 +321,7 @@ if (rep == &hal_registry) {
 
 return oopGetOwner(hal_base_driver_c, regent, rep);]]></implementation>
         </function>
-        <function name="drvOpenByName" ctype="hal_base_driver_c *">
+        <function name="drvStartByName" ctype="hal_base_driver_c *">
           <brief>Driver open by name.</brief>
           <details><![CDATA[Returns a reference to the driver, on the
                 1st open the peripheral is physically initialized. An
@@ -359,7 +349,7 @@ drvp = drvRegGetFirstX();
 while (drvp != NULL) {
   if (strcmp(drvGetNameX(drvp), name) ==0) {
     
-    msg = drvOpen(drvp);
+    msg = drvStart(drvp);
     if (msg != HAL_RET_SUCCESS) {
       drvp = NULL;
     }

@@ -553,10 +553,6 @@ struct hal_sio_driver {
    */
   driver_state_t            state;
   /**
-   * @brief       Open counter.
-   */
-  unsigned int              opencnt;
-  /**
    * @brief       Driver owner.
    */
   void                      *owner;

@@ -162,7 +162,7 @@ hal_base_driver_c *drvRegGetNextX(hal_base_driver_c *drvp) {
  *
  * @api
  */
-hal_base_driver_c *drvOpenByName(const char *name, msg_t *msgp) {
+hal_base_driver_c *drvStartByName(const char *name, msg_t *msgp) {
   msg_t msg = HAL_RET_SUCCESS;
   hal_base_driver_c *drvp;
 
@@ -172,7 +172,7 @@ hal_base_driver_c *drvOpenByName(const char *name, msg_t *msgp) {
   while (drvp != NULL) {
     if (strcmp(drvGetNameX(drvp), name) ==0) {
 
-      msg = drvOpen(drvp);
+      msg = drvStart(drvp);
       if (msg != HAL_RET_SUCCESS) {
         drvp = NULL;
       }
@@ -219,7 +219,6 @@ void *__drv_objinit_impl(void *ip, const void *vmt) {
 
   /* Initialization code.*/
   self->state   = HAL_DRV_STATE_STOP;
-  self->opencnt = 0U;
   self->owner   = NULL;
   osalMutexObjectInit(&self->mutex);
 #if HAL_USE_REGISTRY == TRUE
@@ -262,38 +261,33 @@ void __drv_dispose_impl(void *ip) {
  * @memberof    hal_base_driver_c
  * @public
  *
- * @brief       Driver open.
- * @details     Returns a reference to the driver, on the 1st open the
- *              peripheral is physically initialized. An
- *              implementation-dependent default configuration is used for
- *              initialization.
+ * @brief       Driver start.
+ * @details     Starts driver operations, on the 1st call the peripheral is
+ *              physically initialized using a default configuration,
+ *              subsequent calls are ignored.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  * @return                      The operation status.
+ * @retval HAL_RET_SUCCESS      Operation successful.
  *
  * @api
  */
-msg_t drvOpen(void *ip) {
+msg_t drvStart(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
-  msg_t msg;
+  msg_t msg = HAL_RET_SUCCESS;
 
   osalDbgCheck(self != NULL);
 
   osalSysLock();
 
-  if (self->opencnt == 0U) {
+  osalDbgAssert(self->state != HAL_DRV_STATE_UNINIT, "not initialized");
+
+  if (self->state == HAL_DRV_STATE_STOP) {
     /* Physically starting the peripheral.*/
     msg = __drv_start(self);
     if (msg == HAL_RET_SUCCESS) {
-      self->opencnt++;
       self->state = HAL_DRV_STATE_READY;
     }
-    else {
-      self->state = HAL_DRV_STATE_STOP;
-    }
-  }
-  else {
-    msg = HAL_RET_SUCCESS;
   }
 
   osalSysUnlock();
@@ -306,25 +300,25 @@ msg_t drvOpen(void *ip) {
  * @public
  *
  * @brief       Driver close.
- * @details     Releases a reference to the driver, when the count reaches zero
- *              then the peripheral is physically uninitialized.
+ * @details     Stops driver operations. The peripheral is physically
+ *              uninitialized.
  *
  * @param[in,out] ip            Pointer to a @p hal_base_driver_c instance.
  *
  * @api
  */
-void drvClose(void *ip) {
+void drvStop(void *ip) {
   hal_base_driver_c *self = (hal_base_driver_c *)ip;
 
   osalDbgCheck(self != NULL);
 
   osalSysLock();
 
-  osalDbgAssert(self->opencnt > 0U, "not opened");
+  osalDbgAssert(self->state != HAL_DRV_STATE_UNINIT, "not initialized");
 
-  if (--self->opencnt == 0U) {
-    self->state = HAL_DRV_STATE_STOP;
+  if (self->state != HAL_DRV_STATE_STOP) {
     __drv_stop(self);
+    self->state = HAL_DRV_STATE_STOP;
   }
 
   osalSysUnlock();

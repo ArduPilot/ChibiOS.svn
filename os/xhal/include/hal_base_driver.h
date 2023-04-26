@@ -159,10 +159,6 @@ struct hal_base_driver {
    */
   driver_state_t            state;
   /**
-   * @brief       Open counter.
-   */
-  unsigned int              opencnt;
-  /**
    * @brief       Driver owner.
    */
   void                      *owner;
@@ -203,14 +199,14 @@ extern "C" {
   /* Methods of hal_base_driver_c.*/
   void *__drv_objinit_impl(void *ip, const void *vmt);
   void __drv_dispose_impl(void *ip);
-  msg_t drvOpen(void *ip);
-  void drvClose(void *ip);
+  msg_t drvStart(void *ip);
+  void drvStop(void *ip);
   /* Regular functions.*/
   void drvInit(void);
 #if HAL_USE_REGISTRY == TRUE
   hal_base_driver_c *drvRegGetFirstX(void);
   hal_base_driver_c *drvRegGetNextX(hal_base_driver_c *drvp);
-  hal_base_driver_c *drvOpenByName(const char *name, msg_t *msgp);
+  hal_base_driver_c *drvStartByName(const char *name, msg_t *msgp);
 #endif
 #ifdef __cplusplus
 }

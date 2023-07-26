@@ -38,6 +38,9 @@
          point="org.eclipse.wst.xml.core.catalogContributions">
       <catalogContribution id="default">
          <uri
+            name="http://www.chibios.org/xml/schema/boards/stm32c0xx_board.xsd"
+            uri="resources/gencfg/schema/boards/stm32c0xx_board.xsd" />
+         <uri
             name="http://www.chibios.org/xml/schema/boards/stm32f0xx_board.xsd"
             uri="resources/gencfg/schema/boards/stm32f0xx_board.xsd" />
          <uri

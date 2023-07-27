@@ -16,4 +16,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.cdt.dsf.gdb.ui
 Bundle-ClassPath: .
 Automatic-Module-Name: org.chibios.tools.eclipse.debug.chibiosrt6
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17

@@ -60,13 +60,13 @@ static NullStream nullstream;
 
 /* Streams to be exposed under /dev as files.*/
 static const drv_streams_element_t sb1_streams[] = {
-  {"VSD1", (BaseSequentialStream *)&SD2},
-  {"null", (BaseSequentialStream *)&nullstream},
+  {"VSD1", (sequential_stream_i *)&SD2},
+  {"null", (sequential_stream_i *)&nullstream},
   {NULL, NULL}
 };
 static const drv_streams_element_t sb2_streams[] = {
-  {"VSD1", (BaseSequentialStream *)&LPSD1},
-  {"null", (BaseSequentialStream *)&nullstream},
+  {"VSD1", (sequential_stream_i *)&LPSD1},
+  {"null", (sequential_stream_i *)&nullstream},
   {NULL, NULL}
 };
 
@@ -74,8 +74,22 @@ static const drv_streams_element_t sb2_streams[] = {
 /* SB-related.                                                               */
 /*===========================================================================*/
 
+/* Sandbox objects.*/
+sb_class_t sbx1, sbx2;
+
+/* Working areas for sandboxes.*/
+static THD_WORKING_AREA(waUnprivileged1, 2048);
+static THD_WORKING_AREA(waUnprivileged2, 2048);
+
 /* Sandbox 1 configuration.*/
 static const sb_config_t sb_config1 = {
+  .thread           = {
+    .name           = "sbx1",
+    .wsp            = waUnprivileged1,
+    .size           = sizeof (waUnprivileged1),
+    .prio           = NORMALPRIO - 10,
+    .vrq_prio       = NORMALPRIO - 1
+  },
   .code_region      = 0U,
   .data_region      = 1U,
   .regions          = {
@@ -95,6 +109,13 @@ static const sb_config_t sb_config1 = {
 
 /* Sandbox 2 configuration.*/
 static const sb_config_t sb_config2 = {
+  .thread           = {
+    .name           = "sbx2",
+    .wsp            = waUnprivileged2,
+    .size           = sizeof (waUnprivileged2),
+    .prio           = NORMALPRIO - 20,
+    .vrq_prio       = NORMALPRIO - 2
+  },
   .code_region      = 0U,
   .data_region      = 1U,
   .regions          = {
@@ -111,9 +132,6 @@ static const sb_config_t sb_config2 = {
   },
   .vfs_driver       = (vfs_driver_c *)&sb2_root_overlay_driver
 };
-
-/* Sandbox objects.*/
-sb_class_t sbx1, sbx2;
 
 static const char *sbx1_argv[] = {
   "ls",
@@ -138,9 +156,6 @@ static const char *sbx2_envp[] = {
   "HOME=/",
   NULL
 };
-
-static THD_WORKING_AREA(waUnprivileged1, 2048);
-static THD_WORKING_AREA(waUnprivileged2, 2048);
 
 /*===========================================================================*/
 /* Main and generic code.                                                    */
@@ -230,24 +245,26 @@ int main(void) {
    * Initializing an overlay VFS object as a root on top of a FatFS driver.
    * This is accessible from kernel space and covers the whole file system.
    */
-  drvFatFSObjectInit(&fatfs_driver);
-  drvOverlayObjectInit(&root_overlay_driver, (vfs_driver_c *)&fatfs_driver, NULL);
+  ffdrvObjectInit(&fatfs_driver);
+  ovldrvObjectInit(&root_overlay_driver, (vfs_driver_c *)&fatfs_driver, NULL);
 
   /*
    * Initializing overlay drivers for the two sandbox roots. Those also use
    * the FatFS driver but are restricted to "/sb1" and "/sb2" directories.
    */
-  drvOverlayObjectInit(&sb1_root_overlay_driver, (vfs_driver_c *)&fatfs_driver, "/sb1");
-  drvOverlayObjectInit(&sb2_root_overlay_driver, (vfs_driver_c *)&fatfs_driver, "/sb2");
-  ret = drvOverlayRegisterDriver(&sb1_root_overlay_driver,
-                                 drvStreamsObjectInit(&sb1_dev_driver, &sb1_streams[0]),
-                                 "dev");
+  ovldrvObjectInit(&sb1_root_overlay_driver, (vfs_driver_c *)&fatfs_driver, "/sb1");
+  ovldrvObjectInit(&sb2_root_overlay_driver, (vfs_driver_c *)&fatfs_driver, "/sb2");
+  ret = ovldrvRegisterDriver(&sb1_root_overlay_driver,
+                             (vfs_driver_c *)stmdrvObjectInit(&sb1_dev_driver,
+                                                              &sb1_streams[0]),
+                             "dev");
   if (CH_RET_IS_ERROR(ret)) {
     chSysHalt("VFS");
   }
-  ret = drvOverlayRegisterDriver(&sb2_root_overlay_driver,
-                                 drvStreamsObjectInit(&sb2_dev_driver, &sb2_streams[0]),
-                                 "dev");
+  ret = ovldrvRegisterDriver(&sb2_root_overlay_driver,
+                             (vfs_driver_c *)stmdrvObjectInit(&sb2_dev_driver,
+                                                              &sb2_streams[0]),
+                             "dev");
   if (CH_RET_IS_ERROR(ret)) {
     chSysHalt("VFS");
   }
@@ -256,16 +273,16 @@ int main(void) {
    * Initializing overlay driver for the directory shared among the sandboxes.
    * It is seen as "/shared".
    */
-  drvOverlayObjectInit(&sb_shared_overlay_driver, (vfs_driver_c *)&fatfs_driver, "/shared");
-  ret = drvOverlayRegisterDriver(&sb1_root_overlay_driver,
-                                 (vfs_driver_c *)&sb_shared_overlay_driver,
-                                 "shared");
+  ovldrvObjectInit(&sb_shared_overlay_driver, (vfs_driver_c *)&fatfs_driver, "/shared");
+  ret = ovldrvRegisterDriver(&sb1_root_overlay_driver,
+                            (vfs_driver_c *)&sb_shared_overlay_driver,
+                            "shared");
   if (CH_RET_IS_ERROR(ret)) {
     chSysHalt("VFS");
   }
-  ret = drvOverlayRegisterDriver(&sb2_root_overlay_driver,
-                                 (vfs_driver_c *)&sb_shared_overlay_driver,
-                                 "shared");
+  ret = ovldrvRegisterDriver(&sb2_root_overlay_driver,
+                             (vfs_driver_c *)&sb_shared_overlay_driver,
+                             "shared");
   if (CH_RET_IS_ERROR(ret)) {
     chSysHalt("VFS");
   }
@@ -325,17 +342,13 @@ int main(void) {
                      MPU_RASR_ENABLE);
 
   /* Starting sandboxed thread 1.*/
-  tp = sbStartThread(&sbx1, "sbx1",
-                     waUnprivileged1, sizeof (waUnprivileged1), NORMALPRIO - 1,
-                     sbx1_argv, sbx1_envp);
+  tp = sbStartThread(&sbx1, sbx1_argv, sbx1_envp);
   if (tp == NULL) {
     chSysHalt("sbx1 failed");
   }
 
   /* Starting sandboxed thread 2.*/
-  tp = sbStartThread(&sbx2, "sbx2",
-                     waUnprivileged2, sizeof (waUnprivileged2), NORMALPRIO - 1,
-                     sbx2_argv, sbx2_envp);
+  tp = sbStartThread(&sbx2, sbx2_argv, sbx2_envp);
   if (tp == NULL) {
     chSysHalt("sbx2 failed");
   }

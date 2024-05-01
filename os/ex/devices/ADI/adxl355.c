@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2016..2019 Rocco Marco Guglielmi
+    ChibiOS - Copyright (C) 2016..2023 Rocco Marco Guglielmi
 
     This file is part of ChibiOS.
 
@@ -29,6 +29,7 @@
 
 #include "hal.h"
 #include "adxl355.h"
+#include "string.h"
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -45,54 +46,6 @@
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
-
-#if (ADXL355_USE_SPI) || defined(__DOXYGEN__)
-/**
- * @brief   Reads a generic register value using SPI.
- * @pre     The SPI interface must be initialized and the driver started.
- *
- * @param[in] devp      pointer to @p ADXL355Driver interface.
- * @param[in] reg       starting register address
- * @param[in] n         number of consecutive registers to read
- * @param[in] b         pointer to an output buffer.
- */
-static void adxl355SPIReadRegister(ADXL355Driver *devp, uint8_t reg, size_t n,
-                                   uint8_t* b) {
-  unsigned i;
-  devp->commtxp[0] = (reg << 1) | ADXL355_RW;
-  cacheBufferFlush(&devp->commtxp[0], sizeof devp->commtxp);
-  spiSelect(devp->config->spip);
-  spiSend(devp->config->spip, 1, devp->commtxp);
-  spiReceive(devp->config->spip, n, devp->commrxp);
-  spiUnselect(devp->config->spip);
-  cacheBufferInvalidate(&devp->commrxp[0], sizeof devp->commrxp);
-  for(i = 0; i < n; i++, b++) {
-    *b = devp->commrxp[i];
-  }
-}
-
-/**
- * @brief   Writes a value into a generic register using SPI.
- * @pre     The SPI interface must be initialized and the driver started.
- *
- * @param[in] devp      pointer to @p ADXL355Driver interface.
- * @param[in] reg       starting register address
- * @param[in] n         number of adjacent registers to write
- * @param[in] b         pointer to a buffer of values.
- */
-static void adxl355SPIWriteRegister(ADXL355Driver *devp, uint8_t reg, size_t n,
-                                    uint8_t* b) {
-  unsigned i;
-  devp->commtxp[0] = (reg << 1);
-  for(i = 0; i < n; i++, b++) {
-    devp->commtxp[i + 1] = *b;
-  }
-  cacheBufferFlush(&devp->commtxp[0], sizeof devp->commtxp);
-  spiSelect(devp->config->spip);
-  spiSend(devp->config->spip, n + 1, devp->commtxp);
-  spiUnselect(devp->config->spip);
-}
-#endif /* ADXL355_USE_SPI */
 
 /**
  * @brief   Return the number of axes of the BaseAccelerometer.
@@ -360,19 +313,22 @@ static msg_t acc_set_full_scale(ADXL355Driver *devp, adxl355_acc_fs_t fs) {
   /* Computing new fullscale value.*/
   if(fs == ADXL355_ACC_FS_2G) {
     newfs = ADXL355_ACC_2G;
+    msg = MSG_OK;
   }
   else if(fs == ADXL355_ACC_FS_4G) {
     newfs = ADXL355_ACC_4G;
+    msg = MSG_OK;
   }
   else if(fs == ADXL355_ACC_FS_8G) {
     newfs = ADXL355_ACC_8G;
+    msg = MSG_OK;
   }
   else {
     msg = MSG_RESET;
-    return msg;
   }
 
-  if(newfs != devp->accfullscale) {
+  if((msg == MSG_OK) &&
+     (newfs != devp->accfullscale)) {
     /* Computing scale value.*/
     scale = newfs / devp->accfullscale;
     devp->accfullscale = newfs;
@@ -433,6 +389,65 @@ static const struct BaseAccelerometerVMT vmt_accelerometer = {
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
+
+#if (ADXL355_USE_SPI) || defined(__DOXYGEN__)
+/**
+ * @brief   Reads a generic register value using SPI.
+ * @pre     The SPI interface must be initialized and the driver started.
+ *
+ * @param[in] devp      pointer to @p ADXL355Driver interface.
+ * @param[in] reg       starting register address
+ * @param[in] n         number of consecutive registers to read
+ * @param[in] b         pointer to an output buffer.
+ */
+void adxl355SPIReadRegister(ADXL355Driver *devp, uint8_t reg, size_t n,
+                            uint8_t* b) {
+  
+  osalDbgCheck(n < ADXL355_COMM_BUFF_SIZE);
+  
+  /* Preparing a read. */
+  devp->commtxp[0] = (reg << 1) | ADXL355_RW;
+  
+  /* Reading. */
+  cacheBufferFlush(&devp->commtxp[0], sizeof(devp->commtxp));
+  spiSelect(devp->config->spip);
+  spiSend(devp->config->spip, 1, devp->commtxp);
+  spiReceive(devp->config->spip, n, devp->commrxp);
+  spiUnselect(devp->config->spip);
+  cacheBufferInvalidate(&devp->commrxp[0], sizeof(devp->commrxp));
+  
+  /* Copying the data in the final buffer. */
+  memcpy(b, devp->commrxp, n);
+}
+
+/**
+ * @brief   Writes a value into a generic register using SPI.
+ * @pre     The SPI interface must be initialized and the driver started.
+ *
+ * @param[in] devp      pointer to @p ADXL355Driver interface.
+ * @param[in] reg       starting register address
+ * @param[in] n         number of adjacent registers to write
+ * @param[in] b         pointer to a buffer of values.
+ */
+void adxl355SPIWriteRegister(ADXL355Driver *devp, uint8_t reg, size_t n,
+                             uint8_t* b) {
+  unsigned i;
+  
+  osalDbgCheck(n < ADXL355_COMM_BUFF_SIZE);
+  
+  /* Preparing a write. */
+  devp->commtxp[0] = (reg << 1); 
+  for(i = 0; i < n; i++, b++) {
+    devp->commtxp[i + 1] = *b;
+  }
+  
+  /* Writing. */
+  cacheBufferFlush(&devp->commtxp[0], sizeof(devp->commtxp));
+  spiSelect(devp->config->spip);
+  spiSend(devp->config->spip, n + 1, devp->commtxp);
+  spiUnselect(devp->config->spip);
+}
+#endif /* ADXL355_USE_SPI */
 
 /**
  * @brief   Initializes an instance.

@@ -122,7 +122,7 @@
 /**
  * @brief   Returns an object pointer from the cache, if present.
  *
- * @param[out] ocp      pointer to the @p objects_cache_t structure to be
+ * @param[out] ocp      pointer to the @p objects_cache_t object to be
  * @param[in] group     object group identifier
  * @param[in] key       object identifier within the group
  *                      initialized
@@ -157,7 +157,7 @@ static oc_object_t *hash_get_s(objects_cache_t *ocp,
 /**
  * @brief   Gets the least recently used object buffer from the LRU list.
  *
- * @param[out] ocp      pointer to the @p objects_cache_t structure to be
+ * @param[out] ocp      pointer to the @p objects_cache_t object to be
  * @return              The pointer to the retrieved object.
  *
  * @notapi
@@ -221,7 +221,7 @@ static oc_object_t *lru_get_last_s(objects_cache_t *ocp) {
 /**
  * @brief   Initializes a @p objects_cache_t object.
  *
- * @param[out] ocp      pointer to the @p objects_cache_t structure to be
+ * @param[out] ocp      pointer to the @p objects_cache_t object to be
  *                      initialized
  * @param[in] hashn     number of elements in the hash table array, must be
  *                      a power of two and not lower than @p objn
@@ -293,7 +293,7 @@ void chCacheObjectInit(objects_cache_t *ocp,
  *          as @p OC_FLAG_NOTSYNC meaning that its data contains garbage and
  *          must be initialized.
  *
- * @param[in] ocp       pointer to the @p objects_cache_t structure
+ * @param[in] ocp       pointer to the @p objects_cache_t object
  * @param[in] group     object group identifier
  * @param[in] key       object identifier within the group
  * @return              The pointer to the retrieved object.
@@ -368,10 +368,9 @@ oc_object_t *chCacheGetObject(objects_cache_t *ocp,
  *            the LRU tail.
  *          - @p OC_FLAG_LAZYWRITE is ignored and kept, a write will occur
  *            when the object is removed from the LRU list (lazy write).
- *          .
  *
- * @param[in] ocp       pointer to the @p objects_cache_t structure
- * @param[in] objp      pointer to the @p oc_object_t structure
+ * @param[in] ocp       pointer to the @p objects_cache_t object
+ * @param[in] objp      pointer to the @p oc_object_t object
  *
  * @iclass
  */
@@ -433,8 +432,8 @@ void chCacheReleaseObjectI(objects_cache_t *ocp,
  * @note    In case of asynchronous operation an error condition is not
  *          reported by this function.
  *
- * @param[in] ocp       pointer to the @p objects_cache_t structure
- * @param[in] objp      pointer to the @p oc_object_t structure
+ * @param[in] ocp       pointer to the @p objects_cache_t object
+ * @param[in] objp      pointer to the @p oc_object_t object
  * @param[in] async     requests an asynchronous operation if supported, the
  *                      function is then responsible for releasing the
  *                      object
@@ -462,8 +461,8 @@ bool chCacheReadObject(objects_cache_t *ocp,
  * @note    In case of asynchronous operation an error condition is not
  *          reported by this function.
  *
- * @param[in] ocp       pointer to the @p objects_cache_t structure
- * @param[in] objp      pointer to the @p oc_object_t structure
+ * @param[in] ocp       pointer to the @p objects_cache_t object
+ * @param[in] objp      pointer to the @p oc_object_t object
  * @param[in] async     requests an asynchronous operation if supported, the
  *                      called function is then responsible for releasing the
  *                      object

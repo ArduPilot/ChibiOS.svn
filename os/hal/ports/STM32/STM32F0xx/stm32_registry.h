@@ -42,6 +42,9 @@
 /* Common.                                                                   */
 /*===========================================================================*/
 
+/* DAC attributes.*/
+#define STM32_DAC_HAS_MCR                   TRUE
+
 /* RNG attributes.*/
 #define STM32_HAS_RNG1                      FALSE
 
@@ -128,10 +131,10 @@
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
-#define STM32_FLASH_SECTOR_SIZE             4096U
-#define STM32_FLASH_LINE_SIZE               4U
+#define STM32_FLASH_SECTOR_SIZE             1024U
+#define STM32_FLASH_LINE_SIZE               2U
 #if !defined(STM32_FLASH_SECTORS_PER_BANK) || defined(__DOXYGEN__)
-#define STM32_FLASH_SECTORS_PER_BANK        16 /* Maximum, can be redefined.*/
+#define STM32_FLASH_SECTORS_PER_BANK        32 /* Maximum, can be redefined.*/
 #endif
 
 /* GPIO attributes.*/
@@ -453,10 +456,10 @@
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
-#define STM32_FLASH_SECTOR_SIZE             4096U
-#define STM32_FLASH_LINE_SIZE               4U
+#define STM32_FLASH_SECTOR_SIZE             1024U
+#define STM32_FLASH_LINE_SIZE               2U
 #if !defined(STM32_FLASH_SECTORS_PER_BANK) || defined(__DOXYGEN__)
-#define STM32_FLASH_SECTORS_PER_BANK        16 /* Maximum, can be redefined.*/
+#define STM32_FLASH_SECTORS_PER_BANK        32 /* Maximum, can be redefined.*/
 #endif
 
 /* GPIO attributes.*/
@@ -678,10 +681,10 @@
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
-#define STM32_FLASH_SECTOR_SIZE             4096U
-#define STM32_FLASH_LINE_SIZE               4U
+#define STM32_FLASH_SECTOR_SIZE             1024U
+#define STM32_FLASH_LINE_SIZE               2U
 #if !defined(STM32_FLASH_SECTORS_PER_BANK) || defined(__DOXYGEN__)
-#define STM32_FLASH_SECTORS_PER_BANK        16 /* Maximum, can be redefined.*/
+#define STM32_FLASH_SECTORS_PER_BANK        32 /* Maximum, can be redefined.*/
 #endif
 
 /* GPIO attributes.*/
@@ -911,10 +914,10 @@
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
-#define STM32_FLASH_SECTOR_SIZE             4096U
-#define STM32_FLASH_LINE_SIZE               4U
+#define STM32_FLASH_SECTOR_SIZE             1024U
+#define STM32_FLASH_LINE_SIZE               2U
 #if !defined(STM32_FLASH_SECTORS_PER_BANK) || defined(__DOXYGEN__)
-#define STM32_FLASH_SECTORS_PER_BANK        16 /* Maximum, can be redefined.*/
+#define STM32_FLASH_SECTORS_PER_BANK        32 /* Maximum, can be redefined.*/
 #endif
 
 /* GPIO attributes.*/
@@ -1153,10 +1156,10 @@
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
-#define STM32_FLASH_SECTOR_SIZE             4096U
-#define STM32_FLASH_LINE_SIZE               4U
+#define STM32_FLASH_SECTOR_SIZE             1024U
+#define STM32_FLASH_LINE_SIZE               2U
 #if !defined(STM32_FLASH_SECTORS_PER_BANK) || defined(__DOXYGEN__)
-#define STM32_FLASH_SECTORS_PER_BANK        16 /* Maximum, can be redefined.*/
+#define STM32_FLASH_SECTORS_PER_BANK        64 /* Maximum, can be redefined.*/
 #endif
 
 /* GPIO attributes.*/
@@ -1403,10 +1406,10 @@
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
-#define STM32_FLASH_SECTOR_SIZE             4096U
+#define STM32_FLASH_SECTOR_SIZE             2048U
 #define STM32_FLASH_LINE_SIZE               2U
 #if !defined(STM32_FLASH_SECTORS_PER_BANK) || defined(__DOXYGEN__)
-#define STM32_FLASH_SECTORS_PER_BANK        64 /* Maximum, can be redefined.*/
+#define STM32_FLASH_SECTORS_PER_BANK        128 /* Maximum, can be redefined.*/
 #endif
 
 /* GPIO attributes.*/
@@ -1683,10 +1686,10 @@
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
-#define STM32_FLASH_SECTOR_SIZE             4096U
+#define STM32_FLASH_SECTOR_SIZE             2048U
 #define STM32_FLASH_LINE_SIZE               2U
 #if !defined(STM32_FLASH_SECTORS_PER_BANK) || defined(__DOXYGEN__)
-#define STM32_FLASH_SECTORS_PER_BANK        64 /* Maximum, can be redefined.*/
+#define STM32_FLASH_SECTORS_PER_BANK        128 /* Maximum, can be redefined.*/
 #endif
 
 /* GPIO attributes.*/
@@ -1979,10 +1982,10 @@
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
-#define STM32_FLASH_SECTOR_SIZE             4096U
+#define STM32_FLASH_SECTOR_SIZE             2048U
 #define STM32_FLASH_LINE_SIZE               2U
 #if !defined(STM32_FLASH_SECTORS_PER_BANK) || defined(__DOXYGEN__)
-#define STM32_FLASH_SECTORS_PER_BANK        64 /* Maximum, can be redefined.*/
+#define STM32_FLASH_SECTORS_PER_BANK        128 /* Maximum, can be redefined.*/
 #endif
 
 /* GPIO attributes.*/

@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2024 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -40,11 +40,14 @@
  * @{
  */
 /**
- * @brief   Enables synchronous APIs.
- * @note    Disabling this option saves both code and data space.
+ * @brief   Support for thread synchronization API.
  */
+#if !defined(DAC_USE_SYNCHRONIZATION) || defined(__DOXYGEN__)
 #if !defined(DAC_USE_WAIT) || defined(__DOXYGEN__)
-#define DAC_USE_WAIT                TRUE
+#define DAC_USE_SYNCHRONIZATION             FALSE
+#else
+#define DAC_USE_SYNCHRONIZATION             DAC_USE_WAIT
+#endif
 #endif
 
 /**
@@ -163,12 +166,12 @@ struct hal_dac_driver {
    * @brief   Current configuration data.
    */
   const DACConfig           *config;
-#if (DAC_USE_WAIT == TRUE) || defined(__DOXYGEN__)
+#if (DAC_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
   /**
    * @brief   Waiting thread.
    */
   thread_reference_t        thread;
-#endif /* DAC_USE_WAIT */
+#endif /* DAC_USE_SYNCHRONIZATION */
 #if (DAC_USE_MUTUAL_EXCLUSION == TRUE) || defined(__DOXYGEN__)
   /**
    * @brief   Mutex protecting the bus.
@@ -205,7 +208,7 @@ struct hal_dac_driver {
  */
 #define dacIsBufferComplete(dacp) ((bool)((dacp)->state == DAC_COMPLETE))
 
-#if (DAC_USE_WAIT == TRUE) || defined(__DOXYGEN__)
+#if (DAC_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Waits for operation completion.
  * @details This function waits for the driver to complete the current
@@ -264,13 +267,13 @@ struct hal_dac_driver {
   osalSysUnlockFromISR();                                                   \
 }
 
-#else /* !DAC_USE_WAIT */
+#else /* !DAC_USE_SYNCHRONIZATION */
 #define _dac_wait_s(dacp)
 #define _dac_reset_i(dacp)
 #define _dac_reset_s(dacp)
 #define _dac_wakeup_isr(dacp)
 #define _dac_timeout_isr(dacp)
-#endif /* !DAC_USE_WAIT */
+#endif /* !DAC_USE_SYNCHRONIZATION */
 
 /**
  * @brief   Common ISR code, half buffer event.
@@ -310,13 +313,14 @@ struct hal_dac_driver {
     if ((dacp)->state == DAC_COMPLETE)                                      \
       (dacp)->state = DAC_ACTIVE;                                           \
   }                                                                         \
+  _dac_wakeup_isr(dacp);                                                    \
 }
 
 /**
  * @brief   Common ISR code, error event.
  * @details This code handles the portable part of the ISR code:
  *          - Callback invocation.
- *          - Waiting thread timeout signaling, if any.
+ *          - Waiting thread timeout signalling, if any.
  *          - Driver state transitions.
  *          .
  * @note    This macro is meant to be used in the low level drivers
@@ -347,26 +351,28 @@ struct hal_dac_driver {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void dacInit(void);
-  void dacObjectInit(DACDriver *dacp);
+  void  dacInit(void);
+  void  dacObjectInit(DACDriver *dacp);
   msg_t dacStart(DACDriver *dacp, const DACConfig *config);
-  void dacStop(DACDriver *dacp);
-  void dacPutChannelX(DACDriver *dacp,
+  void  dacStop(DACDriver *dacp);
+  msg_t dacPutChannelX(DACDriver *dacp,
                       dacchannel_t channel,
                       dacsample_t sample);
-  void dacStartConversion(DACDriver *dacp, const DACConversionGroup *grpp,
+  msg_t dacStartConversion(DACDriver *dacp, const DACConversionGroup *grpp,
                           dacsample_t *samples, size_t depth);
-  void dacStartConversionI(DACDriver *dacp, const DACConversionGroup *grpp,
+  msg_t dacStartConversionI(DACDriver *dacp, const DACConversionGroup *grpp,
                            dacsample_t *samples, size_t depth);
-  void dacStopConversion(DACDriver *dacp);
-  void dacStopConversionI(DACDriver *dacp);
-#if DAC_USE_WAIT
+  void  dacStopConversion(DACDriver *dacp);
+  void  dacStopConversionI(DACDriver *dacp);
+#if DAC_USE_SYNCHRONIZATION
   msg_t dacConvert(DACDriver *dacp, const DACConversionGroup *grpp,
                    dacsample_t *samples, size_t depth);
-#endif
+  msg_t dacSynchronizeS(DACDriver *dacp, sysinterval_t timeout);
+  msg_t dacSynchronize(DACDriver *dacp, sysinterval_t timeout);
+#endif /* DAC_USE_SYNCHRONIZATION */
 #if DAC_USE_MUTUAL_EXCLUSION
-  void dacAcquireBus(DACDriver *dacp);
-  void dacReleaseBus(DACDriver *dacp);
+  void  dacAcquireBus(DACDriver *dacp);
+  void  dacReleaseBus(DACDriver *dacp);
 #endif
 #ifdef __cplusplus
 }

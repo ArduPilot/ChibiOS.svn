@@ -90,7 +90,8 @@ typedef struct ch_objects_cache objects_cache_t;
 /**
  * @brief   Object read function.
  *
- * @param[in] ocp       pointer to the @p objects_cache_t structure
+ * @param[in] ocp       pointer to the @p objects_cache_t object
+ * @param[in] objp      pointer to the @p oc_object_t object
  * @param[in] async     requests an asynchronous operation if supported, the
  *                      function is then responsible for releasing the
  *                      object
@@ -102,7 +103,8 @@ typedef bool (*oc_readf_t)(objects_cache_t *ocp,
 /**
  * @brief   Object write function.
  *
- * @param[in] ocp       pointer to the @p objects_cache_t structure
+ * @param[in] ocp       pointer to the @p objects_cache_t object
+ * @param[in] objp      pointer to the @p oc_object_t object
  * @param[in] async     requests an asynchronous operation if supported, the
  *                      function is then responsible for releasing the
  *                      object
@@ -285,9 +287,8 @@ extern "C" {
  *            the LRU tail.
  *          - @p OC_FLAG_LAZYWRITE is ignored and kept, a write will occur
  *            when the object is removed from the LRU list (lazy write).
- *          .
  *
- * @param[in] ocp       pointer to the @p objects_cache_t structure
+ * @param[in] ocp       pointer to the @p objects_cache_t object
  * @param[in] objp      pointer to the @p oc_object_t structure
  *
  * @api

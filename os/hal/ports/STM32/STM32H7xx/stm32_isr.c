@@ -77,7 +77,7 @@
 #include "stm32_sdmmc1.inc"
 #include "stm32_sdmmc2.inc"
 
-#include <stm32_usart1.inc>
+#include "stm32_usart1.inc"
 #include "stm32_usart2.inc"
 #include "stm32_usart3.inc"
 #include "stm32_uart4.inc"
@@ -85,6 +85,8 @@
 #include "stm32_usart6.inc"
 #include "stm32_uart7.inc"
 #include "stm32_uart8.inc"
+#include "stm32_uart9.inc"
+#include "stm32_usart10.inc"
 #include "stm32_lpuart1.inc"
 
 #include "stm32_tim1.inc"
@@ -95,6 +97,9 @@
 #include "stm32_tim6.inc"
 #include "stm32_tim7.inc"
 #include "stm32_tim8_12_13_14.inc"
+#include "stm32_tim15.inc"
+#include "stm32_tim16.inc"
+#include "stm32_tim17.inc"
 
 /*===========================================================================*/
 /* Driver exported functions.                                                */
@@ -143,6 +148,9 @@ void irqInit(void) {
   tim6_irq_init();
   tim7_irq_init();
   tim8_tim12_tim13_tim14_irq_init();
+  tim15_irq_init();
+  tim16_irq_init();
+  tim17_irq_init();
 
   usart1_irq_init();
   usart2_irq_init();
@@ -152,6 +160,8 @@ void irqInit(void) {
   usart6_irq_init();
   uart7_irq_init();
   uart8_irq_init();
+  uart9_irq_init();
+  usart10_irq_init();
   lpuart1_irq_init();
 }
 
@@ -198,6 +208,9 @@ void irqDeinit(void) {
   tim6_irq_deinit();
   tim7_irq_deinit();
   tim8_tim12_tim13_tim14_irq_deinit();
+  tim15_irq_deinit();
+  tim16_irq_deinit();
+  tim17_irq_deinit();
 
   usart1_irq_deinit();
   usart2_irq_deinit();
@@ -207,6 +220,8 @@ void irqDeinit(void) {
   usart6_irq_deinit();
   uart7_irq_deinit();
   uart8_irq_deinit();
+  uart9_irq_deinit();
+  usart10_irq_deinit();
   lpuart1_irq_deinit();
 }
 

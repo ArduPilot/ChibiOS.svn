@@ -15,13 +15,13 @@
 */
 
 /**
- * @file    STM32L4xx/cmparams.h
- * @brief   ARM Cortex-M4 parameters for the STM32L4xx.
+ * @file    STM32L5xx/cmparams.h
+ * @brief   ARM Cortex-M33 parameters for the STM32L5xx.
  *
- * @defgroup ARMCMx_STM32L4xx STM32L4xx Specific Parameters
+ * @defgroup ARMCMx_STM32L5xx STM32L5xx Specific Parameters
  * @ingroup ARMCMx_SPECIFIC
  * @details This file contains the Cortex-M4 specific parameters for the
- *          STM32L4xx platform.
+ *          STM32L5xx platform.
  * @{
  */
 

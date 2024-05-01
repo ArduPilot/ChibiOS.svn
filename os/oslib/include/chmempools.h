@@ -149,6 +149,7 @@ extern "C" {
 #endif
   void chPoolObjectInitAligned(memory_pool_t *mp, size_t size,
                                unsigned align, memgetfunc_t provider);
+  void chPoolObjectDispose(memory_pool_t *mp);
   void chPoolLoadArray(memory_pool_t *mp, void *p, size_t n);
   void *chPoolAllocI(memory_pool_t *mp);
   void *chPoolAlloc(memory_pool_t *mp);
@@ -158,6 +159,7 @@ extern "C" {
   void chGuardedPoolObjectInitAligned(guarded_memory_pool_t *gmp,
                                       size_t size,
                                       unsigned align);
+  void chGuardedPoolObjectDispose(guarded_memory_pool_t *gmp);
   void chGuardedPoolLoadArray(guarded_memory_pool_t *gmp, void *p, size_t n);
   void *chGuardedPoolAllocTimeoutS(guarded_memory_pool_t *gmp,
                                    sysinterval_t timeout);
@@ -176,7 +178,7 @@ extern "C" {
 /**
  * @brief   Initializes an empty memory pool.
  *
- * @param[out] mp       pointer to a @p memory_pool_t structure
+ * @param[out] mp       pointer to a @p memory_pool_t object
  * @param[in] size      the size of the objects contained in this memory pool,
  *                      the minimum accepted size is the size of a pointer to
  *                      void.
@@ -202,7 +204,7 @@ static inline void chPoolObjectInit(memory_pool_t *mp,
  * @note    This function is just an alias for @p chPoolFree() and has been
  *          added for clarity.
  *
- * @param[in] mp        pointer to a @p memory_pool_t structure
+ * @param[in] mp        pointer to a @p memory_pool_t object
  * @param[in] objp      the pointer to the object to be added
  *
  * @api
@@ -221,7 +223,7 @@ static inline void chPoolAdd(memory_pool_t *mp, void *objp) {
  * @note    This function is just an alias for @p chPoolFreeI() and has been
  *          added for clarity.
  *
- * @param[in] mp        pointer to a @p memory_pool_t structure
+ * @param[in] mp        pointer to a @p memory_pool_t object
  * @param[in] objp      the pointer to the object to be added
  *
  * @iclass
@@ -235,7 +237,7 @@ static inline void chPoolAddI(memory_pool_t *mp, void *objp) {
 /**
  * @brief   Initializes an empty guarded memory pool.
  *
- * @param[out] gmp      pointer to a @p guarded_memory_pool_t structure
+ * @param[out] gmp      pointer to a @p guarded_memory_pool_t object
  * @param[in] size      the size of the objects contained in this guarded
  *                      memory pool, the minimum accepted size is the size
  *                      of a pointer to void.
@@ -252,7 +254,7 @@ static inline void chGuardedPoolObjectInit(guarded_memory_pool_t *gmp,
  * @brief   Gets the count of objects in a guarded memory pool.
  * @pre     The guarded memory pool must be already been initialized.
  *
- * @param[in] gmp       pointer to a @p guarded_memory_pool_t structure
+ * @param[in] gmp       pointer to a @p guarded_memory_pool_t object
  * @return              The counter of the guard semaphore.
  *
  * @iclass
@@ -266,7 +268,7 @@ static inline cnt_t chGuardedPoolGetCounterI(guarded_memory_pool_t *gmp) {
  * @brief   Allocates an object from a guarded memory pool.
  * @pre     The guarded memory pool must be already been initialized.
  *
- * @param[in] gmp       pointer to a @p guarded_memory_pool_t structure
+ * @param[in] gmp       pointer to a @p guarded_memory_pool_t object
  * @return              The pointer to the allocated object.
  * @retval NULL         if the pool is empty.
  *
@@ -275,12 +277,15 @@ static inline cnt_t chGuardedPoolGetCounterI(guarded_memory_pool_t *gmp) {
 static inline void *chGuardedPoolAllocI(guarded_memory_pool_t *gmp) {
   void *p;
 
-  p = chPoolAllocI(&gmp->pool);
-  if (p != NULL) {
+  if (chSemGetCounterI(&gmp->sem) > (cnt_t)0) {
+
     chSemFastWaitI(&gmp->sem);
-    chDbgAssert(chSemGetCounterI(&gmp->sem) >= (cnt_t)0,
-                "semaphore out of sync");
+    p = chPoolAllocI(&gmp->pool);
   }
+  else {
+    p = NULL;
+  }
+
   return p;
 }
 
@@ -291,7 +296,7 @@ static inline void *chGuardedPoolAllocI(guarded_memory_pool_t *gmp) {
  *          guarded memory pool.
  * @pre     The added object must be properly aligned.
  *
- * @param[in] gmp       pointer to a @p guarded_memory_pool_t structure
+ * @param[in] gmp       pointer to a @p guarded_memory_pool_t object
  * @param[in] objp      the pointer to the object to be released
  *
  * @iclass
@@ -309,7 +314,7 @@ static inline void chGuardedPoolFreeI(guarded_memory_pool_t *gmp, void *objp) {
  *          guarded memory pool.
  * @pre     The added object must be properly aligned.
  *
- * @param[in] gmp       pointer to a @p guarded_memory_pool_t structure
+ * @param[in] gmp       pointer to a @p guarded_memory_pool_t object
  * @param[in] objp      the pointer to the object to be released
  *
  * @sclass
@@ -329,7 +334,7 @@ static inline void chGuardedPoolFreeS(guarded_memory_pool_t *gmp, void *objp) {
  * @note    This function is just an alias for @p chGuardedPoolFree() and
  *          has been added for clarity.
  *
- * @param[in] gmp       pointer to a @p guarded_memory_pool_t structure
+ * @param[in] gmp       pointer to a @p guarded_memory_pool_t object
  * @param[in] objp      the pointer to the object to be added
  *
  * @api
@@ -348,7 +353,7 @@ static inline void chGuardedPoolAdd(guarded_memory_pool_t *gmp, void *objp) {
  * @note    This function is just an alias for @p chGuardedPoolFreeI() and
  *          has been added for clarity.
  *
- * @param[in] gmp       pointer to a @p guarded_memory_pool_t structure
+ * @param[in] gmp       pointer to a @p guarded_memory_pool_t object
  * @param[in] objp      the pointer to the object to be added
  *
  * @iclass
@@ -367,7 +372,7 @@ static inline void chGuardedPoolAddI(guarded_memory_pool_t *gmp, void *objp) {
  * @note    This function is just an alias for @p chGuardedPoolFreeI() and
  *          has been added for clarity.
  *
- * @param[in] gmp       pointer to a @p guarded_memory_pool_t structure
+ * @param[in] gmp       pointer to a @p guarded_memory_pool_t object
  * @param[in] objp      the pointer to the object to be added
  *
  * @sclass

@@ -40,7 +40,6 @@
 
 /* RTC and TAMP attributes.*/
 #define STM32_HAS_RTC                       TRUE
-#define STM32_RTC_HAS_SUBSECONDS            TRUE
 #define STM32_RTC_HAS_PERIODIC_WAKEUPS      TRUE
 #define STM32_RTC_NUM_ALARMS                2
 #define STM32_RTC_STORAGE_SIZE              20
@@ -143,7 +142,7 @@
 #define STM32_EXTI_SEPARATE_RF              TRUE
 #define STM32_EXTI_HAS_GROUP2               FALSE
 #define STM32_EXTI_NUM_LINES                16
-#define STM32_EXTI_IMR1_MASK                0xFFF80000U
+#define STM32_EXTI_IMR1_MASK                0xFFD00000U
 
 /* Flash attributes.*/
 #define STM32_FLASH_NUMBER_OF_BANKS         1
@@ -332,7 +331,7 @@
 #define STM32_EXTI_SEPARATE_RF              TRUE
 #define STM32_EXTI_HAS_GROUP2               FALSE
 #define STM32_EXTI_NUM_LINES                36
-#define STM32_EXTI_IMR1_MASK                0xFFF80000U
+#define STM32_EXTI_IMR1_MASK                0xFFD00000U
 #define STM32_EXTI_IMR2_MASK                0xFFFFFFFFU
 
 /* Flash attributes.*/
@@ -499,6 +498,7 @@
 #define STM32_HAS_DAC1_CH2                  TRUE
 #define STM32_HAS_DAC2_CH1                  FALSE
 #define STM32_HAS_DAC2_CH2                  FALSE
+#define STM32_DAC_HAS_MCR                   TRUE
 
 /* DMA attributes.*/
 #define STM32_ADVANCED_DMA                  TRUE
@@ -515,7 +515,7 @@
 #define STM32_EXTI_SEPARATE_RF              TRUE
 #define STM32_EXTI_HAS_GROUP2               FALSE
 #define STM32_EXTI_NUM_LINES                36
-#define STM32_EXTI_IMR1_MASK                0xFFF80000U
+#define STM32_EXTI_IMR1_MASK                0xFFD00000U
 #define STM32_EXTI_IMR2_MASK                0xFFFFFFFFU
 
 /* Flash attributes.*/
@@ -708,7 +708,7 @@
 #define STM32_EXTI_SEPARATE_RF              TRUE
 #define STM32_EXTI_HAS_GROUP2               FALSE
 #define STM32_EXTI_NUM_LINES                36
-#define STM32_EXTI_IMR1_MASK                0xFFF80000U
+#define STM32_EXTI_IMR1_MASK                0xFFD00000U
 #define STM32_EXTI_IMR2_MASK                0xFFFFFFFFU
 
 /* Flash attributes.*/

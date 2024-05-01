@@ -51,6 +51,9 @@
 /* Common.                                                                   */
 /*===========================================================================*/
 
+/* DAC attributes.*/
+#define STM32_DAC_HAS_MCR                   TRUE
+
 /* RNG attributes.*/
 #define STM32_HAS_RNG1                      TRUE
 
@@ -589,7 +592,7 @@
     defined(__DOXYGEN__)
 
 /* ADC attributes.*/
-#define STM32_ADC_RENAMED_REGS              TRUE
+#define STM32_ADC_RENAMED_REGS              FALSE
 #define STM32_HAS_ADC1                      TRUE
 #define STM32_HAS_ADC2                      TRUE
 #define STM32_HAS_ADC3                      FALSE /* NOT an error, it is a different ADC type.*/
@@ -979,17 +982,8 @@
 #define STM32_TIM14_CHANNELS                1
 
 #define STM32_HAS_TIM15                     FALSE
-#define STM32_TIM15_IS_32BITS               FALSE
-#define STM32_TIM15_CHANNELS                2
-
 #define STM32_HAS_TIM16                     FALSE
-#define STM32_TIM16_IS_32BITS               FALSE
-#define STM32_TIM16_CHANNELS                1
-
 #define STM32_HAS_TIM17                     FALSE
-#define STM32_TIM17_IS_32BITS               FALSE
-#define STM32_TIM17_CHANNELS                1
-
 #define STM32_HAS_TIM9                      FALSE
 #define STM32_HAS_TIM10                     FALSE
 #define STM32_HAS_TIM11                     FALSE

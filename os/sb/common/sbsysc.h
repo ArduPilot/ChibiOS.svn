@@ -38,8 +38,10 @@
  */
 #define SB_FASTC_GET_SYSTIME    1
 #define SB_FASTC_GET_FREQUENCY  2
-#define SB_FASTC_VHAL_VGPIO     96
-#define SB_FASTC_VHAL_VUART     97
+#define SB_FASTC_VIO_VGPIO      96
+#define SB_FASTC_VIO_VUART      97
+#define SB_FASTC_VIO_VSPI       98
+#define SB_FASTC_VRQ_GCSTS      119
 #define SB_FASTC_VRQ_SETWT      120
 #define SB_FASTC_VRQ_CLRWT      121
 #define SB_FASTC_VRQ_SETEN      122
@@ -65,7 +67,8 @@
 #define SB_SYSC_EVENT_WAIT_ALL  136
 #define SB_SYSC_EVENT_BROADCAST 137
 #define SB_SYSC_LOADELF         138
-#define SB_SYSC_VHAL_VUART      225
+#define SB_SYSC_VIO_VUART       225
+#define SB_SYSC_VIO_VSPI        226
 #define SB_SYSC_VRQ_SET_ALARM   253
 #define SB_SYSC_VRQ_RESET_ALARM 254
 #define SB_SYSC_VRQ_WAIT        255
@@ -107,25 +110,43 @@
 /** @} */
 
 /**
+ * @name    Virtual SPI syscall sub-codes
+ * @{
+ */
+#define SB_VSPI_INIT            0
+#define SB_VSPI_DEINIT          1
+#define SB_VSPI_PULSES          2
+#define SB_VSPI_RECEIVE         3
+#define SB_VSPI_SEND            4
+#define SB_VSPI_EXCHANGE        5
+#define SB_VSPI_GETCLRSTS       6
+#define SB_VSPI_SETCFG          0
+#define SB_VSPI_SELECT          1
+#define SB_VSPI_UNSELECT        2
+#define SB_VSPI_GETSTS          3
+/** @} */
+
+/**
  * @name    Virtual UART syscall sub-codes
  * @{
  */
 #define SB_VUART_INIT           0
 #define SB_VUART_DEINIT         1
-#define SB_VUART_ISRXE          0
-#define SB_VUART_ISRXI          1
-#define SB_VUART_ISTXF          2
-#define SB_VUART_ISTXO          3
-#define SB_VUART_HASERR         4
-#define SB_VUART_READ           5
-#define SB_VUART_WRITE          6
-#define SB_VUART_GET            7
-#define SB_VUART_PUT            8
-#define SB_VUART_WREN           9
-#define SB_VUART_GCERR          10
-#define SB_VUART_GCEVT          11
-#define SB_VUART_GEVT           12
-#define SB_VUART_CTL            13
+#define SB_VUART_SETCFG         0
+#define SB_VUART_ISRXE          1
+#define SB_VUART_ISRXI          2
+#define SB_VUART_ISTXF          3
+#define SB_VUART_ISTXO          4
+#define SB_VUART_HASERR         5
+#define SB_VUART_READ           6
+#define SB_VUART_WRITE          7
+#define SB_VUART_GET            8
+#define SB_VUART_PUT            9
+#define SB_VUART_WREN           10
+#define SB_VUART_GCERR          11
+#define SB_VUART_GCEVT          12
+#define SB_VUART_GEVT           13
+#define SB_VUART_CTL            14
 /** @} */
 
 /*===========================================================================*/

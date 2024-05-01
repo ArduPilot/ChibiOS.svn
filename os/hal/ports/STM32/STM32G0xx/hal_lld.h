@@ -893,7 +893,7 @@
 #define STM32_VOS1_PLLR_MAX             64000000
 #define STM32_VOS1_PLLR_MIN             12000000
 #define STM32_VOS1_PCLK_MAX             64000000
-#define STM32_VOS1_ADCCLK_MAX           350000000
+#define STM32_VOS1_ADCCLK_MAX           35000000
 
 #define STM32_VOS1_0WS_THRESHOLD        24000000
 #define STM32_VOS1_1WS_THRESHOLD        48000000
@@ -1067,6 +1067,7 @@
   #if (STM32_I2C1SEL == STM32_I2C1SEL_HSI16)
     #error "HSI16 not enabled, required by STM32_I2C1SEL"
   #endif
+
   #if (STM32_I2S1SEL == STM32_I2S1SEL_HSI16)
     #error "HSI16 not enabled, required by STM32_I2S1SEL"
   #endif
@@ -1121,15 +1122,21 @@
   #endif
 
   #if (STM32_MCOSEL == STM32_MCOSEL_HSE) ||                                 \
-      (STM32_FDCANSEL == STM32_FDCANSEL_HSE) ||                             \
-      (STM32_USBSEL == STM32_USBSEL_HSE) ||                                 \
       ((STM32_MCOSEL == STM32_MCOSEL_PLLRCLK) &&                            \
        (STM32_PLLSRC == STM32_PLLSRC_HSE))
     #error "HSE not enabled, required by STM32_MCOSEL"
   #endif
 
+  #if STM32_FDCANSEL == STM32_FDCANSEL_HSE
+    #error "HSE not enabled, required by STM32_FDCANSEL"
+  #endif
+
   #if STM32_RTCSEL == STM32_RTCSEL_HSEDIV
     #error "HSE not enabled, required by STM32_RTCSEL"
+  #endif
+
+  #if STM32_USBSEL == STM32_USBSEL_HSE
+    #error "HSE not enabled, required by STM32_USBSEL"
   #endif
 
 #endif /* !STM32_HSE_ENABLED */
@@ -1170,6 +1177,10 @@
 
   #if STM32_LSCOSEL == STM32_LSCOSEL_LSE
     #error "LSE not enabled, required by STM32_LSCOSEL"
+  #endif
+
+  #if (STM32_USART1SEL == STM32_USART1SEL_LSE)
+    #error "LSE not enabled, required by STM32_USART1SEL"
   #endif
 
 #endif /* !STM32_LSE_ENABLED */
@@ -1292,10 +1303,7 @@
 /**
  * @brief   System clock source.
  */
-#if STM32_NO_INIT || defined(__DOXYGEN__)
-  #define STM32_SYSCLK              STM32_HSISYSCLK
-
-#elif (STM32_SW == STM32_SW_HSISYS)
+#if (STM32_SW == STM32_SW_HSISYS)
   #define STM32_SYSCLK              STM32_HSISYSCLK
 
 #elif (STM32_SW == STM32_SW_HSE)
@@ -1331,7 +1339,7 @@
   #define STM32_MCODIVCLK           0
 
 #elif STM32_MCOSEL == STM32_MCOSEL_SYSCLK
-  #define STM32_MCODIVCLK           hal_lld_get_clock_point(CLK_SYSCLK)
+  #define STM32_MCODIVCLK           STM32_SYSCLK
 
 #elif STM32_MCOSEL == STM32_MCOSEL_HSI16
   #define STM32_MCODIVCLK           STM32_HSI16CLK
@@ -1340,7 +1348,7 @@
   #define STM32_MCODIVCLK           STM32_HSECLK
 
 #elif STM32_MCOSEL == STM32_MCOSEL_PLLRCLK
-  #define STM32_MCODIVCLK           hal_lld_get_clock_point(CLK_PLLRCLK)
+  #define STM32_MCODIVCLK           STM32_PLL_R_CLKOUT
 
 #elif STM32_MCOSEL == STM32_MCOSEL_LSI
   #define STM32_MCODIVCLK           STM32_LSICLK

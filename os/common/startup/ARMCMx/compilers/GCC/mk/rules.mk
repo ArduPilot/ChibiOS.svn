@@ -23,8 +23,12 @@ ifneq ($(USE_LDOPT),)
 endif
 
 # Link time optimizations
-ifeq ($(USE_LTO),yes)
-  OPT += -flto
+ifneq ($(USE_LTO),no)
+  ifeq ($(USE_LTO),yes)
+    OPT += -flto
+  else
+    OPT += -flto=$(USE_LTO)
+  endif
 endif
 
 # FPU options default (Cortex-M4 and Cortex-M7 single precision).
@@ -106,8 +110,8 @@ ASMXOBJS  := $(addprefix $(OBJDIR)/, $(notdir $(ASMXSRC:.S=.o)))
 OBJS      := $(ASMXOBJS) $(ASMOBJS) $(ACOBJS) $(TCOBJS) $(ACPPOBJS) $(TCPPOBJS) $(TCCOBJS)
 
 # Paths
-IINCDIR   := $(patsubst %,-I%,$(INCDIR) $(DINCDIR) $(UINCDIR))
-LLIBDIR   := $(patsubst %,-L%,$(DLIBDIR) $(ULIBDIR))
+IINCDIR   := $(sort $(patsubst %,-I%,$(INCDIR) $(DINCDIR) $(UINCDIR)))
+LLIBDIR   := $(sort $(patsubst %,-L%,$(DLIBDIR) $(ULIBDIR)))
 
 # Macros
 DEFS      := $(DDEFS) $(UDEFS)

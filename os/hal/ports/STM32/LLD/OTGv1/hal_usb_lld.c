@@ -40,8 +40,7 @@
 
 #if STM32_OTG_STEPPING == 1
 #if defined(BOARD_OTG_NOVBUSSENS)
-#define GCCFG_INIT_VALUE        (GCCFG_NOVBUSSENS | GCCFG_VBUSASEN |        \
-                                 GCCFG_VBUSBSEN | GCCFG_PWRDWN)
+#define GCCFG_INIT_VALUE        (GCCFG_NOVBUSSENS | GCCFG_PWRDWN)
 #else
 #define GCCFG_INIT_VALUE        (GCCFG_VBUSASEN | GCCFG_VBUSBSEN |          \
                                  GCCFG_PWRDWN)
@@ -584,6 +583,21 @@ static void usb_lld_serve_interrupt(USBDriver *usbp) {
 
   /* SOF interrupt handling.*/
   if (sts & GINTSTS_SOF) {
+    /* SOF interrupt was used to detect resume of the USB bus after issuing a
+       remote wake up of the host, therefore we disable it again.*/
+    if (usbp->config->sof_cb == NULL) {
+      otgp->GINTMSK &= ~GINTMSK_SOFM;
+    }
+    if (usbp->state == USB_SUSPENDED) {
+      /* If clocks are gated off, turn them back on (may be the case if
+         coming out of suspend mode).*/
+      if (otgp->PCGCCTL & (PCGCCTL_STPPCLK | PCGCCTL_GATEHCLK)) {
+        /* Set to zero to un-gate the USB core clocks.*/
+        otgp->PCGCCTL &= ~(PCGCCTL_STPPCLK | PCGCCTL_GATEHCLK);
+      }
+      _usb_wakeup(usbp);
+    }
+
     _usb_isr_invoke_sof_cb(usbp);
   }
 
@@ -897,7 +911,7 @@ void usb_lld_stop(USBDriver *usbp) {
       nvicDisableVector(STM32_OTG2_NUMBER);
       rccDisableOTG_HS();
 #if defined(BOARD_OTG2_USES_ULPI)
-      rccDisableOTG_HSULPI()
+      rccDisableOTG_HSULPI();
 #endif
     }
 #endif

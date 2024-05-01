@@ -38,6 +38,11 @@
 /* Module local definitions.                                                 */
 /*===========================================================================*/
 
+/* Some GCC versions do not define this in newlib headers.*/
+#if !defined(PATH_MAX)
+#define PATH_MAX 1024
+#endif
+
 /*===========================================================================*/
 /* Module exported variables.                                                */
 /*===========================================================================*/
@@ -89,15 +94,15 @@ static char *lsalloc(sglob_t *psglob, size_t len) {
 }
 
 /* Copyright not specified so public domain code, not my thing.*/
-bool match(const char *pattern, const char *text) {
+static bool match(const char *pattern, const char *text) {
 
-  if (*pattern == '\0' && *text == '\0')
+  if ((*pattern == '\0') && (*text == '\0'))
     return true;
 
-  if (*pattern == '*' && *(pattern + 1) != '\0' && *text == '\0')
+  if ((*pattern == '*') && (*(pattern + 1) != '\0') && (*text == '\0'))
     return false;
 
-  if (*pattern == '?' || *pattern == *text)
+  if ((*pattern == '?') || (*pattern == *text))
     return match(pattern + 1, text + 1);
 
   if (*pattern == '*')

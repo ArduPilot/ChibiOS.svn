@@ -26,17 +26,20 @@
 /*
  * SPI TX and RX buffers.
  */
-static uint8_t txbuf[32];
-static uint8_t rxbuf[32];
+static uint8_t txbuf[ADXL355_COMM_BUFF_SIZE];
+static uint8_t rxbuf[ADXL355_COMM_BUFF_SIZE];
 
 /* ADXL355 Driver: This object represent an ADXL355 instance */
 static ADXL355Driver ADXL355D1;
+static BaseAccelerometer * accp = &(ADXL355D1.acc_if);
 
+static uint32_t axes_count;
 static int32_t accraw[ADXL355_ACC_NUMBER_OF_AXES];
-
 static float acccooked[ADXL355_ACC_NUMBER_OF_AXES];
 
+
 static char axisID[ADXL355_ACC_NUMBER_OF_AXES] = {'X', 'Y', 'Z'};
+static const char device_name[] = "ADXL355";
 static uint32_t i;
 
 static const SPIConfig spicfg = {
@@ -45,7 +48,7 @@ static const SPIConfig spicfg = {
   .data_cb          = NULL,
   .error_cb         = NULL,
   .ssline           = LINE_ARD_D10,
-  .cr1              = SPI_CR1_BR_1 | SPI_CR1_BR_0,
+  .cr1              = SPI_CR1_BR_2,
   .cr2              = 0U
 };
 
@@ -65,7 +68,22 @@ static ADXL355Config adxl355cfg = {
 /* Generic code.                                                             */
 /*===========================================================================*/
 
-static BaseSequentialStream* chp = (BaseSequentialStream*)&SD2;
+static BaseSequentialStream* chp = (BaseSequentialStream*) &SD5;
+  
+static THD_WORKING_AREA(waThreadBlinker, 128);
+static THD_FUNCTION(ThreadBlinker, arg) {
+
+  (void)arg;
+
+  chRegSetThreadName("blinker");
+
+  while (true) {
+    palSetLine(LINE_LED_RED);
+    chThdSleepMilliseconds(200);
+    palClearLine(LINE_LED_RED);
+    chThdSleepMilliseconds(200);
+  }
+}
 
 /*
  * Application entry point.
@@ -82,12 +100,16 @@ int main(void) {
   halInit();
   chSysInit();
 
-  sdStart(&SD2, NULL);
+  sdStart(&SD5, NULL);
 
   palSetLineMode(LINE_ARD_D10, PAL_MODE_OUTPUT_PUSHPULL);
   palSetLineMode(LINE_ARD_D11, PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
   palSetLineMode(LINE_ARD_D12, PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
   palSetLineMode(LINE_ARD_D13, PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);
+
+  /* Creating LED thread.*/
+  chThdCreateStatic(waThreadBlinker, sizeof(waThreadBlinker), NORMALPRIO + 1,
+                    ThreadBlinker, NULL);
 
   /* ADXL355 Object Initialization.*/
   adxl355ObjectInit(&ADXL355D1, txbuf, rxbuf);
@@ -95,20 +117,22 @@ int main(void) {
   /* Activates the ADXL355 driver.*/
   adxl355Start(&ADXL355D1, &adxl355cfg);
 
-  /* Normal main() thread activity, printing MEMS data on the SDU1.*/
+  /* Getting the count of axes. */
+  axes_count = accelerometerGetAxesNumber(accp);
+  
+  /* Normal main() thread activity, printing MEMS data on the SD5.*/
   while (true) {
-    adxl355AccelerometerReadRaw(&ADXL355D1, accraw);
-    chprintf(chp, "ADXL355 Accelerometer raw data...\r\n");
-    for(i = 0; i < ADXL355_ACC_NUMBER_OF_AXES; i++) {
+    accelerometerReadRaw(accp, accraw);
+    chprintf(chp, "%s raw data...\r\n", device_name);
+    for(i = 0; i < axes_count; i++) {
       chprintf(chp, "%c-axis: %d\r\n", axisID[i], accraw[i]);
     }
 
-    adxl355AccelerometerReadCooked(&ADXL355D1, acccooked);
-    chprintf(chp, "ADXL355 Accelerometer cooked data...\r\n");
-    for(i = 0; i < ADXL355_ACC_NUMBER_OF_AXES; i++) {
+    accelerometerReadCooked(accp, acccooked);
+    chprintf(chp, "%s cooked data...\r\n", device_name);
+    for(i = 0; i < axes_count; i++) {
       chprintf(chp, "%c-axis: %.3f\r\n", axisID[i], acccooked[i]);
     }
     chThdSleepMilliseconds(100);
   }
-  adxl355Stop(&ADXL355D1);
 }

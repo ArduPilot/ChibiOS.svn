@@ -74,30 +74,31 @@
 *****************************************************************************
 
 *** Next ***
+- NEW: Now RT virtual timers can recalculate the value of CH_CFG_ST_TIMEDELTA
+       at runtime and continue using the recalculated value. This has two
+       consequences: 1) The value is recalculated once 2) it is possible
+       to use the new API chVTGetCurrentDelta() and update the static
+       setting in order to avoid recalculation.
+- NEW: OSLIB release methods now return the value of the reference counter.
+- NEW: Support for STM32C0xx.
+- NEW: Improved DAC driver, updated STM32 DACv1.
+- NEW: STM32 RTCv2 and RTCv3 modified to not use shadow registers.
+- NEW: Enhanced STM32F7xx MPU configuration in mcuconf.h.
+- NEW: I2C slave support in HAL high level driver.
+- NEW: Added settings for STM32 OCTOSPIv1 and OCTOSPIv2 TCR bits SSHIFT and
+       DHQC.
+- NEW: Automatic removal of duplicated inclusion paths on make command lines.
+- NEW: Reworked STM32 SDMMCv1 and SDMMCv2 drivers, better timeout and clock
+       handling, improved speed for aligned buffers.
 - NEW: Added a "waend" field to the thread structure in RT for debug
        convenience.
-- NEW: Removed obsolete sandbox code from ARMv7-M port. Now ARMv7-M-ALT is
-       the official port for use with sandboxes.
-- NEW: Reworked HAL MAC driver, now with callback support.
 - NEW: Added a para-virtualized HAL port for use in sandboxes.
 - NEW: Added a VIO subsystem to sandboxes supporting drivers
        para-virtualization, PAL and SIO supported so far.
 - NEW: Added and RT port for use in virtualized sandboxes.
 - NEW: Added full virtualization support to sandboxes with a virtual IRQ
        mechanism.
-- NEW: Fixed setting of SYSCLK when derived from divided HSI16
-- NEW: Mass change: Source code convention changed from CRLF to just CR (Unix).
-- NEW: Fixed some corned cases in ADC5, added ADC reset on start().
-- NEW: Added a "BufferedSIODriver" class that implements the behavior of the
-       legacy Serial driver on top of a SIO implementation (buffering, events
-       and all).
 - NEW: Added __CH_OWNEROF() macro to RT.
-- NEW; Now hal.h includes cc_portab.h by default making it mandatory.
-- NEW: Moved HAL serial error flags into asynchronous channels interface
-       definitions.
-- NEW: Reworked HAL SIO driver.
-- NEW: Non-proprietary LLVM build support.
-- NEW: Added palReadGroupLatch() to PAL driver.
 - NEW: Added a Posix-favored shell named "msh" (Mini Shell). The shell is able
        to run sub-apps inside the same sandbox. The shell can either be placed
        statically in flash or loaded dynamically in RAM.
@@ -107,10 +108,6 @@
 - NEW: SBs and VFS integration. Each SB can see its own VFS instance.
 - NEW: Added integration of LittleFS on top of our flash infrastructure.
 - NEW: Added a new MEM_IS_VALID_FUNCTION() macro to RT and NIL.
-- NEW: Added a centralized errors handler under /os/common/utils. It will
-       replace those in HAL and SB and will be shared among multiple subsystems.
-- NEW: Added a new OOP model under /os/common/utils. It will replace the
-       one in HAL and will be shared among multiple subsystems.
 - NEW: Changed SB configuration options names to be prefixed with SB_CFG_.
 - NEW: Added a new CH_CFG_HARDENING_LEVEL option to RT.
 - NEW: Added a chXXXDispose() function to all objects in NIL.
@@ -126,10 +123,74 @@
        instead of a simple size.
 - NEW: RT and NIL upgraded to support the enhanced OSLIB.
 - NEW: Memory areas/pointers checker functions added to OSLIB.
-- NEW: Increased stacks size in RT test suite from 128 to 192. added an
-       option to override the stack size by defining THREADS_STACK_SIZE
-       in the makefile.
-- FIX: Fixed problems with cache in STM32 SDMMC drivers (bug #1238)(***********TODO*********** backported to 21.11.3).
+- FIX: Fixed ARMv8-M-ML port compile fail when FPU is enabled (bug #1281)
+       (backported to 21.11.4).
+- FIX: Fixed interrupts not enabled for STM32H735 TIM15, TIM16 and TIM17
+       (bug #1280)(backported to 21.11.4).
+- FIX: Fixed wrong STM32 LSI activation check (bug #1279)
+       (backported to 21.11.4).
+- FIX: Fixed STM32 HAL UART ISR flaw (bug #1278)(backported to 21.11.4).
+- FIX: Fixed race condition caused by chGuardedPoolAllocI() (bug #1277)
+       (backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed avoid shadowing with build-in pow10 function in chprintf.c
+       (bug #1274)(backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed enabling PWM on TIM1, 3, 4 causes compile errors in
+       RT-STM32G0B1RE-NUCLEO64 (bug #1273)(backported to 21.11.4).
+- FIX: Wrong assertion in STM32 SPIv3 on SPI6 start.
+- FIX: Fixed problems related to TIM3, TIM4 and TIM16 on STM32G0.
+- FIX: Fixed uninitialized return message in EX subsystem (bug #1267)
+       (backported to 21.11.4).
+- FIX: Fixed unnecessary code in SNOR device drivers (bug #1265)
+       (backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed RP2040 HAL GPIO failed to compile (bug #1264)
+       (backported to 21.11.4).
+- FIX: Fixed channel 0 corruption on STM32 BDMAv1 (bug #1263)
+       (backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed wrong statistics in RT7 (bug #1262)(backported to 21.11.4).
+- FIX: Fixed missing cache management during Cortex-M RAM initializations
+       (bug #1261)(backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed RTC & TAMP interrupts not functional (bug #1260)
+       (backported to 21.11.4).
+- FIX: Fixed syntax errors in STM32H7xx/hal_lld_type2.h (bug #1259)
+       (backported to 21.11.4).
+- FIX: Fixed unwanted reset of cache on STM32H7xx (bug #1258)
+       (backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed invalid HSIDIV in STM32Ggxx clocks initialization (bug #1257)
+       (backported to 21.11.4).
+- FIX: Fixed incorrect RTC initialization on STM32G4/L4/L4+ (bug #1256)
+       (backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed syntax error in RP2040 GPIO driver (bug #1255)
+       (backported to 21.11.4).
+- FIX: Fixed undefined STM32_SDMMC_MAXCLK value for STM32H7 type 1 and 2
+       (bug #1254)(backported to 21.11.4).
+- FIX: Fixed invalid checks on PLLP/R/Q dividers on STM32H7 (bug #1253)
+       (backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed remote wakeup failure in STM32 OTGv1 driver (bug #1252)
+       (backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed wrong use of hooks in RT/NIL (bug #1251)
+       (backported to 20.3.5)(backported to 21.11.4).
+- FIX: Fixed SPI_MMC driver broken in 21.11.3 (bug #1249)
+       (backported to 21.11.3).
+- FIX: Fixed broken support for STM32 UART9 and USART10 (bug #1248)
+       (backported to 21.11.3).
+- FIX: Fixed wrong initialization in STM32L1xx ADC driver (bug #1247)
+       (backported to 20.3.5)(backported to 21.11.3).
+- FIX: Fixed wrong HSI48 support on STM32L0xx (bug #1246)
+       (backported to 20.3.5)(backported to 21.11.3).
+- FIX: Fixed wrong DMA definitions for STM32L0xx I2C3 peripheral (bug #1245)
+       (backported to 20.3.5)(backported to 21.11.3).
+- FIX: Fixed wrong path in STM32L053 ADC demo makefile (bug #1244)
+       (backported to 20.3.5)(backported to 21.11.3).
+- FIX: Fixed missing semicolon in STM32 OTGv1 driver (bug #1243)
+       (backported to 20.3.5)(backported to 21.11.3).
+- FIX: Fixed HSI48 not enabled for STM32L496/4A6 (bug #1242)
+       (backported to 20.3.5)(backported to 21.11.3).
+- FIX: Fixed problem in STM32 gpt_lld_polled_delay() implementation (bug #1241)
+       (backported to 20.3.5)(backported to 21.11.3).
+- FIX: Fixed invalid delay loop in STM32G0/WL ADCv5 driver (bug #1240)
+       (backported to 20.3.5)(backported to 21.11.3).
+- FIX: Fixed STM32_MCOSEL setting problem (bug #1239).
+- FIX: Fixed problems with cache in STM32 SDMMC drivers (bug #1238).
 - FIX: Fixed missing clock enables for some GPIOS on some STM32L4s (bug #1237)
        (backported to 20.3.5)(backported to 21.11.3).
 - FIX: Fixed old bugs in serial driver header (bug #1236)
@@ -138,7 +199,7 @@
        (backported to 20.3.5)(backported to 21.11.3).
 - FIX: Fixed STM32 RTCv2 locks for a second (bug #1234)
        (backported to 20.3.5)(backported to 21.11.3).
-- FIX: Fixed CAN support broken on STM32F413 (bug #1232)(***********TODO*********** backported to 21.11.3).
+- FIX: Fixed CAN support broken on STM32F413 (bug #1232).
 - FIX: Re-opened and fixed bug #1100
        (backported to 20.3.5)(backported to 21.11.2).
 - FIX: Fixed wrong buffers toggling in STM32 USBv1 isochronous mode (bug #1232)

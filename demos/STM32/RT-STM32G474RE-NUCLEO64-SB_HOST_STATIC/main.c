@@ -23,12 +23,11 @@
 
 #include "startup_defs.h"
 
-
 /* Sandbox objects.*/
 sb_class_t sbx1, sbx2;
 
 /*===========================================================================*/
-/* VHAL-related.                                                             */
+/* VIO-related.                                                              */
 /*===========================================================================*/
 
 static vio_gpio_units_t gpio_units1 = {
@@ -104,12 +103,12 @@ static vfs_streams_driver_c dev_driver;
    symbol is expected.*/
 vfs_driver_c *vfs_root = (vfs_driver_c *)&root_overlay_driver;
 
-static NullStream nullstream;
+static null_stream_c nullstream;
 
 /* Stream to be exposed under /dev as files.*/
 static const drv_streams_element_t streams[] = {
-  {"VSD1", (BaseSequentialStream *)&SD1},
-  {"null", (BaseSequentialStream *)&nullstream},
+  {"VSIO1", (BaseSequentialStream *)oopGetIf(&SIOD1, chn)},
+  {"null", (BaseSequentialStream *)oopGetIf(&nullstream, stm)},
   {NULL, NULL}
 };
 
@@ -117,8 +116,19 @@ static const drv_streams_element_t streams[] = {
 /* SB-related.                                                               */
 /*===========================================================================*/
 
+/* Working areas for sandboxes.*/
+static THD_WORKING_AREA(waUnprivileged1, 512);
+static THD_WORKING_AREA(waUnprivileged2, 512);
+
 /* Sandbox 1 configuration.*/
 static const sb_config_t sb_config1 = {
+  .thread           = {
+    .name           = "sbx1",
+    .wsp            = waUnprivileged1,
+    .size           = sizeof (waUnprivileged1),
+    .prio           = NORMALPRIO - 10,
+    .vrq_prio       = NORMALPRIO - 1
+  },
   .code_region      = 0U,
   .data_region      = 1U,
   .regions          = {
@@ -139,6 +149,13 @@ static const sb_config_t sb_config1 = {
 
 /* Sandbox 2 configuration.*/
 static const sb_config_t sb_config2 = {
+  .thread           = {
+    .name           = "sbx2",
+    .wsp            = waUnprivileged2,
+    .size           = sizeof (waUnprivileged2),
+    .prio           = NORMALPRIO - 20,
+    .vrq_prio       = NORMALPRIO - 2
+  },
   .code_region      = 0U,
   .data_region      = 1U,
   .regions          = {
@@ -175,9 +192,6 @@ static const char *sbx2_envp[] = {
   NULL
 };
 
-static THD_WORKING_AREA(waUnprivileged1, 512);
-static THD_WORKING_AREA(waUnprivileged2, 512);
-
 /*===========================================================================*/
 /* Main and generic code.                                                    */
 /*===========================================================================*/
@@ -186,9 +200,7 @@ static void start_sb1(void) {
   thread_t *utp;
 
   /* Starting sandboxed thread 1.*/
-  utp = sbStartThread(&sbx1, "sbx1",
-                      waUnprivileged1, sizeof (waUnprivileged1),
-                      NORMALPRIO - 1, sbx1_argv, sbx1_envp);
+  utp = sbStartThread(&sbx1, sbx1_argv, sbx1_envp);
   if (utp == NULL) {
     chSysHalt("sbx1 failed");
   }
@@ -201,7 +213,7 @@ static void start_sb2(void) {
 
   /*
    * Associating standard input, output and error to sandbox 2.*/
-  ret = vfsOpen("/dev/VSD1", 0, &np);
+  ret = vfsOpen("/dev/VSIO1", 0, &np);
   if (CH_RET_IS_ERROR(ret)) {
     chSysHalt("VFS");
   }
@@ -211,9 +223,7 @@ static void start_sb2(void) {
   vfsClose(np);
 
   /* Starting sandboxed thread 2.*/
-  utp = sbStartThread(&sbx2, "sbx2",
-                      waUnprivileged2, sizeof (waUnprivileged2),
-                      NORMALPRIO - 2, sbx2_argv, sbx2_envp);
+  utp = sbStartThread(&sbx2, sbx2_argv, sbx2_envp);
   if (utp == NULL) {
     chSysHalt("sbx2 failed");
   }
@@ -240,7 +250,6 @@ static THD_FUNCTION(Thread1, arg) {
  * Application entry point.
  */
 int main(void) {
-//  unsigned i = 1U;
   event_listener_t el1;
   msg_t ret;
 
@@ -261,8 +270,8 @@ int main(void) {
   /*
    * Starting a serial port for I/O, initializing other streams too.
    */
-  sdStart(&SD1, NULL);
-  nullObjectInit(&nullstream);
+  drvStart(&SIOD1);
+  nullstmObjectInit(&nullstream);
 
   /*
    * Creating a messenger thread.
@@ -273,10 +282,11 @@ int main(void) {
    * Initializing an overlay VFS object as a root, no overlaid driver,
    * registering a streams VFS driver on the VFS overlay root as "/dev".
    */
-  drvOverlayObjectInit(&root_overlay_driver, NULL, NULL);
-  ret = drvOverlayRegisterDriver(&root_overlay_driver,
-                                 drvStreamsObjectInit(&dev_driver, &streams[0]),
-                                 "dev");
+  ovldrvObjectInit(&root_overlay_driver, NULL, NULL);
+  ret = ovldrvRegisterDriver(&root_overlay_driver,
+                             (vfs_driver_c *)stmdrvObjectInit(&dev_driver,
+                                                              &streams[0]),
+                             "dev");
   if (CH_RET_IS_ERROR(ret)) {
     chSysHalt("VFS");
   }
@@ -323,13 +333,13 @@ int main(void) {
     if (chEvtWaitOneTimeout(ALL_EVENTS, TIME_MS2I(500)) != (eventmask_t)0) {
 
       if (!sbIsThreadRunningX(&sbx1)) {
-        chprintf((BaseSequentialStream *)&SD1, "SB1 terminated\r\n");
+        chprintf(oopGetIf(&SIOD1, chn), "SB1 terminated\r\n");
         chThdSleepMilliseconds(100);
         start_sb1();
       }
 
       if (!sbIsThreadRunningX(&sbx2)) {
-        chprintf((BaseSequentialStream *)&SD1, "SB2 terminated\r\n");
+        chprintf(oopGetIf(&SIOD1, chn), "SB2 terminated\r\n");
         chThdSleepMilliseconds(100);
         start_sb2();
       }

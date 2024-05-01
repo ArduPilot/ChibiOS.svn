@@ -81,8 +81,8 @@ static void __idle_thread(void *p) {
  * @brief   Initializes a system instance.
  * @note    The system instance is in I-Lock state after initialization.
  *
- * @param[out] oip      pointer to the @p os_instance_t structure
- * @param[in] oicp      pointer to the @p os_instance_config_t structure
+ * @param[out] oip      pointer to an @p os_instance_t object
+ * @param[in] oicp      pointer to an @p os_instance_config_t object
  *
  * @special
  */
@@ -159,6 +159,11 @@ void chInstanceObjectInit(os_instance_t *oip,
 
   /* Setting up the caller as current thread.*/
   oip->rlist.current->state = CH_STATE_CURRENT;
+
+#if CH_DBG_STATISTICS == TRUE
+  /* Starting measurement for this thread.*/
+  chTMStartMeasurementX(&oip->rlist.current->stats);
+#endif
 
   /* User instance initialization hook.*/
   CH_CFG_OS_INSTANCE_INIT_HOOK(oip);

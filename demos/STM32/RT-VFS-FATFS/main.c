@@ -131,8 +131,8 @@ static NullStream nullstream;
 
 /* Stream to be exposed under /dev as files.*/
 static const drv_streams_element_t streams[] = {
-  {"VSD1", (BaseSequentialStream *)&PORTAB_SD1},
-  {"null", (BaseSequentialStream *)&nullstream},
+  {"VSD1", (sequential_stream_i *)&PORTAB_SD1},
+  {"null", (sequential_stream_i *)&nullstream},
   {NULL, NULL}
 };
 
@@ -150,6 +150,14 @@ static ShellConfig shell_cfg1 = {
 /*===========================================================================*/
 /* Main and generic code.                                                    */
 /*===========================================================================*/
+
+#if !HAL_USE_SDC
+static uint8_t __nocache_mmcbuf[MMC_BUFFER_SIZE];
+mmc_spi_driver_t MMCD1;
+
+/* MMC/SD over SPI driver configuration.*/
+static MMCConfig mmccfg = {&PORTAB_SPI1, &ls_spicfg, &hs_spicfg};
+#endif
 
 /*
  * Pointer to the shell thread, if active, else NULL.
@@ -176,14 +184,14 @@ static void InsertHandler(eventid_t id) {
   }
 #endif
 
-  err = drvFatFSMount("0:", 1);
+  err = ffdrvMount("0:", 1);
   if (CH_RET_IS_ERROR(err)) {
 #if HAL_USE_SDC
     sdcDisconnect(&PORTAB_SDCD1);
 #else
-  if (mmcDisconnect(&MMCD1)) {
+    mmcDisconnect(&MMCD1);
 #endif
-   return;
+    return;
   }
   fs_ready = true;
 #endif
@@ -267,27 +275,35 @@ int main(void) {
   nullObjectInit(&nullstream);
 
 #if VFS_CFG_ENABLE_DRV_FATFS == TRUE
+#if HAL_USE_SDC
   /* Activates the  SDC driver using default configuration.*/
   sdcStart(&PORTAB_SDCD1, NULL);
 
   /* Activates the card insertion monitor.*/
   tmr_init(&PORTAB_SDCD1);
+#else
+  mmcObjectInit(&MMCD1, __nocache_mmcbuf);
+  mmcStart(&MMCD1, &mmccfg);
+
+  /* Activates the card insertion monitor.*/
+  tmr_init(&MMCD1);
+#endif
 
   /* Initializing an overlay VFS object overlaying a FatFS driver. Note
      that this virtual file system can only access the "/sb1" sub-directory
      on the physical FatFS volume.*/
-  drvOverlayObjectInit(&root_overlay_driver,
-                       drvFatFSObjectInit(&root_driver),
-                       "/sb1");
+  ovldrvObjectInit(&root_overlay_driver,
+                   (vfs_driver_c *)ffdrvObjectInit(&root_driver),
+                   "/sb1");
 #else
   /* Initializing an overlay VFS object as a root, no overlaid driver.*/
-  drvOverlayObjectInit(&root_overlay_driver, NULL, NULL);
+  ovldrvObjectInit(&root_overlay_driver, NULL, NULL);
 #endif
 
   /* Registering a streams VFS driver on the VFS overlay root as "/dev".*/
-  msg = drvOverlayRegisterDriver(&root_overlay_driver,
-                                 drvStreamsObjectInit(&dev_driver, &streams[0]),
-                                 "dev");
+  msg = ovldrvRegisterDriver(&root_overlay_driver,
+                             (vfs_driver_c *)stmdrvObjectInit(&dev_driver, &streams[0]),
+                             "dev");
   if (CH_RET_IS_ERROR(msg)) {
     chSysHalt("VFS");
   }
@@ -297,7 +313,7 @@ int main(void) {
   if (CH_RET_IS_ERROR(msg)) {
     chSysHalt("VFS");
   }
-  shell_cfg1.sc_channel = vfsGetFileStream(file);
+  shell_cfg1.sc_channel = (BaseSequentialStream *)vfsGetFileStream(file);
 
   /* Creates the blinker thread.*/
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);

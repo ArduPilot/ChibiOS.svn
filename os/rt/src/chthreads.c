@@ -148,7 +148,7 @@ void __thd_stackfill(uint8_t *startp, uint8_t *endp) {
 #endif /* CH_DBG_FILL_THREADS */
 
 /**
- * @brief   Creates a new thread into a static memory area.
+ * @brief   Creates a new thread.
  * @details The new thread is initialized but not inserted in the ready list,
  *          the initial state is @p CH_STATE_WTSTART.
  * @post    The created thread has a reference counter set to one, it is
@@ -164,7 +164,7 @@ void __thd_stackfill(uint8_t *startp, uint8_t *endp) {
  *          @p CH_DBG_FILL_THREADS debug option because it would keep
  *          the kernel locked for too much time.
  *
- * @param[out] tdp      pointer to the thread descriptor
+ * @param[in] tdp       pointer to the thread descriptor
  * @return              The pointer to the @p thread_t structure allocated for
  *                      the thread into the working space area.
  *
@@ -207,7 +207,7 @@ thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp) {
 }
 
 /**
- * @brief   Creates a new thread into a static memory area.
+ * @brief   Creates a new thread.
  * @details The new thread is initialized but not inserted in the ready list,
  *          the initial state is @p CH_STATE_WTSTART.
  * @post    The created thread has a reference counter set to one, it is
@@ -220,7 +220,7 @@ thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp) {
  * @note    A thread can terminate by calling @p chThdExit() or by simply
  *          returning from its main function.
  *
- * @param[out] tdp      pointer to the thread descriptor
+ * @param[in] tdp       pointer to the thread descriptor
  * @return              The pointer to the @p thread_t structure allocated for
  *                      the thread into the working space area.
  *
@@ -246,22 +246,19 @@ thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp) {
 }
 
 /**
- * @brief   Creates a new thread into a static memory area.
+ * @brief   Creates a new thread.
  * @details The new thread is initialized and make ready to execute.
  * @post    The created thread has a reference counter set to one, it is
  *          caller responsibility to call @p chThdRelease() or @p chthdWait()
  *          in order to release the reference. The thread persists in the
  *          registry until its reference counter reaches zero.
- * @post    The initialized thread can be subsequently started by invoking
- *          @p chThdStart(), @p chThdStartI() or @p chSchWakeupS()
- *          depending on the execution context.
  * @note    A thread can terminate by calling @p chThdExit() or by simply
  *          returning from its main function.
  * @note    Threads created using this function do not obey to the
  *          @p CH_DBG_FILL_THREADS debug option because it would keep
  *          the kernel locked for too much time.
  *
- * @param[out] tdp      pointer to the thread descriptor
+ * @param[in] tdp       pointer to the thread descriptor
  * @return              The pointer to the @p thread_t structure allocated for
  *                      the thread into the working space area.
  *
@@ -273,7 +270,7 @@ thread_t *chThdCreateI(const thread_descriptor_t *tdp) {
 }
 
 /**
- * @brief   Creates a new thread into a static memory area.
+ * @brief   Creates a new thread.
  * @details The new thread is initialized and make ready to execute.
  * @post    The created thread has a reference counter set to one, it is
  *          caller responsibility to call @p chThdRelease() or @p chthdWait()
@@ -282,7 +279,7 @@ thread_t *chThdCreateI(const thread_descriptor_t *tdp) {
  * @note    A thread can terminate by calling @p chThdExit() or by simply
  *          returning from its main function.
  *
- * @param[out] tdp      pointer to the thread descriptor
+ * @param[in] tdp       pointer to the thread descriptor
  * @return              The pointer to the @p thread_t structure allocated for
  *                      the thread into the working space area.
  *
@@ -310,7 +307,7 @@ thread_t *chThdCreate(const thread_descriptor_t *tdp) {
 }
 
 /**
- * @brief   Creates a new thread into a static memory area.
+ * @brief   Creates a new thread.
  * @post    The created thread has a reference counter set to one, it is
  *          caller responsibility to call @p chThdRelease() or @p chthdWait()
  *          in order to release the reference. The thread persists in the
@@ -320,8 +317,8 @@ thread_t *chThdCreate(const thread_descriptor_t *tdp) {
  *
  * @param[out] wsp      pointer to a working area dedicated to the thread stack
  * @param[in] size      size of the working area
- * @param[in] prio      the priority level for the new thread
- * @param[in] pf        the thread function
+ * @param[in] prio      priority level for the new thread
+ * @param[in] pf        thread function
  * @param[in] arg       an argument passed to the thread function. It can be
  *                      @p NULL.
  * @return              The pointer to the @p thread_t structure allocated for
@@ -376,11 +373,10 @@ thread_t *chThdCreateStatic(void *wsp, size_t size,
 }
 
 /**
- * @brief   Resumes a thread created with @p chThdCreateI().
+ * @brief   Starts a thread created with @p chThdCreateSuspended().
  *
  * @param[in] tp        pointer to the thread
- * @return              The pointer to the @p thread_t structure allocated for
- *                      the thread into the working space area.
+ * @return              Thread to be started.
  *
  * @api
  */
@@ -513,7 +509,7 @@ void chThdExitS(msg_t msg) {
   currtp->u.exitcode = msg;
 
   /* Exit handler hook.*/
-  CH_CFG_THREAD_EXIT_HOOK(tp);
+  CH_CFG_THREAD_EXIT_HOOK(currtp);
 
 #if CH_CFG_USE_WAITEXIT == TRUE
   /* Waking up any waiting thread.*/
@@ -654,7 +650,6 @@ void chThdTerminate(thread_t *tp) {
  *                      - @a TIME_INFINITE the thread enters an infinite sleep
  *                        state.
  *                      - @a TIME_IMMEDIATE this value is not allowed.
- *                      .
  *
  * @api
  */
@@ -765,7 +760,6 @@ msg_t chThdSuspendS(thread_reference_t *trp) {
  *                      - @a TIME_IMMEDIATE the thread is not suspended and
  *                        the function returns @p MSG_TIMEOUT as if a timeout
  *                        occurred.
- *                      .
  * @return              The wake up message.
  * @retval MSG_TIMEOUT  if the operation timed out.
  *
@@ -851,7 +845,7 @@ void chThdResume(thread_reference_t *trp, msg_t msg) {
 /**
  * @brief   Initializes a threads queue object.
  *
- * @param[out] tqp      pointer to a @p threads_queue_t structure
+ * @param[out] tqp      pointer to a @p threads_queue_t object
  *
  * @init
  */
@@ -873,7 +867,7 @@ void chThdQueueObjectInit(threads_queue_t *tqp) {
  *          of @p NULL pointers rather than dereferencing previously valid
  *          pointers.
  *
- * @param[in] tqp       pointer to a @p threads_queue_t structure
+ * @param[in] tqp       pointer to a @p threads_queue_t object
  *
  * @dispose
  */
@@ -893,7 +887,7 @@ void chThdQueueObjectDispose(threads_queue_t *tqp) {
  * @details The caller thread is enqueued and put to sleep until it is
  *          dequeued or the specified timeouts expires.
  *
- * @param[in] tqp       pointer to a @p threads_queue_t structure
+ * @param[in] tqp       pointer to a @p threads_queue_t object
  * @param[in] timeout   the timeout in system ticks, the special values are
  *                      handled as follow:
  *                      - @a TIME_INFINITE the thread enters an infinite sleep
@@ -901,7 +895,6 @@ void chThdQueueObjectDispose(threads_queue_t *tqp) {
  *                      - @a TIME_IMMEDIATE the thread is not enqueued and
  *                        the function returns @p MSG_TIMEOUT as if a timeout
  *                        occurred.
- *                      .
  * @return              The message from @p osalQueueWakeupOneI() or
  *                      @p osalQueueWakeupAllI() functions.
  * @retval MSG_TIMEOUT  if the thread has not been dequeued within the
@@ -927,7 +920,7 @@ msg_t chThdEnqueueTimeoutS(threads_queue_t *tqp, sysinterval_t timeout) {
  * @brief   Dequeues and wakes up one thread from the threads queue object,
  *          if any.
  *
- * @param[in] tqp       pointer to a @p threads_queue_t structure
+ * @param[in] tqp       pointer to a @p threads_queue_t object
  * @param[in] msg       the message code
  *
  * @iclass
@@ -942,7 +935,7 @@ void chThdDequeueNextI(threads_queue_t *tqp, msg_t msg) {
 /**
  * @brief   Dequeues and wakes up all threads from the threads queue object.
  *
- * @param[in] tqp       pointer to a @p threads_queue_t structure
+ * @param[in] tqp       pointer to a @p threads_queue_t object
  * @param[in] msg       the message code
  *
  * @iclass

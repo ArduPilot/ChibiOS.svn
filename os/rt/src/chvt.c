@@ -63,14 +63,17 @@
  *          <tt>(now + delay)</tt>, the deadline is skipped forward
  *          in order to compensate for the event.
  *
+ * @param[in] vtlp      pointer to a @p virtual_timers_list_t structure
  * @param[in] now       last known system time
  * @param[in] delay     delay over @p now
  */
-static void vt_set_alarm(systime_t now, sysinterval_t delay) {
+static void vt_set_alarm(virtual_timers_list_t *vtlp,
+                         systime_t now,
+                         sysinterval_t delay) {
   sysinterval_t currdelta;
 
   /* Initial delta is what is configured statically.*/
-  currdelta = (sysinterval_t)CH_CFG_ST_TIMEDELTA;
+  currdelta = vtlp->lastdelta;
 
   if (delay < currdelta) {
     /* We need to avoid that the system time goes past the alarm we are
@@ -115,7 +118,8 @@ static void vt_set_alarm(systime_t now, sysinterval_t delay) {
 
 #if !defined(CH_VT_RFCU_DISABLED)
   /* Checking if a skip occurred.*/
-  if (currdelta > CH_CFG_ST_TIMEDELTA) {
+  if (currdelta > vtlp->lastdelta) {
+    vtlp->lastdelta = currdelta;
     chRFCUCollectFaultsI(CH_RFCU_VT_INSUFFICIENT_DELTA);
   }
 #else
@@ -127,6 +131,11 @@ static void vt_set_alarm(systime_t now, sysinterval_t delay) {
 /**
  * @brief   Inserts a timer as first element in a delta list.
  * @note    This is the special case when the delta list is initially empty.
+ *
+ * @param[in] vtlp      pointer to a @p virtual_timers_list_t structure
+ * @param[in] vtp       pointer to a @p virtual_timer_t object
+ * @param[in] now       last known system time
+ * @param[in] delay     delay over @p now
  */
 static void vt_insert_first(virtual_timers_list_t *vtlp,
                             virtual_timer_t *vtp,
@@ -140,7 +149,7 @@ static void vt_insert_first(virtual_timers_list_t *vtlp,
   ch_dlist_insert_after(&vtlp->dlist, &vtp->dlist, delay);
 
   /* Initial delta is what is configured statically.*/
-  currdelta = (sysinterval_t)CH_CFG_ST_TIMEDELTA;
+  currdelta = vtlp->lastdelta;
 
   /* If the requested delay is lower than the minimum safe delta then it
      is raised to the minimum safe value.*/
@@ -189,7 +198,8 @@ static void vt_insert_first(virtual_timers_list_t *vtlp,
 
 #if !defined(CH_VT_RFCU_DISABLED)
   /* Checking if a skip occurred.*/
-  if (currdelta > CH_CFG_ST_TIMEDELTA) {
+  if (currdelta > vtlp->lastdelta) {
+    vtlp->lastdelta = currdelta;
     chRFCUCollectFaultsI(CH_RFCU_VT_INSUFFICIENT_DELTA);
   }
 #else
@@ -201,6 +211,10 @@ static void vt_insert_first(virtual_timers_list_t *vtlp,
 
 /**
  * @brief   Enqueues a virtual timer in a virtual timers list.
+ *
+ * @param[in] vtlp      pointer to a @p virtual_timers_list_t structure
+ * @param[in] vtp       pointer to a @p virtual_timer_t object
+ * @param[in] delay     delay over current system time
  */
 static void vt_enqueue(virtual_timers_list_t *vtlp,
                        virtual_timer_t *vtp,
@@ -236,7 +250,7 @@ static void vt_enqueue(virtual_timers_list_t *vtlp,
        requires changing the current alarm setting.*/
     if (delta < vtlp->dlist.next->delta) {
 
-      vt_set_alarm(now, delay);
+      vt_set_alarm(vtlp, now, delay);
     }
   }
 #else /* CH_CFG_ST_TIMEDELTA == 0 */
@@ -259,7 +273,7 @@ static void vt_enqueue(virtual_timers_list_t *vtlp,
  *          function is only useful if you need to perform a @p chVTIsArmed()
  *          check before calling @p chVTSetI().
  *
- * @param[out] vtp      pointer to a @p virtual_timer_t structure
+ * @param[out] vtp      pointer to a @p virtual_timer_t object
  *
  * @init
  */
@@ -279,7 +293,7 @@ void chVTObjectInit(virtual_timer_t *vtp) {
  *          of @p NULL pointers rather than dereferencing previously valid
  *          pointers.
  *
- * @param[in] vtp       pointer to a @p virtual_timer_t structure
+ * @param[in] vtp       pointer to a @p virtual_timer_t object
  *
  * @dispose
  */
@@ -300,13 +314,12 @@ void chVTObjectDispose(virtual_timer_t *vtp) {
  * @pre     The timer must not be already armed before calling this function.
  * @note    The callback function is invoked from interrupt context.
  *
- * @param[out] vtp      pointer to a @p virtual_timer_t structure
+ * @param[out] vtp      pointer to a @p virtual_timer_t object
  * @param[in] delay     the number of ticks before the operation timeouts, the
  *                      special values are handled as follow:
  *                      - @a TIME_INFINITE is allowed but interpreted as a
  *                        normal time specification.
  *                      - @a TIME_IMMEDIATE this value is not allowed.
- *                      .
  * @param[in] vtfunc    the timer callback function. After invoking the
  *                      callback the timer is disabled and the structure can
  *                      be disposed or reused.
@@ -338,13 +351,12 @@ void chVTDoSetI(virtual_timer_t *vtp, sysinterval_t delay,
  * @pre     The timer must not be already armed before calling this function.
  * @note    The callback function is invoked from interrupt context.
  *
- * @param[out] vtp      pointer to a @p virtual_timer_t structure
+ * @param[out] vtp      pointer to a @p virtual_timer_t object
  * @param[in] delay     the number of ticks before the operation timeouts, the
  *                      special values are handled as follow:
  *                      - @a TIME_INFINITE is allowed but interpreted as a
  *                        normal time specification.
  *                      - @a TIME_IMMEDIATE this value is not allowed.
- *                      .
  * @param[in] vtfunc    the timer callback function. After invoking the
  *                      callback the timer is restarted.
  * @param[in] par       a parameter that will be passed to the callback
@@ -372,7 +384,7 @@ void chVTDoSetContinuousI(virtual_timer_t *vtp, sysinterval_t delay,
  * @brief   Disables a Virtual Timer.
  * @pre     The timer must be in armed state before calling this function.
  *
- * @param[in] vtp       pointer to a @p virtual_timer_t structure
+ * @param[in] vtp       pointer to a @p virtual_timer_t object
  *
  * @iclass
  */
@@ -449,7 +461,7 @@ void chVTDoResetI(virtual_timer_t *vtp) {
   delta = vtlp->dlist.next->delta - nowdelta;
 
   /* Setting up the alarm.*/
-  vt_set_alarm(now, delta);
+  vt_set_alarm(vtlp, now, delta);
 #endif /* CH_CFG_ST_TIMEDELTA > 0 */
 }
 
@@ -457,7 +469,7 @@ void chVTDoResetI(virtual_timer_t *vtp) {
  * @brief   Returns the remaining time interval before next timer trigger.
  * @note    This function can be called while the timer is active.
  *
- * @param[in] vtp       pointer to a @p virtual_timer_t structure
+ * @param[in] vtp       pointer to a @p virtual_timer_t object
  * @return              The remaining time interval.
  *
  * @iclass
@@ -644,7 +656,7 @@ void chVTDoTickI(void) {
   vtp->dlist.delta -= nowdelta;
 
   /* Update alarm time to next timer.*/
-  vt_set_alarm(now, vtp->dlist.delta);
+  vt_set_alarm(vtlp, now, vtp->dlist.delta);
 #endif /* CH_CFG_ST_TIMEDELTA > 0 */
 }
 

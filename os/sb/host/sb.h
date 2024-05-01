@@ -239,6 +239,31 @@ typedef struct {
  */
 typedef struct {
   /**
+   * @brief   Thread-related configurations.
+   */
+  struct {
+    /**
+     * @brief   Thread name.
+     */
+    const char                  *name;
+    /**
+     * @brief   Thread working area.
+     */
+    void                        *wsp;
+    /**
+     * @brief   Working area size.
+     */
+    size_t                      size;
+    /**
+     * @brief   Thread priority.
+     */
+    tprio_t                     prio;
+    /**
+     * @brief   Thread priority while serving a VRQ.
+     */
+    tprio_t                     vrq_prio;
+  } thread;
+  /**
    * @brief   Memory region for code.
    * @note    It is used to locate the startup header.
    */
@@ -326,13 +351,9 @@ struct sb_class {
    */
   thread_reference_t            vrq_trp;
   /**
-   * @brief   NVIC ISER to be updated on VRQ exit or NULL.
+   * @brief   Status flags associated to each VRQ.
    */
-  uint32_t                      *vrq_nvic_iser;
-  /**
-   * @brief   NVIC ISER mask to be applied on VRQ exit.
-   */
-  uint32_t                      vrq_nvic_mask;
+  uint32_t                      vrq_flags[32];
 #endif
 #if (SB_CFG_ENABLE_VFS == TRUE) || defined(__DOXYGEN__)
   /**

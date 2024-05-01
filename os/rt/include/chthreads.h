@@ -87,9 +87,82 @@ typedef struct {
 #endif
 } thread_descriptor_t;
 
+/**
+ * @brief   Type of a thread descriptor.
+ */
+typedef struct {
+  /**
+   * @brief   Thread name.
+   */
+  const char        *tname;
+  /**
+   * @brief   Working area region.
+   */
+  memory_area_new_t wa;
+  /**
+   * @brief   Thread priority.
+   */
+  tprio_t           prio;
+  /**
+   * @brief   Thread function pointer.
+   */
+  tfunc_t           funcp;
+  /**
+   * @brief   Thread argument.
+   */
+  void              *arg;
+  /**
+   * @brief         OS instance affinity or @p NULL for current one.
+   */
+  os_instance_t     *owner;
+} thread_descriptor_new_t;
+
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
+
+/**
+ * @name    Threads
+ * @{
+ */
+/**
+ * @brief   Data part of a static thread descriptor initializer.
+ * @details This macro should be used when statically initializing a
+ *          thread descriptor that is part of a bigger structure.
+ *
+ * @param[in] name      name of the thread descriptor variable
+ * @param[in] tn        thread name
+ * @param[in] wb        working area base address
+ * @param[in] ws        working area size
+ * @param[in] p         thread priority
+ * @param[in] fp        thread function pointer
+ * @param[in] fa        thread function argument
+ * @param[in] oi        owner OS instance or @p NULL
+ */
+#define __THD_DESC_DATA(name, tn, wb, ws, p, fp, fa, oi) {                  \
+  .tname        = (tn),                                                     \
+  .wa           = __MEM_AREA_DATA(name.wa, wb, ws),                         \
+  .prio         = (p),                                                      \
+  .funcp        = (fp),                                                     \
+  .arg          = (fa),                                                     \
+  .owner        = (oi)                                                      \
+}
+
+/**
+ * @brief   Static thread descriptor initializer.
+ *
+ * @param[in] name      name of the thread descriptor variable
+ * @param[in] tn        thread name
+ * @param[in] wb        working area base address
+ * @param[in] ws        working area size
+ * @param[in] p         thread priority
+ * @param[in] fp        thread function pointer
+ * @param[in] fa        thread function argument
+ * @param[in] oi        owner OS instance or @p NULL
+ */
+#define THD_DESC_DECL(name, tn, wb, ws, p, fp, fa, oi)                      \
+  thread_descriptor_new_t name = __THD_DESC_DATA(name, tn, wb, ws, p, fp, fa, oi)
+/** @} */
 
 /**
  * @name    Threads queues
@@ -100,7 +173,7 @@ typedef struct {
  * @details This macro should be used when statically initializing a threads
  *          queue that is part of a bigger structure.
  *
- * @param[in] name      the name of the threads queue variable
+ * @param[in] name      name of the threads queue variable
  */
 #define __THREADS_QUEUE_DATA(name) {__CH_QUEUE_DATA(name)}
 
@@ -109,7 +182,7 @@ typedef struct {
  * @details Statically initialized threads queues require no explicit
  *          initialization using @p queue_init().
  *
- * @param[in] name      the name of the threads queue variable
+ * @param[in] name      name of the threads queue variable
  */
 #define THREADS_QUEUE_DECL(name)                                            \
   threads_queue_t name = __THREADS_QUEUE_DATA(name)
@@ -442,7 +515,6 @@ static inline thread_t *chThdStartI(thread_t *tp) {
  *                      - @a TIME_INFINITE the thread enters an infinite sleep
  *                        state.
  *                      - @a TIME_IMMEDIATE this value is not allowed.
- *                      .
  *
  * @sclass
  */
@@ -456,7 +528,7 @@ static inline void chThdSleepS(sysinterval_t ticks) {
 /**
  * @brief   Evaluates to @p true if the specified queue is empty.
  *
- * @param[out] tqp      pointer to a @p threads_queue_t structure
+ * @param[out] tqp      pointer to a @p threads_queue_t object
  * @return              The queue status.
  * @retval false        if the queue is not empty.
  * @retval true         if the queue is empty.
@@ -476,7 +548,7 @@ static inline bool chThdQueueIsEmptyI(threads_queue_t *tqp) {
  *          is empty.
  * @pre     The queue must contain at least an object.
  *
- * @param[in] tqp       pointer to a @p threads_queue_t structure
+ * @param[in] tqp       pointer to a @p threads_queue_t object
  * @param[in] msg       the message code
  *
  * @iclass

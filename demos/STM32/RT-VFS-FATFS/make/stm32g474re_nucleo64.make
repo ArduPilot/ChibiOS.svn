@@ -97,7 +97,7 @@ DEPDIR   := ./.dep/stm32g474re_nucleo64
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
 # Common files.
-include $(CHIBIOS)/os/common/utils/utils.mk
+include $(CHIBIOS)/os/common/oop/oop.mk
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32g4xx.mk
 # HAL-OSAL files (optional).
@@ -119,7 +119,7 @@ include $(CHIBIOS)/test/rt/rt_test.mk
 include $(CHIBIOS)/test/oslib/oslib_test.mk
 include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 include $(CHIBIOS)/os/various/shell/shell.mk
-#include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
+include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
 
 # Define linker script file here.
 LDSCRIPT= $(STARTUPLD)/STM32G474xE.ld

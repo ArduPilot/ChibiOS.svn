@@ -347,7 +347,7 @@ struct hal_sio_driver {
  * @brief   Clears flags from the enabled events flags mask.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] flags     enabled events mask to be cleared
+ * @param[in] mask      enabled events mask to be cleared
  *
  * @xclass
  */
@@ -527,7 +527,6 @@ struct hal_sio_driver {
  * @brief   Wakes up the TX-waiting thread.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] msg       the wake up message
  *
  * @notapi
  */
@@ -541,7 +540,6 @@ struct hal_sio_driver {
  * @brief   Wakes up the TXend-waiting thread.
  *
  * @param[in] siop      pointer to the @p SIODriver object
- * @param[in] msg       the wake up message
  *
  * @notapi
  */
@@ -551,9 +549,11 @@ struct hal_sio_driver {
   osalSysUnlockFromISR();                                                   \
 } while (false)
 #else /* !SIO_USE_SYNCHRONIZATION */
-#define __sio_wakeup_rx(siop, msg)
-#define __sio_wakeup_tx(siop, msg)
-#define __sio_wakeup_txend(siop, msg)
+#define __sio_wakeup_errors(siop)
+#define __sio_wakeup_rx(siop)
+#define __sio_wakeup_rxidle(siop)
+#define __sio_wakeup_tx(siop)
+#define __sio_wakeup_txend(siop)
 #endif /* !SIO_USE_SYNCHRONIZATION */
 /** @} */
 

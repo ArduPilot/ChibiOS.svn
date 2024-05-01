@@ -197,7 +197,7 @@ static size_t pipe_read(pipe_t *pp, uint8_t *bp, size_t n) {
 /**
  * @brief   Initializes a @p mailbox_t object.
  *
- * @param[out] pp       the pointer to the @p pipe_t structure to be
+ * @param[out] pp       the pointer to the @p pipe_t object to be
  *                      initialized
  * @param[in] buf       pointer to the pipe buffer as an array of @p uint8_t
  * @param[in] n         number of elements in the buffer array
@@ -229,7 +229,7 @@ void chPipeObjectInit(pipe_t *pp, uint8_t *buf, size_t n) {
  *          return @p MSG_RESET until the mailbox is enabled again using
  *          @p chPipeResumeX().
  *
- * @param[in] pp        the pointer to an initialized @p pipe_t object
+ * @param[in] pp        pointer to an initialized @p pipe_t object
  *
  * @api
  */
@@ -260,15 +260,14 @@ void chPipeReset(pipe_t *pp) {
  *          transferred or after the specified timeout or if the pipe has
  *          been reset.
  *
- * @param[in] pp        the pointer to an initialized @p pipe_t object
+ * @param[in] pp        pointer to an initialized @p pipe_t object
  * @param[in] bp        pointer to the data buffer
- * @param[in] n         the number of bytes to be written, the value 0 is
+ * @param[in] n         number of bytes to be written, the value 0 is
  *                      reserved
- * @param[in] timeout   the number of ticks before the operation timeouts,
+ * @param[in] timeout   number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The number of bytes effectively transferred. A number
  *                      lower than @p n means that a timeout occurred or the
  *                      pipe went in reset state.
@@ -325,15 +324,14 @@ size_t chPipeWriteTimeout(pipe_t *pp, const uint8_t *bp,
  *          transferred or after the specified timeout or if the pipe has
  *          been reset.
  *
- * @param[in] pp        the pointer to an initialized @p pipe_t object
+ * @param[in] pp        pointer to an initialized @p pipe_t object
  * @param[out] bp       pointer to the data buffer
- * @param[in] n         the number of bytes to be read, the value 0 is
+ * @param[in] n         number of bytes to be read, the value 0 is
  *                      reserved
- * @param[in] timeout   the number of ticks before the operation timeouts,
+ * @param[in] timeout   number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The number of bytes effectively transferred. A number
  *                      lower than @p n means that a timeout occurred or the
  *                      pipe went in reset state.

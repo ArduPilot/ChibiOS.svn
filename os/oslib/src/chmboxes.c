@@ -50,6 +50,8 @@
  * @{
  */
 
+#include <string.h>
+
 #include "ch.h"
 
 #if (CH_CFG_USE_MAILBOXES == TRUE) || defined(__DOXYGEN__)
@@ -77,7 +79,7 @@
 /**
  * @brief   Initializes a @p mailbox_t object.
  *
- * @param[out] mbp      the pointer to the @p mailbox_t structure to be
+ * @param[out] mbp      pointer to the @p mailbox_t structure to be
  *                      initialized
  * @param[in] buf       pointer to the messages buffer as an array of @p msg_t
  * @param[in] n         number of elements in the buffer array
@@ -89,13 +91,40 @@ void chMBObjectInit(mailbox_t *mbp, msg_t *buf, size_t n) {
   chDbgCheck((mbp != NULL) && (buf != NULL) && (n > (size_t)0));
 
   mbp->buffer = buf;
+  mbp->top    = &buf[n];
   mbp->rdptr  = buf;
   mbp->wrptr  = buf;
-  mbp->top    = &buf[n];
   mbp->cnt    = (size_t)0;
   mbp->reset  = false;
   chThdQueueObjectInit(&mbp->qw);
   chThdQueueObjectInit(&mbp->qr);
+}
+
+/**
+ * @brief   Disposes a @p mailbox_t object.
+ * @note    Objects disposing does not involve freeing memory but just
+ *          performing checks that make sure that the object is in a
+ *          state compatible with operations stop.
+ * @note    If the option @p CH_CFG_HARDENING_LEVEL is greater than zero then
+ *          the object is also cleared, attempts to use the object would likely
+ *          result in a clean memory access violation because dereferencing
+ *          of @p NULL pointers rather than dereferencing previously valid
+ *          pointers.
+ *
+ * @param[in] mbp       pointer to a @p mailbox_t object
+ *
+ * @dispose
+ */
+void chMBObjectDispose(mailbox_t *mbp) {
+
+  chDbgCheck(mbp != NULL);
+
+  chThdQueueObjectDispose(&mbp->qr);
+  chThdQueueObjectDispose(&mbp->qw);
+
+#if CH_CFG_HARDENING_LEVEL > 0
+  memset((void *)mbp, 0, __CH_OFFSETOF(mailbox_t, qr));
+#endif
 }
 
 /**
@@ -106,7 +135,7 @@ void chMBObjectInit(mailbox_t *mbp, msg_t *buf, size_t n) {
  *          return @p MSG_RESET until the mailbox is enabled again using
  *          @p chMBResumeX().
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
+ * @param[in] mbp       pointer to a @p mailbox_t object
  *
  * @api
  */
@@ -126,7 +155,7 @@ void chMBReset(mailbox_t *mbp) {
  *          return @p MSG_RESET until the mailbox is enabled again using
  *          @p chMBResumeX().
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
+ * @param[in] mbp       pointer to a @p mailbox_t object
  *
  * @api
  */
@@ -148,13 +177,12 @@ void chMBResetI(mailbox_t *mbp) {
  * @details The invoking thread waits until a empty slot in the mailbox becomes
  *          available or the specified time runs out.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
- * @param[in] msg       the message to be posted on the mailbox
- * @param[in] timeout   the number of ticks before the operation timeouts,
+ * @param[in] mbp       pointer to a @p mailbox_t object
+ * @param[in] msg       message to be posted on the mailbox
+ * @param[in] timeout   number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly posted.
  * @retval MSG_RESET    if the mailbox has been reset.
@@ -177,13 +205,12 @@ msg_t chMBPostTimeout(mailbox_t *mbp, msg_t msg, sysinterval_t timeout) {
  * @details The invoking thread waits until a empty slot in the mailbox becomes
  *          available or the specified time runs out.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
- * @param[in] msg       the message to be posted on the mailbox
- * @param[in] timeout   the number of ticks before the operation timeouts,
+ * @param[in] mbp       pointer to a @p mailbox_t object
+ * @param[in] msg       message to be posted on the mailbox
+ * @param[in] timeout   number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly posted.
  * @retval MSG_RESET    if the mailbox has been reset.
@@ -230,8 +257,8 @@ msg_t chMBPostTimeoutS(mailbox_t *mbp, msg_t msg, sysinterval_t timeout) {
  * @details This variant is non-blocking, the function returns a timeout
  *          condition if the queue is full.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
- * @param[in] msg       the message to be posted on the mailbox
+ * @param[in] mbp       pointer to a @p mailbox_t object
+ * @param[in] msg       message to be posted on the mailbox
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly posted.
  * @retval MSG_RESET    if the mailbox has been reset.
@@ -273,13 +300,12 @@ msg_t chMBPostI(mailbox_t *mbp, msg_t msg) {
  * @details The invoking thread waits until a empty slot in the mailbox becomes
  *          available or the specified time runs out.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
- * @param[in] msg       the message to be posted on the mailbox
- * @param[in] timeout   the number of ticks before the operation timeouts,
+ * @param[in] mbp       pointer to a @p mailbox_t object
+ * @param[in] msg       message to be posted on the mailbox
+ * @param[in] timeout   number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly posted.
  * @retval MSG_RESET    if the mailbox has been reset.
@@ -302,13 +328,12 @@ msg_t chMBPostAheadTimeout(mailbox_t *mbp, msg_t msg, sysinterval_t timeout) {
  * @details The invoking thread waits until a empty slot in the mailbox becomes
  *          available or the specified time runs out.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
- * @param[in] msg       the message to be posted on the mailbox
- * @param[in] timeout   the number of ticks before the operation timeouts,
+ * @param[in] mbp       pointer to a @p mailbox_t object
+ * @param[in] msg       message to be posted on the mailbox
+ * @param[in] timeout   number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly posted.
  * @retval MSG_RESET    if the mailbox has been reset.
@@ -355,8 +380,8 @@ msg_t chMBPostAheadTimeoutS(mailbox_t *mbp, msg_t msg, sysinterval_t timeout) {
  * @details This variant is non-blocking, the function returns a timeout
  *          condition if the queue is full.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
- * @param[in] msg       the message to be posted on the mailbox
+ * @param[in] mbp       pointer to a @p mailbox_t object
+ * @param[in] msg       message to be posted on the mailbox
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly posted.
  * @retval MSG_RESET    if the mailbox has been reset.
@@ -398,13 +423,12 @@ msg_t chMBPostAheadI(mailbox_t *mbp, msg_t msg) {
  * @details The invoking thread waits until a message is posted in the mailbox
  *          or the specified time runs out.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
+ * @param[in] mbp       pointer to a @p mailbox_t object
  * @param[out] msgp     pointer to a message variable for the received message
  * @param[in] timeout   the number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly fetched.
  * @retval MSG_RESET    if the mailbox has been reset.
@@ -427,13 +451,12 @@ msg_t chMBFetchTimeout(mailbox_t *mbp, msg_t *msgp, sysinterval_t timeout) {
  * @details The invoking thread waits until a message is posted in the mailbox
  *          or the specified time runs out.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
+ * @param[in] mbp       pointer to a @p mailbox_t object
  * @param[out] msgp     pointer to a message variable for the received message
- * @param[in] timeout   the number of ticks before the operation timeouts,
+ * @param[in] timeout   number of ticks before the operation timeouts,
  *                      the following special values are allowed:
  *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
- *                      .
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly fetched.
  * @retval MSG_RESET    if the mailbox has been reset.
@@ -480,7 +503,7 @@ msg_t chMBFetchTimeoutS(mailbox_t *mbp, msg_t *msgp, sysinterval_t timeout) {
  * @details This variant is non-blocking, the function returns a timeout
  *          condition if the queue is empty.
  *
- * @param[in] mbp       the pointer to an initialized @p mailbox_t object
+ * @param[in] mbp       pointer to a @p mailbox_t object
  * @param[out] msgp     pointer to a message variable for the received message
  * @return              The operation status.
  * @retval MSG_OK       if a message has been correctly fetched.

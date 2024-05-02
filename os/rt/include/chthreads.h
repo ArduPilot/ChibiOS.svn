@@ -122,9 +122,10 @@ typedef struct {
 /*===========================================================================*/
 
 /**
- * @name    Threads
+ * @name    Threads initializers
  * @{
  */
+#if (CH_CFG_THD_LEGACY_API == FALSE) || defined(__DOXYGEN__)
 /**
  * @brief   Data part of a static thread descriptor initializer.
  * @details This macro should be used when statically initializing a
@@ -137,15 +138,15 @@ typedef struct {
  * @param[in] p         thread priority
  * @param[in] fp        thread function pointer
  * @param[in] fa        thread function argument
- * @param[in] oi        owner OS instance or @p NULL
+ * @param[in] oip       owner OS instance pointer or @p NULL
  */
-#define __THD_DESC_DATA(name, tn, wb, ws, p, fp, fa, oi) {                  \
+#define __THD_DESC_DATA(name, tn, wb, ws, p, fp, fa, oip) {                 \
   .tname        = (tn),                                                     \
   .wa           = __MEM_AREA_DATA(name.wa, wb, ws),                         \
   .prio         = (p),                                                      \
   .funcp        = (fp),                                                     \
   .arg          = (fa),                                                     \
-  .owner        = (oi)                                                      \
+  .owner        = (oip)                                                     \
 }
 
 /**
@@ -162,91 +163,8 @@ typedef struct {
  */
 #define THD_DESC_DECL(name, tn, wb, ws, p, fp, fa, oi)                      \
   thread_descriptor_new_t name = __THD_DESC_DATA(name, tn, wb, ws, p, fp, fa, oi)
-/** @} */
 
-/**
- * @name    Threads queues
- * @{
- */
-/**
- * @brief   Data part of a static threads queue object initializer.
- * @details This macro should be used when statically initializing a threads
- *          queue that is part of a bigger structure.
- *
- * @param[in] name      name of the threads queue variable
- */
-#define __THREADS_QUEUE_DATA(name) {__CH_QUEUE_DATA(name)}
-
-/**
- * @brief   Static threads queue object initializer.
- * @details Statically initialized threads queues require no explicit
- *          initialization using @p queue_init().
- *
- * @param[in] name      name of the threads queue variable
- */
-#define THREADS_QUEUE_DECL(name)                                            \
-  threads_queue_t name = __THREADS_QUEUE_DATA(name)
-/** @} */
-
-/**
- * @name    Working Areas
- * @{
- */
-/**
- * @brief   Calculates the total Working Area size.
- *
- * @param[in] n         the stack size to be assigned to the thread
- * @return              The total used memory in bytes.
- *
- * @api
- */
-#define THD_WORKING_AREA_SIZE(n)                                            \
-  MEM_ALIGN_NEXT(sizeof(thread_t) + PORT_WA_SIZE(n), PORT_STACK_ALIGN)
-
-/**
- * @brief   Static working area allocation.
- * @details This macro is used to allocate a static thread working area
- *          aligned as both position and size.
- *
- * @param[in] s         the name to be assigned to the stack array
- * @param[in] n         the stack size to be assigned to the thread
- *
- * @api
- */
-#define THD_WORKING_AREA(s, n) PORT_WORKING_AREA(s, n)
-
-/**
- * @brief   Base of a working area casted to the correct type.
- *
- * @param[in] s         name of the working area
- */
-#define THD_WORKING_AREA_BASE(s) ((stkalign_t *)(s))
-
-/**
- * @brief   End of a working area casted to the correct type.
- *
- * @param[in] s         name of the working area
- */
-#define THD_WORKING_AREA_END(s) (THD_WORKING_AREA_BASE(s) +                 \
-                                 (sizeof (s) / sizeof (stkalign_t)))
-/** @} */
-
-/**
- * @name    Threads abstraction macros
- * @{
- */
-/**
- * @brief   Thread declaration macro.
- * @note    Thread declarations should be performed using this macro because
- *          the port layer could define optimizations for thread functions.
- */
-#define THD_FUNCTION(tname, arg) PORT_THD_FUNCTION(tname, arg)
-/** @} */
-
-/**
- * @name    Threads initializers
- * @{
- */
+#else /* CH_CFG_THD_LEGACY_API == FALSE */
 #if (CH_CFG_SMP_MODE != FALSE) || defined(__DOXYGEN__)
 /**
  * @brief   Thread descriptor initializer with no affinity.
@@ -298,6 +216,92 @@ typedef struct {
   (arg),                                                                    \
   (oip)                                                                     \
 }
+#endif /* CH_CFG_THD_LEGACY_API == FALSE */
+/** @} */
+
+/**
+ * @name    Working Areas
+ * @{
+ */
+#if (CH_CFG_THD_LEGACY_API == FALSE) || defined(__DOXYGEN__)
+/**
+ * @brief   Calculates the total Working Area size.
+ *
+ * @param[in] n         the stack size to be assigned to the thread
+ * @return              The total used memory in bytes.
+ *
+ * @api
+ */
+#define THD_WORKING_AREA_SIZE(n)                                            \
+  MEM_ALIGN_NEXT(PORT_WA_SIZE(n), PORT_STACK_ALIGN)
+
+#else /* CH_CFG_THD_LEGACY_API == FALSE */
+#define THD_WORKING_AREA_SIZE(n)                                            \
+  MEM_ALIGN_NEXT(sizeof(thread_t) + PORT_WA_SIZE(n), PORT_STACK_ALIGN)
+#endif
+
+/**
+ * @brief   Static working area allocation.
+ * @details This macro is used to allocate a static thread working area
+ *          aligned as both position and size.
+ *
+ * @param[in] s         the name to be assigned to the stack array
+ * @param[in] n         the stack size to be assigned to the thread
+ *
+ * @api
+ */
+#define THD_WORKING_AREA(s, n) PORT_WORKING_AREA(s, n)
+
+/**
+ * @brief   Base of a working area casted to the correct type.
+ *
+ * @param[in] s         name of the working area
+ */
+#define THD_WORKING_AREA_BASE(s) ((stkalign_t *)(s))
+
+/**
+ * @brief   End of a working area casted to the correct type.
+ *
+ * @param[in] s         name of the working area
+ */
+#define THD_WORKING_AREA_END(s) (THD_WORKING_AREA_BASE(s) +                 \
+                                 (sizeof (s) / sizeof (stkalign_t)))
+/** @} */
+
+/**
+ * @name    Threads abstraction macros
+ * @{
+ */
+/**
+ * @brief   Thread declaration macro.
+ * @note    Thread declarations should be performed using this macro because
+ *          the port layer could define optimizations for thread functions.
+ */
+#define THD_FUNCTION(tname, arg) PORT_THD_FUNCTION(tname, arg)
+/** @} */
+
+/**
+ * @name    Threads queues
+ * @{
+ */
+/**
+ * @brief   Data part of a static threads queue object initializer.
+ * @details This macro should be used when statically initializing a threads
+ *          queue that is part of a bigger structure.
+ *
+ * @param[in] name      name of the threads queue variable
+ */
+#define __THREADS_QUEUE_DATA(name) {__CH_QUEUE_DATA(name)}
+
+/**
+ * @brief   Static threads queue object initializer.
+ * @details Statically initialized threads queues require no explicit
+ *          initialization using @p queue_init().
+ *
+ * @param[in] name      name of the threads queue variable
+ */
+#define THREADS_QUEUE_DECL(name)                                            \
+  threads_queue_t name = __THREADS_QUEUE_DATA(name)
 /** @} */
 
 /**

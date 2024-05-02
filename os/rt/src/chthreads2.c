@@ -93,11 +93,9 @@ thread_t *chThdObjectInit(thread_t *tp,
   chDbgCheck(tp != NULL);
   chDbgCheck(tdp != NULL);
 
-#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
   /* Stack boundary.*/
   tp->wabase = (void *)tdp->wa.base;
   tp->waend  = (void *)(tdp->wa.base + tdp->wa.size);
-#endif
 
   /* Setting up the port-dependent part of the working area.*/
   /* TODO: Remove redundant parameters.*/

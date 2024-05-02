@@ -183,24 +183,10 @@ struct ch_thread {
    * @brief   Processor context.
    */
   struct port_context           ctx;
-#if (CH_CFG_USE_REGISTRY == TRUE) || defined(__DOXYGEN__)
-  /**
-   * @brief   Registry queue element.
-   */
-  ch_queue_t                    rqueue;
-#endif
   /**
    * @brief   OS instance owner of this thread.
    */
   os_instance_t                 *owner;
-#if (CH_CFG_USE_REGISTRY == TRUE) || defined(__DOXYGEN__)
-  /**
-   * @brief   Thread name or @p NULL.
-   */
-  const char                    *name;
-#endif
-#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE) ||  \
-    defined(__DOXYGEN__)
   /**
    * @brief   Working area base address.
    * @note    This pointer is used for stack overflow checks and for
@@ -212,7 +198,6 @@ struct ch_thread {
    * @note    It is the 1st address after the working area.
    */
   stkalign_t                    *waend;
-#endif
   /**
    * @brief   Current thread state.
    */
@@ -226,6 +211,14 @@ struct ch_thread {
    * @brief   References to this thread.
    */
   trefs_t                       refs;
+  /**
+   * @brief   Thread name or @p NULL.
+   */
+  const char                    *name;
+  /**
+   * @brief   Registry queue element.
+   */
+  ch_queue_t                    rqueue;
 #endif
   /**
    * @brief   Number of ticks remaining to this thread.

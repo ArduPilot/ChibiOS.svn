@@ -66,13 +66,11 @@ extern stkalign_t __main_thread_stack_base__, __main_thread_stack_end__;
  */
 const os_instance_config_t ch_core0_cfg = {
   .name             = "c0",
-#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
-  .mainthread_base  = &__main_thread_stack_base__,
-  .mainthread_end   = &__main_thread_stack_end__,
-#endif
+  .cstack_base  = &__main_thread_stack_base__,
+  .cstack_end   = &__main_thread_stack_end__,
 #if CH_CFG_NO_IDLE_THREAD == FALSE
-  .idlethread_base  = THD_WORKING_AREA_BASE(ch_c0_idle_thread_wa),
-  .idlethread_end   = THD_WORKING_AREA_END(ch_c0_idle_thread_wa)
+  .idlestack_base  = THD_WORKING_AREA_BASE(ch_c0_idle_thread_wa),
+  .idlestack_end   = THD_WORKING_AREA_END(ch_c0_idle_thread_wa)
 #endif
 };
 
@@ -100,12 +98,12 @@ extern stkalign_t __c1_main_thread_stack_base__, __c1_main_thread_stack_end__;
 const os_instance_config_t ch_core1_cfg = {
   .name             = "c1",
 #if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
-  .mainthread_base  = &__c1_main_thread_stack_base__,
-  .mainthread_end   = &__c1_main_thread_stack_end__,
+  .stack_base  = &__c1_main_thread_stack_base__,
+  .stack_end   = &__c1_main_thread_stack_end__,
 #endif
 #if CH_CFG_NO_IDLE_THREAD == FALSE
-  .idlethread_base  = THD_WORKING_AREA_BASE(ch_c1_idle_thread_wa),
-  .idlethread_end   = THD_WORKING_AREA_END(ch_c1_idle_thread_wa)
+  .idlestack_base  = THD_WORKING_AREA_BASE(ch_c1_idle_thread_wa),
+  .idlestack_end   = THD_WORKING_AREA_END(ch_c1_idle_thread_wa)
 #endif
 };
 #endif /* PORT_CORES_NUMBER > 1 */

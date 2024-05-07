@@ -371,26 +371,23 @@ typedef struct ch_os_instance_config {
    * @brief   Instance name.
    */
   const char                    *name;
-#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE) ||  \
-    defined(__DOXYGEN__)
   /**
-   * @brief   Lower limit of the main function thread stack.
+   * @brief   Lower limit of the C runtime default stack.
    */
-  stkalign_t                    *mainthread_base;
+  stkalign_t                    *cstack_base;
   /**
-   * @brief   Upper limit of the main function thread stack.
+   * @brief   Upper limit of the C runtime default stack.
    */
-  stkalign_t                    *mainthread_end;
-#endif
+  stkalign_t                    *cstack_end;
 #if (CH_CFG_NO_IDLE_THREAD == FALSE) || defined(__DOXYGEN__)
   /**
    * @brief   Lower limit of the dedicated idle thread stack.
    */
-  stkalign_t                    *idlethread_base;
+  stkalign_t                    *idlestack_base;
   /**
    * @brief   Upper limit of the dedicated idle thread stack.
    */
-  stkalign_t                    *idlethread_end;
+  stkalign_t                    *idlestack_end;
 #endif
 } os_instance_config_t;
 
@@ -430,9 +427,15 @@ struct ch_os_instance {
    */
   const os_instance_config_t    *config;
   /**
+   * @brief   Idle thread descriptor.
+   */
+  thread_t                      idlethread;
+#if CH_CFG_NO_IDLE_THREAD == FALSE
+  /**
    * @brief   Main thread descriptor.
    */
   thread_t                      mainthread;
+#endif
   /**
    * @brief   System debug.
    */

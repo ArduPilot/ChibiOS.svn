@@ -79,151 +79,44 @@ typedef struct {
    * @brief   Thread argument.
    */
   void              *arg;
-#if (CH_CFG_SMP_MODE != FALSE) || defined(__DOXYGEN__)
-  /**
-   * @brief         OS instance affinity or @p NULL for current one.
-   */
-  os_instance_t     *instance;
-#endif
-} thread_descriptor_t;
-
-/**
- * @brief   Type of a thread descriptor.
- */
-typedef struct {
-  /**
-   * @brief   Thread name.
-   */
-  const char        *tname;
-  /**
-   * @brief   Working area region.
-   */
-  memory_area_new_t wa;
-  /**
-   * @brief   Thread priority.
-   */
-  tprio_t           prio;
-  /**
-   * @brief   Thread function pointer.
-   */
-  tfunc_t           funcp;
-  /**
-   * @brief   Thread argument.
-   */
-  void              *arg;
   /**
    * @brief         OS instance affinity or @p NULL for current one.
    */
   os_instance_t     *owner;
-} thread_descriptor_new_t;
+} thread_descriptor_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
 /*===========================================================================*/
 
 /**
- * @name    Threads initializers
+ * @name    Threads queues
  * @{
  */
-#if (CH_CFG_THD_LEGACY_API == FALSE) || defined(__DOXYGEN__)
 /**
- * @brief   Data part of a static thread descriptor initializer.
- * @details This macro should be used when statically initializing a
- *          thread descriptor that is part of a bigger structure.
+ * @brief   Data part of a static threads queue object initializer.
+ * @details This macro should be used when statically initializing a threads
+ *          queue that is part of a bigger structure.
  *
- * @param[in] name      name of the thread descriptor variable
- * @param[in] tn        thread name
- * @param[in] wb        working area base address
- * @param[in] ws        working area size
- * @param[in] p         thread priority
- * @param[in] fp        thread function pointer
- * @param[in] fa        thread function argument
- * @param[in] oip       owner OS instance pointer or @p NULL
+ * @param[in] name      name of the threads queue variable
  */
-#define __THD_DESC_DATA(name, tn, wb, ws, p, fp, fa, oip) {                 \
-  .tname        = (tn),                                                     \
-  .wa           = __MEM_AREA_DATA(name.wa, wb, ws),                         \
-  .prio         = (p),                                                      \
-  .funcp        = (fp),                                                     \
-  .arg          = (fa),                                                     \
-  .owner        = (oip)                                                     \
-}
+#define __THREADS_QUEUE_DATA(name) {__CH_QUEUE_DATA(name)}
 
 /**
- * @brief   Static thread descriptor initializer.
+ * @brief   Static threads queue object initializer.
+ * @details Statically initialized threads queues require no explicit
+ *          initialization using @p queue_init().
  *
- * @param[in] name      name of the thread descriptor variable
- * @param[in] tn        thread name
- * @param[in] wb        working area base address
- * @param[in] ws        working area size
- * @param[in] p         thread priority
- * @param[in] fp        thread function pointer
- * @param[in] fa        thread function argument
- * @param[in] oi        owner OS instance or @p NULL
+ * @param[in] name      name of the threads queue variable
  */
-#define THD_DESC_DECL(name, tn, wb, ws, p, fp, fa, oi)                      \
-  thread_descriptor_new_t name = __THD_DESC_DATA(name, tn, wb, ws, p, fp, fa, oi)
-
-#else /* CH_CFG_THD_LEGACY_API == FALSE */
-#if (CH_CFG_SMP_MODE != FALSE) || defined(__DOXYGEN__)
-/**
- * @brief   Thread descriptor initializer with no affinity.
- *
- * @param[in] name      thread name
- * @param[in] wbase     pointer to the working area base
- * @param[in] wend      pointer to the working area end
- * @param[in] prio      thread priority
- * @param[in] funcp     thread function pointer
- * @param[in] arg       thread argument
- */
-#define THD_DESCRIPTOR(name, wbase, wend, prio, funcp, arg) {               \
-  (name),                                                                   \
-  (wbase),                                                                  \
-  (wend),                                                                   \
-  (prio),                                                                   \
-  (funcp),                                                                  \
-  (arg),                                                                    \
-  NULL                                                                      \
-}
-#else
-#define THD_DESCRIPTOR(name, wbase, wend, prio, funcp, arg) {               \
-  (name),                                                                   \
-  (wbase),                                                                  \
-  (wend),                                                                   \
-  (prio),                                                                   \
-  (funcp),                                                                  \
-  (arg)                                                                     \
-}
-#endif
-
-/**
- * @brief   Thread descriptor initializer with no affinity.
- *
- * @param[in] name      thread name
- * @param[in] wbase     pointer to the working area base
- * @param[in] wend      pointer to the working area end
- * @param[in] prio      thread priority
- * @param[in] funcp     thread function pointer
- * @param[in] arg       thread argument
- * @param[in] oip       instance affinity
- */
-#define THD_DESCRIPTOR_AFFINITY(name, wbase, wend, prio, funcp, arg, oip) { \
-  (name),                                                                   \
-  (wbase),                                                                  \
-  (wend),                                                                   \
-  (prio),                                                                   \
-  (funcp),                                                                  \
-  (arg),                                                                    \
-  (oip)                                                                     \
-}
-#endif /* CH_CFG_THD_LEGACY_API == FALSE */
+#define THREADS_QUEUE_DECL(name)                                            \
+  threads_queue_t name = __THREADS_QUEUE_DATA(name)
 /** @} */
 
 /**
  * @name    Working Areas
  * @{
  */
-#if (CH_CFG_THD_LEGACY_API == FALSE) || defined(__DOXYGEN__)
 /**
  * @brief   Calculates the total Working Area size.
  *
@@ -233,12 +126,7 @@ typedef struct {
  * @api
  */
 #define THD_WORKING_AREA_SIZE(n)                                            \
-  MEM_ALIGN_NEXT(PORT_WA_SIZE(n), PORT_STACK_ALIGN)
-
-#else /* CH_CFG_THD_LEGACY_API == FALSE */
-#define THD_WORKING_AREA_SIZE(n)                                            \
   MEM_ALIGN_NEXT(sizeof(thread_t) + PORT_WA_SIZE(n), PORT_STACK_ALIGN)
-#endif
 
 /**
  * @brief   Static working area allocation.
@@ -281,27 +169,78 @@ typedef struct {
 /** @} */
 
 /**
- * @name    Threads queues
+ * @name    Threads initializers
  * @{
  */
 /**
- * @brief   Data part of a static threads queue object initializer.
- * @details This macro should be used when statically initializing a threads
- *          queue that is part of a bigger structure.
+ * @brief   Data part of a static thread descriptor initializer.
+ * @details This macro should be used when statically initializing a
+ *          thread descriptor that is part of a bigger structure.
  *
- * @param[in] name      name of the threads queue variable
+ * @param[in] tname     thread name
+ * @param[in] wb        pointer to the working area base
+ * @param[in] we        pointer to the working area end
+ * @param[in] tprio     thread priority
+ * @param[in] tfunc     thread function pointer
+ * @param[in] targ      thread function argument
+ * @param[in] oip       owner OS instance or @p NULL
  */
-#define __THREADS_QUEUE_DATA(name) {__CH_QUEUE_DATA(name)}
+#define __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, oip) {           \
+  .name         = (tname),                                                  \
+  .wbase        = (stkalign_t *)(void *)(wb),                               \
+  .wend         = (stkalign_t *)(void *)(we),                               \
+  .prio         = (tprio),                                                  \
+  .funcp        = (tfunc),                                                  \
+  .arg          = (targ),                                                   \
+  .owner        = (oip)                                                     \
+}
 
 /**
- * @brief   Static threads queue object initializer.
- * @details Statically initialized threads queues require no explicit
- *          initialization using @p queue_init().
+ * @brief   Thread descriptor initializer.
  *
- * @param[in] name      name of the threads queue variable
+ * @param[in] var       name of the thread descriptor variable
+ * @param[in] tname     thread name
+ * @param[in] wb        pointer to the working area base
+ * @param[in] we        pointer to the working area end
+ * @param[in] tprio     thread priority
+ * @param[in] tfunc     thread function pointer
+ * @param[in] targ      thread function argument
+ * @param[in] oip       owner OS instance or @p NULL
  */
-#define THREADS_QUEUE_DECL(name)                                            \
-  threads_queue_t name = __THREADS_QUEUE_DATA(name)
+#define THD_DESC_DECL(var, tname, wb, we, tprio, tfunc, targ, oip)          \
+  thread_descriptor_t var = __THD_DESC_DATA(tname, wb, we, tprio,           \
+                                            tfunc, targ, oip)
+
+/**
+ * @brief   Thread descriptor initializer with no affinity.
+ *
+ * @param[in] tname     thread name
+ * @param[in] wb        pointer to the working area base
+ * @param[in] we        pointer to the working area end
+ * @param[in] tprio     thread priority
+ * @param[in] tfunc     thread function pointer
+ * @param[in] targ      thread function argument
+ *
+ * @deprecated
+ */
+#define THD_DESCRIPTOR(tname, wb, we, tprio, tfunc, targ)                   \
+  __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, NULL)
+
+/**
+ * @brief   Thread descriptor initializer with no affinity.
+ *
+ * @param[in] tname     thread name
+ * @param[in] wb        pointer to the working area base
+ * @param[in] we        pointer to the working area end
+ * @param[in] tprio     thread priority
+ * @param[in] tfunc     thread function pointer
+ * @param[in] targ      thread function argument
+ * @param[in] oip       owner OS instance or @p NULL
+ *
+ * @deprecated
+ */
+#define THD_DESCRIPTOR_AFFINITY(tname, wb, we, tprio, tfunc, targ, oip) \
+  __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, oip)
 /** @} */
 
 /**
@@ -370,12 +309,23 @@ extern "C" {
 #if CH_DBG_FILL_THREADS == TRUE
   void __thd_stackfill(uint8_t *startp, uint8_t *endp);
 #endif
+  thread_t *chThdObjectInit(thread_t *tp, const thread_descriptor_t *tdp);
+  void chThdObjectDispose(thread_t *tp);
+#if CH_CFG_THD_LEGACY_API == FALSE
+  thread_t *chThdCreateSuspendedI(thread_t *tp,
+                                  const thread_descriptor_t *tdp);
+  thread_t *chThdCreateSuspended(thread_t *tp,
+                                 const thread_descriptor_t *tdp);
+  thread_t *chThdCreateI(thread_t *tp, const thread_descriptor_t *tdp);
+  thread_t *chThdCreate(thread_t *tp, const thread_descriptor_t *tdp);
+#else
   thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp);
   thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp);
   thread_t *chThdCreateI(const thread_descriptor_t *tdp);
   thread_t *chThdCreate(const thread_descriptor_t *tdp);
   thread_t *chThdCreateStatic(void *wsp, size_t size,
                               tprio_t prio, tfunc_t pf, void *arg);
+#endif
   thread_t *chThdStart(thread_t *tp);
 #if CH_CFG_USE_REGISTRY == TRUE
   thread_t *chThdAddRef(thread_t *tp);

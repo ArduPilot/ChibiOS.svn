@@ -55,7 +55,7 @@
  *          the kernel perfectly compatible with previous versions.
  */
 #if !defined(CH_CFG_THD_LEGACY_API)
-#define CH_CFG_THD_LEGACY_API               FALSE
+#define CH_CFG_THD_LEGACY_API               TRUE
 #endif
 /** @} */
 
@@ -357,7 +357,7 @@
  * @note    Requires @p CH_CFG_USE_HEAP and/or @p CH_CFG_USE_MEMPOOLS.
  */
 #if !defined(CH_CFG_USE_DYNAMIC)
-#define CH_CFG_USE_DYNAMIC                  FALSE
+#define CH_CFG_USE_DYNAMIC                  TRUE
 #endif
 
 /** @} */
@@ -662,7 +662,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_FILL_THREADS)
-#define CH_DBG_FILL_THREADS                 FALSE
+#define CH_DBG_FILL_THREADS                 TRUE
 #endif
 
 /**

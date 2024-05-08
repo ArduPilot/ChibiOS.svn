@@ -236,10 +236,12 @@ int main(void) {
    * sleeping in a loop and check the button state.
    */
   while (true) {
+#if 0
     thread_t *shelltp = chThdCreateFromHeap(NULL, SHELL_WA_SIZE,
                                             "shell", NORMALPRIO + 1,
                                             shellThread, (void *)&shell_cfg1);
     chThdWait(shelltp);               /* Waiting termination.             */
+#endif
     chThdSleepMilliseconds(500);
   }
 }

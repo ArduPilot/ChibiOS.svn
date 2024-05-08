@@ -110,13 +110,12 @@ thread_t *chThdObjectInit(thread_t *tp,
   chDbgCheck(tp != NULL);
   chDbgCheck(tdp != NULL);
 
-  /* Stack boundary.*/
+  /* Stack boundaries.*/
   tp->wabase = (void *)tdp->wbase;
   tp->waend  = (void *)tdp->wend;
 
   /* Setting up the port-dependent part of the working area.*/
-  /* TODO: Remove redundant parameters.*/
-  PORT_SETUP_CONTEXT(tp, tp->wabase, tp->waend, tdp->funcp, tdp->arg);
+//  PORT_SETUP_CONTEXT(tp, tp->wabase, tp->waend, tdp->funcp, tdp->arg);
 
   /* Thread-related fields.*/
   tp->hdr.pqueue.prio   = tdp->prio;
@@ -554,7 +553,7 @@ thread_t *chThdCreateStatic(void *wbase, size_t wsize,
   tp = chThdObjectInit(tp, &desc);
 
   /* Setting up the port-dependent part of the working area.*/
-  PORT_SETUP_CONTEXT(tp, wbase, wend, func, arg);
+  PORT_SETUP_CONTEXT(tp, wbase, tp, func, arg);
 
   chSysLock();
 

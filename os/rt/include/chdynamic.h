@@ -78,11 +78,11 @@ extern "C" {
 #if CH_CFG_USE_HEAP == TRUE
   thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
                                 const char *name, tprio_t prio,
-                                tfunc_t pf, void *arg);
+                                tfunc_t func, void *arg);
 #endif
 #if CH_CFG_USE_MEMPOOLS == TRUE
   thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
-                                      tprio_t prio, tfunc_t pf, void *arg);
+                                      tprio_t prio, tfunc_t func, void *arg);
 #endif
 #ifdef __cplusplus
 }

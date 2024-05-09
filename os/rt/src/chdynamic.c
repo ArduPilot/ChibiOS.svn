@@ -69,19 +69,18 @@
  *                      default heap
  * @param[in] size      size of the working area to be allocated
  * @param[in] name      thread name
- * @param[in] prio      the priority level for the new thread
- * @param[in] pf        the thread function
- * @param[in] arg       an argument passed to the thread function. It can be
- *                      @p NULL.
- * @return              The pointer to the @p thread_t structure allocated for
- *                      the thread into the working space area.
+ * @param[in] prio      priority level for the new thread
+ * @param[in] func      thread function
+ * @param[in] arg       argument passed to the thread function
+ * @return              A pointer to the @p thread_t structure allocated for
+ *                      the thread into the working area.
  * @retval NULL         if the memory cannot be allocated.
  *
  * @api
  */
 thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
                               const char *name, tprio_t prio,
-                              tfunc_t pf, void *arg) {
+                              tfunc_t func, void *arg) {
   thread_t *tp;
   void *wbase, *wend;
 
@@ -91,7 +90,7 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
   }
   wend = (void *)((uint8_t *)wbase + size);
 
-  thread_descriptor_t td = THD_DESCRIPTOR(name, wbase, wend, prio, pf, arg);
+  thread_descriptor_t td = THD_DESCRIPTOR(name, wbase, wend, prio, func, arg);
 
 #if CH_DBG_FILL_THREADS == TRUE
   __thd_stackfill((uint8_t *)wbase, (uint8_t *)wend);
@@ -125,17 +124,16 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
  * @param[in] mp        pointer to the memory pool object
  * @param[in] name      thread name
  * @param[in] prio      the priority level for the new thread
- * @param[in] pf        the thread function
- * @param[in] arg       an argument passed to the thread function. It can be
- *                      @p NULL.
- * @return              The pointer to the @p thread_t structure allocated for
- *                      the thread into the working space area.
+ * @param[in] func      thread function
+ * @param[in] arg       argument passed to the thread function
+ * @return              A pointer to the @p thread_t structure allocated for
+ *                      the thread into the working area.
  * @retval  NULL        if the memory pool is empty.
  *
  * @api
  */
 thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
-                                    tprio_t prio, tfunc_t pf, void *arg) {
+                                    tprio_t prio, tfunc_t func, void *arg) {
   thread_t *tp;
   void *wbase, *wend;
 
@@ -147,7 +145,7 @@ thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
   }
   wend = (void *)((uint8_t *)wbase + mp->object_size);
 
-  thread_descriptor_t td = THD_DESCRIPTOR(name, wbase, wend, prio, pf, arg);
+  thread_descriptor_t td = THD_DESCRIPTOR(name, wbase, wend, prio, func, arg);
 
 #if CH_DBG_FILL_THREADS == TRUE
   __thd_stackfill((uint8_t *)wbase, (uint8_t *)wend);

@@ -49,6 +49,15 @@
 #define CH_CFG_SMP_MODE                     FALSE
 #endif
 
+/**
+ * @brief   Enables the legacy threads creation API.
+ * @details The old API is enabled and the new one disabled, this makes
+ *          the kernel perfectly compatible with previous versions.
+ */
+#if !defined(CH_CFG_THD_LEGACY_API)
+#define CH_CFG_THD_LEGACY_API               TRUE
+#endif
+
 /** @} */
 
 /*===========================================================================*/

@@ -99,6 +99,8 @@ typedef struct {
  *          queue that is part of a bigger structure.
  *
  * @param[in] name      name of the threads queue variable
+ *
+ * @deprecated
  */
 #define __THREADS_QUEUE_DATA(name) {__CH_QUEUE_DATA(name)}
 
@@ -108,6 +110,8 @@ typedef struct {
  *          initialization using @p queue_init().
  *
  * @param[in] name      name of the threads queue variable
+ *
+ * @deprecated
  */
 #define THREADS_QUEUE_DECL(name)                                            \
   threads_queue_t name = __THREADS_QUEUE_DATA(name)
@@ -117,43 +121,104 @@ typedef struct {
  * @name    Working Areas
  * @{
  */
+#if (CH_CFG_NO_LEGACY_CODE == FALSE) || defined(__DOXYGEN__)
 /**
- * @brief   Calculates the total Working Area size.
+ * @brief   Calculates the total thread Working Area size.
+ * @note    This macro calculates a working area size for those
+ *          thread-creation functions that allocate the @p thread_t
+ *          structure inside.
+ * @see     chThdCreateStatic(), chThdCreateSuspendedI(), chThdCreateI(),
+ *          chThdCreateSuspended(), chThdCreate(), chThdCreateFromPool().
  *
  * @param[in] n         the stack size to be assigned to the thread
- * @return              The total used memory in bytes.
+ * @return              The required working area size in bytes.
  *
  * @api
  */
 #define THD_WORKING_AREA_SIZE(n)                                            \
-  MEM_ALIGN_NEXT(sizeof(thread_t) + PORT_WA_SIZE(n), PORT_STACK_ALIGN)
+  MEM_ALIGN_NEXT(MEM_ALIGN_NEXT(sizeof(thread_t), PORT_STACK_ALIGN) +       \
+                 PORT_WA_SIZE(n), PORT_STACK_ALIGN)
 
 /**
- * @brief   Static working area allocation.
- * @details This macro is used to allocate a static thread working area
- *          aligned as both position and size.
+ * @brief   Static thread Working Area allocation.
+ * @details This macro is used to allocate a thread stack area for those
+ *          legacy thread-creation functions that need to allocate a
+ *          @p thread_t structure inside.
+ * @note    This macro allocates extra space to accommodate the @p thread_t
+ *          structure internally.
  *
  * @param[in] s         the name to be assigned to the stack array
  * @param[in] n         the stack size to be assigned to the thread
  *
  * @api
  */
-#define THD_WORKING_AREA(s, n) PORT_WORKING_AREA(s, n)
+#define THD_WORKING_AREA(s, n)                                              \
+  CC_ALIGN_DATA(PORT_WORKING_AREA_ALIGN)                                    \
+  stkalign_t s[THD_WORKING_AREA_SIZE(n) / sizeof (stkalign_t)]
 
 /**
- * @brief   Base of a working area casted to the correct type.
+ * @brief   Base of a thread Working Area casted to the correct type.
  *
  * @param[in] s         name of the working area
+ *
+ * @deprecated
  */
 #define THD_WORKING_AREA_BASE(s) ((stkalign_t *)(s))
 
 /**
- * @brief   End of a working area casted to the correct type.
+ * @brief   End of a thread Working Area casted to the correct type.
  *
  * @param[in] s         name of the working area
+ *
+ * @deprecated
  */
 #define THD_WORKING_AREA_END(s) (THD_WORKING_AREA_BASE(s) +                 \
                                  (sizeof (s) / sizeof (stkalign_t)))
+#endif /* CH_CFG_NO_LEGACY_API == FALSE */
+
+/**
+ * @brief   Calculates the total thread Working Area size.
+ * @note    This macro calculates a stack size for those
+ *          thread-creation functions do not need to allocate a
+ *          @p thread_t structure inside.
+ *
+ * @param[in] n         the stack size to be assigned to the thread
+ * @return              The required working area size in bytes.
+ *
+ * @api
+ */
+#define THD_STACK_AREA_SIZE(n)                                              \
+  MEM_ALIGN_NEXT(PORT_WA_SIZE(n), PORT_STACK_ALIGN)
+
+/**
+ * @brief   Static thread Working Area allocation.
+ * @details This macro is used to allocate a thread stack area for those
+ *          thread-creation functions that do not need to allocate a
+ *          @p thread_t structure inside.
+ *
+ * @param[in] s         the name to be assigned to the stack array
+ * @param[in] n         the stack size to be assigned to the thread
+ *
+ * @api
+ */
+#define THD_STACK_AREA(s, n)                                                \
+  CC_ALIGN_DATA(PORT_WORKING_AREA_ALIGN)                                    \
+  stkalign_t s[THD_STACK_AREA_SIZE(n) / sizeof (stkalign_t)]
+
+/**
+ * @brief   Base of a thread Working Area casted to the correct type.
+ *
+ * @param[in] s         name of the working area
+ */
+#define THD_STACK_AREA_BASE(s) ((stkalign_t *)(s))
+
+/**
+ * @brief   End of a thread Working Area casted to the correct type.
+ *
+ * @param[in] s         name of the working area
+ */
+#define THD_STACK_AREA_END(s) (THD_STACK_AREA_BASE(s) +                     \
+                               (sizeof (s) / sizeof (stkalign_t)))
 /** @} */
 
 /**
@@ -311,14 +376,13 @@ extern "C" {
 #endif
   thread_t *chThdObjectInit(thread_t *tp, const thread_descriptor_t *tdp);
   void chThdObjectDispose(thread_t *tp);
-#if CH_CFG_THD_LEGACY_API == FALSE
-  thread_t *chThdCreateSuspendedI(thread_t *tp,
-                                  const thread_descriptor_t *tdp);
-  thread_t *chThdCreateSuspended(thread_t *tp,
+  thread_t *chThdSpawnSuspendedI(thread_t *tp,
                                  const thread_descriptor_t *tdp);
-  thread_t *chThdCreateI(thread_t *tp, const thread_descriptor_t *tdp);
-  thread_t *chThdCreate(thread_t *tp, const thread_descriptor_t *tdp);
-#else
+  thread_t *chThdSpawnSuspended(thread_t *tp,
+                                const thread_descriptor_t *tdp);
+  thread_t *chThdSpawnRunningI(thread_t *tp, const thread_descriptor_t *tdp);
+  thread_t *chThdSpawnRunning(thread_t *tp, const thread_descriptor_t *tdp);
+#if CH_CFG_NO_LEGACY_CODE == FALSE
   thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp);
   thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp);
   thread_t *chThdCreateI(const thread_descriptor_t *tdp);

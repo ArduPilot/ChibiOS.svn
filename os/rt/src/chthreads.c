@@ -195,13 +195,13 @@ void chThdObjectDispose(thread_t *tp) {
   chDbgCheck(tp != NULL);
 
 #if CH_CFG_USE_WAITEXIT == TRUE
-  chDbgAssert(ch_queue_isempty(&tp->msgqueue), "wait queue in use");
+  chDbgAssert(ch_queue_isempty(&tp->msgqueue), "still pending messages");
 #endif
 #if CH_CFG_USE_REGISTRY == TRUE
   chDbgAssert(tp->refs == (trefs_t)0, "still references");
 #endif
 #if CH_CFG_USE_MUTEXES == TRUE
-  chDbgAssert(tp->mtxlist == NULL, "owning mutexes");
+  chDbgAssert(tp->mtxlist == NULL, "still owning mutexes");
 #endif
 
 #if CH_CFG_HARDENING_LEVEL > 0
@@ -209,18 +209,15 @@ void chThdObjectDispose(thread_t *tp) {
 #endif
 }
 
-#if (CH_CFG_THD_LEGACY_API == FALSE) || defined(__DOXYGEN__)
 /**
- * @brief   Creates a non-running thread.
- * @details The created thread is in the @p CH_STATE_WTSTART state and can
- *          be subsequently started.
+ * @brief   Spawns a suspended thread.
+ * @details The spawned thread is in the @p CH_STATE_WTSTART state and can
+ *          be subsequently started using @p chThdStart(), @p chThdStartI() or
+ *           @p chSchWakeupS() depending on the execution context.
  * @post    The created thread has a reference counter set to one, it is
  *          caller responsibility to call @p chThdRelease() or @p chthdWait()
  *          in order to release the reference. The thread persists in the
  *          registry until its reference counter reaches zero.
- * @post    The initialized thread can be subsequently started by invoking
- *          @p chThdStart(), @p chThdStartI() or @p chSchWakeupS()
- *          depending on the execution context.
  * @note    Threads created using this function do not obey to the
  *          @p CH_DBG_FILL_THREADS debug option because it would stay
  *          in a critical section for too long while filling.
@@ -231,8 +228,8 @@ void chThdObjectDispose(thread_t *tp) {
  *
  * @api
  */
-thread_t *chThdCreateSuspendedI(thread_t *tp,
-                                const thread_descriptor_new_t *tdp) {
+thread_t *chThdSpawnSuspendedI(thread_t *tp,
+                                const thread_descriptor_t *tdp) {
 
   chDbgCheck(tp != NULL);
   chDbgCheck(tdp != NULL);
@@ -249,16 +246,14 @@ thread_t *chThdCreateSuspendedI(thread_t *tp,
 }
 
 /**
- * @brief   Creates a non-running thread.
- * @details The new thread is initialized but not inserted in the ready list,
- *          the initial state is @p CH_STATE_WTSTART.
+ * @brief   Spawns a suspended thread.
+ * @details The spawned thread is in the @p CH_STATE_WTSTART state and can
+ *          be subsequently started using @p chThdStart(), @p chThdStartI() or
+ *           @p chSchWakeupS() depending on the execution context.
  * @post    The created thread has a reference counter set to one, it is
  *          caller responsibility to call @p chThdRelease() or @p chthdWait()
  *          in order to release the reference. The thread persists in the
  *          registry until its reference counter reaches zero.
- * @post    The initialized thread can be subsequently started by invoking
- *          @p chThdStart(), @p chThdStartI() or @p chSchWakeupS()
- *          depending on the execution context.
  *
  * @param[out] tp       pointer to a @p thread_t object
  * @param[in] tdp       pointer to a @p thread_descriptor_t object
@@ -266,34 +261,32 @@ thread_t *chThdCreateSuspendedI(thread_t *tp,
  *
  * @api
  */
-thread_t *chThdCreateSuspended(thread_t *tp,
-                               const thread_descriptor_new_t *tdp) {
+thread_t *chThdSpawnSuspended(thread_t *tp,
+                              const thread_descriptor_t *tdp) {
 
 #if CH_CFG_USE_REGISTRY == TRUE
-  chDbgAssert(chRegFindThreadByWorkingArea((void *)tdp->wa.base) == NULL,
+  chDbgAssert(chRegFindThreadByWorkingArea((void *)tdp->wbase) == NULL,
               "working area in use");
 #endif
 
 #if CH_DBG_FILL_THREADS == TRUE
-  memset((void *)tdp->wa.base, CH_DBG_STACK_FILL_VALUE, tdp->wa.size);
+  memset((void *)tdp->wbase, CH_DBG_STACK_FILL_VALUE, tdp->wsize);
 #endif
 
   chSysLock();
-  tp = chThdCreateSuspended2I(tp, tdp);
+  tp = chThdSpawnSuspendedI(tp, tdp);
   chSysUnlock();
 
   return tp;
 }
 
 /**
- * @brief   Creates a new thread.
- * @details The new thread is initialized and made ready to execute.
+ * @brief   Spawns a running thread.
+ * @details The spawned thread is run immediately.
  * @post    The created thread has a reference counter set to one, it is
  *          caller responsibility to call @p chThdRelease() or @p chthdWait()
  *          in order to release the reference. The thread persists in the
  *          registry until its reference counter reaches zero.
- * @note    A thread can terminate by calling @p chThdExit() or by simply
- *          returning from its main function.
  * @note    Threads created using this function do not obey to the
  *          @p CH_DBG_FILL_THREADS debug option because it would keep
  *          the kernel locked for too much time.
@@ -304,14 +297,14 @@ thread_t *chThdCreateSuspended(thread_t *tp,
  *
  * @iclass
  */
-thread_t *chThdCreateI(thread_t *tp, const thread_descriptor_new_t *tdp) {
+thread_t *chThdSpawnRunningI(thread_t *tp, const thread_descriptor_t *tdp) {
 
-  return chSchReadyI(chThdCreateSuspended2I(tp, tdp));
+  return chSchReadyI(chThdSpawnSuspendedI(tp, tdp));
 }
 
 /**
- * @brief   Creates a new thread.
- * @details The new thread is initialized and made ready to execute.
+ * @brief   Spawns a running thread.
+ * @details The spawned thread is run immediately.
  * @post    The created thread has a reference counter set to one, it is
  *          caller responsibility to call @p chThdRelease() or @p chthdWait()
  *          in order to release the reference. The thread persists in the
@@ -323,27 +316,27 @@ thread_t *chThdCreateI(thread_t *tp, const thread_descriptor_new_t *tdp) {
  *
  * @iclass
  */
-thread_t *chThdCreate(thread_t *tp, const thread_descriptor_new_t *tdp) {
+thread_t *chThdSpawnRunning(thread_t *tp, const thread_descriptor_t *tdp) {
 
 #if (CH_CFG_USE_REGISTRY == TRUE) &&                                        \
     ((CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE))
-  chDbgAssert(chRegFindThreadByWorkingArea((void *)tdp->wa.base) == NULL,
+  chDbgAssert(chRegFindThreadByWorkingArea((void *)tdp->wbase) == NULL,
               "working area in use");
 #endif
 
 #if CH_DBG_FILL_THREADS == TRUE
-  memset((void *)tdp->wa.base, CH_DBG_STACK_FILL_VALUE, tdp->wa.size);
+  memset((void *)tdp->wbase, CH_DBG_STACK_FILL_VALUE, tdp->wsize);
 #endif
 
   chSysLock();
-  tp = chThdCreateSuspended2I(tp, tdp);
+  tp = chThdSpawnSuspendedI(tp, tdp);
   chSchWakeupS(tp, MSG_OK);
   chSysUnlock();
 
   return tp;
 }
 
-#else /* CH_CFG_THD_LEGACY_API == TRUE */
+#if (CH_CFG_NO_LEGACY_API == FALSE) || defined(__DOXYGEN__)
 /**
  * @brief   Creates a non-running thread.
  * @details The created thread is in the @p CH_STATE_WTSTART state and can
@@ -567,7 +560,7 @@ thread_t *chThdCreateStatic(void *wbase, size_t wsize,
 
   return tp;
 }
-#endif /* CH_CFG_THD_LEGACY_API == TRUE */
+#endif /* CH_CFG_NO_LEGACY_API == FALSE */
 
 /**
  * @brief   Starts a thread created with @p chThdCreateSuspended().

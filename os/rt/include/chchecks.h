@@ -53,6 +53,10 @@
 #error "CH_CFG_SMP_MODE not defined in chconf.h"
 #endif
 
+#if !defined(CH_CFG_NO_LEGACY_CODE)
+#error "CH_CFG_NO_LEGACY_CODE not defined in chconf.h"
+#endif
+
 #if !defined(CH_CFG_HARDENING_LEVEL)
 #error "CH_CFG_HARDENING_LEVEL not defined in chconf.h"
 #endif

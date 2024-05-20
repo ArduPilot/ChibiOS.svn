@@ -240,7 +240,8 @@
 
 /**
  * @brief   Stack alignment constant.
- * @note    It is the alignment required for the stack pointer.
+ * @note    It is the alignment required for the stack pointer, it is usually
+ *          equal to @p sizeof(stkalign_t).
  */
 #define PORT_STACK_ALIGN                sizeof (stkalign_t)
 
@@ -248,8 +249,12 @@
  * @brief   Working Areas alignment constant.
  * @note    It is the alignment to be enforced for thread working areas.
  */
-#define PORT_WORKING_AREA_ALIGN         ((PORT_ENABLE_GUARD_PAGES == TRUE) ?\
-                                         32U : PORT_STACK_ALIGN)
+#if (PORT_ENABLE_GUARD_PAGES == TRUE) || defined(__DOXYGEN__)
+#define PORT_WORKING_AREA_ALIGN         32U
+#else
+#define PORT_WORKING_AREA_ALIGN         PORT_STACK_ALIGN
+#endif
+
 /**
  * @brief   EXC_RETURN to be used when starting a thread.
  */

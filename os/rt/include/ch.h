@@ -87,6 +87,9 @@
 #endif
 /** @} */
 
+/* Shared files.*/
+#include "ccportab.h"
+
 /* License.*/
 #include "chlicense.h"
 

@@ -50,12 +50,11 @@
 #endif
 
 /**
- * @brief   Enables the legacy threads creation API.
- * @details The old API is enabled and the new one disabled, this makes
- *          the kernel perfectly compatible with previous versions.
+ * @brief   Disables any legacy code.
+ * @details Deprecated or legacy functionalities are disabled.
  */
-#if !defined(CH_CFG_THD_LEGACY_API)
-#define CH_CFG_THD_LEGACY_API               TRUE
+#if !defined(CH_CFG_NO_LEGACY_CODE)
+#define CH_CFG_NO_LEGACY_CODE               FALSE
 #endif
 
 /** @} */

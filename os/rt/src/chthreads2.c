@@ -248,12 +248,12 @@ thread_t *chThdCreateSuspended2(thread_t *tp,
                                 const thread_descriptor_new_t *tdp) {
 
 #if CH_CFG_USE_REGISTRY == TRUE
-  chDbgAssert(chRegFindThreadByWorkingArea((void *)tdp->wa.base) == NULL,
+  chDbgAssert(chRegFindThreadByWorkingArea((void *)tdp->wbase) == NULL,
               "working area in use");
 #endif
 
 #if CH_DBG_FILL_THREADS == TRUE
-  memset((void *)tdp->wa.base, CH_DBG_STACK_FILL_VALUE, tdp->wa.size);
+  memset((void *)tdp->wa.base, CH_DBG_STACK_FILL_VALUE, tdp->wsize);
 #endif
 
   chSysLock();

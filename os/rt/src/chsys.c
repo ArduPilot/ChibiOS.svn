@@ -57,9 +57,7 @@ static CH_SYS_CORE0_MEMORY THD_WORKING_AREA(ch_c0_idle_thread_wa,
                                             PORT_IDLE_THREAD_STACK_SIZE);
 #endif
 
-#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
 extern stkalign_t __main_thread_stack_base__, __main_thread_stack_end__;
-#endif
 
 /**
  * @brief   Core 0 OS instance configuration.
@@ -69,8 +67,8 @@ const os_instance_config_t ch_core0_cfg = {
   .cstack_base  = &__main_thread_stack_base__,
   .cstack_end   = &__main_thread_stack_end__,
 #if CH_CFG_NO_IDLE_THREAD == FALSE
-  .idlestack_base  = THD_WORKING_AREA_BASE(ch_c0_idle_thread_wa),
-  .idlestack_end   = THD_WORKING_AREA_END(ch_c0_idle_thread_wa)
+  .idlestack_base  = THD_WA_BASE(ch_c0_idle_thread_wa),
+  .idlestack_end   = THD_WA_END(ch_c0_idle_thread_wa)
 #endif
 };
 
@@ -88,9 +86,7 @@ static CH_SYS_CORE1_MEMORY THD_WORKING_AREA(ch_c1_idle_thread_wa,
                                             PORT_IDLE_THREAD_STACK_SIZE);
 #endif
 
-#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) || (CH_CFG_USE_DYNAMIC == TRUE)
 extern stkalign_t __c1_main_thread_stack_base__, __c1_main_thread_stack_end__;
-#endif
 
 /**
  * @brief   Core 1 OS instance configuration.
@@ -102,8 +98,8 @@ const os_instance_config_t ch_core1_cfg = {
   .stack_end   = &__c1_main_thread_stack_end__,
 #endif
 #if CH_CFG_NO_IDLE_THREAD == FALSE
-  .idlestack_base  = THD_WORKING_AREA_BASE(ch_c1_idle_thread_wa),
-  .idlestack_end   = THD_WORKING_AREA_END(ch_c1_idle_thread_wa)
+  .idlestack_base  = THD_WA_BASE(ch_c1_idle_thread_wa),
+  .idlestack_end   = THD_WA_END(ch_c1_idle_thread_wa)
 #endif
 };
 #endif /* PORT_CORES_NUMBER > 1 */

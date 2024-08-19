@@ -29,7 +29,7 @@
 #define CHCONF_H
 
 #define _CHIBIOS_RT_CONF_
-#define _CHIBIOS_RT_CONF_VER_7_0_
+#define _CHIBIOS_RT_CONF_VER_8_0_
 
 /*===========================================================================*/
 /**
@@ -55,7 +55,7 @@
  *          the kernel perfectly compatible with previous versions.
  */
 #if !defined(CH_CFG_THD_LEGACY_API)
-#define CH_CFG_THD_LEGACY_API               TRUE
+#define CH_CFG_THD_LEGACY_API               FALSE
 #endif
 /** @} */
 
@@ -348,13 +348,11 @@
 #endif
 
 /**
- * @brief   Dynamic Threads APIs.
- * @details If enabled then the dynamic threads creation APIs are included
- *          in the kernel.
+ * @brief   Dynamic Threads APIs support.
+ * @details If enabled then a user-defined callback is invoked when it is
+ *          the moment to dispose thread memory.
  *
  * @note    The default is @p TRUE.
- * @note    Requires @p CH_CFG_USE_WAITEXIT.
- * @note    Requires @p CH_CFG_USE_HEAP and/or @p CH_CFG_USE_MEMPOOLS.
  */
 #if !defined(CH_CFG_USE_DYNAMIC)
 #define CH_CFG_USE_DYNAMIC                  TRUE

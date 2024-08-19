@@ -58,31 +58,37 @@ typedef struct {
   /**
    * @brief   Thread name.
    */
-  const char        *name;
+  const char                    *name;
   /**
    * @brief   Pointer to the working area base.
    */
-  stkalign_t        *wbase;
+  stkalign_t                    *wbase;
   /**
    * @brief   Pointer to the working area end.
    */
-  stkalign_t        *wend;
+  stkalign_t                    *wend;
   /**
    * @brief   Thread priority.
    */
-  tprio_t           prio;
+  tprio_t                       prio;
   /**
    * @brief   Thread function pointer.
    */
-  tfunc_t           funcp;
+  tfunc_t                       funcp;
   /**
    * @brief   Thread argument.
    */
-  void              *arg;
+  void                          *arg;
   /**
    * @brief         OS instance affinity or @p NULL for current one.
    */
-  os_instance_t     *owner;
+  os_instance_t                 *owner;
+#if (CH_CFG_USE_DYNAMIC == TRUE) || defined(__DOXYGEN__)
+  /**
+   * @brief   Callback for thread memory disposal.
+   */
+  thread_dispose_t              dispose;
+#endif
 } thread_descriptor_t;
 
 /*===========================================================================*/
@@ -99,8 +105,6 @@ typedef struct {
  *          queue that is part of a bigger structure.
  *
  * @param[in] name      name of the threads queue variable
- *
- * @deprecated
  */
 #define __THREADS_QUEUE_DATA(name) {__CH_QUEUE_DATA(name)}
 
@@ -110,8 +114,6 @@ typedef struct {
  *          initialization using @p queue_init().
  *
  * @param[in] name      name of the threads queue variable
- *
- * @deprecated
  */
 #define THREADS_QUEUE_DECL(name)                                            \
   threads_queue_t name = __THREADS_QUEUE_DATA(name)
@@ -121,104 +123,48 @@ typedef struct {
  * @name    Working Areas
  * @{
  */
-#if (CH_CFG_NO_LEGACY_CODE == FALSE) || defined(__DOXYGEN__)
+#if (CH_CFG_THD_LEGACY_API == FALSE) || defined(__DOXYGEN__)
 /**
- * @brief   Calculates the total thread Working Area size.
- * @note    This macro calculates a working area size for those
- *          thread-creation functions that allocate the @p thread_t
- *          structure inside.
- * @see     chThdCreateStatic(), chThdCreateSuspendedI(), chThdCreateI(),
- *          chThdCreateSuspended(), chThdCreate(), chThdCreateFromPool().
+ * @brief   Calculates the total Working Area size.
  *
  * @param[in] n         the stack size to be assigned to the thread
- * @return              The required working area size in bytes.
+ * @return              The total used memory in bytes.
  *
  * @api
  */
 #define THD_WORKING_AREA_SIZE(n)                                            \
-  MEM_ALIGN_NEXT(MEM_ALIGN_NEXT(sizeof(thread_t), PORT_STACK_ALIGN) +       \
-                 PORT_WA_SIZE(n), PORT_STACK_ALIGN)
-
-/**
- * @brief   Static thread Working Area allocation.
- * @details This macro is used to allocate a thread stack area for those
- *          legacy thread-creation functions that need to allocate a
- *          @p thread_t structure inside.
- * @note    This macro allocates extra space to accommodate the @p thread_t
- *          structure internally.
- *
- * @param[in] s         the name to be assigned to the stack array
- * @param[in] n         the stack size to be assigned to the thread
- *
- * @api
- */
-#define THD_WORKING_AREA(s, n)                                              \
-  CC_ALIGN_DATA(PORT_WORKING_AREA_ALIGN)                                    \
-  stkalign_t s[THD_WORKING_AREA_SIZE(n) / sizeof (stkalign_t)]
-
-/**
- * @brief   Base of a thread Working Area casted to the correct type.
- *
- * @param[in] s         name of the working area
- *
- * @deprecated
- */
-#define THD_WORKING_AREA_BASE(s) ((stkalign_t *)(s))
-
-/**
- * @brief   End of a thread Working Area casted to the correct type.
- *
- * @param[in] s         name of the working area
- *
- * @deprecated
- */
-#define THD_WORKING_AREA_END(s) (THD_WORKING_AREA_BASE(s) +                 \
-                                 (sizeof (s) / sizeof (stkalign_t)))
-#endif /* CH_CFG_NO_LEGACY_API == FALSE */
-
-/**
- * @brief   Calculates the total thread Working Area size.
- * @note    This macro calculates a stack size for those
- *          thread-creation functions do not need to allocate a
- *          @p thread_t structure inside.
- *
- * @param[in] n         the stack size to be assigned to the thread
- * @return              The required working area size in bytes.
- *
- * @api
- */
-#define THD_STACK_AREA_SIZE(n)                                              \
   MEM_ALIGN_NEXT(PORT_WA_SIZE(n), PORT_STACK_ALIGN)
 
+#else /* CH_CFG_THD_LEGACY_API == TRUE */
+#define THD_WORKING_AREA_SIZE(n)                                            \
+  MEM_ALIGN_NEXT(sizeof(thread_t) + PORT_WA_SIZE(n), PORT_STACK_ALIGN)
+#endif
+
 /**
- * @brief   Static thread Working Area allocation.
- * @details This macro is used to allocate a thread stack area for those
- *          thread-creation functions that do not need to allocate a
- *          @p thread_t structure inside.
+ * @brief   Static working area allocation.
+ * @details This macro is used to allocate a static thread working area
+ *          aligned as both position and size.
  *
  * @param[in] s         the name to be assigned to the stack array
  * @param[in] n         the stack size to be assigned to the thread
  *
  * @api
  */
-#define THD_STACK_AREA(s, n)                                                \
-  CC_ALIGN_DATA(PORT_WORKING_AREA_ALIGN)                                    \
-  stkalign_t s[THD_STACK_AREA_SIZE(n) / sizeof (stkalign_t)]
+#define THD_WORKING_AREA(s, n) PORT_WORKING_AREA(s, n)
 
 /**
- * @brief   Base of a thread Working Area casted to the correct type.
+ * @brief   Base of a working area casted to the correct type.
  *
  * @param[in] s         name of the working area
  */
-#define THD_STACK_AREA_BASE(s) ((stkalign_t *)(s))
+#define THD_WA_BASE(s) ((stkalign_t *)(s))
 
 /**
- * @brief   End of a thread Working Area casted to the correct type.
+ * @brief   End of a working area casted to the correct type.
  *
  * @param[in] s         name of the working area
  */
-#define THD_STACK_AREA_END(s) (THD_STACK_AREA_BASE(s) +                     \
-                               (sizeof (s) / sizeof (stkalign_t)))
+#define THD_WA_END(s) (THD_WA_BASE(s) + (sizeof (s) / sizeof (stkalign_t)))
 /** @} */
 
 /**
@@ -237,44 +183,86 @@ typedef struct {
  * @name    Threads initializers
  * @{
  */
+#if (CH_CFG_USE_DYNAMIC == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Data part of a static thread descriptor initializer.
  * @details This macro should be used when statically initializing a
  *          thread descriptor that is part of a bigger structure.
  *
  * @param[in] tname     thread name
- * @param[in] wb        pointer to the working area base
- * @param[in] we        pointer to the working area end
+ * @param[in] twbase    thread working area base
+ * @param[in] twend     thread working area end
  * @param[in] tprio     thread priority
  * @param[in] tfunc     thread function pointer
  * @param[in] targ      thread function argument
- * @param[in] oip       owner OS instance or @p NULL
+ * @param[in] towner    thread owner OS instance or @p NULL
+ * @param[in] tdispose  thread dispose function or @p NULL
  */
-#define __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, oip) {           \
+#define __THD_DESC_DATA(tname, twbase, twend, tprio,                        \
+                        tfunc, targ, towner, tdispose) {                    \
   .name         = (tname),                                                  \
-  .wbase        = (stkalign_t *)(void *)(wb),                               \
-  .wend         = (stkalign_t *)(void *)(we),                               \
+  .wbase        = (stkalign_t *)(void *)(twbase),                           \
+  .wend         = (stkalign_t *)(void *)(twend),                            \
   .prio         = (tprio),                                                  \
   .funcp        = (tfunc),                                                  \
   .arg          = (targ),                                                   \
-  .owner        = (oip)                                                     \
+  .owner        = (towner),                                                 \
+  .dispose      = (tdispose)                                                \
 }
+#else
+#define __THD_DESC_DATA(tname, twbase, twend, tprio,                        \
+                        tfunc, targ, towner, tdispose) {                    \
+  .name         = (tname),                                                  \
+  .wbase        = (stkalign_t *)(void *)(twbase),                           \
+  .wend         = (stkalign_t *)(void *)(twend),                            \
+  .prio         = (tprio),                                                  \
+  .funcp        = (tfunc),                                                  \
+  .arg          = (targ),                                                   \
+  .owner        = (towner),                                                 \
+}
+#endif
 
 /**
  * @brief   Thread descriptor initializer.
  *
- * @param[in] var       name of the thread descriptor variable
+ * @param[in] var       thread descriptor variable name
  * @param[in] tname     thread name
- * @param[in] wb        pointer to the working area base
- * @param[in] we        pointer to the working area end
+ * @param[in] twbase    thread working area base
+ * @param[in] twend     thread working area end
  * @param[in] tprio     thread priority
  * @param[in] tfunc     thread function pointer
  * @param[in] targ      thread function argument
- * @param[in] oip       owner OS instance or @p NULL
+ * @param[in] towner    thread owner OS instance or @p NULL
+ * @param[in] tdispose  thread dispose function or @p NULL
  */
-#define THD_DESC_DECL(var, tname, wb, we, tprio, tfunc, targ, oip)          \
-  thread_descriptor_t var = __THD_DESC_DATA(tname, wb, we, tprio,           \
-                                            tfunc, targ, oip)
+#define THD_DESC_DECL(var, tname, twbase, twend, tprio,                     \
+                      tfunc, targ, towner, tdispose)                        \
+  thread_descriptor_t var = __THD_DESC_DATA(tname, twbase, twend, tprio,    \
+                                            tfunc, targ, towner, tdispose)
+
+
+/**
+ * @brief   Static thread descriptor initializer.
+ * @note    The only difference with @p THD_DESC_DECL() is that the working
+ *          area is simply passed by name not by pointers. It is assumed to
+ *          be a variable declared using THD_WORKING_AREA() which is the
+ *          preferred way for static threads.
+ *
+ * @param[in] var       thread descriptor variable name
+ * @param[in] tname     thread name
+ * @param[in] twname    thread working area variable name
+ * @param[in] tprio     thread priority
+ * @param[in] tfunc     thread function pointer
+ * @param[in] targ      thread function argument
+ * @param[in] towner    thread owner OS instance or @p NULL
+ */
+#define THD_STATIC_DECL(var, tname, twname, tprio,                          \
+                        tfunc, targ, towner)                                \
+  thread_descriptor_t var = __THD_DESC_DATA(tname,                          \
+                                            THD_WA_BASE(twname),            \
+                                            THD_WA_END(twname),             \
+                                            tprio, tfunc, targ,             \
+                                            towner, NULL)
 
 /**
  * @brief   Thread descriptor initializer with no affinity.
@@ -289,7 +277,7 @@ typedef struct {
  * @deprecated
  */
 #define THD_DESCRIPTOR(tname, wb, we, tprio, tfunc, targ)                   \
-  __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, NULL)
+  __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, NULL, NULL)
 
 /**
  * @brief   Thread descriptor initializer with no affinity.
@@ -305,7 +293,7 @@ typedef struct {
  * @deprecated
  */
 #define THD_DESCRIPTOR_AFFINITY(tname, wb, we, tprio, tfunc, targ, oip) \
-  __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, oip)
+  __THD_DESC_DATA(tname, wb, we, tprio, tfunc, targ, oip, NULL)
 /** @} */
 
 /**
@@ -376,13 +364,14 @@ extern "C" {
 #endif
   thread_t *chThdObjectInit(thread_t *tp, const thread_descriptor_t *tdp);
   void chThdObjectDispose(thread_t *tp);
-  thread_t *chThdSpawnSuspendedI(thread_t *tp,
+#if CH_CFG_THD_LEGACY_API == FALSE
+  thread_t *chThdCreateSuspendedI(thread_t *tp,
+                                  const thread_descriptor_t *tdp);
+  thread_t *chThdCreateSuspended(thread_t *tp,
                                  const thread_descriptor_t *tdp);
-  thread_t *chThdSpawnSuspended(thread_t *tp,
-                                const thread_descriptor_t *tdp);
-  thread_t *chThdSpawnRunningI(thread_t *tp, const thread_descriptor_t *tdp);
-  thread_t *chThdSpawnRunning(thread_t *tp, const thread_descriptor_t *tdp);
-#if CH_CFG_NO_LEGACY_CODE == FALSE
+  thread_t *chThdCreateI(thread_t *tp, const thread_descriptor_t *tdp);
+  thread_t *chThdCreate(thread_t *tp, const thread_descriptor_t *tdp);
+#else
   thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp);
   thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp);
   thread_t *chThdCreateI(const thread_descriptor_t *tdp);
@@ -506,7 +495,7 @@ static inline bool chThdTerminatedX(thread_t *tp) {
  */
 static inline bool chThdShouldTerminateX(void) {
 
-  return (bool)((chThdGetSelfX()->flags & CH_FLAG_TERMINATE) != (tmode_t)0);
+  return (bool)((chThdGetSelfX()->flags & CH_FLAGS_TERMINATE) != (tmode_t)0);
 }
 
 /**

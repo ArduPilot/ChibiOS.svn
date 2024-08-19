@@ -49,14 +49,6 @@
 #define CH_CFG_SMP_MODE                     FALSE
 #endif
 
-/**
- * @brief   Disables any legacy code.
- * @details Deprecated or legacy functionalities are disabled.
- */
-#if !defined(CH_CFG_NO_LEGACY_CODE)
-#define CH_CFG_NO_LEGACY_CODE               FALSE
-#endif
-
 /** @} */
 
 /*===========================================================================*/

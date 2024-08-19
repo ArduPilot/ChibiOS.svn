@@ -148,7 +148,8 @@ void chInstanceObjectInit(os_instance_t *oip,
                         NORMALPRIO,
                         NULL,
                         NULL,
-                        oip
+                        oip,
+                        NULL
                         );
 
     oip->rlist.current = chThdObjectInit(&oip->mainthread, &main_thd_desc);
@@ -160,7 +161,8 @@ void chInstanceObjectInit(os_instance_t *oip,
                         IDLEPRIO,
                         NULL,
                         NULL,
-                        oip
+                        oip,
+                        NULL
                         );
 
     oip->rlist.current = chThdObjectInit(&oip->idlethread, &idle_thd_desc);
@@ -184,14 +186,16 @@ void chInstanceObjectInit(os_instance_t *oip,
 
 #if CH_CFG_NO_IDLE_THREAD == FALSE
   {
-    thread_descriptor_t idle_thd_desc = {
-      .name     = "idle",
-      .wbase    = oicp->idlestack_base,
-      .wend     = oicp->idlestack_end,
-      .prio     = IDLEPRIO,
-      .funcp    = __idle_thread,
-      .arg      = NULL
-    };
+    const THD_DESC_DECL(idle_thd_desc,
+                        "idle",
+                        oicp->idlestack_base,
+                        oicp->idlestack_end,
+                        IDLEPRIO,
+                        __idle_thread,
+                        NULL,
+                        oip,
+                        NULL
+                        );
 
 #if CH_DBG_FILL_THREADS == TRUE
     __thd_stackfill((uint8_t *)idle_thd_desc.wbase,
@@ -201,7 +205,11 @@ void chInstanceObjectInit(os_instance_t *oip,
     /* This thread has the lowest priority in the system, its role is just to
        serve interrupts in its context while keeping the lowest energy saving
        mode compatible with the system status.*/
-    (void) chThdSpawnRunningI(&oip->idlethread, &idle_thd_desc);
+#if CH_CFG_THD_LEGACY_API == FALSE
+    (void) chThdCreateI(&oip->idlethread, &idle_thd_desc);
+#else
+    (void) chThdCreateI(&idle_thd_desc);
+#endif
   }
 #endif /* CH_CFG_NO_IDLE_THREAD == FALSE */
 }

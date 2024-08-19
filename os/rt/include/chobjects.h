@@ -156,6 +156,11 @@ typedef struct ch_threads_queue {
 } threads_queue_t;
 
 /**
+ * @brief   Type of a thread dispose callback.
+ */
+typedef void (*thread_dispose_t)(thread_t *tp);
+
+/**
  * @brief   Structure representing a thread.
  * @note    Not all the listed fields are always needed, by switching off some
  *          not needed ChibiOS/RT subsystems it is possible to save RAM space
@@ -220,10 +225,16 @@ struct ch_thread {
    */
   ch_queue_t                    rqueue;
 #endif
+#if (CH_CFG_USE_DYNAMIC == TRUE) || defined(__DOXYGEN__)
+  /**
+   * @brief   Callback for thread memory disposal.
+   */
+  thread_dispose_t              dispose;
+#endif
+#if (CH_CFG_TIME_QUANTUM > 0) || defined(__DOXYGEN__)
   /**
    * @brief   Number of ticks remaining to this thread.
    */
-#if (CH_CFG_TIME_QUANTUM > 0) || defined(__DOXYGEN__)
   tslices_t                     ticks;
 #endif
 #if (CH_DBG_THREADS_PROFILING == TRUE) || defined(__DOXYGEN__)
@@ -328,13 +339,6 @@ struct ch_thread {
    * @brief   Thread's own, non-inherited, priority.
    */
   tprio_t                       realprio;
-#endif
-#if ((CH_CFG_USE_DYNAMIC == TRUE) && (CH_CFG_USE_MEMPOOLS == TRUE)) ||      \
-    defined(__DOXYGEN__)
-  /**
-   * @brief   Memory Pool where the thread workspace is returned.
-   */
-  void                          *mpool;
 #endif
 #if (CH_DBG_STATISTICS == TRUE) || defined(__DOXYGEN__)
   /**

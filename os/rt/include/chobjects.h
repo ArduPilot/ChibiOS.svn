@@ -156,9 +156,11 @@ typedef struct ch_threads_queue {
 } threads_queue_t;
 
 /**
- * @brief   Type of a thread dispose callback.
+ * @brief   Type of a thread dispose structure.
  */
-typedef void (*thread_dispose_t)(thread_t *tp);
+typedef struct ch_thread_dispose {
+  void (*cb)(thread_t *tp);
+} thread_dispose_t;
 
 /**
  * @brief   Structure representing a thread.
@@ -227,9 +229,9 @@ struct ch_thread {
 #endif
 #if (CH_CFG_USE_DYNAMIC == TRUE) || defined(__DOXYGEN__)
   /**
-   * @brief   Callback for thread memory disposal.
+   * @brief   Pointer to a thread dispose structure or @p NULL.
    */
-  thread_dispose_t              dispose;
+  thread_dispose_t              *dispose;
 #endif
 #if (CH_CFG_TIME_QUANTUM > 0) || defined(__DOXYGEN__)
   /**

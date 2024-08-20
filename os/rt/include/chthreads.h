@@ -85,9 +85,9 @@ typedef struct {
   os_instance_t                 *owner;
 #if (CH_CFG_USE_DYNAMIC == TRUE) || defined(__DOXYGEN__)
   /**
-   * @brief   Callback for thread memory disposal.
+   * @brief   Pointer to a thread dispose structure.
    */
-  thread_dispose_t              dispose;
+  thread_dispose_t              *dispose;
 #endif
 } thread_descriptor_t;
 
@@ -251,7 +251,7 @@ typedef struct {
  * @param[in] tfunc     thread function pointer
  * @param[in] targ      thread function argument
  * @param[in] towner    thread owner OS instance or @p NULL
- * @param[in] tdispose  thread dispose function or @p NULL
+ * @param[in] tdispose  thread dispose structure pointer or @p NULL
  */
 #define __THD_DECL_DATA(tname, twbase, twend, tprio,                        \
                               tfunc, targ, towner, tdispose) {              \
@@ -288,7 +288,7 @@ typedef struct {
  * @param[in] tfunc     thread function pointer
  * @param[in] targ      thread function argument
  * @param[in] towner    thread owner OS instance or @p NULL
- * @param[in] tdispose  thread dispose function or @p NULL
+ * @param[in] tdispose  thread dispose structure pointer or @p NULL
  */
 #define THD_DECL(var, tname, twbase, twend, tprio,                          \
                  tfunc, targ, towner, tdispose)                             \

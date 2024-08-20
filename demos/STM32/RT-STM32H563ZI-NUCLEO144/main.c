@@ -26,7 +26,7 @@
 /*
  * Green LED blinker thread, times are in milliseconds.
  */
-static THD_WORKING_AREA(thread1_stack, 128);
+static THD_STACK(thread1_stack, 128);
 static THD_FUNCTION(thread1_function, arg) {
 
   (void)arg;
@@ -70,7 +70,7 @@ int main(void) {
    * Creating a blinker thread.
    */
   static thread_t thread1_tcb;
-  static const THD_STATIC_DECL(thread1_descriptor,
+  static const THD_DECL_STATIC(thread1_descriptor,
                                "blinker", thread1_stack, NORMALPRIO,
                                thread1_function, NULL, NULL);
   chThdCreate(&thread1_tcb, &thread1_descriptor);

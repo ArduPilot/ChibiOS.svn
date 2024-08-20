@@ -141,29 +141,17 @@ void chInstanceObjectInit(os_instance_t *oip,
      depending on the CH_CFG_NO_IDLE_THREAD setting.*/
   {
 #if CH_CFG_NO_IDLE_THREAD == FALSE
-    const THD_DESC_DECL(main_thd_desc,
-                        "main",
-                        oicp->cstack_base,
-                        oicp->cstack_end,
-                        NORMALPRIO,
-                        NULL,
-                        NULL,
-                        oip,
-                        NULL
-                        );
+    const THD_DECL(main_thd_desc,
+                   "main", oicp->cstack_base, oicp->cstack_end,
+                   NORMALPRIO, NULL, NULL, oip,  NULL
+    );
 
     oip->rlist.current = chThdObjectInit(&oip->mainthread, &main_thd_desc);
 #else
-    const THD_DESC_DECL(idle_thd_desc,
-                        "idle",
-                        oicp->cstack_base,
-                        oicp->cstack_end,
-                        IDLEPRIO,
-                        NULL,
-                        NULL,
-                        oip,
-                        NULL
-                        );
+    const THD_DECL(idle_thd_desc,
+                   "idle", oicp->cstack_base, oicp->cstack_end,
+                   IDLEPRIO, NULL, NULL, oip, NULL
+    );
 
     oip->rlist.current = chThdObjectInit(&oip->idlethread, &idle_thd_desc);
 #endif
@@ -186,16 +174,10 @@ void chInstanceObjectInit(os_instance_t *oip,
 
 #if CH_CFG_NO_IDLE_THREAD == FALSE
   {
-    const THD_DESC_DECL(idle_thd_desc,
-                        "idle",
-                        oicp->idlestack_base,
-                        oicp->idlestack_end,
-                        IDLEPRIO,
-                        __idle_thread,
-                        NULL,
-                        oip,
-                        NULL
-                        );
+    const THD_DECL(idle_thd_desc,
+                   "idle", oicp->idlestack_base, oicp->idlestack_end,
+                    IDLEPRIO, __idle_thread, NULL, oip, NULL
+    );
 
 #if CH_DBG_FILL_THREADS == TRUE
     __thd_stackfill((uint8_t *)idle_thd_desc.wbase,
@@ -205,11 +187,7 @@ void chInstanceObjectInit(os_instance_t *oip,
     /* This thread has the lowest priority in the system, its role is just to
        serve interrupts in its context while keeping the lowest energy saving
        mode compatible with the system status.*/
-#if CH_CFG_THD_LEGACY_API == FALSE
     (void) chThdCreateI(&oip->idlethread, &idle_thd_desc);
-#else
-    (void) chThdCreateI(&idle_thd_desc);
-#endif
   }
 #endif /* CH_CFG_NO_IDLE_THREAD == FALSE */
 }

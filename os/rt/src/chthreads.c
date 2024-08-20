@@ -222,7 +222,6 @@ void chThdObjectDispose(thread_t *tp) {
 #endif
 }
 
-#if (CH_CFG_THD_LEGACY_API == FALSE) || defined(__DOXYGEN__)
 /**
  * @brief   Creates a non-running thread.
  * @details The created thread is in the @p CH_STATE_WTSTART state and can
@@ -352,7 +351,7 @@ thread_t *chThdCreate(thread_t *tp, const thread_descriptor_t *tdp) {
   return tp;
 }
 
-#else /* CH_CFG_THD_LEGACY_API == TRUE */
+#if CH_CFG_NO_LEGACY_CODE == FALSE
 /**
  * @brief   Creates a non-running thread.
  * @details The created thread is in the @p CH_STATE_WTSTART state and can
@@ -576,7 +575,7 @@ thread_t *chThdCreateStatic(void *wbase, size_t wsize,
 
   return tp;
 }
-#endif /* CH_CFG_THD_LEGACY_API == TRUE */
+#endif /* CH_CFG_NO_LEGACY_CODE == FALSE */
 
 /**
  * @brief   Starts a thread created with @p chThdCreateSuspended().

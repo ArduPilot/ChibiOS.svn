@@ -73,7 +73,7 @@ int main(void) {
   static const THD_DECL_STATIC(thread1_descriptor,
                                "blinker", thread1_stack, NORMALPRIO,
                                thread1_function, NULL, NULL);
-  chThdCreate(&thread1_tcb, &thread1_descriptor);
+  chThdSpawnRunning(&thread1_tcb, &thread1_descriptor);
 
   /*
    * Normal main() thread activity, in this demo it does nothing except

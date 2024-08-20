@@ -463,12 +463,12 @@ extern "C" {
 #endif
   thread_t *chThdObjectInit(thread_t *tp, const thread_descriptor_t *tdp);
   void chThdObjectDispose(thread_t *tp);
-  thread_t *chThdCreateSuspendedI(thread_t *tp,
-                                  const thread_descriptor_t *tdp);
-  thread_t *chThdCreateSuspended(thread_t *tp,
+  thread_t *chThdSpawnSuspendedI(thread_t *tp,
                                  const thread_descriptor_t *tdp);
-  thread_t *chThdCreateI(thread_t *tp, const thread_descriptor_t *tdp);
-  thread_t *chThdCreate(thread_t *tp, const thread_descriptor_t *tdp);
+  thread_t *chThdSpawnSuspended(thread_t *tp,
+                                const thread_descriptor_t *tdp);
+  thread_t *chThdSpawnRunningI(thread_t *tp, const thread_descriptor_t *tdp);
+  thread_t *chThdSpawnRunning(thread_t *tp, const thread_descriptor_t *tdp);
 #if CH_CFG_NO_LEGACY_CODE == FALSE
   thread_t *chThdCreateSuspendedI(const thread_descriptor_t *tdp);
   thread_t *chThdCreateSuspended(const thread_descriptor_t *tdp);

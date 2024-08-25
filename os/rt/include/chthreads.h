@@ -85,9 +85,9 @@ typedef struct {
   os_instance_t                 *owner;
 #if (CH_CFG_USE_DYNAMIC == TRUE) || defined(__DOXYGEN__)
   /**
-   * @brief   Pointer to a thread dispose structure.
+   * @brief   Pointer to a thread dispose function or @p NULL.
    */
-  thread_dispose_t              *dispose;
+  thread_dispose_t              dispose;
 #endif
 } thread_descriptor_t;
 
@@ -293,8 +293,8 @@ typedef struct {
 #define THD_DECL(var, tname, twbase, twend, tprio,                          \
                  tfunc, targ, towner, tdispose)                             \
   thread_descriptor_t var = __THD_DECL_DATA(tname, twbase, twend,           \
-                                                  tprio, tfunc, targ,       \
-                                                  towner, tdispose)
+                                            tprio, tfunc, targ,             \
+                                            towner, tdispose)
 
 /**
  * @brief   Static thread descriptor initializer.
@@ -314,10 +314,10 @@ typedef struct {
 #define THD_DECL_STATIC(var, tname, twname, tprio,                          \
                         tfunc, targ, towner)                                \
   thread_descriptor_t var = __THD_DECL_DATA(tname,                          \
-                                                  THD_STACK_BASE(twname),   \
-                                                  THD_STACK_END(twname),    \
-                                                  tprio, tfunc, targ,       \
-                                                  towner, NULL)
+                                            THD_STACK_BASE(twname),     \
+                                            THD_STACK_END(twname),      \
+                                            tprio, tfunc, targ,         \
+                                            towner, NULL)
 
 #if (CH_CFG_NO_LEGACY_CODE == FALSE) || defined(__DOXYGEN__)
 /**

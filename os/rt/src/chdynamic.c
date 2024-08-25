@@ -50,11 +50,20 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
+#if (CH_CFG_NO_LEGACY_CODE == FALSE) || defined(__DOXYGEN__)
+#if (CH_CFG_USE_HEAP == TRUE) || defined(__DOXYGEN__)
+static void thdfree(thread_t * tp) {
+
+  chHeapFree((void *)tp->wabase);
+}
+#endif /* CH_CFG_USE_MEMPOOLS == TRUE */
+#endif /* CH_CFG_NO_LEGACY_CODE == FALSE */
+
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
-#if 0
+#if (CH_CFG_NO_LEGACY_CODE == FALSE) || defined(__DOXYGEN__)
 #if (CH_CFG_USE_HEAP == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Creates a new thread allocating the memory from the heap.
@@ -72,8 +81,8 @@
  * @param[in] name      thread name
  * @param[in] prio      the priority level for the new thread
  * @param[in] pf        the thread function
- * @param[in] arg       an argument passed to the thread function. It can be
- *                      @p NULL.
+ * @param[in] arg       an argument to be passed to the thread function. It
+ *                      can be @p NULL.
  * @return              The pointer to the @p thread_t structure allocated for
  *                      the thread into the working space area.
  * @retval NULL         if the memory cannot be allocated.
@@ -92,7 +101,8 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
   }
   wend = (void *)((uint8_t *)wbase + size);
 
-  thread_descriptor_t td = THD_DESCRIPTOR(name, wbase, wend, prio, pf, arg);
+  thread_descriptor_t td = __THD_DECL_DATA(name, wbase, wend, prio,
+                                           pf, arg, NULL, thdfree);
 
 #if CH_DBG_FILL_THREADS == TRUE
   __thd_stackfill((uint8_t *)wbase, (uint8_t *)wend);
@@ -100,7 +110,6 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
 
   chSysLock();
   tp = chThdCreateSuspendedI(&td);
-  tp->flags = CH_FLAG_MODE_HEAP;
   chSchWakeupS(tp, MSG_OK);
   chSysUnlock();
 
@@ -108,7 +117,7 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
 }
 #endif /* CH_CFG_USE_HEAP == TRUE */
 
-#if (CH_CFG_USE_MEMPOOLS == TRUE) || defined(__DOXYGEN__)
+#if 0 && (CH_CFG_USE_MEMPOOLS == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Creates a new thread allocating the memory from the specified
  *          memory pool.
@@ -127,8 +136,8 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
  * @param[in] name      thread name
  * @param[in] prio      the priority level for the new thread
  * @param[in] pf        the thread function
- * @param[in] arg       an argument passed to the thread function. It can be
- *                      @p NULL.
+ * @param[in] arg       an argument to be passed to the thread function. It
+ *                      can be @p NULL.
  * @return              The pointer to the @p thread_t structure allocated for
  *                      the thread into the working space area.
  * @retval  NULL        if the memory pool is empty.
@@ -164,7 +173,7 @@ thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
   return tp;
 }
 #endif /* CH_CFG_USE_MEMPOOLS == TRUE */
-#endif
+#endif /* CH_CFG_NO_LEGACY_CODE == FALSE */
 
 #endif /* CH_CFG_USE_DYNAMIC == TRUE */
 

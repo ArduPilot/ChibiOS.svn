@@ -50,20 +50,24 @@
 /* Module local functions.                                                   */
 /*===========================================================================*/
 
-#if (CH_CFG_NO_LEGACY_CODE == FALSE) || defined(__DOXYGEN__)
 #if (CH_CFG_USE_HEAP == TRUE) || defined(__DOXYGEN__)
-static void thdfree(thread_t * tp) {
+static void thd_heapfree(thread_t * tp) {
 
   chHeapFree((void *)tp->wabase);
 }
+#endif /* CH_CFG_USE_HEAP == TRUE */
+
+#if (CH_CFG_USE_MEMPOOLS == TRUE) || defined(__DOXYGEN__)
+static void thd_poolfree(thread_t * tp) {
+
+  chPoolFree((memory_pool_t *)tp->mpool, (void *)tp->wabase);
+}
 #endif /* CH_CFG_USE_MEMPOOLS == TRUE */
-#endif /* CH_CFG_NO_LEGACY_CODE == FALSE */
 
 /*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
-#if (CH_CFG_NO_LEGACY_CODE == FALSE) || defined(__DOXYGEN__)
 #if (CH_CFG_USE_HEAP == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Creates a new thread allocating the memory from the heap.
@@ -102,7 +106,7 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
   wend = (void *)((uint8_t *)wbase + size);
 
   thread_descriptor_t td = __THD_DECL_DATA(name, wbase, wend, prio,
-                                           pf, arg, NULL, thdfree);
+                                           pf, arg, NULL, thd_heapfree);
 
 #if CH_DBG_FILL_THREADS == TRUE
   __thd_stackfill((uint8_t *)wbase, (uint8_t *)wend);
@@ -117,7 +121,7 @@ thread_t *chThdCreateFromHeap(memory_heap_t *heapp, size_t size,
 }
 #endif /* CH_CFG_USE_HEAP == TRUE */
 
-#if 0 && (CH_CFG_USE_MEMPOOLS == TRUE) || defined(__DOXYGEN__)
+#if (CH_CFG_USE_MEMPOOLS == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Creates a new thread allocating the memory from the specified
  *          memory pool.
@@ -157,7 +161,8 @@ thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
   }
   wend = (void *)((uint8_t *)wbase + mp->object_size);
 
-  thread_descriptor_t td = THD_DESCRIPTOR(name, wbase, wend, prio, pf, arg);
+  thread_descriptor_t td = __THD_DECL_DATA(name, wbase, wend, prio,
+                                           pf, arg, NULL, thd_poolfree);
 
 #if CH_DBG_FILL_THREADS == TRUE
   __thd_stackfill((uint8_t *)wbase, (uint8_t *)wend);
@@ -165,7 +170,6 @@ thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
 
   chSysLock();
   tp = chThdCreateSuspendedI(&td);
-  tp->flags = CH_FLAG_MODE_MPOOL;
   tp->mpool = mp;
   chSchWakeupS(tp, MSG_OK);
   chSysUnlock();
@@ -173,7 +177,6 @@ thread_t *chThdCreateFromMemoryPool(memory_pool_t *mp, const char *name,
   return tp;
 }
 #endif /* CH_CFG_USE_MEMPOOLS == TRUE */
-#endif /* CH_CFG_NO_LEGACY_CODE == FALSE */
 
 #endif /* CH_CFG_USE_DYNAMIC == TRUE */
 

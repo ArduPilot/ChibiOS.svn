@@ -139,6 +139,9 @@ thread_t *chThdObjectInit(thread_t *tp,
   }
 #if CH_CFG_USE_DYNAMIC == TRUE
   tp->dispose           = tdp->dispose;
+#if CH_CFG_USE_MEMPOOLS == TRUE
+  tp->mpool             = NULL;
+#endif
 #endif
 #if CH_CFG_TIME_QUANTUM > 0
   tp->ticks             = (tslices_t)CH_CFG_TIME_QUANTUM;
@@ -345,7 +348,6 @@ thread_t *chThdSpawnRunning(thread_t *tp, const thread_descriptor_t *tdp) {
   return tp;
 }
 
-#if CH_CFG_NO_LEGACY_CODE == FALSE
 /**
  * @brief   Creates a non-running thread.
  * @details The created thread is in the @p CH_STATE_WTSTART state and can
@@ -569,7 +571,6 @@ thread_t *chThdCreateStatic(void *wbase, size_t wsize,
 
   return tp;
 }
-#endif /* CH_CFG_NO_LEGACY_CODE == FALSE */
 
 /**
  * @brief   Starts a thread created with @p chThdCreateSuspended().

@@ -193,6 +193,10 @@
 #define HAL_USE_SERIAL                      FALSE
 #endif
 
+#if !defined(HAL_USE_SAI)
+#define HAL_USE_SAI                         FALSE
+#endif
+
 #if !defined(HAL_USE_SDC)
 #define HAL_USE_SDC                         FALSE
 #endif
@@ -329,6 +333,7 @@ static inline bool halClockSwitchMode(const halclkcfg_t *ccp) {
 #include "hal_pwm.h"
 #include "hal_rtc.h"
 #include "hal_serial.h"
+#include "hal_sai.h"
 #include "hal_sdc.h"
 #include "hal_sio.h"
 #include "hal_spi.h"

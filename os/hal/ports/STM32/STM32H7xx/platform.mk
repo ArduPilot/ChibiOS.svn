@@ -38,6 +38,7 @@ include $(CHIBIOS)/os/hal/ports/STM32/LLD/MACv2/driver.mk
 include $(CHIBIOS)/os/hal/ports/STM32/LLD/MDMAv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/STM32/LLD/OTGv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/STM32/LLD/QUADSPIv2/driver.mk
+include $(CHIBIOS)/os/hal/ports/STM32/LLD/SAIv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/STM32/LLD/SDMMCv2/driver.mk
 include $(CHIBIOS)/os/hal/ports/STM32/LLD/SPIv3/driver_v2.mk
 include $(CHIBIOS)/os/hal/ports/STM32/LLD/RNGv1/driver.mk

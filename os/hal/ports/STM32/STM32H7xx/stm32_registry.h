@@ -885,6 +885,19 @@
 #define STM32_HAS_QUADSPI1                  TRUE
 #define STM32_HAS_QUADSPI2                  FALSE
 
+/* SAI attributes. */
+#define STM32_HAS_SAI1_A                    TRUE
+#define STM32_HAS_SAI1_B                    TRUE
+
+#define STM32_HAS_SAI2_A                    TRUE
+#define STM32_HAS_SAI2_B                    TRUE
+
+#define STM32_HAS_SAI3_A                    TRUE
+#define STM32_HAS_SAI3_B                    TRUE
+
+#define STM32_HAS_SAI4_A                    TRUE
+#define STM32_HAS_SAI4_B                    TRUE
+
 /* SDMMC attributes.*/
 #define STM32_HAS_SDMMC1                    TRUE
 #define STM32_HAS_SDMMC2                    TRUE

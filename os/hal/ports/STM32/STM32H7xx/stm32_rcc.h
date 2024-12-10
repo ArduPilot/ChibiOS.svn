@@ -2526,6 +2526,103 @@ __STATIC_INLINE void rccResetAHB4(uint32_t mask) {
 #endif
 /** @} */
 
+/**
+ * @name    SAI peripheral specific RCC operations
+ * @{
+ */
+/**
+ * @brief   Enables the SAI1 peripheral clock.
+ *
+ * @param[in] lp        low power enable flag
+ *
+ * @api
+ */
+#define rccEnableSAI1(lp) rccEnableAPB2(RCC_APB2ENR_SAI1EN, lp)
+
+/**
+ * @brief   Disables the SAI1 peripheral clock.
+ *
+ * @api
+ */
+#define rccDisableSAI1() rccDisableAPB2(RCC_APB2ENR_SAI1EN)
+
+/**
+ * @brief   Resets the SAI1 peripheral.
+ *
+ * @api
+ */
+#define rccResetSAI1() rccResetAPB2(RCC_APB2RSTR_SAI1RST)
+
+/*
+ * @brief   Enables the SAI2 peripheral clock.
+ *
+ * @param[in] lp        low power enable flag
+ *
+ * @api
+ */
+#define rccEnableSAI2(lp) rccEnableAPB2(RCC_APB2ENR_SAI2EN, lp)
+
+/**
+ * @brief   Disables the SAI2 peripheral clock.
+ *
+ * @api
+ */
+#define rccDisableSAI2() rccDisableAPB2(RCC_APB2ENR_SAI2EN)
+
+/**
+ * @brief   Resets the SAI2 peripheral.
+ *
+ * @api
+ */
+#define rccResetSAI2() rccResetAPB2(RCC_APB2RSTR_SAI2RST)
+
+/**
+ * @brief   Enables the SAI3 peripheral clock.
+ *
+ * @param[in] lp        low power enable flag
+ *
+ * @api
+ */
+#define rccEnableSAI3(lp) rccEnableAPB2(RCC_APB2ENR_SAI3EN, lp)
+
+/**
+ * @brief   Disables the SAI3 peripheral clock.
+ *
+ * @api
+ */
+#define rccDisableSAI3() rccDisableAPB2(RCC_APB2ENR_SAI3EN)
+
+/**
+ * @brief   Resets the SAI3 peripheral.
+ *
+ * @api
+ */
+#define rccResetSAI3() rccResetAPB2(RCC_APB2RSTR_SAI3RST)
+
+/**
+ * @brief   Enables the SAI1 peripheral clock.
+ *
+ * @param[in] lp        low power enable flag
+ *
+ * @api
+ */
+#define rccEnableSAI4(lp) rccEnableAPB4(RCC_APB4ENR_SAI4EN, lp)
+
+/**
+ * @brief   Disables the SAI4 peripheral clock.
+ *
+ * @api
+ */
+#define rccDisableSAI4() rccDisableAPB4(RCC_APB4ENR_SAI4EN)
+
+/**
+ * @brief   Resets the SAI4 peripheral.
+ *
+ * @api
+ */
+#define rccResetSAI4() rccResetAPB4(RCC_APB4RSTR_SAI4RST)
+/** @} */
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/

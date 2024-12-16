@@ -32,22 +32,6 @@ static uint8_t buffer[BUFF_SIZE];
 .GCR=0
 #endif
 
-static PWMConfig pwmcfg = {
-  10000,                                    /* 10kHz PWM clock frequency.   */
-  10000,                                    /* Initial PWM period 1S.       */
-  pwmpcb,
-  {
-   {PWM_OUTPUT_ACTIVE_HIGH, pwmc1cb},
-   {PWM_OUTPUT_DISABLED, NULL},
-   {PWM_OUTPUT_DISABLED, NULL},
-   {PWM_OUTPUT_DISABLED, NULL}
-  },
-  0,
-  0,
-  0
-};
-
-
 /*
  * F_ref_clk_sai = PLL1Q (60 MHz)
  * NOMCK = 1, FRL = 33, MCKDIV = 40
@@ -117,7 +101,8 @@ int main(void) {
   halInit();
   chSysInit();
 
-  saiStart(&SAIAD1, &saicfg);
+  saiStart(&SAID1, &saicfg);
+  saiStartExchange(&SAID1);
 
   /*
    * Creates the example thread.

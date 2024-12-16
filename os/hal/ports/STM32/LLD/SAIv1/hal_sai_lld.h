@@ -31,15 +31,6 @@
 /*===========================================================================*/
 /* Driver constants.                                                         */
 /*===========================================================================*/
-/**
- * @name    Static SAI sync mode
- * TODO only no sync mode supported for now
- * @{
- */
-#define STM32_SAI_NO_OUT_SYNC               0
-#define STM32_SAI_NO_IN_SYNC                0
-
-/** @} */
 
 /**
  * @name    Static SAI subblock modes
@@ -293,7 +284,7 @@
 #error "Invalid DMA priority assigned to SAI3"
 #endif
 
-#if (STM32_SAI_USE_SAI4 &&                                                  \
+#if STM32_SAI_USE_SAI4 &&                                                  \
     !STM32_DMA_IS_VALID_PRIORITY(STM32_SAI_SAI4_DMA_PRIORITY)
 #error "Invalid DMA priority assigned to SAI4"
 #endif
@@ -304,8 +295,8 @@
 #error "SAI1 DMA streams not defined"
 #endif
 
-#if STM32_SAI_USE_SAI2 && (!defined(STM32_SA2_SAI2A_DMA_STREAM) ||          \
-                           !defined(STM32_SA2_SAI2B_DMA_STREAM))
+#if STM32_SAI_USE_SAI2 && (!defined(STM32_SAI_SAI2A_DMA_STREAM) ||          \
+                           !defined(STM32_SAI_SAI2B_DMA_STREAM))
 #error "SAI2 DMA streams not defined"
 #endif
 
@@ -403,22 +394,22 @@ struct hal_sai_block_config {
   /**
    * @brief   Register CR1.
    */
-  uint32_t                  saicr1;
+  uint32_t                  cr1;
 
   /**
    * @brief   Register CR2.
    */
-  uint32_t                  saicr2;
+  uint32_t                  cr2;
 
   /**
    * @brief   Register FRCR.
    */
-  uint32_t                  saifrcr;
+  uint32_t                  frcr;
 
   /**
    * @brief   Register SLOTR.
    */
-  uint32_t                  saislotr;
+  uint32_t                  slotr;
 };
 
 /**

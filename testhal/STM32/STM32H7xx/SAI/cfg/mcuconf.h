@@ -383,37 +383,25 @@
 /*
  * SAI driver system settings.
  */
-#define STM32_SAI_USE_SAI1A                 TRUE
-#define STM32_SAI_USE_SAI1B                 FALSE
-#define STM32_SAI_USE_SAI2A                 FALSE
-#define STM32_SAI_USE_SAI2B                 FALSE
-#define STM32_SAI_USE_SAI3A                 FALSE
-#define STM32_SAI_USE_SAI3B                 FALSE
-#define STM32_SAI_USE_SAI4A                 FALSE
-#define STM32_SAI_USE_SAI4B                 FALSE
-#define STM32_SAI_SAI1_SYNC                 (STM32_SAI_NO_OUT_SYNC |        \
-                                             STM32_SAI_NO_IN_SYNC)
-#define STM32_SAI_SAI2_SYNC                 (STM32_SAI_NO_OUT_SYNC |        \
-                                             STM32_SAI_NO_IN_SYNC)
-#define STM32_SAI_SAI3_SYNC                 (STM32_SAI_NO_OUT_SYNC |        \
-                                             STM32_SAI_NO_IN_SYNC)
-#define STM32_SAI_SAI4_SYNC                 (STM32_SAI_NO_OUT_SYNC |        \
-                                             STM32_SAI_NO_IN_SYNC)
+#define STM32_SAI_USE_SAI1                  TRUE
+#define STM32_SAI_USE_SAI2                  FALSE
+#define STM32_SAI_USE_SAI3                  FALSE
+#define STM32_SAI_USE_SAI4                  FALSE
 #define STM32_SAI_SAI1A_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \
                                              STM32_SAI_BLOCK_MODE_TX)
-#define STM32_SAI_SAI1B_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \
+#define STM32_SAI_SAI1B_MODE                (STM32_SAI_BLOCK_MODE_SLAVE |  \
                                              STM32_SAI_BLOCK_MODE_RX)
 #define STM32_SAI_SAI2A_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \
                                              STM32_SAI_BLOCK_MODE_TX)
-#define STM32_SAI_SAI2B_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \
+#define STM32_SAI_SAI2B_MODE                (STM32_SAI_BLOCK_MODE_SLAVE  |  \
                                              STM32_SAI_BLOCK_MODE_RX)
 #define STM32_SAI_SAI3A_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \
                                              STM32_SAI_BLOCK_MODE_TX)
-#define STM32_SAI_SAI3B_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \
+#define STM32_SAI_SAI3B_MODE                (STM32_SAI_BLOCK_MODE_SLAVE  |  \
                                              STM32_SAI_BLOCK_MODE_RX)
 #define STM32_SAI_SAI4A_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \
                                              STM32_SAI_BLOCK_MODE_TX)
-#define STM32_SAI_SAI4B_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \
+#define STM32_SAI_SAI4B_MODE                (STM32_SAI_BLOCK_MODE_SLAVE  |  \
                                              STM32_SAI_BLOCK_MODE_RX)
 #define STM32_SAI_SAI1A_DMA_STREAM          STM32_DMA_STREAM_ID_ANY
 #define STM32_SAI_SAI1B_DMA_STREAM          STM32_DMA_STREAM_ID_ANY
@@ -431,7 +419,7 @@
 #define STM32_SAI_SAI2_IRQ_PRIORITY         10
 #define STM32_SAI_SAI3_IRQ_PRIORITY         10
 #define STM32_SAI_SAI4_IRQ_PRIORITY         10
-#define STM32_SAI_DMA_ERROR_HOOK(saip)      osalSysHalt("DMA failure")
+#define STM32_SAI_DMA_ERROR_HOOK(saibp)     osalSysHalt("DMA failure")
 
 /*
  * SDC driver system settings.

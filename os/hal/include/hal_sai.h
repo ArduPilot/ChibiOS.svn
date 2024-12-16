@@ -53,11 +53,13 @@ typedef enum {
 } saistate_t;
 
 /**
- * @brief   Driver state machine possible states.
+ * @brief   Sub block driver state machine possible states.
  */
 typedef enum {
-  SAI_SUB_ACTIVE = 0,               /**< Active.                            */
-  SAI_SUB_COMPLETE = 1              /**< Transmission complete.             */
+  SAI_SUB_STOP = 0,                 /**< Stop.                              */
+  SAI_SUB_READY = 1,                /**< Ready.                             */
+  SAI_SUB_ACTIVE = 2,               /**< Active.                            */
+  SAI_SUB_COMPLETE = 3              /**< Transmission complete.             */
 } saiblockstate_t;
 
 /**
@@ -83,9 +85,9 @@ typedef struct hal_sai_block_config SAIBlockConfig;
 /**
  * @brief   SAI notification callback type.
  *
- * @param[in] saip      pointer to the @p SAIDriver object
+ * @param[in] saibp      pointer to the @p SAIBlockDriver object
  */
-typedef void (*saiblockcallback_t)(SAIDriver *saip);
+typedef void (*saiblockcallback_t)(SAIBlockDriver *saibp);
 
 /* Including the low level driver header, it exports information required
    for completing types.*/
@@ -113,7 +115,7 @@ typedef void (*saiblockcallback_t)(SAIDriver *saip);
  *
  * @special
  */
-#define saiIsBufferComplete(saip) ((bool)((saip)->state == SAI_COMPLETE))
+#define saiIsBufferComplete(saibp) ((bool)((saibp)->state == SAI_SUB_COMPLETE))
 
 /**
  * @brief   Starts a SAI data exchange.
@@ -124,7 +126,8 @@ typedef void (*saiblockcallback_t)(SAIDriver *saip);
  */
 #define saiStartExchangeI(saip) {                                           \
   sai_lld_start_exchange(saip);                                             \
-  (saip)->state = SAI_ACTIVE;                                               \
+  (saip)->blocks[0].state = SAI_SUB_ACTIVE;                                 \
+  (saip)->blocks[1].state = SAI_SUB_ACTIVE;                                 \
 }
 
 /**
@@ -138,7 +141,8 @@ typedef void (*saiblockcallback_t)(SAIDriver *saip);
  */
 #define saiStopExchangeI(saip) {                                            \
   sai_lld_stop_exchange(saip);                                              \
-  (saip)->state = SAI_READY;                                                \
+  (saip)->blocks[0].state = SAI_SUB_READY;                                  \
+  (saip)->blocks[1].state = SAI_SUB_READY;                                  \
 }
 
 /**
@@ -153,9 +157,9 @@ typedef void (*saiblockcallback_t)(SAIDriver *saip);
  *
  * @notapi
  */
-#define _sai_isr_half_code(saip) {                                          \
-  if ((saip)->config->end_cb != NULL) {                                     \
-    (saip)->config->end_cb(saip);                                           \
+#define _sai_isr_half_code(saibp) {                                         \
+  if ((saibp)->config->end_cb != NULL) {                                    \
+    (saibp)->config->end_cb(saibp);                                         \
   }                                                                         \
 }
 
@@ -172,12 +176,12 @@ typedef void (*saiblockcallback_t)(SAIDriver *saip);
  *
  * @notapi
  */
-#define _sai_isr_full_code(saip) {                                          \
-  if ((saip)->config->end_cb) {                                             \
-    (saip)->state = SAI_COMPLETE;                                           \
-    (saip)->config->end_cb(saip);                                           \
-    if ((saip)->state == SAI_COMPLETE) {                                    \
-      (saip)->state = SAI_ACTIVE;                                           \
+#define _sai_isr_full_code(saibp) {                                         \
+  if ((saibp)->config->end_cb) {                                            \
+    (saibp)->state = SAI_SUB_COMPLETE;                                      \
+    (saibp)->config->end_cb(saibp);                                         \
+    if ((saibp)->state == SAI_SUB_COMPLETE) {                               \
+      (saibp)->state = SAI_SUB_ACTIVE;                                      \
     }                                                                       \
   }                                                                         \
 }

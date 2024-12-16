@@ -73,9 +73,9 @@ void saiObjectInit(SAIDriver *saip) {
    * TODO for to initialize?
    */
   saip->blocks[0].config = NULL;
-  saip->blocks[0].state = SAI_SUB_COMPLETE;
+  saip->blocks[0].state = SAI_SUB_STOP;
   saip->blocks[1].config = NULL;
-  saip->blocks[1].state = SAI_SUB_COMPLETE;
+  saip->blocks[1].state = SAI_SUB_STOP;
 }
 
 /**
@@ -96,6 +96,8 @@ void saiStart(SAIDriver *saip, const SAIConfig *config) {
   saip->config = config;
   sai_lld_start(saip);
   saip->state = SAI_READY;
+  saip->blocks[0].state = SAI_SUB_READY;
+  saip->blocks[1].state = SAI_SUB_READY;
   osalSysUnlock();
 }
 
@@ -118,6 +120,10 @@ void saiStop(SAIDriver *saip) {
   sai_lld_stop(saip);
   saip->config = NULL;
   saip->state  = SAI_STOP;
+  saip->blocks[0].config = NULL;
+  saip->blocks[0].state = SAI_SUB_STOP;
+  saip->blocks[1].config = NULL;
+  saip->blocks[1].state = SAI_SUB_STOP;
 
   osalSysUnlock();
 }
@@ -135,6 +141,8 @@ void saiStartExchange(SAIDriver *saip) {
 
   osalSysLock();
   osalDbgAssert(saip->state == SAI_READY, "not ready");
+  osalDbgAssert(saip->blocks[0].state == SAI_SUB_READY, "not ready");
+  osalDbgAssert(saip->blocks[1].state == SAI_SUB_READY, "not ready");
   saiStartExchangeI(saip);
   osalSysUnlock();
 }
@@ -154,8 +162,12 @@ void saiStopExchange(SAIDriver *saip) {
 
   osalSysLock();
   osalDbgAssert((saip->state == SAI_READY) ||
-                (saip->state == SAI_ACTIVE) ||
-                (saip->state == SAI_COMPLETE),
+                (saip->blocks[0].state == SAI_SUB_READY) ||
+                (saip->blocks[1].state == SAI_SUB_READY) ||
+                (saip->blocks[0].state == SAI_SUB_ACTIVE) ||
+                (saip->blocks[1].state == SAI_SUB_ACTIVE) ||
+                (saip->blocks[0].state == SAI_SUB_COMPLETE) ||
+                (saip->blocks[1].state == SAI_SUB_COMPLETE),
                 "invalid state");
   saiStopExchangeI(saip);
   osalSysUnlock();

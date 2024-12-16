@@ -69,6 +69,13 @@ void saiObjectInit(SAIDriver *saip) {
 
   saip->state  = SAI_STOP;
   saip->config = NULL;
+  /*
+   * TODO for to initialize?
+   */
+  saip->blocks[0].config = NULL;
+  saip->blocks[0].state = SAI_SUB_COMPLETE;
+  saip->blocks[1].config = NULL;
+  saip->blocks[1].state = SAI_SUB_COMPLETE;
 }
 
 /**

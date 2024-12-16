@@ -31,14 +31,6 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @name    SAI modes
- * @{
- */
-#define SAI_MODE_SLAVE          0
-#define SAI_MODE_MASTER         1
-/** @} */
-
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
@@ -58,9 +50,15 @@ typedef enum {
   SAI_UNINIT = 0,                   /**< Not initialized.                   */
   SAI_STOP = 1,                     /**< Stopped.                           */
   SAI_READY = 2,                    /**< Ready.                             */
-  SAI_ACTIVE = 3,                   /**< Active.                            */
-  SAI_COMPLETE = 4                  /**< Transmission complete.             */
 } saistate_t;
+
+/**
+ * @brief   Driver state machine possible states.
+ */
+typedef enum {
+  SAI_SUB_ACTIVE = 0,               /**< Active.                            */
+  SAI_SUB_COMPLETE = 1              /**< Transmission complete.             */
+} saiblockstate_t;
 
 /**
  * @brief   Type of a structure representing an SAI driver.
@@ -68,56 +66,31 @@ typedef enum {
 typedef struct hal_sai_driver SAIDriver;
 
 /**
+ * @brief   Type of a structure representing an SAI driver.
+ */
+typedef struct hal_sai_block_driver SAIBlockDriver;
+
+/**
  * @brief   Type of a structure representing an SAI driver configuration.
  */
 typedef struct hal_sai_config SAIConfig;
+
+/**
+ * @brief   Type of a structure representing an SAI driver configuration.
+ */
+typedef struct hal_sai_block_config SAIBlockConfig;
 
 /**
  * @brief   SAI notification callback type.
  *
  * @param[in] saip      pointer to the @p SAIDriver object
  */
-typedef void (*saicallback_t)(SAIDriver *saip);
+typedef void (*saiblockcallback_t)(SAIDriver *saip);
 
 /* Including the low level driver header, it exports information required
    for completing types.*/
 #include "hal_sai_lld.h"
 
-/**
- * @brief   Structure representing an SAI driver.
- */
-struct hal_sai_driver {
-  /**
-   * @brief   Driver state.
-   */
-  saistate_t                state;
-  /**
-   * @brief   Current configuration data.
-   */
-  const SAIConfig           *config;
-  /* End of the mandatory fields.*/
-  sai_lld_driver_fields;
-};
-
-/**
- * @brief   Driver sai configuration structure.
- */
-struct hal_sai_config {
-  /**
-   * @brief   Buffer pointer.
-   */
-  void                      *buffer;
-  /**
-   * @brief   Buffers size as number of samples.
-   */
-  size_t                    size;
-  /**
-   * @brief   Callback function called during streaming.
-   */
-  saicallback_t             end_cb;
-  /* End of the mandatory fields.*/
-  sai_lld_config_fields;
-};
 
 /*===========================================================================*/
 /* Driver macros.                                                            */

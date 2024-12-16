@@ -201,44 +201,24 @@
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-/** @brief SAI1A driver identifier.*/
-#if STM32_SAI_USE_SAI1A || defined(__DOXYGEN__)
-SAIDriver SAIAD1;
+/** @brief SAI1 driver identifier.*/
+#if STM32_SAI_USE_SAI1 || defined(__DOXYGEN__)
+SAIDriver SAID1;
 #endif
 
-/** @brief SAI1B driver identifier.*/
-#if STM32_SAI_USE_SAI1B || defined(__DOXYGEN__)
-SAIDriver SAIBD1;
+/** @brief SAI2 driver identifier.*/
+#if STM32_SAI_USE_SAI2 || defined(__DOXYGEN__)
+SAIDriver SAID2;
 #endif
 
-/** @brief SAI2A driver identifier.*/
-#if STM32_SAI_USE_SAI2A || defined(__DOXYGEN__)
-SAIDriver SAIAD2;
+/** @brief SAI3 driver identifier.*/
+#if STM32_SAI_USE_SAI3 || defined(__DOXYGEN__)
+SAIDriver SAID3;
 #endif
 
-/** @brief SAI2B driver identifier.*/
-#if STM32_SAI_USE_SAI2B || defined(__DOXYGEN__)
-SAIDriver SAIBD2;
-#endif
-
-/** @brief SAI3A driver identifier.*/
-#if STM32_SAI_USE_SAI3A || defined(__DOXYGEN__)
-SAIDriver SAIAD3;
-#endif
-
-/** @brief SAI3B driver identifier.*/
-#if STM32_SAI_USE_SAI3B || defined(__DOXYGEN__)
-SAIDriver SAIBD3;
-#endif
-
-/** @brief SAI4A driver identifier.*/
-#if STM32_SAI_USE_SAI4A || defined(__DOXYGEN__)
-SAIDriver SAIAD4;
-#endif
-
-/** @brief SAI4B driver identifier.*/
-#if STM32_SAI_USE_SAI4B || defined(__DOXYGEN__)
-SAIDriver SAIBD4;
+/** @brief SAI4 driver identifier.*/
+#if STM32_SAI_USE_SAI4 || defined(__DOXYGEN__)
+SAIDriver SAID4;
 #endif
 
 /*===========================================================================*/
@@ -342,7 +322,7 @@ static void sai_lld_serve_tx_interrupt(SAIDriver *saip, uint32_t flags) {
  */
 void sai_lld_init(void) {
 
-#if STM32_SAI_USE_SAI1A
+#if STM32_SAI_USE_SAI1
   saiObjectInit(&SAIAD1);
   SAIAD1.sai      = SAI1;
   SAIAD1.saiblock = SAI1_Block_A;

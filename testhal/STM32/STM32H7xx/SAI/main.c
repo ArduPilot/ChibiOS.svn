@@ -32,6 +32,22 @@ static uint8_t buffer[BUFF_SIZE];
 .GCR=0
 #endif
 
+static PWMConfig pwmcfg = {
+  10000,                                    /* 10kHz PWM clock frequency.   */
+  10000,                                    /* Initial PWM period 1S.       */
+  pwmpcb,
+  {
+   {PWM_OUTPUT_ACTIVE_HIGH, pwmc1cb},
+   {PWM_OUTPUT_DISABLED, NULL},
+   {PWM_OUTPUT_DISABLED, NULL},
+   {PWM_OUTPUT_DISABLED, NULL}
+  },
+  0,
+  0,
+  0
+};
+
+
 /*
  * F_ref_clk_sai = PLL1Q (60 MHz)
  * NOMCK = 1, FRL = 33, MCKDIV = 40
@@ -39,15 +55,30 @@ static uint8_t buffer[BUFF_SIZE];
  * 16 bit audio
  */
 static const SAIConfig saicfg = {
-  buffer,
-  BUFF_SIZE,
-  NULL,
-  0,                                         /* GCR  */
-  SAI_xCR1_NOMCK | SAI_xCR1_DS_2 |           /* CR1  */
-  SAI_xCR1_MCKDIV_3 | SAI_xCR1_MCKDIV_5 ,
-  SAI_xCR2_FTH_0,                            /* CR2  */
-  SAI_xFRCR_FRL_0 | SAI_xFRCR_FRL_5,         /* FRCR */
-  SAI_xSLOTR_NBSLOT_0 | SAI_xSLOTR_SLOTEN
+  0,                                           /* GCR   */
+  {
+   /* Sub block A configuration */
+   {
+    buffer,
+    BUFF_SIZE,
+    NULL,
+    SAI_xCR1_NOMCK | SAI_xCR1_DS_2 |           /* CR1   */
+    SAI_xCR1_MCKDIV_3 | SAI_xCR1_MCKDIV_5 ,
+    SAI_xCR2_FTH_0,                            /* CR2   */
+    SAI_xFRCR_FRL_0 | SAI_xFRCR_FRL_5,         /* FRCR  */
+    SAI_xSLOTR_NBSLOT_0 | SAI_xSLOTR_SLOTEN    /* SLOTR */
+   },
+   /* Sub Block B configuration */
+   {
+    NULL,
+    0,
+    NULL,
+    0,                                         /* CR1   */
+    0,                                         /* CR2   */
+    0,                                         /* FRCR  */
+    0                                          /* SLOTR */
+   }
+  }
 };
 
 /*

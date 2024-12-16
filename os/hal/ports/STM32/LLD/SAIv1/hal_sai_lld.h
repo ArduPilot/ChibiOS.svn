@@ -70,75 +70,39 @@
  * @{
  */
 /**
- * @brief   SAI1A driver enable switch.
- * @details If set to @p TRUE the support for SAI1A is included.
+ * @brief   SAI1 driver enable switch.
+ * @details If set to @p TRUE the support for SAI1 is included.
  * @note    The default is @p FALSE.
  */
-#if !defined(STM32_SAI_USE_SAI1A) || defined(__DOXYGEN__)
-#define STM32_SAI_USE_SAI1A                 FALSE
+#if !defined(STM32_SAI_USE_SAI1) || defined(__DOXYGEN__)
+#define STM32_SAI_USE_SAI1                  FALSE
 #endif
 
 /**
- * @brief   SAI1B driver enable switch.
- * @details If set to @p TRUE the support for SAI1B is included.
+ * @brief   SAI2 driver enable switch.
+ * @details If set to @p TRUE the support for SAI2 is included.
  * @note    The default is @p FALSE.
  */
-#if !defined(STM32_SAI_USE_SAI1B) || defined(__DOXYGEN__)
-#define STM32_SAI_USE_SAI1B                 FALSE
+#if !defined(STM32_SAI_USE_SAI2) || defined(__DOXYGEN__)
+#define STM32_SAI_USE_SAI2                  FALSE
 #endif
 
 /**
- * @brief   SAI2A driver enable switch.
- * @details If set to @p TRUE the support for SAI2A is included.
+ * @brief   SAI3 driver enable switch.
+ * @details If set to @p TRUE the support for SAI3 is included.
  * @note    The default is @p FALSE.
  */
-#if !defined(STM32_SAI_USE_SAI2A) || defined(__DOXYGEN__)
-#define STM32_SAI_USE_SAI2A                 FALSE
+#if !defined(STM32_SAI_USE_SAI3) || defined(__DOXYGEN__)
+#define STM32_SAI_USE_SAI3                  FALSE
 #endif
 
 /**
- * @brief   SAI2B driver enable switch.
- * @details If set to @p TRUE the support for SAI2B is included.
+ * @brief   SAI4 driver enable switch.
+ * @details If set to @p TRUE the support for SAI4 is included.
  * @note    The default is @p FALSE.
  */
-#if !defined(STM32_SAI_USE_SAI2B) || defined(__DOXYGEN__)
-#define STM32_SAI_USE_SAI2B                 FALSE
-#endif
-
-/**
- * @brief   SAI3A driver enable switch.
- * @details If set to @p TRUE the support for SAI3A is included.
- * @note    The default is @p FALSE.
- */
-#if !defined(STM32_SAI_USE_SAI3A) || defined(__DOXYGEN__)
-#define STM32_SAI_USE_SAI3A                 FALSE
-#endif
-
-/**
- * @brief   SAI3B driver enable switch.
- * @details If set to @p TRUE the support for SAI3B is included.
- * @note    The default is @p FALSE.
- */
-#if !defined(STM32_SAI_USE_SAI3B) || defined(__DOXYGEN__)
-#define STM32_SAI_USE_SAI3B                 FALSE
-#endif
-
-/**
- * @brief   SAI4A driver enable switch.
- * @details If set to @p TRUE the support for SAI4A is included.
- * @note    The default is @p FALSE.
- */
-#if !defined(STM32_SAI_USE_SAI4A) || defined(__DOXYGEN__)
-#define STM32_SAI_USE_SAI4A                 FALSE
-#endif
-
-/**
- * @brief   SAI4B driver enable switch.
- * @details If set to @p TRUE the support for SAI4B is included.
- * @note    The default is @p FALSE.
- */
-#if !defined(STM32_SAI_USE_SAI4B) || defined(__DOXYGEN__)
-#define STM32_SAI_USE_SAI4B                 FALSE
+#if !defined(STM32_SAI_USE_SAI4) || defined(__DOXYGEN__)
+#define STM32_SAI_USE_SAI4                  FALSE
 #endif
 
 /**
@@ -153,7 +117,7 @@
  * @brief   SAI1 sub block B mode.
  */
 #if !defined(STM32_SAI_SAI1_SUB_B_MODE) || defined(__DOXYGEN__)
-#define STM32_SAI_SAI1_SUB_B_MODE           (STM32_SAI_BLOCK_MODE_MASTER |  \
+#define STM32_SAI_SAI1_SUB_B_MODE           (STM32_SAI_BLOCK_MODE_SLAVE  |  \
                                              STM32_SAI_BLOCK_MODE_RX)
 #endif
 
@@ -169,7 +133,7 @@
  * @brief   SAI2 sub block B mode.
  */
 #if !defined(STM32_SAI_SAI2_SUB_B_MODE) || defined(__DOXYGEN__)
-#define STM32_SAI_SAI2_SUB_B_MODE           (STM32_SAI_BLOCK_MODE_MASTER |  \
+#define STM32_SAI_SAI2_SUB_B_MODE           (STM32_SAI_BLOCK_MODE_SLAVE  |  \
                                              STM32_SAI_BLOCK_MODE_RX)
 #endif
 
@@ -185,7 +149,7 @@
  * @brief   SAI3 sub block B mode.
  */
 #if !defined(STM32_SAI_SAI3_SUB_B_MODE) || defined(__DOXYGEN__)
-#define STM32_SAI_SAI3_SUB_B_MODE           (STM32_SAI_BLOCK_MODE_MASTER |  \
+#define STM32_SAI_SAI3_SUB_B_MODE           (STM32_SAI_BLOCK_MODE_SLAVE  |  \
                                              STM32_SAI_BLOCK_MODE_RX)
 #endif
 
@@ -201,7 +165,7 @@
  * @brief   SAI4 sub block B mode.
  */
 #if !defined(STM32_SAI_SAI4_SUB_B_MODE) || defined(__DOXYGEN__)
-#define STM32_SAI_SAI4_SUB_B_MODE           (STM32_SAI_BLOCK_MODE_MASTER |  \
+#define STM32_SAI_SAI4_SUB_B_MODE           (STM32_SAI_BLOCK_MODE_SLAVE  |  \
                                              STM32_SAI_BLOCK_MODE_RX)
 #endif
 
@@ -273,158 +237,133 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
-#if STM32_SAI_USE_SAI1A && !STM32_HAS_SAI1_A
-#error "SAI1 block A not present in the selected device"
+#if STM32_SAI_USE_SAI1 && !STM32_HAS_SAI1
+#error "SAI1 not present in the selected device"
 #endif
 
-#if STM32_SAI_USE_SAI1B && !STM32_HAS_SAI1B
-#error "SAI1 block B not present in the selected device"
+#if STM32_SAI_USE_SAI2 && !STM32_HAS_SAI2
+#error "SAI2 not present in the selected device"
 #endif
 
-#if STM32_SAI_USE_SAI2A && !STM32_HAS_SAI2A
-#error "SAI2 block A not present in the selected device"
+#if STM32_SAI_USE_SAI3 && !STM32_HAS_SAI3
+#error "SAI3 not present in the selected device"
 #endif
 
-#if STM32_SAI_USE_SAI2B && !STM32_HAS_SAI2B
-#error "SAI2 block B not present in the selected device"
+#if STM32_SAI_USE_SAI4 && !STM32_HAS_SAI4
+#error "SAI4 not present in the selected device"
 #endif
 
-#if STM32_SAI_USE_SAI3A && !STM32_HAS_SAI3A
-#error "SAI3 block A not present in the selected device"
-#endif
-
-#if STM32_SAI_USE_SAI3B && !STM32_HAS_SAI3B
-#error "SAI3 block B not present in the selected device"
-#endif
-
-#if STM32_SAI_USE_SAI4A && !STM32_HAS_SAI4A
-#error "SAI4 block A not present in the selected device"
-#endif
-
-#if STM32_SAI_USE_SAI4B && !STM32_HAS_SAI4B
-#error "SAI4 block B not present in the selected device"
-#endif
-
-#if !STM32_SAI_USE_SAI1A && !STM32_SAI_USE_SAI1B &&                         \
-    !STM32_SAI_USE_SAI2A && !STM32_SAI_USE_SAI2B &&                         \
-    !STM32_SAI_USE_SAI3A && !STM32_SAI_USE_SAI3B &&                         \
-    !STM32_SAI_USE_SAI4A && !STM32_SAI_USE_SAI4B
+#if !STM32_SAI_USE_SAI1 && !STM32_SAI_USE_SAI2 &&                           \
+    !STM32_SAI_USE_SAI3 && !STM32_SAI_USE_SAI4
 #error "SAI driver activated but no SAI peripheral assigned"
 #endif
 
-#if (STM32_SAI_USE_SAI1A || STM32_SAI_USE_SAI1B) &&                         \
+#if STM32_SAI_USE_SAI1 &&                                                   \
     !OSAL_IRQ_IS_VALID_PRIORITY(STM32_SAI_SAI1_IRQ_PRIORITY)
 #error "Invalid IRQ priority assigned to SAI1"
 #endif
 
-#if (STM32_SAI_USE_SAI2A || STM32_SAI_USE_SAI2B) &&                         \
+#if STM32_SAI_USE_SAI2  &&                                                  \
     !OSAL_IRQ_IS_VALID_PRIORITY(STM32_SAI_SAI2_IRQ_PRIORITY)
 #error "Invalid IRQ priority assigned to SAI2"
 #endif
 
-#if (STM32_SAI_USE_SAI3A || STM32_SAI_USE_SAI3B) &&                         \
+#if STM32_SAI_USE_SAI3 &&                                                   \
     !OSAL_IRQ_IS_VALID_PRIORITY(STM32_SAI_SAI3_IRQ_PRIORITY)
 #error "Invalid IRQ priority assigned to SAI3"
 #endif
 
-#if (STM32_SAI_USE_SAI4A || STM32_SAI_USE_SAI4B) &&                         \
+#if STM32_SAI_USE_SAI4 &&                                                   \
     !OSAL_IRQ_IS_VALID_PRIORITY(STM32_SAI_SAI4_IRQ_PRIORITY)
 #error "Invalid IRQ priority assigned to SAI4"
 #endif
 
-#if (STM32_SAI_USE_SAI1A || STM32_SAI_USE_SAI1B) &&                         \
+#if STM32_SAI_USE_SAI1 &&                                                   \
     !STM32_DMA_IS_VALID_PRIORITY(STM32_SAI_SAI1_DMA_PRIORITY)
 #error "Invalid DMA priority assigned to SAI1"
 #endif
 
-#if (STM32_SAI_USE_SAI2A || STM32_SAI_USE_SAI2B) &&                         \
+#if STM32_SAI_USE_SAI2 &&                                                   \
     !STM32_DMA_IS_VALID_PRIORITY(STM32_SAI_SAI2_DMA_PRIORITY)
 #error "Invalid DMA priority assigned to SAI2"
 #endif
 
-#if (STM32_SAI_USE_SAI3A || STM32_SAI_USE_SAI3B) &&                         \
+#if STM32_SAI_USE_SAI3 &&                                                   \
     !STM32_DMA_IS_VALID_PRIORITY(STM32_SAI_SAI3_DMA_PRIORITY)
 #error "Invalid DMA priority assigned to SAI3"
 #endif
 
-#if (STM32_SAI_USE_SAI4A || STM32_SAI_USE_SAI4B) &&                         \
+#if (STM32_SAI_USE_SAI4 &&                                                  \
     !STM32_DMA_IS_VALID_PRIORITY(STM32_SAI_SAI4_DMA_PRIORITY)
 #error "Invalid DMA priority assigned to SAI4"
 #endif
 
 /* Check on the presence of the DMA streams settings in mcuconf.h.*/
-#if STM32_SAI_USE_SAI1A && (!defined(STM32_SAI_SAI1A_DMA_STREAM))
-#error "SAI1 block A DMA streams not defined"
+#if STM32_SAI_USE_SAI1 && (!defined(STM32_SAI_SAI1A_DMA_STREAM) ||          \
+                           !defined(STM32_SAI_SAI1B_DMA_STREAM))
+#error "SAI1 DMA streams not defined"
 #endif
 
-#if STM32_SAI_USE_SAI1B && (!defined(STM32_SAI_SAI1B_DMA_STREAM))
-#error "SAI1 block B DMA streams not defined"
+#if STM32_SAI_USE_SAI2 && (!defined(STM32_SA2_SAI2A_DMA_STREAM) ||          \
+                           !defined(STM32_SA2_SAI2B_DMA_STREAM))
+#error "SAI2 DMA streams not defined"
 #endif
 
-#if STM32_SAI_USE_SAI2A && (!defined(STM32_SAI_SAI2A_DMA_STREAM))
-#error "SAI2 block A DMA streams not defined"
+#if STM32_SAI_USE_SAI3 && (!defined(STM32_SAI_SAI3A_DMA_STREAM) ||          \
+                           !defined(STM32_SAI_SAI3B_DMA_STREAM))
+#error "SAI3 DMA streams not defined"
 #endif
 
-#if STM32_SAI_USE_SAI2B && (!defined(STM32_SAI_SAI2B_DMA_STREAM))
-#error "SAI2 block B DMA streams not defined"
-#endif
-
-#if STM32_SAI_USE_SAI3A && (!defined(STM32_SAI_SAI3A_DMA_STREAM))
-#error "SAI3 block A DMA streams not defined"
-#endif
-
-#if STM32_SAI_USE_SAI3B && (!defined(STM32_SAI_SAI3B_DMA_STREAM))
-#error "SAI3 block B DMA streams not defined"
-#endif
-
-#if STM32_SAI_USE_SAI4A && (!defined(STM32_SAI_SAI4A_DMA_STREAM))
-#error "SAI4 block A DMA streams not defined"
-#endif
-
-#if STM32_SAI_USE_SAI4B && (!defined(STM32_SAI_SAI4B_DMA_STREAM))
-#error "SAI4 block B DMA streams not defined"
+#if STM32_SAI_USE_SAI4 && (!defined(STM32_SAI_SAI4A_DMA_STREAM) ||          \
+                           !defined(STM32_SAI_SAI4B_DMA_STREAM))
+#error "SAI4 DMA streams not defined"
 #endif
 
 /* Check on the validity of the assigned DMA streams.*/
-#if STM32_SAI_USE_SAI1A &&                                                  \
+#if STM32_SAI_USE_SAI1 &&                                                   \
     !STM32_DMA_IS_VALID_STREAM(STM32_SAI_SAI1A_DMA_STREAM)
 #error "Invalid DMA stream assigned to SAI1 block A"
 #endif
 
-#if STM32_SAI_USE_SAI1B &&                                                  \
+#if STM32_SAI_USE_SAI1 &&                                                   \
     !STM32_DMA_IS_VALID_STREAM(STM32_SAI_SAI1B_DMA_STREAM)
 #error "Invalid DMA stream assigned to SAI1 block B"
 #endif
 
-#if STM32_SAI_USE_SAI2A &&                                                  \
+#if STM32_SAI_USE_SAI2 &&                                                   \
     !STM32_DMA_IS_VALID_STREAM(STM32_SAI_SAI2A_DMA_STREAM)
 #error "Invalid DMA stream assigned to SAI2 block A"
 #endif
 
-#if STM32_SAI_USE_SAI2B &&                                                  \
+#if STM32_SAI_USE_SAI2 &&                                                   \
     !STM32_DMA_IS_VALID_STREAM(STM32_SAI_SAI2B_DMA_STREAM)
 #error "Invalid DMA stream assigned to SAI2 block B"
 #endif
 
-#if STM32_SAI_USE_SAI3A &&                                                  \
+#if STM32_SAI_USE_SAI3 &&                                                   \
     !STM32_DMA_IS_VALID_STREAM(STM32_SAI_SAI3A_DMA_STREAM)
 #error "Invalid DMA stream assigned to SAI3 block A"
 #endif
 
-#if STM32_SAI_USE_SAI3B &&                                                  \
+#if STM32_SAI_USE_SAI3 &&                                                   \
     !STM32_DMA_IS_VALID_STREAM(STM32_SAI_SAI3B_DMA_STREAM)
 #error "Invalid DMA stream assigned to SAI3 block B"
 #endif
 
-#if STM32_SAI_USE_SAI4A &&                                                  \
+#if STM32_SAI_USE_SAI4 &&                                                   \
     !STM32_DMA_IS_VALID_STREAM(STM32_SAI_SAI4A_DMA_STREAM)
 #error "Invalid DMA stream assigned to SAI4 block A"
 #endif
 
-#if STM32_SAI_USE_SAI4B &&                                                  \
+#if STM32_SAI_USE_SAI4 &&                                                   \
     !STM32_DMA_IS_VALID_STREAM(STM32_SAI_SAI4B_DMA_STREAM)
 #error "Invalid DMA stream assigned to SAI4 block B"
 #endif
+
+/* Devices without DMAMUX require an additional check.*/
+#if STM32_ADVANCED_DMA && !STM32_DMA_SUPPORTS_DMAMUX
+#error "To be implemented"
+#endif /* STM32_ADVANCED_DMA && !STM32_DMA_SUPPORTS_DMAMUX */
 
 #if !defined(STM32_DMA_REQUIRED)
 #define STM32_DMA_REQUIRED
@@ -433,67 +372,135 @@
 /*===========================================================================*/
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
+/**
+ * @brief   Number of SAI blocks per SAI driver.
+ */
+#define SAI_BLOCKS                              0x2U
 
 /*===========================================================================*/
 /* Driver macros.                                                            */
 /*===========================================================================*/
-
 /**
- * @brief   Low level fields of the SAI driver structure.
+ * @brief   Type of a SAIBlock driver configuration structure.
  */
-#define sai_lld_driver_fields                                               \
-  /* Pointer to the SAIx registers block.*/                                 \
-  SAI_TypeDef               *sai;                                           \
-  SAI_Block_TypeDef         *saiblock;                                      \
-  /* DMA stream or @p NULL.*/                                               \
-  const stm32_dma_stream_t  *dma;                                           \
-  /* DMA mode bit mask.*/                                                   \
-  uint32_t                  dmamode;
+struct hal_sai_block_config {
+  /**
+   * @brief   buffer pointer.
+   * @note    Can be @p NULL is not required.
+   */
+  void                      *buffer;
 
-/**
- * @brief   Low level fields of the SAI block configuration structure.
- */
-#define sai_lld_config_fields                                               \
-  uint32_t                  gcr;                                            \
-  uint32_t                  saicr1;                                         \
-  uint32_t                  saicr2;                                         \
-  uint32_t                  saifrcr;                                        \
+  /**
+   * @brief   buffer size.
+   */
+  size_t                    size;
+
+  /**
+   * @brief   Callback function called during streaming.
+   */
+  saiblockcallback_t        end_cb;
+
+  /**
+   * @brief   Register CR1.
+   */
+  uint32_t                  saicr1;
+
+  /**
+   * @brief   Register CR2.
+   */
+  uint32_t                  saicr2;
+
+  /**
+   * @brief   Register FRCR.
+   */
+  uint32_t                  saifrcr;
+
+  /**
+   * @brief   Register SLOTR.
+   */
   uint32_t                  saislotr;
+};
+
+/**
+ * @brief   Structure representing an SAI driver.
+ */
+struct hal_sai_block_driver {
+  /**
+   * @brief   Driver state.
+   */
+  saiblockstate_t           state;
+
+  /**
+   * @brief   Current configuration data.
+   */
+  const SAIBlockConfig      *config;
+
+  /**
+   * @brief Pointer to the SAIx SubBlockx registers.
+   */
+  SAI_Block_TypeDef         *saiblock;
+
+  /* DMA stream or @p NULL.*/
+  const stm32_dma_stream_t  *dma;
+
+  /* DMA mode bit mask.*/
+  uint32_t                  dmamode;
+};
+
+/**
+ * @brief   Structure representing an SAI driver.
+ */
+struct hal_sai_driver {
+  /**
+   * @brief   Driver state.
+   */
+  saistate_t                state;
+
+  /**
+   * @brief Pointer to the SAIx registers block.
+   */
+  SAI_TypeDef               *sai;
+
+  /**
+   * @brief   Current configuration data.
+   */
+  const SAIConfig           *config;
+
+  /**
+   * @brief   blocks driver.
+   */
+  SAIBlockDriver            blocks[SAI_BLOCKS];
+};
+
+/**
+ * @brief   Driver sai configuration structure.
+ */
+struct hal_sai_config {
+  uint32_t                  gcr;
+  /**
+   * @brief Blocks configurations.
+   */
+  SAIBlockConfig            blocks[SAI_BLOCKS];
+};
 
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if STM32_SAI_USE_SAI1A && !defined(__DOXYGEN__)
-extern SAIDriver SAIAD1;
+#if STM32_SAI_USE_SAI1 && !defined(__DOXYGEN__)
+extern SAIDriver SAID1;
 #endif
 
-#if STM32_SAI_USE_SAI1B && !defined(__DOXYGEN__)
-extern SAIDriver SAIBD1;
+#if STM32_SAI_USE_SAI2 && !defined(__DOXYGEN__)
+extern SAIDriver SAID2;
 #endif
 
-#if STM32_SAI_USE_SAI2A && !defined(__DOXYGEN__)
-extern SAIDriver SAIAD2;
+#if STM32_SAI_USE_SAI3 && !defined(__DOXYGEN__)
+extern SAIDriver SAID3;
 #endif
 
-#if STM32_SAI_USE_SAI2B && !defined(__DOXYGEN__)
-extern SAIDriver SAIBD2;
-#endif
-
-#if STM32_SAI_USE_SAI3A && !defined(__DOXYGEN__)
-extern SAIDriver SAIAD3;
-#endif
-
-#if STM32_SAI_USE_SAI3B && !defined(__DOXYGEN__)
-extern SAIDriver SAIBD3;
-#endif
-
-#if STM32_SAI_USE_SAI4A && !defined(__DOXYGEN__)
-extern SAIDriver SAIAD4;
-#endif
-
-#if STM32_SAI_USE_SAI4B && !defined(__DOXYGEN__)
-extern SAIDriver SAIBD4;
+#if STM32_SAI_USE_SAI4 && !defined(__DOXYGEN__)
+extern SAIDriver SAID4;
 #endif
 
 #ifdef __cplusplus

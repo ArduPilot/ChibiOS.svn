@@ -94,6 +94,8 @@ void saiStart(SAIDriver *saip, const SAIConfig *config) {
   osalDbgAssert((saip->state == SAI_STOP) || (saip->state == SAI_READY),
                 "invalid state");
   saip->config = config;
+  saip->blocks[0].config = &config->blocks[0];
+  saip->blocks[1].config = &config->blocks[1];
   sai_lld_start(saip);
   saip->state = SAI_READY;
   saip->blocks[0].state = SAI_SUB_READY;

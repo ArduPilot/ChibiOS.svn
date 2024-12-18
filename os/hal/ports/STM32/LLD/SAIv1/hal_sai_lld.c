@@ -552,12 +552,12 @@ void sai_lld_start(SAIDriver *saip) {
         saip->blocks[0].dma = dmaStreamAllocI(STM32_SAI_SAI1A_DMA_STREAM,
                                               STM32_SAI_SAI1_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_rx_interrupt,
-                                              (void *)saip->blocks[0].saiblock);
+                                              (void *)&saip->blocks[0]);
 #else
         saip->blocks[0].dma = dmaStreamAllocI(STM32_SAI_SAI1A_DMA_STREAM,
                                               STM32_SAI_SAI1_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_tx_interrupt,
-                                              (void *)saip->blocks[0].saiblock);
+                                              (void *)&saip->blocks[0]);
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI1_SUB_A_MODE) */
 
       osalDbgAssert(saip->blocks[0].dma != NULL, "unable to allocate stream");
@@ -569,7 +569,7 @@ void sai_lld_start(SAIDriver *saip) {
       saip->blocks[0].saiblock->FRCR  = saip->blocks[0].config->frcr;
       saip->blocks[0].saiblock->SLOTR = saip->blocks[0].config->slotr;
 
-      saip->blocks[0].saiblock->CR1  |= saip->blocks[0].config->cr1 |
+      saip->blocks[0].saiblock->CR1   = saip->blocks[0].config->cr1 |
                                        SAI_xCR1_DMAEN | STM32_SAI1_ACR1;
       }
 
@@ -578,12 +578,12 @@ void sai_lld_start(SAIDriver *saip) {
         saip->blocks[1].dma = dmaStreamAllocI(STM32_SAI_SAI1B_DMA_STREAM,
                                               STM32_SAI_SAI1_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_rx_interrupt,
-                                              (void *)saip->blocks[1].saiblock);
+                                              (void *)&saip->blocks[1]);
 #else
         saip->blocks[1].dma = dmaStreamAllocI(STM32_SAI_SAI1B_DMA_STREAM,
                                               STM32_SAI_SAI1_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_tx_interrupt,
-                                              (void *)saip->blocks[1].saiblock);
+                                              (void *)&saip->blocks[1]);
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI1_SUB_B_MODE) */
 
       osalDbgAssert(saip->blocks[1].dma != NULL, "unable to allocate stream");
@@ -595,7 +595,7 @@ void sai_lld_start(SAIDriver *saip) {
       saip->blocks[1].saiblock->FRCR  = saip->blocks[1].config->frcr;
       saip->blocks[1].saiblock->SLOTR = saip->blocks[1].config->slotr;
 
-      saip->blocks[1].saiblock->CR1  |= saip->blocks[1].config->cr1 |
+      saip->blocks[1].saiblock->CR1   = saip->blocks[1].config->cr1 |
                                        SAI_xCR1_DMAEN | STM32_SAI1_BCR1;
       }
     }
@@ -616,12 +616,12 @@ void sai_lld_start(SAIDriver *saip) {
         saip->blocks[0].dma = dmaStreamAllocI(STM32_SAI_SAI2A_DMA_STREAM,
                                               STM32_SAI_SAI2_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_rx_interrupt,
-                                              (void *)saip->blocks[0].saiblock);
+                                              (void *)&saip->blocks[0]);
 #else
         saip->blocks[0].dma = dmaStreamAllocI(STM32_SAI_SAI2A_DMA_STREAM,
                                               STM32_SAI_SAI2_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_tx_interrupt,
-                                              (void *)saip->blocks[0].saiblock);
+                                              (void *)&saip->blocks[0]);
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI2_SUB_A_MODE) */
 
       osalDbgAssert(saip->blocks[0].dma != NULL, "unable to allocate stream");
@@ -633,7 +633,7 @@ void sai_lld_start(SAIDriver *saip) {
       saip->blocks[0].saiblock->FRCR  = saip->blocks[0].config->frcr;
       saip->blocks[0].saiblock->SLOTR = saip->blocks[0].config->slotr;
 
-      saip->blocks[0].saiblock->CR1  |= saip->blocks[0].config->cr1 |
+      saip->blocks[0].saiblock->CR1   = saip->blocks[0].config->cr1 |
                                        SAI_xCR1_DMAEN | STM32_SAI2_ACR1;
       }
 
@@ -642,12 +642,12 @@ void sai_lld_start(SAIDriver *saip) {
         saip->blocks[1].dma = dmaStreamAllocI(STM32_SAI_SAI2B_DMA_STREAM,
                                               STM32_SAI_SAI2_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_rx_interrupt,
-                                              (void *)saip->blocks[1].saiblock);
+                                              (void *)&saip->blocks[1]);
 #else
         saip->blocks[1].dma = dmaStreamAllocI(STM32_SAI_SAI2B_DMA_STREAM,
                                               STM32_SAI_SAI2_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_tx_interrupt,
-                                              (void *)saip->blocks[1].saiblock);
+                                              (void *)&saip->blocks[1]);
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI2_SUB_B_MODE) */
 
       osalDbgAssert(saip->blocks[1].dma != NULL, "unable to allocate stream");
@@ -659,7 +659,7 @@ void sai_lld_start(SAIDriver *saip) {
       saip->blocks[1].saiblock->FRCR  = saip->blocks[1].config->frcr;
       saip->blocks[1].saiblock->SLOTR = saip->blocks[1].config->slotr;
 
-      saip->blocks[1].saiblock->CR1  |= saip->blocks[1].config->cr1 |
+      saip->blocks[1].saiblock->CR1   = saip->blocks[1].config->cr1 |
                                        SAI_xCR1_DMAEN | STM32_SAI2_BCR1;
       }
     }
@@ -680,12 +680,12 @@ void sai_lld_start(SAIDriver *saip) {
         saip->blocks[0].dma = dmaStreamAllocI(STM32_SAI_SAI3A_DMA_STREAM,
                                               STM32_SAI_SAI3_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_rx_interrupt,
-                                              (void *)saip->blocks[0].saiblock);
+                                              (void *)&saip->blocks[0]);
 #else
         saip->blocks[0].dma = dmaStreamAllocI(STM32_SAI_SAI3A_DMA_STREAM,
                                               STM32_SAI_SAI3_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_tx_interrupt,
-                                              (void *)saip->blocks[0].saiblock);
+                                              (void *)&saip->blocks[0]);
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI3_SUB_A_MODE) */
 
       osalDbgAssert(saip->blocks[0].dma != NULL, "unable to allocate stream");
@@ -697,7 +697,7 @@ void sai_lld_start(SAIDriver *saip) {
       saip->blocks[0].saiblock->FRCR  = saip->blocks[0].config->frcr;
       saip->blocks[0].saiblock->SLOTR = saip->blocks[0].config->slotr;
 
-      saip->blocks[0].saiblock->CR1  |= saip->blocks[0].config->cr1 |
+      saip->blocks[0].saiblock->CR1   = saip->blocks[0].config->cr1 |
                                        SAI_xCR1_DMAEN | STM32_SAI3_ACR1;
       }
 
@@ -706,12 +706,12 @@ void sai_lld_start(SAIDriver *saip) {
         saip->blocks[1].dma = dmaStreamAllocI(STM32_SAI_SAI3B_DMA_STREAM,
                                               STM32_SAI_SAI3_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_rx_interrupt,
-                                              (void *)saip->blocks[1].saiblock);
+                                              (void *)&saip->blocks[1]);
 #else
         saip->blocks[1].dma = dmaStreamAllocI(STM32_SAI_SAI3B_DMA_STREAM,
                                               STM32_SAI_SAI3_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_tx_interrupt,
-                                              (void *)saip->blocks[1].saiblock);
+                                              (void *)&saip->blocks[1]);
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI3_SUB_B_MODE) */
 
       osalDbgAssert(saip->blocks[1].dma != NULL, "unable to allocate stream");
@@ -723,7 +723,7 @@ void sai_lld_start(SAIDriver *saip) {
       saip->blocks[1].saiblock->FRCR  = saip->blocks[1].config->frcr;
       saip->blocks[1].saiblock->SLOTR = saip->blocks[1].config->slotr;
 
-      saip->blocks[1].saiblock->CR1  |= saip->blocks[1].config->cr1 |
+      saip->blocks[1].saiblock->CR1   = saip->blocks[1].config->cr1 |
                                        SAI_xCR1_DMAEN | STM32_SAI3_BCR1;
       }
     }
@@ -744,12 +744,12 @@ void sai_lld_start(SAIDriver *saip) {
         saip->blocks[0].dma = dmaStreamAllocI(STM32_SAI_SAI4A_DMA_STREAM,
                                               STM32_SAI_SAI4_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_rx_interrupt,
-                                              (void *)saip->blocks[0].saiblock);
+                                              (void *)&saip->blocks[0]);
 #else
         saip->blocks[0].dma = dmaStreamAllocI(STM32_SAI_SAI4A_DMA_STREAM,
                                               STM32_SAI_SAI4_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_tx_interrupt,
-                                              (void *)saip->blocks[0].saiblock);
+                                              (void *)&saip->blocks[0]);
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI4_SUB_A_MODE) */
 
       osalDbgAssert(saip->blocks[0].dma != NULL, "unable to allocate stream");
@@ -761,7 +761,7 @@ void sai_lld_start(SAIDriver *saip) {
       saip->blocks[0].saiblock->FRCR  = saip->blocks[0].config->frcr;
       saip->blocks[0].saiblock->SLOTR = saip->blocks[0].config->slotr;
 
-      saip->blocks[0].saiblock->CR1  |= saip->blocks[0].config->cr1 |
+      saip->blocks[0].saiblock->CR1   = saip->blocks[0].config->cr1 |
                                        SAI_xCR1_DMAEN | STM32_SAI4_ACR1;
       }
 
@@ -770,12 +770,12 @@ void sai_lld_start(SAIDriver *saip) {
         saip->blocks[1].dma = dmaStreamAllocI(STM32_SAI_SAI4B_DMA_STREAM,
                                               STM32_SAI_SAI4_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_rx_interrupt,
-                                              (void *)saip->blocks[1].saiblock);
+                                              (void *)&saip->blocks[1]);
 #else
         saip->blocks[1].dma = dmaStreamAllocI(STM32_SAI_SAI4B_DMA_STREAM,
                                               STM32_SAI_SAI4_IRQ_PRIORITY,
                                               (stm32_dmaisr_t)sai_lld_serve_tx_interrupt,
-                                              (void *)saip->blocks[1].saiblock);
+                                              (void *)&saip->blocks[1]);
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI4_SUB_B_MODE) */
 
       osalDbgAssert(saip->blocks[1].dma != NULL, "unable to allocate stream");
@@ -787,7 +787,7 @@ void sai_lld_start(SAIDriver *saip) {
       saip->blocks[1].saiblock->FRCR  = saip->blocks[1].config->frcr;
       saip->blocks[1].saiblock->SLOTR = saip->blocks[1].config->slotr;
 
-      saip->blocks[1].saiblock->CR1  |= saip->blocks[1].config->cr1 |
+      saip->blocks[1].saiblock->CR1   = saip->blocks[1].config->cr1 |
                                        SAI_xCR1_DMAEN | STM32_SAI4_BCR1;
       }
     }

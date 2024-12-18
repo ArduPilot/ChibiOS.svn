@@ -383,8 +383,8 @@
 /*
  * SAI driver system settings.
  */
-#define STM32_SAI_USE_SAI1                  TRUE
-#define STM32_SAI_USE_SAI2                  FALSE
+#define STM32_SAI_USE_SAI1                  FALSE
+#define STM32_SAI_USE_SAI2                  TRUE
 #define STM32_SAI_USE_SAI3                  FALSE
 #define STM32_SAI_USE_SAI4                  FALSE
 #define STM32_SAI_SAI1A_MODE                (STM32_SAI_BLOCK_MODE_MASTER |  \

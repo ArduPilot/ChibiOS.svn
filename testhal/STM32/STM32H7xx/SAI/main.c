@@ -16,10 +16,30 @@
 
 #include "ch.h"
 #include "hal.h"
+#include <math.h>
 
-#define BUFF_SIZE               512
+#define SAMPLE_RATE 44100  // Frequenza di campionamento in Hz
+#define FREQUENCY 440      // Frequenza della sinusoide in Hz
+#define AMPLITUDE 32767    // Amplitudine massima per int16_t (16 bit PCM)
+#define CHANNELS 2         // Numero di canali (stereo)
 
-static uint8_t buffer[BUFF_SIZE];
+#define PERIOD_SAMPLES (SAMPLE_RATE / FREQUENCY) // Campioni per un periodo
+
+static uint32_t full, half;
+
+static int16_t stereo_sine_wave[PERIOD_SAMPLES * CHANNELS];
+
+void generate_stereo_sine_wave(void) {
+    for (int i = 0; i < PERIOD_SAMPLES; i++) {
+        // Calcola la sinusoide per il campione corrente
+        float t = (float)i / SAMPLE_RATE;  // Tempo corrente in secondi
+        float sample = sinf(2.0f * M_PI * FREQUENCY * t) * AMPLITUDE;
+
+        // Scrive il campione nei due canali stereo
+        stereo_sine_wave[i * 2] = (int16_t)sample;      // Canale sinistro
+        stereo_sine_wave[i * 2 + 1] = (int16_t)sample; // Canale destro
+    }
+}
 
 #if 0
 .size=MP3_BUFF_SIZE,
@@ -32,6 +52,15 @@ static uint8_t buffer[BUFF_SIZE];
 .GCR=0
 #endif
 
+void tx_cb (SAIBlockDriver *saibp) {
+  if (saiIsBufferComplete(saibp)) {
+    full++;
+  }
+  else {
+    half++;
+  }
+}
+
 /*
  * F_ref_clk_sai = PLL1Q (60 MHz)
  * NOMCK = 1, FRL = 33, MCKDIV = 40
@@ -43,9 +72,9 @@ static const SAIConfig saicfg = {
   {
    /* Sub block A configuration */
    {
-    buffer,
-    BUFF_SIZE,
-    NULL,
+    (uint8_t *)stereo_sine_wave,
+    sizeof (stereo_sine_wave),
+    tx_cb,
     SAI_xCR1_NOMCK | SAI_xCR1_DS_2 |           /* CR1   */
     SAI_xCR1_MCKDIV_3 | SAI_xCR1_MCKDIV_5 ,
     SAI_xCR2_FTH_0,                            /* CR2   */
@@ -101,8 +130,16 @@ int main(void) {
   halInit();
   chSysInit();
 
-  saiStart(&SAID1, &saicfg);
-  saiStartExchange(&SAID1);
+  /*
+   * TODO: Handling cache
+   */
+  SCB_DisableDCache();
+  SCB_DisableICache();
+
+  generate_stereo_sine_wave();
+
+  saiStart(&SAID2, &saicfg);
+  saiStartExchange(&SAID2);
 
   /*
    * Creates the example thread.

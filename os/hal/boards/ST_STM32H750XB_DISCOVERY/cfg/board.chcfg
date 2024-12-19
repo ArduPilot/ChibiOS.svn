@@ -514,18 +514,18 @@
         Alternate="9" />
       <pin12
         ID="I2C4_SCL"
-        Type="PushPull"
+        Type="OpenDrain"
         Level="High"
         Speed="Maximum"
-        Resistor="Floating"
+        Resistor="PullUp"
         Mode="Alternate"
         Alternate="4" />
       <pin13
         ID="I2C4_SDA"
-        Type="PushPull"
+        Type="OpenDrain"
         Level="High"
         Speed="Maximum"
-        Resistor="Floating"
+        Resistor="PullUp"
         Mode="Alternate"
         Alternate="4" />
       <pin14

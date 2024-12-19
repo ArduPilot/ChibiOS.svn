@@ -829,8 +829,8 @@
                                      PIN_OTYPE_PUSHPULL(GPIOD_SDRAM_D14) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOD_SDRAM_D15) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOD_QSPI_BK1_IO0) |\
-                                     PIN_OTYPE_PUSHPULL(GPIOD_I2C4_SCL) |   \
-                                     PIN_OTYPE_PUSHPULL(GPIOD_I2C4_SDA) |   \
+                                     PIN_OTYPE_OPENDRAIN(GPIOD_I2C4_SCL) |  \
+                                     PIN_OTYPE_OPENDRAIN(GPIOD_I2C4_SDA) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOD_SDRAM_D0) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOD_SDRAM_D1))
 #define VAL_GPIOD_OSPEEDR           (PIN_OSPEED_HIGH(GPIOD_SDRAM_D2) |      \
@@ -861,8 +861,8 @@
                                      PIN_PUPDR_FLOATING(GPIOD_SDRAM_D14) |  \
                                      PIN_PUPDR_FLOATING(GPIOD_SDRAM_D15) |  \
                                      PIN_PUPDR_FLOATING(GPIOD_QSPI_BK1_IO0) |\
-                                     PIN_PUPDR_FLOATING(GPIOD_I2C4_SCL) |   \
-                                     PIN_PUPDR_FLOATING(GPIOD_I2C4_SDA) |   \
+                                     PIN_PUPDR_PULLUP(GPIOD_I2C4_SCL) |     \
+                                     PIN_PUPDR_PULLUP(GPIOD_I2C4_SDA) |     \
                                      PIN_PUPDR_FLOATING(GPIOD_SDRAM_D0) |   \
                                      PIN_PUPDR_FLOATING(GPIOD_SDRAM_D1))
 #define VAL_GPIOD_ODR               (PIN_ODR_HIGH(GPIOD_SDRAM_D2) |         \

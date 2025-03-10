@@ -4,7 +4,7 @@
 
 ChibiOS next is composed of several independent but inter-operable
 sub-projects: RT, NIL, SB, HAL, EX. Plus several external libraries
-integrated in our structure: WolfSSL, FatFS and lwIP.
+integrated in our structure: WolfSSL, FatFS, and lwIP.
 
 *** ChibiOS next highlights ****
 
@@ -28,10 +28,10 @@ integrated in our structure: WolfSSL, FatFS and lwIP.
 
 *** What's new in RT/NIL ports ***
 
-- Addes SMP port for Cortex-M0 required by RP2040.
-- The old generic ARMCMx port has been split in ARMv6-M, ARMv7-M and ARMv8-M-ML
+- Added SMP port for Cortex-M0 required by RP2040.
+- The old generic ARMCMx port has been split into ARMv6-M, ARMv7-M, and ARMv8-M-ML
   ports.
-- Simplified interface between RT/NIL and port layer.
+- A simplified interface between RT/NIL and the port layer.
 - Removed duplicated files in port layers: chtypes.h, chcore_timer.h.
 
 *** What's new in OS Library 1.3.0 ***
@@ -83,7 +83,7 @@ integrated in our structure: WolfSSL, FatFS and lwIP.
 - Support for more STM32 sub-families.
 - Added MACv2 driver for STM32H7xx.
 - Added support for UART9 and UART10 in STM32 USARTv1 drivers.
-- Updated STM32F4xx platform with new IRQ handling, enabled the missing timers.
+- Updated STM32F4xx platform with new IRQ handling, and enabled the missing timers.
 - SIO driver STM32 implementation for USARTv2 and USARTv3.
 - Support for 3 analog watchdogs in ADCv3 (STM32F3, L4, L4+, G4).
 - Support for 3 analog watchdogs in ADCv5 (STM32G0).

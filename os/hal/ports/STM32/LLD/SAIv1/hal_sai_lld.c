@@ -34,6 +34,38 @@
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
 /*===========================================================================*/
+#define SAI1A_DMA_CHANNEL                                                   \
+  STM32_DMA_GETCHANNEL(STM32_SAI_SAI1A_DMA_STREAM,                          \
+                       STM32_SAI1A_DMA_CHN)
+
+#define SAI1B_DMA_CHANNEL                                                   \
+  STM32_DMA_GETCHANNEL(STM32_SAI_SAI1B_DMA_STREAM,                          \
+                       STM32_SAI1B_DMA_CHN)
+
+#define SAI2A_DMA_CHANNEL                                                   \
+  STM32_DMA_GETCHANNEL(STM32_SAI_SAI2A_DMA_STREAM,                          \
+                       STM32_SAI2A_DMA_CHN)
+
+#define SAI2B_DMA_CHANNEL                                                   \
+  STM32_DMA_GETCHANNEL(STM32_SAI_SAI2B_DMA_STREAM,                          \
+                       STM32_SAI2B_DMA_CHN)
+
+#define SAI3A_DMA_CHANNEL                                                   \
+  STM32_DMA_GETCHANNEL(STM32_SAI_SAI3A_DMA_STREAM,                          \
+                       STM32_SAI3A_DMA_CHN)
+
+#define SAI3B_DMA_CHANNEL                                                   \
+  STM32_DMA_GETCHANNEL(STM32_SAI_SAI3B_DMA_STREAM,                          \
+                       STM32_SAI3B_DMA_CHN)
+
+#define SAI4A_DMA_CHANNEL                                                   \
+  STM32_DMA_GETCHANNEL(STM32_SAI_SAI4A_DMA_STREAM,                          \
+                       STM32_SAI14_DMA_CHN)
+
+#define SAI4B_DMA_CHANNEL                                                   \
+  STM32_DMA_GETCHANNEL(STM32_SAI_SAI4B_DMA_STREAM,                          \
+                       STM32_SAI4B_DMA_CHN)
+
 /*
  * Static SAI settings for SAI1 block A.
  */
@@ -309,52 +341,56 @@ void sai_lld_init(void) {
   SAID1.blocks[0].saiblock = SAI1_Block_A;
   SAID1.blocks[0].dma      = NULL;
 #if STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI1_SUB_A_MODE)
-  SAID1.blocks[0].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI1_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_P2M |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID1.blocks[0].dmamode  = STM32_DMA_CR_CHSEL(SAI1A_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI1_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_P2M |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #else
-  SAID1.blocks[0].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI1_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_M2P |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID1.blocks[0].dmamode  = STM32_DMA_CR_CHSEL(SAI1A_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI1_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_M2P |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI1_SUB_A_MODE) */
   SAID1.blocks[1].saiblock = SAI1_Block_B;
   SAID1.blocks[1].dma      = NULL;
 #if STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI1_SUB_B_MODE)
-  SAID1.blocks[1].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI1_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_P2M |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID1.blocks[1].dmamode  = STM32_DMA_CR_CHSEL(SAI1B_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI1_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_P2M |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #else
-  SAID1.blocks[1].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI1_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_M2P |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID1.blocks[1].dmamode  = STM32_DMA_CR_CHSEL(SAI1B_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI1_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_M2P |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI1_SUB_B_MODE) */
 #endif /* STM32_SAI_USE_SAI1 */
 
@@ -364,52 +400,56 @@ void sai_lld_init(void) {
   SAID2.blocks[0].saiblock = SAI2_Block_A;
   SAID2.blocks[0].dma      = NULL;
 #if STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI2_SUB_A_MODE)
-  SAID2.blocks[0].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI2_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_P2M |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID2.blocks[0].dmamode  = STM32_DMA_CR_CHSEL(SAI2A_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI2_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_P2M |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #else
-  SAID2.blocks[0].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI2_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_M2P |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID2.blocks[0].dmamode  = STM32_DMA_CR_CHSEL(SAI2A_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI2_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_M2P |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI2_SUB_A_MODE) */
   SAID2.blocks[1].saiblock = SAI2_Block_B;
   SAID2.blocks[1].dma      = NULL;
 #if STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI2_SUB_B_MODE)
-  SAID2.blocks[1].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI2_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_P2M |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID2.blocks[1].dmamode  = STM32_DMA_CR_CHSEL(SAI2B_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI2_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_P2M |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #else
-  SAID2.blocks[1].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI2_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_M2P |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID2.blocks[1].dmamode  = STM32_DMA_CR_CHSEL(SAI2B_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI2_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_M2P |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI2_SUB_B_MODE) */
 #endif /* STM32_SAI_USE_SAI2 */
 
@@ -419,52 +459,56 @@ void sai_lld_init(void) {
   SAID3.blocks[0].saiblock = SAI3_Block_A;
   SAID3.blocks[0].dma      = NULL;
 #if STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI3_SUB_A_MODE)
-  SAID3.blocks[0].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI3_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_P2M |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID3.blocks[0].dmamode  = STM32_DMA_CR_CHSEL(SAI3A_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI3_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_P2M |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #else
-  SAID3.blocks[0].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI3_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_M2P |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID3.blocks[0].dmamode  = STM32_DMA_CR_CHSEL(SAI3A_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI3_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_M2P |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI3_SUB_A_MODE) */
   SAID3.blocks[1].saiblock = SAI3_Block_B;
   SAID3.blocks[1].dma      = NULL;
 #if STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI3_SUB_B_MODE)
-  SAID3.blocks[1].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI3_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_P2M |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID3.blocks[1].dmamode  = STM32_DMA_CR_CHSEL(SAI3B_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI3_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_P2M |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #else
-  SAID3.blocks[1].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI3_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_M2P |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID3.blocks[1].dmamode  = STM32_DMA_CR_CHSEL(SAI3B_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI3_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_M2P |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI3_SUB_B_MODE) */
 #endif /* STM32_SAI_USE_SAI3 */
 
@@ -474,52 +518,56 @@ void sai_lld_init(void) {
   SAID4.blocks[0].saiblock = SAI4_Block_A;
   SAID4.blocks[0].dma      = NULL;
 #if STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI4_SUB_A_MODE)
-  SAID4.blocks[0].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI4_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_P2M |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID4.blocks[0].dmamode  = STM32_DMA_CR_CHSEL(SAI4A_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI4_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_P2M |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #else
-  SAID4.blocks[0].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI4_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_M2P |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID4.blocks[0].dmamode  = STM32_DMA_CR_CHSEL(SAI4A_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI4_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_M2P |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI4_SUB_A_MODE) */
   SAID4.blocks[1].saiblock = SAI4_Block_B;
   SAID4.blocks[1].dma      = NULL;
 #if STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI4_SUB_B_MODE)
-  SAID4.blocks[1].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI4_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_P2M |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID4.blocks[1].dmamode  = STM32_DMA_CR_CHSEL(SAI4B_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI4_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_P2M |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #else
-  SAID4.blocks[1].dmamode  = STM32_DMA_CR_PL(STM32_SAI_SAI4_DMA_PRIORITY) |
-                                             STM32_DMA_CR_PSIZE_HWORD |
-                                             STM32_DMA_CR_MSIZE_HWORD |
-                                             STM32_DMA_CR_DIR_M2P |
-                                             STM32_DMA_CR_MINC |
-                                             STM32_DMA_CR_CIRC |
-                                             STM32_DMA_CR_HTIE |
-                                             STM32_DMA_CR_TCIE |
-                                             STM32_DMA_CR_DMEIE |
-                                             STM32_DMA_CR_TEIE;
+  SAID4.blocks[1].dmamode  = STM32_DMA_CR_CHSEL(SAI4B_DMA_CHANNEL) |
+                             STM32_DMA_CR_PL(STM32_SAI_SAI4_DMA_PRIORITY) |
+                             STM32_DMA_CR_PSIZE_HWORD |
+                             STM32_DMA_CR_MSIZE_HWORD |
+                             STM32_DMA_CR_DIR_M2P |
+                             STM32_DMA_CR_MINC |
+                             STM32_DMA_CR_CIRC |
+                             STM32_DMA_CR_HTIE |
+                             STM32_DMA_CR_TCIE |
+                             STM32_DMA_CR_DMEIE |
+                             STM32_DMA_CR_TEIE;
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI4_SUB_B_MODE) */
 #endif /* STM32_SAI_USE_SAI4 */
 
@@ -561,7 +609,9 @@ void sai_lld_start(SAIDriver *saip) {
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI1_SUB_A_MODE) */
 
       osalDbgAssert(saip->blocks[0].dma != NULL, "unable to allocate stream");
+#if STM32_DMA_SUPPORTS_DMAMUX
       dmaSetRequestSource(saip->blocks[0].dma, STM32_DMAMUX1_SAI1_A);
+#endif
 
       /* CRs settings are done here because those never changes until
          the driver is stopped.*/
@@ -587,7 +637,9 @@ void sai_lld_start(SAIDriver *saip) {
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI1_SUB_B_MODE) */
 
       osalDbgAssert(saip->blocks[1].dma != NULL, "unable to allocate stream");
+#if STM32_DMA_SUPPORTS_DMAMUX
       dmaSetRequestSource(saip->blocks[1].dma, STM32_DMAMUX1_SAI1_B);
+#endif
 
       /* CRs settings are done here because those never changes until
          the driver is stopped.*/
@@ -625,7 +677,9 @@ void sai_lld_start(SAIDriver *saip) {
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI2_SUB_A_MODE) */
 
       osalDbgAssert(saip->blocks[0].dma != NULL, "unable to allocate stream");
+#if STM32_DMA_SUPPORTS_DMAMUX
       dmaSetRequestSource(saip->blocks[0].dma, STM32_DMAMUX1_SAI2_A);
+#endif
 
       /* CRs settings are done here because those never changes until
          the driver is stopped.*/
@@ -651,7 +705,9 @@ void sai_lld_start(SAIDriver *saip) {
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI2_SUB_B_MODE) */
 
       osalDbgAssert(saip->blocks[1].dma != NULL, "unable to allocate stream");
+#if STM32_DMA_SUPPORTS_DMAMUX
       dmaSetRequestSource(saip->blocks[1].dma, STM32_DMAMUX1_SAI2_B);
+#endif
 
       /* CRs settings are done here because those never changes until
          the driver is stopped.*/
@@ -689,7 +745,9 @@ void sai_lld_start(SAIDriver *saip) {
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI3_SUB_A_MODE) */
 
       osalDbgAssert(saip->blocks[0].dma != NULL, "unable to allocate stream");
+#if STM32_DMA_SUPPORTS_DMAMUX
       dmaSetRequestSource(saip->blocks[0].dma, STM32_DMAMUX1_SAI3_A);
+#endif
 
       /* CRs settings are done here because those never changes until
          the driver is stopped.*/
@@ -715,7 +773,9 @@ void sai_lld_start(SAIDriver *saip) {
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI3_SUB_B_MODE) */
 
       osalDbgAssert(saip->blocks[1].dma != NULL, "unable to allocate stream");
+#if STM32_DMA_SUPPORTS_DMAMUX
       dmaSetRequestSource(saip->blocks[1].dma, STM32_DMAMUX1_SAI3_B);
+#endif
 
       /* CRs settings are done here because those never changes until
          the driver is stopped.*/
@@ -753,7 +813,9 @@ void sai_lld_start(SAIDriver *saip) {
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI4_SUB_A_MODE) */
 
       osalDbgAssert(saip->blocks[0].dma != NULL, "unable to allocate stream");
+#if STM32_DMA_SUPPORTS_DMAMUX
       dmaSetRequestSource(saip->blocks[0].dma, STM32_DMAMUX2_SAI4_A);
+#endif
 
       /* CRs settings are done here because those never changes until
          the driver is stopped.*/
@@ -779,7 +841,9 @@ void sai_lld_start(SAIDriver *saip) {
 #endif /* STM32_SAI_BLOCK_RX_ENABLED(STM32_SAI_SAI4_SUB_B_MODE) */
 
       osalDbgAssert(saip->blocks[1].dma != NULL, "unable to allocate stream");
+#if STM32_DMA_SUPPORTS_DMAMUX
       dmaSetRequestSource(saip->blocks[1].dma, STM32_DMAMUX2_SAI4_B);
+#endif
 
       /* CRs settings are done here because those never changes until
          the driver is stopped.*/

@@ -353,7 +353,31 @@
 
 /* Devices without DMAMUX require an additional check.*/
 #if STM32_ADVANCED_DMA && !STM32_DMA_SUPPORTS_DMAMUX
-#error "To be implemented"
+/* Check on the validity of the assigned DMA channels.*/
+#if STM32_SAI_USE_SAI1 &&                                                       \
+    (!STM32_DMA_IS_VALID_ID(STM32_SAI_SAI1A_DMA_STREAM, STM32_SAI1A_DMA_MSK) || \
+    !STM32_DMA_IS_VALID_ID(STM32_SAI_SAI1B_DMA_STREAM, STM32_SAI1B_DMA_MSK))
+#error "invalid DMA streams associated to SAI1"
+#endif
+
+#if STM32_SAI_USE_SAI2 &&                                                       \
+    (!STM32_DMA_IS_VALID_ID(STM32_SAI_SAI2A_DMA_STREAM, STM32_SAI2A_DMA_MSK) || \
+    !STM32_DMA_IS_VALID_ID(STM32_SAI_SAI2B_DMA_STREAM, STM32_SAI2B_DMA_MSK))
+#error "invalid DMA streams associated to SAI2"
+#endif
+
+#if STM32_SAI_USE_SAI3 &&                                                       \
+    (!STM32_DMA_IS_VALID_ID(STM32_SAI_SAI3A_DMA_STREAM, STM32_SAI3A_DMA_MSK) || \
+    !STM32_DMA_IS_VALID_ID(STM32_SAI_SAI3B_DMA_STREAM, STM32_SAI3B_DMA_MSK))
+#error "invalid DMA streams associated to SAI3"
+#endif
+
+#if STM32_SAI_USE_SAI4 &&                                                       \
+    (!STM32_DMA_IS_VALID_ID(STM32_SAI_SAI4A_DMA_STREAM, STM32_SAI4A_DMA_MSK) || \
+    !STM32_DMA_IS_VALID_ID(STM32_SAI_SAI4B_DMA_STREAM, STM32_SAI4B_DMA_MSK))
+#error "invalid DMA streams associated to SAI4"
+#endif
+
 #endif /* STM32_ADVANCED_DMA && !STM32_DMA_SUPPORTS_DMAMUX */
 
 #if !defined(STM32_DMA_REQUIRED)

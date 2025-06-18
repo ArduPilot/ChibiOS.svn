@@ -16,6 +16,8 @@
 
 #include "ch.h"
 #include "hal.h"
+
+#include "wm8994.h"
 #include <math.h>
 
 #define SAMPLE_RATE 44100  // Frequenza di campionamento in Hz
@@ -41,17 +43,6 @@ void generate_stereo_sine_wave(void) {
     }
 }
 
-#if 0
-.size=MP3_BUFF_SIZE,
-.tx_buffer=wave_buf,
-.CR1=SAI_CCR1
-.CR2=0x1
-.SR=0x0
-.SLOTR=0x30100
-.FRCR=0x50f1f
-.GCR=0
-#endif
-
 void tx_cb (SAIBlockDriver *saibp) {
   if (saiIsBufferComplete(saibp)) {
     full++;
@@ -62,9 +53,40 @@ void tx_cb (SAIBlockDriver *saibp) {
 }
 
 /*
- * F_ref_clk_sai = PLL1Q (60 MHz)
- * NOMCK = 1, FRL = 33, MCKDIV = 40
- * Fs = 44,117 KHz
+ * I2C configuration
+ * According to WM8994 codec Timing parameters
+ * SCLK frequency  max  400 KHz
+ * SCLK low width  >=  1300 ns
+ * SCLK high widt  >=   600 ns
+ * Data Setup Time >=   100 ns
+ * Data Hold Time  <=   900 ns
+ *
+ * PCLK4 = 120 MHz
+ * T_presc = 120.000.000 Hz / (0x4 + 0x1) = 24.000.000 Hz
+ * T_scll  = (0x28 + 0x1) / 24 MHz = 1,7 ns
+ * T_sclh  = (0x12 + 0x1) / 24 MHz = 0,79 ns
+ * SCLK freq = 1 / (1,7 + 0.79) = 401,60 KHz
+ *
+ */
+static const I2CConfig i2ccfg = {
+#if 0
+  STM32_TIMINGR_PRESC(0x4U) |
+  STM32_TIMINGR_SCLDEL(0x4U) | STM32_TIMINGR_SDADEL(0xBU) |
+  STM32_TIMINGR_SCLH(0x12U)  | STM32_TIMINGR_SCLL(0x28U)
+#endif
+  0x00B045E1,
+  0,
+  0
+};
+
+/*
+ * SAI configuration
+ * F_ref_clk_sai = PLL2P
+ * PLL2_VCO Input = HSE_VALUE/PLL2M = 1 Mhz
+ *  PLL2_VCO Output = PLL2_VCO Input * PLL2N = 429 Mhz
+ * SAI_CLK_x = PLL2_VCO Output/PLL2P = 429/38 = 11.289 Mhz
+ * MCKDIV = 0, OSR = 0, Fs = SAI_CLK / 256.
+ * Fs = 44,099 KHz
  * 16 bit audio
  */
 static const SAIConfig saicfg = {
@@ -72,14 +94,13 @@ static const SAIConfig saicfg = {
   {
    /* Sub block A configuration */
    {
-    (uint8_t *)stereo_sine_wave,
-    sizeof (stereo_sine_wave),
+    stereo_sine_wave,
+    PERIOD_SAMPLES * CHANNELS,
     tx_cb,
-    SAI_xCR1_NOMCK | SAI_xCR1_DS_2 |           /* CR1   */
-    SAI_xCR1_MCKDIV_3 | SAI_xCR1_MCKDIV_5 ,
+    SAI_xCR1_DS_2 | SAI_xCR1_CKSTR,            /* CR1   */
     SAI_xCR2_FTH_0,                            /* CR2   */
-    SAI_xFRCR_FRL_0 | SAI_xFRCR_FRL_5,         /* FRCR  */
-    SAI_xSLOTR_NBSLOT_0 | SAI_xSLOTR_SLOTEN    /* SLOTR */
+    0x50f1f,//SAI_xFRCR_FRL_0 | SAI_xFRCR_FRL_5,         /* FRCR  */
+    0x30100,//SAI_xSLOTR_NBSLOT_0 | SAI_xSLOTR_SLOTEN    /* SLOTR */
    },
    /* Sub Block B configuration */
    {
@@ -138,8 +159,12 @@ int main(void) {
 
   generate_stereo_sine_wave();
 
+  i2cStart(&I2CD4, &i2ccfg);
+
   saiStart(&SAID2, &saicfg);
   saiStartExchange(&SAID2);
+
+  wm8994Init(&I2CD4);
 
   /*
    * Creates the example thread.

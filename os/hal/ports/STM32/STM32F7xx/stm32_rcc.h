@@ -1668,6 +1668,56 @@
 #else
   #define rccResetFSMC() rccResetAHB3(RCC_AHB3RSTR_FSMCRST)
 #endif
+
+/**
+ * @name    SAI peripheral specific RCC operations
+ * @{
+ */
+/**
+ * @brief   Enables the SAI1 peripheral clock.
+ *
+ * @param[in] lp        low power enable flag
+ *
+ * @api
+ */
+#define rccEnableSAI1(lp) rccEnableAPB2(RCC_APB2ENR_SAI1EN, lp)
+
+/**
+ * @brief   Disables the SAI1 peripheral clock.
+ *
+ * @api
+ */
+#define rccDisableSAI1() rccDisableAPB2(RCC_APB2ENR_SAI1EN)
+
+/**
+ * @brief   Resets the SAI1 peripheral.
+ *
+ * @api
+ */
+#define rccResetSAI1() rccResetAPB2(RCC_APB2RSTR_SAI1RST)
+
+/*
+ * @brief   Enables the SAI2 peripheral clock.
+ *
+ * @param[in] lp        low power enable flag
+ *
+ * @api
+ */
+#define rccEnableSAI2(lp) rccEnableAPB2(RCC_APB2ENR_SAI2EN, lp)
+
+/**
+ * @brief   Disables the SAI2 peripheral clock.
+ *
+ * @api
+ */
+#define rccDisableSAI2() rccDisableAPB2(RCC_APB2ENR_SAI2EN)
+
+/**
+ * @brief   Resets the SAI2 peripheral.
+ *
+ * @api
+ */
+#define rccResetSAI2() rccResetAPB2(RCC_APB2RSTR_SAI2RST)
 /** @} */
 
 /*===========================================================================*/

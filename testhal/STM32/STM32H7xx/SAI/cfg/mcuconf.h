@@ -99,10 +99,10 @@
 #define STM32_PLL2_P_ENABLED                TRUE
 #define STM32_PLL2_Q_ENABLED                TRUE
 #define STM32_PLL2_R_ENABLED                TRUE
-#define STM32_PLL2_DIVM_VALUE               5
-#define STM32_PLL2_DIVN_VALUE               192
+#define STM32_PLL2_DIVM_VALUE               25
+#define STM32_PLL2_DIVN_VALUE               429
 #define STM32_PLL2_FRACN_VALUE              0
-#define STM32_PLL2_DIVP_VALUE               2
+#define STM32_PLL2_DIVP_VALUE               38
 #define STM32_PLL2_DIVQ_VALUE               4
 #define STM32_PLL2_DIVR_VALUE               2
 #define STM32_PLL3_ENABLED                  TRUE
@@ -152,7 +152,7 @@
 #define STM32_SPDIFSEL                      STM32_SPDIFSEL_PLL1_Q_CK
 #define STM32_SPI45SEL                      STM32_SPI45SEL_PCLK2
 #define STM32_SPI123SEL                     STM32_SPI123SEL_PLL1_Q_CK
-#define STM32_SAI23SEL                      STM32_SAI23SEL_PLL1_Q_CK
+#define STM32_SAI23SEL                      STM32_SAI23SEL_PLL2_P_CK
 #define STM32_SAI1SEL                       STM32_SAI1SEL_PLL1_Q_CK
 #define STM32_LPTIM1SEL                     STM32_LPTIM1SEL_PCLK1
 #define STM32_CECSEL                        STM32_CECSEL_LSE_CK
@@ -283,7 +283,7 @@
 #define STM32_I2C_USE_I2C1                  FALSE
 #define STM32_I2C_USE_I2C2                  FALSE
 #define STM32_I2C_USE_I2C3                  FALSE
-#define STM32_I2C_USE_I2C4                  FALSE
+#define STM32_I2C_USE_I2C4                  TRUE
 #define STM32_I2C_BUSY_TIMEOUT              50
 #define STM32_I2C_I2C1_RX_DMA_STREAM        STM32_DMA_STREAM_ID_ANY
 #define STM32_I2C_I2C1_TX_DMA_STREAM        STM32_DMA_STREAM_ID_ANY

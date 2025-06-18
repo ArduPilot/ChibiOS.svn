@@ -70,7 +70,7 @@
 #define GPIOA_MII_MDIO              2U
 #define GPIOA_PIN3                  3U
 #define GPIOA_PIN4                  4U
-#define GPIOA_PIN5                  5U
+#define GPIOA_OTG_FS2_PSO           5U
 #define GPIOA_PIN6                  6U
 #define GPIOA_MII_RX_DV             7U
 #define GPIOA_PIN8                  8U
@@ -257,6 +257,7 @@
  */
 #define LINE_MII_RX_CLK             PAL_LINE(GPIOA, 1U)
 #define LINE_MII_MDIO               PAL_LINE(GPIOA, 2U)
+#define LINE_OTG_FS2_PSO            PAL_LINE(GPIOA, 5U)
 #define LINE_MII_RX_DV              PAL_LINE(GPIOA, 7U)
 #define LINE_VBUS_FS2               PAL_LINE(GPIOA, 9U)
 #define LINE_USB_OTG_FS2_ID         PAL_LINE(GPIOA, 10U)
@@ -438,11 +439,11 @@
  * PA2  - MII_MDIO                  (alternate 11).
  * PA3  - PIN3                      (input floating).
  * PA4  - PIN4                      (input floating).
- * PA5  - PIN5                      (input floating).
+ * PA5  - OTG_FS2_PSO               (output pushpull maximum).
  * PA6  - PIN6                      (input floating).
  * PA7  - MII_RX_DV                 (alternate 11).
  * PA8  - PIN8                      (input floating).
- * PA9  - VBUS_FS2                  (analog).
+ * PA9  - VBUS_FS2                  (input floating).
  * PA10 - USB_OTG_FS2_ID            (alternate 10).
  * PA11 - OTG_FS_DM                 (alternate 10).
  * PA12 - OTG_FS_DP                 (alternate 10).
@@ -455,7 +456,7 @@
                                      PIN_MODE_ALTERNATE(GPIOA_MII_MDIO) |   \
                                      PIN_MODE_INPUT(GPIOA_PIN3) |           \
                                      PIN_MODE_INPUT(GPIOA_PIN4) |           \
-                                     PIN_MODE_INPUT(GPIOA_PIN5) |           \
+                                     PIN_MODE_OUTPUT(GPIOA_OTG_FS2_PSO) |           \
                                      PIN_MODE_INPUT(GPIOA_PIN6) |           \
                                      PIN_MODE_ALTERNATE(GPIOA_MII_RX_DV) |  \
                                      PIN_MODE_INPUT(GPIOA_PIN8) |           \
@@ -471,7 +472,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_MII_MDIO) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN3) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN4) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN5) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_OTG_FS2_PSO) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN6) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOA_MII_RX_DV) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN8) |       \
@@ -487,7 +488,7 @@
                                      PIN_OSPEED_HIGH(GPIOA_MII_MDIO) |      \
                                      PIN_OSPEED_VERYLOW(GPIOA_PIN3) |       \
                                      PIN_OSPEED_VERYLOW(GPIOA_PIN4) |       \
-                                     PIN_OSPEED_VERYLOW(GPIOA_PIN5) |       \
+                                     PIN_OSPEED_HIGH(GPIOA_OTG_FS2_PSO) |       \
                                      PIN_OSPEED_VERYLOW(GPIOA_PIN6) |       \
                                      PIN_OSPEED_HIGH(GPIOA_MII_RX_DV) |     \
                                      PIN_OSPEED_HIGH(GPIOA_PIN8) |          \
@@ -503,7 +504,7 @@
                                      PIN_PUPDR_PULLUP(GPIOA_MII_MDIO) |     \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN3) |       \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN4) |       \
-                                     PIN_PUPDR_FLOATING(GPIOA_PIN5) |       \
+                                     PIN_PUPDR_FLOATING(GPIOA_OTG_FS2_PSO) |       \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN6) |       \
                                      PIN_PUPDR_PULLUP(GPIOA_MII_RX_DV) |    \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN8) |       \
@@ -519,7 +520,7 @@
                                      PIN_ODR_HIGH(GPIOA_MII_MDIO) |         \
                                      PIN_ODR_HIGH(GPIOA_PIN3) |             \
                                      PIN_ODR_HIGH(GPIOA_PIN4) |             \
-                                     PIN_ODR_HIGH(GPIOA_PIN5) |             \
+                                     PIN_ODR_LOW(GPIOA_OTG_FS2_PSO) |             \
                                      PIN_ODR_HIGH(GPIOA_PIN6) |             \
                                      PIN_ODR_HIGH(GPIOA_MII_RX_DV) |        \
                                      PIN_ODR_HIGH(GPIOA_PIN8) |             \
@@ -535,7 +536,7 @@
                                      PIN_AFIO_AF(GPIOA_MII_MDIO, 11U) |     \
                                      PIN_AFIO_AF(GPIOA_PIN3, 0U) |          \
                                      PIN_AFIO_AF(GPIOA_PIN4, 0U) |          \
-                                     PIN_AFIO_AF(GPIOA_PIN5, 0U) |          \
+                                     PIN_AFIO_AF(GPIOA_OTG_FS2_PSO, 0U) |          \
                                      PIN_AFIO_AF(GPIOA_PIN6, 0U) |          \
                                      PIN_AFIO_AF(GPIOA_MII_RX_DV, 11U))
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_PIN8, 0U) |          \

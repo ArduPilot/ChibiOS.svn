@@ -1291,6 +1291,23 @@
 
 #define STM32_HAS_SDMMC2                    FALSE
 
+/* SAI attributes.*/
+#define STM32_HAS_SAI1                      TRUE
+#define STM32_SAI1A_DMA_MSK                 (STM32_DMA_STREAM_ID_MSK(2, 1) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 6))
+#define STM32_SAI1A_DMA_CHN                 0x00100001
+#define STM32_SAI1B_DMA_MSK                 (STM32_DMA_STREAM_ID_MSK(2, 2) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 7))
+#define STM32_SAI1B_DMA_CHN                 0x01000010
+
+#define STM32_HAS_SAI2                      TRUE
+#define STM32_SAI2A_DMA_MSK                 (STM32_DMA_STREAM_ID_MSK(1, 6) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 3))
+#define STM32_SAI2A_DMA_CHN                 0x00100100
+#define STM32_SAI2B_DMA_MSK                 (STM32_DMA_STREAM_ID_MSK(1, 7) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 4))
+#define STM32_SAI2B_DMA_CHN                 0x01001000
+
 /* SPI attributes.*/
 #define STM32_HAS_SPI1                      TRUE
 #define STM32_SPI1_SUPPORTS_I2S             FALSE

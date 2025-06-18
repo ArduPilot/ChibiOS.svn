@@ -67,7 +67,7 @@ void tx_cb (SAIBlockDriver *saibp) {
  * PLL2SAIQ Input = HSE_VALUE/PLLM = 1 Mhz
  * PLL2SAIQ Output = PLL2SAIQ Input * PLLSAIN = 271 Mhz
  * SAI_CLK_x = PLL2SAIQ Output/PLLSAIQ = 429/38 = 45.16 Mhz
- * MCKDIV = 3 -> SAI_CL_x = 45.16 / 4 = 11.2915 MHz (0.002% error)
+ * MCKDIV = 2 -> SAI_CL_x = 45.16 / 4 = 11.2915 MHz (0.002% error)
  * OSR = 0, Fs = SAI_CLK / 256.
  * Fs = 44,108 KHz
  * 16 bit audio
@@ -80,7 +80,7 @@ static const SAIConfig saicfg = {
     stereo_sine_wave,
     PERIOD_SAMPLES * CHANNELS,
     tx_cb,
-    SAI_xCR1_MCKDIV_0 | SAI_xCR1_MCKDIV_1 |
+    SAI_xCR1_MCKDIV_1 |
     SAI_xCR1_DS_2 | SAI_xCR1_CKSTR,            /* CR1   */
     SAI_xCR2_FTH_0,                            /* CR2   */
     0x50f1f,//SAI_xFRCR_FRL_0 | SAI_xFRCR_FRL_5,         /* FRCR  */

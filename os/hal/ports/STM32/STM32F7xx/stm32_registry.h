@@ -537,6 +537,21 @@
 #define STM32_RTC_NUM_ALARMS                2
 #define STM32_RTC_HAS_INTERRUPTS            FALSE
 
+/* SAI attributes. */
+#define STM32_HAS_SAI1                      TRUE
+#define STM32_HAS_SAI2                      TRUE
+#define STM32_SAI1A_DMA_MSK                 (STM32_DMA_STREAM_ID_MSK(2, 1) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 3))
+#define STM32_SAI1A_DMA_CHN                 0x00000000
+#define STM32_SAI1B_DMA_MSK                 (STM32_DMA_STREAM_ID_MSK(2, 4) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 5))
+#define STM32_SAI1B_DMA_CHN                 0x00010000
+#define STM32_SAI2A_DMA_MSK                 (STM32_DMA_STREAM_ID_MSK(2, 4))
+#define STM32_SAI2A_DMA_CHN                 0x00030000
+#define STM32_SAI2B_DMA_MSK                 (STM32_DMA_STREAM_ID_MSK(2, 6) |\
+                                             STM32_DMA_STREAM_ID_MSK(2, 7))
+#define STM32_SAI2B_DMA_CHN                 0x03000000
+
 /* SDMMC attributes.*/
 #define STM32_HAS_SDMMC1                    TRUE
 #define STM32_SDC_SDMMC1_DMA_MSK            (STM32_DMA_STREAM_ID_MSK(2, 3) |\

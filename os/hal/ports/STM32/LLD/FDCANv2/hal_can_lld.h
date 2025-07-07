@@ -15,7 +15,7 @@
 */
 
 /**
- * @file    FDCANv1/hal_can_lld.h
+ * @file    FDCANv2/hal_can_lld.h
  * @brief   STM32 CAN subsystem low level driver header.
  *
  * @addtogroup CAN
@@ -120,14 +120,6 @@
 #if !defined(STM32_CAN_USE_FDCAN3) || defined(__DOXYGEN__)
 #define STM32_CAN_USE_FDCAN3                FALSE
 #endif
-
-/**
- * @brief   Global clock divisor configuration FDCAN.
- */
-#if !defined(STM32_CAN_FDCAN_PRESC) || defined(__DOXYGEN__)
-#define STM32_CAN_FDCAN_PRESC               FDCAN_CONFIG_CKDIV_PDIV_1
-#endif
-
 /** @} */
 
 /*===========================================================================*/
@@ -160,14 +152,6 @@
 
 #if !STM32_CAN_USE_FDCAN1 && !STM32_CAN_USE_FDCAN2 && !STM32_CAN_USE_FDCAN3
 #error "CAN driver activated but no FDCAN peripheral assigned"
-#endif
-
-/**
- * @brief   Configuration of CKDIV is only possible with FDCAN1 enabled.
- * @note    CAN instances share the same clock.
- */
-#if (STM32_CAN_FDCAN_PRESC != 0) && (!STM32_CAN_USE_FDCAN1)
-#error "STM32_CAN_USE_FDCAN1 is required for configuring STM32_CAN_CKDIV != 0"
 #endif
 
 /*===========================================================================*/
@@ -464,7 +448,7 @@ typedef struct hal_can_config {
    * @brief   Data delay compensation register.
    */
   uint32_t                  TDCR;
-  /**
+ /**
    * @brief   CC control register.
    */
   uint32_t                  CCCR;

@@ -60,7 +60,7 @@ integrated in our structure: WolfSSL, FatFS and lwIP.
 - None.
 
 *** What's new in STM32 HAL support ***
-
+- Added and updated FDCANv1 and FDCANv2 for STM32G4 and STM32H7.
 - SPIv2 support for all sub-families. SPIv1 still available as fallback.
 - EFL driver and demo for STM32F3xx.
 - Support for STM32G031, STM32G041, STM32G0B1, STM32G0C1.

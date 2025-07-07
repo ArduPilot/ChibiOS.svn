@@ -74,6 +74,7 @@
 *****************************************************************************
 
 *** 21.11.3 ***
+- NEW: STM32 FDCANv2 added.
 - NEW: STM32 DMA drivers now export an STM32_DMA_MAX_TRANSFER definition.
 - NEW: PAL events for RP2040 added.
 - NEW: Removed obsolete sandbox code from ARMv7-M port. Now ARMv7-M-ALT is

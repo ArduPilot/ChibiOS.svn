@@ -128,14 +128,6 @@
 #define STM32_HAS_FDCAN1                    TRUE
 #define STM32_HAS_FDCAN2                    TRUE
 #define STM32_HAS_FDCAN3                    FALSE
-#define STM32_FDCAN_FLS_NBR                 128U
-#define STM32_FDCAN_FLE_NBR                 128U
-#define STM32_FDCAN_RF0_NBR                 64U
-#define STM32_FDCAN_RF1_NBR                 64U
-#define STM32_FDCAN_RB_NBR                  64U
-#define STM32_FDCAN_TEF_NBR                 32U
-#define STM32_FDCAN_TB_NBR                  32U
-#define STM32_FDCAN_TM_NBR                  64U
 
 /* DAC attributes.*/
 #define STM32_HAS_DAC1_CH1                  TRUE
@@ -365,15 +357,7 @@
 /* CAN attributes.*/
 #define STM32_HAS_FDCAN1                    TRUE
 #define STM32_HAS_FDCAN2                    TRUE
-#define STM32_HAS_FDCAN3                    FALSE
-#define STM32_FDCAN_FLS_NBR                 128U
-#define STM32_FDCAN_FLE_NBR                 128U
-#define STM32_FDCAN_RF0_NBR                 64U
-#define STM32_FDCAN_RF1_NBR                 64U
-#define STM32_FDCAN_RB_NBR                  64U
-#define STM32_FDCAN_TEF_NBR                 32U
-#define STM32_FDCAN_TB_NBR                  32U
-#define STM32_FDCAN_TM_NBR                  64U
+#define STM32_HAS_FDCAN3                    TRUE
 
 /* DAC attributes.*/
 #define STM32_HAS_DAC1_CH1                  TRUE
@@ -603,14 +587,6 @@
 #define STM32_HAS_FDCAN1                    TRUE
 #define STM32_HAS_FDCAN2                    TRUE
 #define STM32_HAS_FDCAN3                    FALSE
-#define STM32_FDCAN_FLS_NBR                 128U
-#define STM32_FDCAN_FLE_NBR                 128U
-#define STM32_FDCAN_RF0_NBR                 64U
-#define STM32_FDCAN_RF1_NBR                 64U
-#define STM32_FDCAN_RB_NBR                  64U
-#define STM32_FDCAN_TEF_NBR                 32U
-#define STM32_FDCAN_TB_NBR                  32U
-#define STM32_FDCAN_TM_NBR                  64U
 
 /* DAC attributes.*/
 #define STM32_HAS_DAC1_CH1                  TRUE
@@ -838,6 +814,7 @@
 /* CAN attributes.*/
 #define STM32_HAS_FDCAN1                    TRUE
 #define STM32_HAS_FDCAN2                    TRUE
+#define STM32_HAS_FDCAN3                    FALSE
 
 /* DAC attributes.*/
 #define STM32_HAS_DAC1_CH1                  TRUE

@@ -38,10 +38,22 @@
 #define EP0_MAX_INSIZE          64
 #define EP0_MAX_OUTSIZE         64
 
+/** @brief Enables delay in ULPI timing during device chirp.*/
+#define USB_OTG_DCFG_XCVRDLY    (1U << 14)
+
+/** 
+  * @brief some ULPI chip need additional delay for initial handshake, 
+  *        namely microchip 334x series.
+  */
+#if defined(BOARD_OTG2_ULPI_ACTIVATE_CHIRP_DELAY)
+#define BOARD_OTG2_ULPI_CHIRP_DELAY_MASK USB_OTG_DCFG_XCVRDLY
+#else
+#define BOARD_OTG2_ULPI_CHIRP_DELAY_MASK 0
+#endif
+
 #if STM32_OTG_STEPPING == 1
 #if defined(BOARD_OTG_NOVBUSSENS)
-#define GCCFG_INIT_VALUE        (GCCFG_NOVBUSSENS | GCCFG_VBUSASEN |        \
-                                 GCCFG_VBUSBSEN | GCCFG_PWRDWN)
+#define GCCFG_INIT_VALUE        (GCCFG_NOVBUSSENS | GCCFG_PWRDWN)
 #else
 #define GCCFG_INIT_VALUE        (GCCFG_VBUSASEN | GCCFG_VBUSBSEN |          \
                                  GCCFG_PWRDWN)
@@ -55,6 +67,8 @@
 #endif
 
 #endif
+
+#define IRQ_RETRY_MASK (GINTSTS_NPTXFE | GINTSTS_PTXFE | GINTSTS_RXFLVL)
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -171,6 +185,20 @@ static void otg_disable_ep(USBDriver *usbp) {
   otgp->DAINTMSK = DAINTMSK_OEPM(0) | DAINTMSK_IEPM(0);
 }
 
+static void otg_enable_ep(USBDriver *usbp) {
+  stm32_otg_t *otgp = usbp->otg;
+  unsigned i;
+
+  for (i = 0; i <= usbp->otgparams->num_endpoints; i++) {
+    if (usbp->epc[i]->out_state != NULL) {
+      otgp->DAINTMSK |= DAINTMSK_OEPM(i);
+    }
+    if (usbp->epc[i]->in_state != NULL) {
+      otgp->DAINTMSK |= DAINTMSK_IEPM(i);
+    }
+  }
+}
+
 static void otg_rxfifo_flush(USBDriver *usbp) {
   stm32_otg_t *otgp = usbp->otg;
 
@@ -283,30 +311,36 @@ static void otg_fifo_read_to_buffer(volatile uint32_t *fifop,
  * @notapi
  */
 static void otg_rxfifo_handler(USBDriver *usbp) {
-  uint32_t sts, cnt, ep;
+  uint32_t sts, ep;
+  size_t n, max;
 
   /* Popping the event word out of the RX FIFO.*/
   sts = usbp->otg->GRXSTSP;
 
   /* Event details.*/
-  cnt = (sts & GRXSTSP_BCNT_MASK) >> GRXSTSP_BCNT_OFF;
-  ep  = (sts & GRXSTSP_EPNUM_MASK) >> GRXSTSP_EPNUM_OFF;
+  n  = (size_t)((sts & GRXSTSP_BCNT_MASK) >> GRXSTSP_BCNT_OFF);
+  ep = (sts & GRXSTSP_EPNUM_MASK) >> GRXSTSP_EPNUM_OFF;
 
   switch (sts & GRXSTSP_PKTSTS_MASK) {
   case GRXSTSP_SETUP_DATA:
     otg_fifo_read_to_buffer(usbp->otg->FIFO[0], usbp->epc[ep]->setup_buf,
-                            cnt, 8);
+                            n, 8);
     break;
   case GRXSTSP_SETUP_COMP:
     break;
   case GRXSTSP_OUT_DATA:
+    max = usbp->epc[ep]->out_state->rxsize - usbp->epc[ep]->out_state->rxcnt;
     otg_fifo_read_to_buffer(usbp->otg->FIFO[0],
                             usbp->epc[ep]->out_state->rxbuf,
-                            cnt,
-                            usbp->epc[ep]->out_state->rxsize -
-                            usbp->epc[ep]->out_state->rxcnt);
-    usbp->epc[ep]->out_state->rxbuf += cnt;
-    usbp->epc[ep]->out_state->rxcnt += cnt;
+                            n, max);
+    if (n < max) {
+      usbp->epc[ep]->out_state->rxbuf += n;
+      usbp->epc[ep]->out_state->rxcnt += n;
+    }
+    else {
+      usbp->epc[ep]->out_state->rxbuf += max;
+      usbp->epc[ep]->out_state->rxcnt += max;
+    }
     break;
   case GRXSTSP_OUT_COMP:
     break;
@@ -531,6 +565,9 @@ static void otg_isoc_out_failed_handler(USBDriver *usbp) {
 static void usb_lld_serve_interrupt(USBDriver *usbp) {
   stm32_otg_t *otgp = usbp->otg;
   uint32_t sts, src;
+  unsigned retry = 64U;
+
+irq_retry:
 
   sts  = otgp->GINTSTS;
   sts &= otgp->GINTMSK;
@@ -553,6 +590,9 @@ static void usb_lld_serve_interrupt(USBDriver *usbp) {
       /* Set to zero to un-gate the USB core clocks.*/
       otgp->PCGCCTL &= ~(PCGCCTL_STPPCLK | PCGCCTL_GATEHCLK);
     }
+
+    /* Re-enable endpoint IRQs if they have been disabled by suspend before.*/
+    otg_enable_ep(usbp);
 
     /* Clear the Remote Wake-up Signaling.*/
     otgp->DCTL &= ~DCTL_RWUSIG;
@@ -584,6 +624,20 @@ static void usb_lld_serve_interrupt(USBDriver *usbp) {
 
   /* SOF interrupt handling.*/
   if (sts & GINTSTS_SOF) {
+    /* SOF interrupt was used to detect resume of the USB bus after issuing a
+       remote wake up of the host, therefore we disable it again.*/
+    if (usbp->config->sof_cb == NULL) {
+      otgp->GINTMSK &= ~GINTMSK_SOFM;
+    }
+    if (usbp->state == USB_SUSPENDED) {
+      /* Set to zero to un-gate the USB core clocks.*/
+      otgp->PCGCCTL &= ~(PCGCCTL_STPPCLK | PCGCCTL_GATEHCLK);
+      _usb_wakeup(usbp);
+    }
+
+    /* Re-enable endpoint irqs if they have been disabled by suspend before.*/
+    otg_enable_ep(usbp);
+
     _usb_isr_invoke_sof_cb(usbp);
   }
 
@@ -595,12 +649,6 @@ static void usb_lld_serve_interrupt(USBDriver *usbp) {
   /* Isochronous OUT failed handling */
   if (sts & GINTSTS_IISOOXFR) {
     otg_isoc_out_failed_handler(usbp);
-  }
-
-  /* Performing the whole FIFO emptying in the ISR, it is advised to keep
-     this IRQ at a very low priority level.*/
-  if ((sts & GINTSTS_RXFLVL) != 0U) {
-    otg_rxfifo_handler(usbp);
   }
 
   /* IN/OUT endpoints event handling.*/
@@ -665,6 +713,15 @@ static void usb_lld_serve_interrupt(USBDriver *usbp) {
       otg_epin_handler(usbp, 8);
 #endif
   }
+
+  /* Performing the whole FIFO emptying in the ISR, it is advised to keep
+     this IRQ at a very low priority level.*/
+  if ((sts & GINTSTS_RXFLVL) != 0U) {
+    otg_rxfifo_handler(usbp);
+  }
+
+  if ((sts & IRQ_RETRY_MASK) && (--retry > 0U))
+    goto irq_retry;
 }
 
 /*===========================================================================*/
@@ -798,7 +855,7 @@ void usb_lld_start(USBDriver *usbp) {
 #if defined(BOARD_OTG2_USES_ULPI)
 #if STM32_USE_USB_OTG2_HS
       /* USB 2.0 High Speed PHY in HS mode.*/
-      otgp->DCFG = 0x02200000 | DCFG_DSPD_HS;
+      otgp->DCFG = 0x02200000 | DCFG_DSPD_HS | BOARD_OTG2_ULPI_CHIRP_DELAY_MASK;
 #else
       /* USB 2.0 High Speed PHY in FS mode.*/
       otgp->DCFG = 0x02200000 | DCFG_DSPD_HS_FS;
@@ -938,7 +995,7 @@ void usb_lld_reset(USBDriver *usbp) {
   otg_rxfifo_flush(usbp);
 
   /* Resets the device address to zero.*/
-  otgp->DCFG = (otgp->DCFG & ~DCFG_DAD_MASK) | DCFG_DAD(0);
+  otgp->DCFG = (otgp->DCFG & ~DCFG_DAD_MASK) | DCFG_DAD(0) | BOARD_OTG2_ULPI_CHIRP_DELAY_MASK;
 
   /* Enables also EP-related interrupt sources.*/
   otgp->GINTMSK  |= GINTMSK_RXFLVLM | GINTMSK_OEPM  | GINTMSK_IEPM;
@@ -1136,7 +1193,7 @@ void usb_lld_start_out(USBDriver *usbp, usbep_t ep) {
   /* Transfer initialization.*/
   osp->totsize = osp->rxsize;
   if ((ep == 0) && (osp->rxsize > EP0_MAX_OUTSIZE))
-      osp->rxsize = EP0_MAX_OUTSIZE;
+    osp->rxsize = EP0_MAX_OUTSIZE;
 
   /* Transaction size is rounded to a multiple of packet size because the
      following requirement in the RM:

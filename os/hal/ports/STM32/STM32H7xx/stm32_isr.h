@@ -182,11 +182,15 @@
 #define STM32_FDCAN1_IT1_HANDLER            Vector94
 #define STM32_FDCAN2_IT0_HANDLER            Vector90
 #define STM32_FDCAN2_IT1_HANDLER            Vector98
+#define STM32_FDCAN3_IT0_HANDLER            Vector2BC
+#define STM32_FDCAN3_IT1_HANDLER            Vector2C0
 
 #define STM32_FDCAN1_IT0_NUMBER             19
 #define STM32_FDCAN1_IT1_NUMBER             21
 #define STM32_FDCAN2_IT0_NUMBER             20
 #define STM32_FDCAN2_IT1_NUMBER             22
+#define STM32_FDCAN3_IT0_NUMBER             159
+#define STM32_FDCAN3_IT1_NUMBER             160
 
 /*
  * I2C units.
@@ -199,6 +203,8 @@
 #define STM32_I2C3_ERROR_HANDLER            Vector164
 #define STM32_I2C4_EVENT_HANDLER            Vector1BC
 #define STM32_I2C4_ERROR_HANDLER            Vector1C0
+#define STM32_I2C5_EVENT_HANDLER            Vector2B4
+#define STM32_I2C5_ERROR_HANDLER            Vector2B8
 
 #define STM32_I2C1_EVENT_NUMBER             31
 #define STM32_I2C1_ERROR_NUMBER             32
@@ -208,6 +214,8 @@
 #define STM32_I2C3_ERROR_NUMBER             73
 #define STM32_I2C4_EVENT_NUMBER             95
 #define STM32_I2C4_ERROR_NUMBER             96
+#define STM32_I2C5_EVENT_NUMBER             157
+#define STM32_I2C5_ERROR_NUMBER             158
 
 /*
  * QUADSPI units.

@@ -59,7 +59,12 @@
  * @brief   Enables the mutual exclusion APIs on the I2C bus.
  */
 #if !defined(I2C_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
-#define I2C_USE_MUTUAL_EXCLUSION    TRUE
+#define I2C_USE_MUTUAL_EXCLUSION            TRUE
+#endif
+
+/* For compatibility, some LLDs could not export this.*/
+#if !defined(I2C_SUPPORTS_SLAVE_MODE)
+#define I2C_SUPPORTS_SLAVE_MODE             FALSE
 #endif
 
 /*===========================================================================*/
@@ -129,6 +134,25 @@ typedef enum {
 #define i2cMasterReceive(i2cp, addr, rxbuf, rxbytes)                        \
   (i2cMasterReceiveTimeout(i2cp, addr, rxbuf, rxbytes, TIME_INFINITE))
 
+#if I2C_SUPPORTS_SLAVE_MODE == TRUE
+/**
+ * @name    Macro Functions
+ * @{
+ */
+/**
+ * @brief   Answer required.
+ * @note    This function is meant to be called after slave receive only.
+ *
+ * @param[in] i2cp      pointer to the @p I2CDriver object
+ * @return              Slave answer required.
+ * @retval              false if the slave must not answer.
+ * @retval              true if the slave must answer.
+ *
+ * @special
+ */
+#define i2cSlaveIsAnswerRequired(i2cp) (((i2cp)->reply_required))
+#endif
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -154,7 +178,13 @@ extern "C" {
   void i2cAcquireBus(I2CDriver *i2cp);
   void i2cReleaseBus(I2CDriver *i2cp);
 #endif
-
+#if I2C_SUPPORTS_SLAVE_MODE == TRUE
+  msg_t i2cSlaveMatchAddress(I2CDriver *i2cp, i2caddr_t  i2cadr);
+  msg_t i2cSlaveReceiveTimeout(I2CDriver *i2cp, uint8_t *rxbuf,
+                               size_t rxbytes, sysinterval_t timeout);
+  msg_t i2cSlaveTransmitTimeout(I2CDriver *i2cp, const uint8_t *txbuf,
+                                size_t txbytes, sysinterval_t timeout);
+#endif
 #ifdef __cplusplus
 }
 #endif

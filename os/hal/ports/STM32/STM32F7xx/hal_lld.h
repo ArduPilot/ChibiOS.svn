@@ -57,16 +57,16 @@
  * @{
  */
 #if defined(STM32F722xx) || defined(__DOXYGEN__)
-#define PLATFORM_NAME           "STM32F745 Very High Performance with DSP and FPU"
+#define PLATFORM_NAME           "STM32F722 Very High Performance with DSP and FPU"
 
 #elif defined(STM32F723xx)
-#define PLATFORM_NAME           "STM32F745 Very High Performance with DSP and FPU"
+#define PLATFORM_NAME           "STM32F723 Very High Performance with DSP and FPU"
 
 #elif defined(STM32F732xx)
-#define PLATFORM_NAME           "STM32F745 Very High Performance with DSP and FPU"
+#define PLATFORM_NAME           "STM32F732 Very High Performance with DSP and FPU"
 
 #elif defined(STM32F733xx)
-#define PLATFORM_NAME           "STM32F745 Very High Performance with DSP and FPU"
+#define PLATFORM_NAME           "STM32F733 Very High Performance with DSP and FPU"
 
 #elif defined(STM32F745xx)
 #define PLATFORM_NAME           "STM32F745 Very High Performance with DSP and FPU"
@@ -166,8 +166,10 @@
 
 /**
  * @brief   Minimum PLLs VCO clock frequency.
+ * @note    This value is specified at 192MHz in the DS and 100MHz in the RM,
+ *          using the least restrictive one.
  */
-#define STM32_PLLVCO_MIN        192000000
+#define STM32_PLLVCO_MIN        100000000
 
 /**
  * @brief   Maximum PLL output clock frequency.
@@ -462,6 +464,34 @@
  */
 #if !defined(STM32_NO_INIT) || defined(__DOXYGEN__)
 #define STM32_NO_INIT                       FALSE
+#endif
+
+/**
+ * @brief   Enables a no-cache RAM area using the MPU.
+ */
+#if !defined(STM32_NOCACHE_ENABLE) || defined(__DOXYGEN__)
+#define STM32_NOCACHE_ENABLE                FALSE
+#endif
+
+/**
+ * @brief   MPU region to be used for no-cache RAM area.
+ */
+#if !defined(STM32_NOCACHE_MPU_REGION) || defined(__DOXYGEN__)
+#define STM32_NOCACHE_MPU_REGION            MPU_REGION_6
+#endif
+
+/**
+ * @brief   Base address to be used for no-cache RAM area.
+ */
+#if !defined(STM32_NOCACHE_RBAR) || defined(__DOXYGEN__)
+#define STM32_NOCACHE_RBAR                  0x2004C000U
+#endif
+
+/**
+ * @brief   Size to be used for no-cache RAM area.
+ */
+#if !defined(STM32_NOCACHE_RASR) || defined(__DOXYGEN__)
+#define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_16K
 #endif
 
 /**
@@ -888,14 +918,6 @@
 #if !defined(STM32_SDMMC2SEL) || defined(__DOXYGEN__)
 #define STM32_SDMMC2SEL                     STM32_SDMMC2SEL_PLL48CLK
 #endif
-
-/**
- * @brief   SRAM2 cache-ability.
- * @note    This setting uses the MPU region 7 if at @p TRUE.
- */
-#if !defined(STM32_SRAM2_NOCACHE) || defined(__DOXYGEN__)
-#define STM32_SRAM2_NOCACHE                 FALSE
-#endif
 /** @} */
 
 /*===========================================================================*/
@@ -984,6 +1006,7 @@
 #define STM32_7WS_THRESHOLD         STM32_SYSCLK_MAX
 #define STM32_8WS_THRESHOLD         0
 #define STM32_9WS_THRESHOLD         0
+#define STM32_FLASH_PSIZE           2
 
 #elif (STM32_VDD >= 240) && (STM32_VDD < 270)
 #define STM32_0WS_THRESHOLD         24000000
@@ -996,6 +1019,7 @@
 #define STM32_7WS_THRESHOLD         192000000
 #define STM32_8WS_THRESHOLD         STM32_SYSCLK_MAX
 #define STM32_9WS_THRESHOLD         0
+#define STM32_FLASH_PSIZE           1
 
 #elif (STM32_VDD >= 210) && (STM32_VDD < 240)
 #define STM32_0WS_THRESHOLD         22000000
@@ -1008,6 +1032,7 @@
 #define STM32_7WS_THRESHOLD         176000000
 #define STM32_8WS_THRESHOLD         198000000
 #define STM32_9WS_THRESHOLD         STM32_SYSCLK_MAX
+#define STM32_FLASH_PSIZE           1
 
 #elif (STM32_VDD >= 180) && (STM32_VDD < 210)
 #define STM32_0WS_THRESHOLD         20000000
@@ -1020,6 +1045,7 @@
 #define STM32_7WS_THRESHOLD         160000000
 #define STM32_8WS_THRESHOLD         180000000
 #define STM32_9WS_THRESHOLD         0
+#define STM32_FLASH_PSIZE           0
 
 #else
 #error "invalid VDD voltage specified"
@@ -1304,10 +1330,7 @@
 /**
  * @brief   System clock source.
  */
-#if STM32_NO_INIT || defined(__DOXYGEN__)
-#define STM32_SYSCLK                STM32_HSICLK
-
-#elif (STM32_SW == STM32_SW_HSI)
+#if (STM32_SW == STM32_SW_HSI)
 #define STM32_SYSCLK                STM32_HSICLK
 
 #elif (STM32_SW == STM32_SW_HSE)
@@ -2152,6 +2175,18 @@
 /*===========================================================================*/
 /* Driver macros.                                                            */
 /*===========================================================================*/
+
+/**
+ * @brief   Returns the frequency of a clock point in Hz.
+ * @note    Static implementation.
+ *
+ * @param[in] clkpt     clock point to be returned
+ * @return              The clock point frequency in Hz or zero if the
+ *                      frequency is unknown.
+ *
+ * @notapi
+ */
+#define hal_lld_get_clock_point(clkpt) 0U
 
 /*===========================================================================*/
 /* External declarations.                                                    */

@@ -66,6 +66,7 @@
 
 #include "stm32_fdcan1.inc"
 #include "stm32_fdcan2.inc"
+#include "stm32_fdcan3.inc"
 
 #if defined(HAL_LLD_TYPE1_H)
 #include "stm32_quadspi1.inc"
@@ -97,6 +98,9 @@
 #include "stm32_tim6.inc"
 #include "stm32_tim7.inc"
 #include "stm32_tim8_12_13_14.inc"
+#include "stm32_tim15.inc"
+#include "stm32_tim16.inc"
+#include "stm32_tim17.inc"
 
 /*===========================================================================*/
 /* Driver exported functions.                                                */
@@ -124,6 +128,7 @@ void irqInit(void) {
 
   fdcan1_irq_init();
   fdcan2_irq_init();
+  fdcan3_irq_init();
 
   mdma_irq_init();
 
@@ -145,6 +150,9 @@ void irqInit(void) {
   tim6_irq_init();
   tim7_irq_init();
   tim8_tim12_tim13_tim14_irq_init();
+  tim15_irq_init();
+  tim16_irq_init();
+  tim17_irq_init();
 
   usart1_irq_init();
   usart2_irq_init();
@@ -181,6 +189,7 @@ void irqDeinit(void) {
 
   fdcan1_irq_deinit();
   fdcan2_irq_deinit();
+  fdcan3_irq_deinit();
 
   mdma_irq_deinit();
 
@@ -202,6 +211,9 @@ void irqDeinit(void) {
   tim6_irq_deinit();
   tim7_irq_deinit();
   tim8_tim12_tim13_tim14_irq_deinit();
+  tim15_irq_deinit();
+  tim16_irq_deinit();
+  tim17_irq_deinit();
 
   usart1_irq_deinit();
   usart2_irq_deinit();

@@ -145,13 +145,25 @@
 /* Driver macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @brief   Returns the frequency of a clock point in Hz.
+ * @note    Static implementation.
+ *
+ * @param[in] clkpt     clock point to be returned
+ * @return              The clock point frequency in Hz or zero if the
+ *                      frequency is unknown.
+ *
+ * @notapi
+ */
+#define hal_lld_get_clock_point(clkpt) 0U
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
 
 #if defined(STM32H723xx) || defined(STM32H733xx) ||                         \
     defined(STM32H725xx) || defined(STM32H735xx) ||                         \
-    defined(STM32H735xx) || defined(__DOXYGEN__)
+    defined(STM32H730xx) || defined(__DOXYGEN__)
 #include "hal_lld_type2.h"
 #elif defined(STM32H7A3xx)  || defined(STM32H7B3xx)  ||                     \
       defined(STM32H7A3xxQ) || defined(STM32H7B3xxQ) ||                     \

@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2024 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -87,6 +87,7 @@ void dacObjectInit(DACDriver *dacp) {
  * @param[in] config    pointer to the @p DACConfig object, it can be
  *                      @p NULL if the low level driver implementation
  *                      supports a default configuration
+ *
  * @return              The operation status.
  *
  * @api
@@ -155,12 +156,20 @@ void dacStop(DACDriver *dacp) {
  *
  * @xclass
  */
-void dacPutChannelX(DACDriver *dacp, dacchannel_t channel, dacsample_t sample) {
+msg_t dacPutChannelX(DACDriver *dacp, dacchannel_t channel, dacsample_t sample) {
 
   osalDbgCheck(channel < (dacchannel_t)DAC_MAX_CHANNELS);
-  osalDbgAssert(dacp->state == DAC_READY, "invalid state");
-
+  osalDbgAssert(dacp->state == DAC_READY  ||
+                dacp->state == DAC_ACTIVE ||
+                dacp->state == DAC_COMPLETE, "invalid state");
+  msg_t msg;
+#if defined(DAC_LLD_ENHANCED_API)
+  msg = dac_lld_put_channel(dacp, channel, sample);
+#else
   dac_lld_put_channel(dacp, channel, sample);
+  msg = HAL_RET_SUCCESS;
+#endif
+  return msg;
 }
 
 /**
@@ -177,26 +186,34 @@ void dacPutChannelX(DACDriver *dacp, dacchannel_t channel, dacsample_t sample) {
  * @param[in] depth     buffer depth (matrix rows number). The buffer depth
  *                      must be one or an even number.
  *
+ * @return              The operation status.
+ *
  * @api
  */
-void dacStartConversion(DACDriver *dacp,
+msg_t dacStartConversion(DACDriver *dacp,
                         const DACConversionGroup *grpp,
                         dacsample_t *samples,
                         size_t depth) {
-
+  msg_t msg;
   osalSysLock();
+#if defined(DAC_LLD_ENHANCED_API)
+  msg = dacStartConversionI(dacp, grpp, samples, depth);
+#else
   dacStartConversionI(dacp, grpp, samples, depth);
+  msg = HAL_RET_SUCCESS;
+#endif
   osalSysUnlock();
+  return msg;
 }
 
 /**
  * @brief   Starts a DAC conversion.
  * @details Starts an asynchronous conversion operation.
  * @post    The callbacks associated to the conversion group will be invoked
- *          on buffer fill and error events.
+ *          on buffer complete and error events.
  * @note    The buffer is organized as a matrix of M*N elements where M is the
  *          channels number configured into the conversion group and N is the
- *          buffer depth. The samples are sequentially written into the buffer
+ *          buffer depth. The samples are sequentially organised in the buffer
  *          with no gaps.
  *
  * @param[in] dacp      pointer to the @p DACDriver object
@@ -205,12 +222,15 @@ void dacStartConversion(DACDriver *dacp,
  * @param[in] depth     buffer depth (matrix rows number). The buffer depth
  *                      must be one or an even number.
  *
+ * @return              The operation status.
+ *
  * @iclass
  */
-void dacStartConversionI(DACDriver *dacp,
+msg_t dacStartConversionI(DACDriver *dacp,
                          const DACConversionGroup *grpp,
                          dacsample_t *samples,
                          size_t depth) {
+  msg_t msg;
 
   osalDbgCheckClassI();
   osalDbgCheck((dacp != NULL) && (grpp != NULL) && (samples != NULL) &&
@@ -223,8 +243,19 @@ void dacStartConversionI(DACDriver *dacp,
   dacp->samples  = samples;
   dacp->depth    = depth;
   dacp->grpp     = grpp;
-  dacp->state    = DAC_ACTIVE;
+#if defined(DAC_LLD_ENHANCED_API)
+  msg = dac_lld_start_conversion(dacp);
+#else
   dac_lld_start_conversion(dacp);
+  msg = HAL_RET_SUCCESS;
+#endif
+  if (msg == HAL_RET_SUCCESS) {
+    dacp->state = DAC_ACTIVE;
+  }
+  else {
+    dacp->grpp = NULL;
+  }
+  return msg;
 }
 
 /**
@@ -284,25 +315,25 @@ void dacStopConversionI(DACDriver *dacp) {
   }
 }
 
-#if (DAC_USE_WAIT == TRUE) || defined(__DOXYGEN__)
+#if (DAC_USE_SYNCHRONIZATION == TRUE) || defined(__DOXYGEN__)
 /**
  * @brief   Performs a DAC conversion.
  * @details Performs a synchronous conversion operation.
  * @note    The buffer is organized as a matrix of M*N elements where M is the
  *          channels number configured into the conversion group and N is the
- *          buffer depth. The samples are sequentially written into the buffer
+ *          buffer depth. The samples are sequentially organised in the buffer
  *          with no gaps.
  *
  * @param[in] dacp      pointer to the @p DACDriver object
  * @param[in] grpp      pointer to a @p DACConversionGroup object
- * @param[out] samples  pointer to the samples buffer
+ * @param[in] samples   pointer to the samples buffer
  * @param[in] depth     buffer depth (matrix rows number). The buffer depth
  *                      must be one or an even number.
+ *
  * @return              The operation result.
  * @retval MSG_OK       Conversion finished.
  * @retval MSG_RESET    The conversion has been stopped using
- *                      @p acdStopConversion() or @p acdStopConversionI(),
- *                      the result buffer may contain incorrect data.
+ *                      @p dacStopConversion() or @p dacStopConversionI().
  * @retval MSG_TIMEOUT  The conversion has been stopped because an hardware
  *                      error.
  *
@@ -322,7 +353,63 @@ msg_t dacConvert(DACDriver *dacp,
   osalSysUnlock();
   return msg;
 }
-#endif /* DAC_USE_WAIT == TRUE */
+
+/**
+ * @brief   Synchronize to a conversion completion.
+ * @note    This function can only be called by a single thread at time.
+ *
+ * @param[in] dacp             pointer to the @p DACDriver object
+ * @param[in] timeout          wait timeout
+ *
+ * @return                      The wait result.
+ * @retval MSG_OK               if operation completed without errors.
+ * @retval MSG_TIMEOUT          if synchronization request timed out.
+ * @retval MSG_RESET            if the conversion has been stopped.
+ *
+ * @sclass
+ */
+msg_t dacSynchronizeS(DACDriver *dacp, sysinterval_t timeout) {
+  msg_t msg;
+
+  osalDbgCheckClassS();
+  osalDbgCheck(dacp != NULL);
+  osalDbgAssert((dacp->state == DAC_ACTIVE) || (dacp->state == DAC_READY),
+                "invalid state");
+
+  if (dacp->state == DAC_ACTIVE) {
+    msg = osalThreadSuspendTimeoutS(&dacp->thread, timeout);
+  }
+  else {
+    msg = MSG_OK;
+  }
+
+  return msg;
+}
+
+/**
+ * @brief   Synchronize to a conversion completion.
+ * @note    This function can only be called by a single thread at time.
+ *
+ * @param[in] dacp              pointer to the @p DACDriver object
+ * @param[in] timeout           wait timeout
+ *
+ * @return                      The wait result.
+ * @retval MSG_OK               if operation completed without errors.
+ * @retval MSG_TIMEOUT          if synchronization request timed out.
+ * @retval MSG_RESET            if the conversion has been stopped.
+ *
+ * @api
+ */
+msg_t dacSynchronize(DACDriver *dacp, sysinterval_t timeout) {
+  msg_t msg;
+
+  osalSysLock();
+  msg = dacSynchronizeS(dacp, timeout);
+  osalSysUnlock();
+
+  return msg;
+}
+#endif /* DAC_USE_SYNCHRONIZATION == TRUE */
 
 #if (DAC_USE_MUTUAL_EXCLUSION == TRUE) || defined(__DOXYGEN__)
 /**

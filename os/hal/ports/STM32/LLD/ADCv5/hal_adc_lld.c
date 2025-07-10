@@ -251,9 +251,7 @@ void adc_lld_stop(ADCDriver *adcp) {
     }
 
     /* Regulator off.*/
-#if defined(ADC_CR_ADVREGEN)
-    adcp->adc->CR &= ~ADC_CR_ADVREGEN;
-#endif
+    adcp->adc->CR = 0;
 
 #if STM32_ADC_USE_ADC1
     if (&ADCD1 == adcp) {
@@ -271,7 +269,6 @@ void adc_lld_stop(ADCDriver *adcp) {
  * @notapi
  */
 void adc_lld_start_conversion(ADCDriver *adcp) {
-
   uint32_t mode, cfgr1;
   const ADCConversionGroup *grpp = adcp->grpp;
 
@@ -297,14 +294,14 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
                                             (uint32_t)adcp->depth));
   dmaStreamSetMode(adcp->dmastp, mode);
 
-  /* Apply ADC configuration.*/
-  adcp->adc->CFGR1  = cfgr1;
+  /* Set ADC channel selection.*/
   adcp->adc->CHSELR = grpp->chselr;
-
   while ((adcp->adc->ISR & ADC_ISR_CCRDY) == 0U) {
-    /* Wait for the channel bits (or sequence), CHSEL mode and scan direction
-       to be applied.*/
+    /* Wait for the channel bits (or sequence) to be applied.*/
   }
+
+  /* Set configuration.*/
+  adcp->adc->CFGR1  = cfgr1;
 
   /* Set the sample rate(s).*/
   adcp->adc->SMPR = grpp->smpr;
@@ -321,9 +318,9 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
     adcp->adc->AWD3CR = grpp->awd3cr;
   }
 
-  /* Enable the ADC. Note: Setting ADEN must be deferred as a STM32G071 will
+  /* Enable the ADC. Note: Setting ADEN must be deferred as STM32G0 family
      reset RES[1:0] resolution bits if CFGR1 is modified with ADEN set
-     (see STM32G071xx errata ES0418 Rev 3 2.6.2). Same applies to STM32WL.*/
+     (e.g. STM32G071xx errata ES0418 Rev 3 2.6.2). Same applies to STM32WL.*/
   adcp->adc->CR  |= ADC_CR_ADEN;
   while ((adcp->adc->ISR & ADC_ISR_ADRDY) == 0U) {
     /* Wait for the ADC to become ready.*/

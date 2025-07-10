@@ -587,19 +587,21 @@ void usb_lld_init(void) {
  * @brief   Configures and activates the USB peripheral.
  *
  * @param[in] usbp      pointer to the @p USBDriver object
+ * @return              The operation status.
  *
  * @notapi
  */
-void usb_lld_start(USBDriver *usbp) {
+msg_t usb_lld_start(USBDriver *usbp) {
 
   if (usbp->state == USB_STOP) {
     /* Clock activation.*/
 #if STM32_USB_USE_USB1
     if (&USBD1 == usbp) {
 
-      osalDbgAssert((STM32_USBCLK >= (48000000U - STM32_USB_48MHZ_DELTA)) &&
-                    (STM32_USBCLK <= (48000000U + STM32_USB_48MHZ_DELTA)),
-                    "invalid clock frequency");
+      if ((STM32_USBCLK < (48000000U - STM32_USB_48MHZ_DELTA)) ||
+          (STM32_USBCLK > (48000000U + STM32_USB_48MHZ_DELTA))) {
+        return HAL_RET_CONFIG_ERROR;
+      }
 
       /* USB clock enabled.*/
       rccEnableUSB(true);
@@ -622,6 +624,8 @@ void usb_lld_start(USBDriver *usbp) {
     /* Reset procedure enforced on driver start.*/
     usb_lld_reset(usbp);
   }
+
+  return HAL_RET_SUCCESS;
 }
 
 /**
@@ -753,7 +757,7 @@ void usb_lld_init_endpoint(USBDriver *usbp, usbep_t ep) {
 
     /* Endpoint size and address initialization.*/
     if (epcp->out_maxsize > 62U) {
-      nblocks = ((((((uint32_t)epcp->out_maxsize - 1U) | 0x1FU) + 1U) / 32U) << 26) |
+      nblocks = (((((uint32_t)epcp->out_maxsize - 1U) | 0x1FU) / 32U) << 26) |
                 0x80000000U;
     }
     else {
@@ -850,7 +854,7 @@ usbepstatus_t usb_lld_get_status_out(USBDriver *usbp, usbep_t ep) {
 usbepstatus_t usb_lld_get_status_in(USBDriver *usbp, usbep_t ep) {
 
   (void)usbp;
-  switch (usbp->usb->CHEPR[ep] & USB_CHEP_TX_STTX_Msk  ) {
+  switch (usbp->usb->CHEPR[ep] & USB_CHEP_TX_STTX_Msk) {
   case USB_EP_TX_DIS:
     return EP_STATUS_DISABLED;
   case USB_EP_TX_STALL:
@@ -993,8 +997,8 @@ void usb_lld_clear_in(USBDriver *usbp, usbep_t ep) {
 
   /* Makes sure to not put to NAK an endpoint that is already
      transferring.*/
-  if ((usbp->usb->CHEPR[ep] & USB_CHEP_TX_STTX_Msk  ) != USB_EP_TX_VALID) {
-    CHEPR_SET_STATTX(usbp, ep, USB_EP_TX_NAK );
+  if ((usbp->usb->CHEPR[ep] & USB_CHEP_TX_STTX_Msk) != USB_EP_TX_VALID) {
+    CHEPR_SET_STATTX(usbp, ep, USB_EP_TX_NAK);
   }
 }
 

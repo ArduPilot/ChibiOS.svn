@@ -359,6 +359,10 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
          is enabled in order to allow streaming processing.*/
       mode |= STM32_DMA_CR_HTIE;
     }
+    cr2 = ADC_CR2_DDS;
+  }
+  else {
+    cr2 = 0U;
   }
   dmaStreamSetMemory0(adcp->dmastp, adcp->samples);
   dmaStreamSetTransactionSize(adcp->dmastp, (uint32_t)grpp->num_channels *
@@ -380,9 +384,9 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
   adcp->adc->CR1   = grpp->cr1 | ADC_CR1_OVRIE | ADC_CR1_SCAN;
 
   /* Enforcing the mandatory bits in CR2.*/
-  cr2 = grpp->cr2 | ADC_CR2_DMA | ADC_CR2_DDS | ADC_CR2_ADON;
+  cr2 |= grpp->cr2 | ADC_CR2_DMA | ADC_CR2_ADON;
 
-  /* The start method is different dependign if HW or SW triggered, the
+  /* The start method is different depending if HW or SW triggered, the
      start is performed using the method specified in the CR2 configuration.*/
   if ((cr2 & ADC_CR2_SWSTART) != 0) {
     /* Initializing CR2 while keeping ADC_CR2_SWSTART at zero.*/
@@ -391,8 +395,9 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
     /* Finally enabling ADC_CR2_SWSTART.*/
     adcp->adc->CR2 = (cr2 | ADC_CR2_CONT);
   }
-  else
+  else {
     adcp->adc->CR2 = cr2;
+  }
 }
 
 /**
@@ -405,9 +410,10 @@ void adc_lld_start_conversion(ADCDriver *adcp) {
 void adc_lld_stop_conversion(ADCDriver *adcp) {
 
   dmaStreamDisable(adcp->dmastp);
-  adcp->adc->CR1 = 0;
-  /* Because ticket #822, preserving injected conversions.*/
-  adcp->adc->CR2 &= ~(ADC_CR2_SWSTART);
+  adcp->adc->CR1 = 0U;
+  if ((adcp->adc->CR2 & ADC_CR2_CONT) != 0U) {
+    adcp->adc->CR2 = 0U;
+  }
   adcp->adc->CR2 = ADC_CR2_ADON;
 }
 

@@ -106,6 +106,12 @@ static void low_level_init(struct netif *netif) {
   /* don't set NETIF_FLAG_ETHARP if this device is not an Ethernet one */
   netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
 
+#if LWIP_IGMP
+  // also enable multicast
+  netif->flags |= NETIF_FLAG_IGMP;
+#endif
+
+
   /* Do whatever else is needed to initialize interface. */
 }
 
@@ -374,7 +380,6 @@ static THD_FUNCTION(lwip_thread, p) {
   result = netifapi_netif_add(&thisif, &ip, &netmask, &gateway, NULL, ethernetif_init, tcpip_input);
   if (result != ERR_OK)
   {
-    chThdSleepMilliseconds(1000);     // Give some time to print any other diagnostics.
     osalSysHalt("netif_add error");   // Not sure what else we can do if an error occurs here.
   };
 
@@ -527,5 +532,9 @@ void lwipReconfigure(const lwipreconf_opts_t *opts)
   tcpip_callback_with_block(do_reconfigure, &params, 0);
   chSemWait(&params.completion);
 }
+
+uint32_t lwipGetIp(void) { return thisif.ip_addr.addr; }
+uint32_t lwipGetNetmask(void) { return thisif.netmask.addr; }
+uint32_t lwipGetGateway(void) { return thisif.gw.addr; }
 
 /** @} */

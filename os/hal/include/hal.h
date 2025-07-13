@@ -177,6 +177,10 @@
 #define HAL_USE_ICU                         FALSE
 #endif
 
+#if !defined(HAL_USE_EICU)
+#define HAL_USE_EICU                        FALSE
+#endif
+
 #if !defined(HAL_USE_MAC)
 #define HAL_USE_MAC                         FALSE
 #endif
@@ -223,6 +227,10 @@
 
 #if !defined(HAL_USE_WSPI)
 #define HAL_USE_WSPI                        FALSE
+#endif
+
+#if !defined(HAL_USE_USB_MSD)
+#define HAL_USE_USB_MSD                        FALSE
 #endif
 
 /*===========================================================================*/
@@ -325,6 +333,7 @@ static inline bool halClockSwitchMode(const halclkcfg_t *ccp) {
 #include "hal_i2c.h"
 #include "hal_i2s.h"
 #include "hal_icu.h"
+#include "hal_eicu.h"
 #include "hal_mac.h"
 #include "hal_pwm.h"
 #include "hal_rtc.h"
@@ -337,7 +346,7 @@ static inline bool halClockSwitchMode(const halclkcfg_t *ccp) {
 #include "hal_usb.h"
 #include "hal_wdg.h"
 #include "hal_wspi.h"
-
+#include "hal_usb_msd.h"
 /*
  *  The ST driver is a special case, it is only included if the OSAL is
  *  configured to require it.

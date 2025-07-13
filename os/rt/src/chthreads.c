@@ -201,7 +201,7 @@ void chThdObjectDispose(thread_t *tp) {
 
   chDbgCheck(tp != NULL);
 
-#if CH_CFG_USE_WAITEXIT == TRUE
+#if CH_CFG_USE_WAITEXIT == TRUE && CH_CFG_USE_MESSAGES == TRUE
   chDbgAssert(ch_queue_isempty(&tp->msgqueue), "wait queue in use");
 #endif
 #if CH_CFG_USE_REGISTRY == TRUE

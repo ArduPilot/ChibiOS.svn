@@ -63,6 +63,10 @@
 #include "arch/sys_arch.h"
 #include "lwipopts.h"
 
+#ifdef _ARDUPILOT_
+#include "hrt.h"
+#endif
+
 #ifndef CH_LWIP_USE_MEM_POOLS 
 #define CH_LWIP_USE_MEM_POOLS FALSE
 #endif
@@ -79,7 +83,10 @@ void sys_init(void) {
 
 err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
 
-#if !CH_LWIP_USE_MEM_POOLS
+#ifdef _ARDUPILOT_
+  // use malloc
+  *sem = (sys_sem_t)malloc(sizeof(semaphore_t));
+#elif !CH_LWIP_USE_MEM_POOLS
   *sem = chHeapAlloc(NULL, sizeof(semaphore_t));
 #else
   *sem = chPoolAlloc(&lwip_sys_arch_sem_pool);
@@ -98,7 +105,10 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
 
 void sys_sem_free(sys_sem_t *sem) {
 
-#if !CH_LWIP_USE_MEM_POOLS
+#ifdef _ARDUPILOT_
+  // use malloc
+  free(*sem);
+#elif !CH_LWIP_USE_MEM_POOLS
   chHeapFree(*sem);
 #else
   chPoolFree(&lwip_sys_arch_sem_pool, *sem);
@@ -148,7 +158,10 @@ void sys_sem_set_invalid(sys_sem_t *sem) {
 
 err_t sys_mbox_new(sys_mbox_t *mbox, int size) {
 
-#if !CH_LWIP_USE_MEM_POOLS
+#ifdef _ARDUPILOT_
+  // use malloc
+  *mbox = (sys_mbox_t)malloc(sizeof(mailbox_t) + sizeof(msg_t) * size);
+#elif !CH_LWIP_USE_MEM_POOLS
   *mbox = chHeapAlloc(NULL, sizeof(mailbox_t) + sizeof(msg_t) * size);
 #else
   *mbox = chPoolAlloc(&lwip_sys_arch_mbox_pool);
@@ -178,7 +191,10 @@ void sys_mbox_free(sys_mbox_t *mbox) {
     SYS_STATS_INC(mbox.err);
     chMBReset(*mbox);
   }
-#if !CH_LWIP_USE_MEM_POOLS
+#ifdef _ARDUPILOT_
+  // use malloc
+  free(*mbox);
+#elif !CH_LWIP_USE_MEM_POOLS
   chHeapFree(*mbox);
 #else
   chPoolFree(&lwip_sys_arch_mbox_pool, *mbox);
@@ -238,7 +254,10 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread,
                             void *arg, int stacksize, int prio) {
   thread_t *tp;
 
-#if !CH_LWIP_USE_MEM_POOLS
+#ifdef _ARDUPILOT_
+  tp = thread_create_alloc(THD_WORKING_AREA_SIZE(stacksize),
+                           name, prio, (tfunc_t)thread, arg);
+#elif !CH_LWIP_USE_MEM_POOLS
   tp = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(stacksize),
                            name, prio, (tfunc_t)thread, arg);
 #else
@@ -268,25 +287,20 @@ u32_t sys_now(void) {return (u32_t)osalOsGetSystemTimeX();}
 
 #else
 u32_t sys_now(void) {
-  static struct {
-    systime_t   last_system_time;
-    u32_t       last_ms;
-    u32_t       last_unprocessed;
-  } persistent = {0, 0, 0};
-  u32_t delta;
-  systime_t now_time;
 
-  /* Calculating delta, in ticks, from the last acquired system time.*/
-  now_time = osalOsGetSystemTimeX();
-  delta = (u32_t)osalTimeDiffX(persistent.last_system_time, now_time) +
-          persistent.last_unprocessed;
-  persistent.last_system_time = now_time;
-
-  /* Storing this milliseconds time and eventual remainder.*/
-  persistent.last_ms          += delta / (OSAL_ST_FREQUENCY / 1000U);
-  persistent.last_unprocessed  = delta % (OSAL_ST_FREQUENCY / 1000U);
-
-  return persistent.last_ms;
+#ifdef _ARDUPILOT_
+  return hrt_millis32();
+#else
+#if OSAL_ST_FREQUENCY == 1000
+  return (u32_t)chVTGetSystemTimeX();
+#elif (OSAL_ST_FREQUENCY / 1000) >= 1 && (OSAL_ST_FREQUENCY % 1000) == 0
+  return ((u32_t)chVTGetSystemTimeX() - 1) / (OSAL_ST_FREQUENCY / 1000) + 1;
+#elif (1000 / OSAL_ST_FREQUENCY) >= 1 && (1000 % OSAL_ST_FREQUENCY) == 0
+  return ((u32_t)chVTGetSystemTimeX() - 1) * (1000 / OSAL_ST_FREQUENCY) + 1;
+#else
+  return (u32_t)(((u64_t)(chVTGetSystemTimeX() - 1) * 1000) / OSAL_ST_FREQUENCY) + 1;
+#endif
+#endif // _ARDUPILOT_
 }
 #endif
 

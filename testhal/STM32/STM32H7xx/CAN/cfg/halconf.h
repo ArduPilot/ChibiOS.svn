@@ -51,7 +51,7 @@
  * @brief   Enables the CAN subsystem.
  */
 #if !defined(HAL_USE_CAN) || defined(__DOXYGEN__)
-#define HAL_USE_CAN                         FALSE
+#define HAL_USE_CAN                         TRUE
 #endif
 
 /**
@@ -107,7 +107,7 @@
  * @brief   Enables the MAC subsystem.
  */
 #if !defined(HAL_USE_MAC) || defined(__DOXYGEN__)
-#define HAL_USE_MAC                         TRUE
+#define HAL_USE_MAC                         FALSE
 #endif
 
 /**
@@ -142,14 +142,14 @@
  * @brief   Enables the SERIAL subsystem.
  */
 #if !defined(HAL_USE_SERIAL) || defined(__DOXYGEN__)
-#define HAL_USE_SERIAL                      FALSE
+#define HAL_USE_SERIAL                      TRUE
 #endif
 
 /**
  * @brief   Enables the SERIAL over USB subsystem.
  */
 #if !defined(HAL_USE_SERIAL_USB) || defined(__DOXYGEN__)
-#define HAL_USE_SERIAL_USB                  TRUE
+#define HAL_USE_SERIAL_USB                  FALSE
 #endif
 
 /**
@@ -184,7 +184,7 @@
  * @brief   Enables the USB subsystem.
  */
 #if !defined(HAL_USE_USB) || defined(__DOXYGEN__)
-#define HAL_USE_USB                         TRUE
+#define HAL_USE_USB                         FALSE
 #endif
 
 /**

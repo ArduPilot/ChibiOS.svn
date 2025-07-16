@@ -15,13 +15,13 @@
 */
 
 /**
- * @file    STM32G0xx/cmparams.h
- * @brief   ARM Cortex-M0 parameters for the STM32G0xx.
+ * @file    STM32F0xx/cmparams.h
+ * @brief   ARM Cortex-M0 parameters for the STM32F0xx.
  *
- * @defgroup ARMCMx_STM32G0xx STM32G0xx Specific Parameters
+ * @defgroup ARMCMx_STM32F0xx STM32F0xx Specific Parameters
  * @ingroup ARMCMx_SPECIFIC
  * @details This file contains the Cortex-M0 specific parameters for the
- *          STM32G0xx platform.
+ *          STM32F0xx platform.
  * @{
  */
 
@@ -46,12 +46,9 @@
 /* If the device type is not externally defined, for example from the Makefile,
    then a file named board.h is included. This file must contain a device
    definition compatible with the vendor include file.*/
-#if !defined (STM32G071xx) && !defined (STM32G081xx) &&                     \
-    !defined (STM32G070xx) && !defined (STM32G030xx) &&                     \
-    !defined (STM32G031xx) && !defined (STM32G041xx) &&                     \
-    !defined (STM32G0B0xx) && !defined (STM32G0B1xx) &&                     \
-    !defined (STM32G0C1xx) && !defined (STM32G050xx) &&                     \
-    !defined (STM32G051xx) && !defined (STM32G061xx)
+#if !defined (STM32C011xx) && !defined (STM32C031xx) &&                     \
+    !defined (STM32C051xx) && !defined (STM32C071xx) &&                     \
+    !defined (STM32C091xx) && !defined (STM32C092xx)
 #include "board.h"
 #endif
 
@@ -74,7 +71,7 @@
 /* Including the device CMSIS header. Note, we are not using the definitions
    from this header because we need this file to be usable also from
    assembler source files. We verify that the info matches instead.*/
-#include "stm32g0xx.h"
+#include "stm32c0xx.h"
 
 /*lint -save -e9029 [10.4] Signedness comes from external files, it is
   unpredictable but gives no problems.*/

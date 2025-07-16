@@ -15,13 +15,13 @@
 */
 
 /**
- * @file    STM32G0xx/cmparams.h
- * @brief   ARM Cortex-M0 parameters for the STM32G0xx.
+ * @file    STM32H5xx/cmparams.h
+ * @brief   ARM Cortex-M33 parameters for the STM32H5xx.
  *
- * @defgroup ARMCMx_STM32G0xx STM32G0xx Specific Parameters
+ * @defgroup ARMCMx_STM32H5xx STM32H5xx Specific Parameters
  * @ingroup ARMCMx_SPECIFIC
- * @details This file contains the Cortex-M0 specific parameters for the
- *          STM32G0xx platform.
+ * @details This file contains the Cortex-M33 specific parameters for the
+ *          STM32H5xx platform.
  * @{
  */
 
@@ -31,27 +31,23 @@
 /**
  * @brief   Cortex core model.
  */
-#define CORTEX_MODEL            0
+#define CORTEX_MODEL            33
 
 /**
  * @brief   Floating Point unit presence.
  */
-#define CORTEX_HAS_FPU          0
+#define CORTEX_HAS_FPU          1
 
 /**
  * @brief   Number of bits in priority masks.
  */
-#define CORTEX_PRIORITY_BITS    2
+#define CORTEX_PRIORITY_BITS    4
 
 /* If the device type is not externally defined, for example from the Makefile,
    then a file named board.h is included. This file must contain a device
    definition compatible with the vendor include file.*/
-#if !defined (STM32G071xx) && !defined (STM32G081xx) &&                     \
-    !defined (STM32G070xx) && !defined (STM32G030xx) &&                     \
-    !defined (STM32G031xx) && !defined (STM32G041xx) &&                     \
-    !defined (STM32G0B0xx) && !defined (STM32G0B1xx) &&                     \
-    !defined (STM32G0C1xx) && !defined (STM32G050xx) &&                     \
-    !defined (STM32G051xx) && !defined (STM32G061xx)
+#if !defined(STM32H503xx) && !defined(STM32H562xx) &&                       \
+    !defined(STM32H563xx) && !defined(STM32H573xx)
 #include "board.h"
 #endif
 
@@ -60,12 +56,17 @@
  * @note    This number does not include the 16 system vectors and must be
  *          rounded to a multiple of 8.
  */
-#define CORTEX_NUM_VECTORS      32
+#define CORTEX_NUM_VECTORS      136
 
 /**
  * @brief   Number of MPU regions.
  */
 #define CORTEX_MPU_REGIONS      8
+
+/**
+ * @brief   Number of secure MPU regions.
+ */
+#define CORTEX_MPU_S_REGIONS    12
 
 /* The following code is not processed when the file is included from an
    asm module.*/
@@ -74,12 +75,16 @@
 /* Including the device CMSIS header. Note, we are not using the definitions
    from this header because we need this file to be usable also from
    assembler source files. We verify that the info matches instead.*/
-#include "stm32g0xx.h"
+#include "stm32h5xx.h"
 
 /*lint -save -e9029 [10.4] Signedness comes from external files, it is
   unpredictable but gives no problems.*/
 #if CORTEX_MODEL != __CORTEX_M
 #error "CMSIS __CORTEX_M mismatch"
+#endif
+
+#if CORTEX_HAS_FPU != __FPU_PRESENT
+#error "CMSIS __FPU_PRESENT mismatch"
 #endif
 
 #if CORTEX_PRIORITY_BITS != __NVIC_PRIO_BITS

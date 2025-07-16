@@ -47,7 +47,7 @@
  */
 #define STM32_NOCACHE_ENABLE                TRUE
 #define STM32_NOCACHE_MPU_REGION            MPU_REGION_6
-#define STM32_NOCACHE_RBAR                  0x24000000U
+#define STM32_NOCACHE_RBAR                  0x30002000U
 #define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_16K
 
 /*
@@ -357,8 +357,8 @@
 #define STM32_SDC_USE_SDMMC1                FALSE
 #define STM32_SDC_USE_SDMMC2                FALSE
 #define STM32_SDC_SDMMC_UNALIGNED_SUPPORT   TRUE
-#define STM32_SDC_SDMMC_WRITE_TIMEOUT       1000000
-#define STM32_SDC_SDMMC_READ_TIMEOUT        1000000
+#define STM32_SDC_SDMMC_WRITE_TIMEOUT       10000
+#define STM32_SDC_SDMMC_READ_TIMEOUT        10000
 #define STM32_SDC_SDMMC_CLOCK_DELAY         10
 #define STM32_SDC_SDMMC_PWRSAV              TRUE
 

@@ -90,9 +90,9 @@ MCU  = cortex-m7
 
 # Imported source files and paths.
 CHIBIOS  := ../../../..
-CONFDIR  := ./cfg/stm32h743_nucleo144
-BUILDDIR := ./build/stm32h743_nucleo144
-DEPDIR   := ./.dep/stm32h743_nucleo144
+CONFDIR  := ./cfg/stm32h755zi_nucleo144
+BUILDDIR := ./build/stm32h755zi_nucleo144
+DEPDIR   := ./.dep/stm32h755zi_nucleo144
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
@@ -101,7 +101,7 @@ include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32h7xx.m
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32H7xx/platform.mk
-include $(CHIBIOS)/os/hal/boards/ST_NUCLEO144_H743ZI/board.mk
+include $(CHIBIOS)/os/hal/boards/ST_NUCLEO144_H755ZI/board.mk
 include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
@@ -116,7 +116,7 @@ include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 include $(CHIBIOS)/os/various/shell/shell.mk
 
 # Define linker script file here
-LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
+LDSCRIPT= $(STARTUPLD)/STM32H755xI_M7.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -153,7 +153,7 @@ CPPWARN = -Wall -Wextra -Wundef
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS =
+UDEFS = -DCORE_CM7=1
 
 # Define ASM defines here
 UADEFS =

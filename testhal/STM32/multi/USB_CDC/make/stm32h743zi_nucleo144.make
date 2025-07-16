@@ -5,7 +5,7 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -Og -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
 endif
 
 # C specific options here (added to USE_OPT).
@@ -71,7 +71,7 @@ endif
 
 # FPU-related options.
 ifeq ($(USE_FPU_OPT),)
-  USE_FPU_OPT = -mfloat-abi=$(USE_FPU) -mfpu=fpv4-sp-d16
+  USE_FPU_OPT = -mfloat-abi=$(USE_FPU) -mfpu=fpv5-sp-d16
 endif
 
 #
@@ -86,22 +86,22 @@ endif
 PROJECT = ch
 
 # Target settings.
-MCU  = cortex-m4
+MCU  = cortex-m7
 
 # Imported source files and paths.
 CHIBIOS  := ../../../..
-CONFDIR  := ./cfg/stm32l4r5_nucleo144
-BUILDDIR := ./build/stm32l4r5_nucleo144
-DEPDIR   := ./.dep/stm32l4r5_nucleo144
+CONFDIR  := ./cfg/stm32h743zi_nucleo144
+BUILDDIR := ./build/stm32h743zi_nucleo144
+DEPDIR   := ./.dep/stm32h743zi_nucleo144
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
 # Startup files.
-include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32l4xx.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32h7xx.mk
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/hal/ports/STM32/STM32L4xx+/platform.mk
-include $(CHIBIOS)/os/hal/boards/ST_NUCLEO144_L4R5ZI/board.mk
+include $(CHIBIOS)/os/hal/ports/STM32/STM32H7xx/platform.mk
+include $(CHIBIOS)/os/hal/boards/ST_NUCLEO144_H743ZI/board.mk
 include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
@@ -115,8 +115,8 @@ include $(CHIBIOS)/test/oslib/oslib_test.mk
 include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 include $(CHIBIOS)/os/various/shell/shell.mk
 
-# Define linker script file here.
-LDSCRIPT= $(STARTUPLD)/STM32L4R5xI.ld
+# Define linker script file here
+LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

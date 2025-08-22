@@ -833,8 +833,10 @@ void i2c_lld_start(I2CDriver *i2cp) {
 #if STM32_I2C_USE_I2C1
     if (&I2CD1 == i2cp) {
 
-      rccResetI2C1();
+      /* FIXME */
       rccEnableI2C1(true);
+      rccResetI2C1();
+
 #if STM32_I2C_USE_DMA == TRUE
       {
         i2cp->rx.dma = dmaStreamAllocI(STM32_I2C_I2C1_RX_DMA_STREAM,

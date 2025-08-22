@@ -566,13 +566,13 @@
         Mode="Alternate"
         Alternate="12" ></pin1>
       <pin2
-        ID="PDM1_CLK1"
+        ID="SAI1_MCLKA"
         Type="PushPull"
         Level="High"
         Speed="Maximum"
-        Resistor="PullUp"
+        Resistor="Floating"
         Mode="Alternate"
-        Alternate="2" />
+        Alternate="6" />
       <pin3
         ID="SAI1_SDB"
         Type="PushPull"
@@ -612,7 +612,7 @@
         Speed="Maximum"
         Resistor="Floating"
         Mode="Alternate"
-        Alternate="6" />
+        Alternate="12" />
       <pin8
         ID="FMC_D5"
         Type="PushPull"
@@ -866,13 +866,13 @@
         Mode="Alternate"
         Alternate="10" />
       <pin7
-        ID="SAI1_MCLKA"
+        ID=""
         Type="PushPull"
         Level="High"
         Speed="Maximum"
         Resistor="PullUp"
-        Mode="Alternate"
-        Alternate="6" />
+        Mode="Input"
+        Alternate="0" />
       <pin8
         ID="SDCLK"
         Type="PushPull"

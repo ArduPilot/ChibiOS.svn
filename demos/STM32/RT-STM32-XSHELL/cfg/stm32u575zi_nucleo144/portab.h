@@ -30,14 +30,14 @@
 /*===========================================================================*/
 
 #define PORTAB_LINE_LED1            LINE_LED_GREEN
-//#define PORTAB_LINE_LED2            LINE_LED2
+#define PORTAB_LINE_LED2            LINE_LED_BLUE
 #define PORTAB_LED_OFF              PAL_LOW
 #define PORTAB_LED_ON               PAL_HIGH
 
 #define PORTAB_LINE_BUTTON          LINE_BUTTON
-#define PORTAB_BUTTON_PRESSED       PAL_LOW
+#define PORTAB_BUTTON_PRESSED       PAL_HIGH
 
-#define PORTAB_SIOD1                LPSIOD1
+#define PORTAB_SIOD1                SIOD1
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */

@@ -35,21 +35,13 @@
 
 #include <stdint.h>
 
-#define __CM33_REV                        0x0100U  /* r1p0 */
-#define __MPU_PRESENT                     1U
-#define __VTOR_PRESENT                    1U
-#define __NVIC_PRIO_BITS                  4U
-#define __Vendor_SysTickConfig            0U
-#define __FPU_PRESENT                     1U
-#define __DSP_PRESENT                     1U
-#define __SAU_PRESENT                     1U
-#define __SAUREGION_PRESENT               8U
-
 /**
  * @brief   Interrupt vector numbers.
  * @note    See RP2350 Datasheet 3.2 Interrupts (Table 95)
  */
 typedef enum {
+#if !defined(__riscv)
+  /* ARM Cortex-M33 system exceptions. */
   NonMaskableInt_IRQn                   = -14,
   HardFault_IRQn                        = -13,
   MemoryManagement_IRQn                 = -12,
@@ -60,6 +52,7 @@ typedef enum {
   DebugMonitor_IRQn                     = -4,
   PendSV_IRQn                           = -2,
   SysTick_IRQn                          = -1,
+#endif
   TIMER0_IRQ_0n                         = 0,
   TIMER0_IRQ_1n                         = 1,
   TIMER0_IRQ_2n                         = 2,
@@ -114,9 +107,48 @@ typedef enum {
   SPARE_IRQ_5n                          = 51
 } IRQn_Type;
 
-#define SVC_IRQn                          SVCall_IRQn
+#if defined(__riscv)
+/*===========================================================================*/
+/* RISC-V (Hazard3) specific definitions.                                    */
+/*===========================================================================*/
+
+#include "riscv.h"
+
+/**
+ * @brief   Send Event instruction equivalent for RISC-V.
+ * @note    Signal all cores to exit sleep.
+ */
+__STATIC_FORCEINLINE void __SEV(void) {
+  __asm__ volatile ("slt x0, x0, x1" : : : "memory");
+}
+
+/**
+ * @brief   Wait For Event instruction equivalent for RISC-V.
+ * @note    Signal all cores to sleep.
+ */
+__STATIC_FORCEINLINE void __WFE(void) {
+  __asm__ volatile ("slt x0, x0, x0" : : : "memory");
+}
+
+#else /* ARM Cortex-M33 */
+/*===========================================================================*/
+/* ARM Cortex-M33 specific definitions.                                      */
+/*===========================================================================*/
+
+#define __CM33_REV                        0x0100U  /* r1p0 */
+#define __MPU_PRESENT                     1U
+#define __VTOR_PRESENT                    1U
+#define __NVIC_PRIO_BITS                  4U
+#define __Vendor_SysTickConfig            0U
+#define __FPU_PRESENT                     1U
+#define __DSP_PRESENT                     1U
+#define __SAU_PRESENT                     1U
+#define __SAUREGION_PRESENT               8U
 
 #include "core_cm33.h"
+
+#endif /* __riscv */
+
 #include "system_rp2350.h"
 
 /**

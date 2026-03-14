@@ -83,7 +83,7 @@
  * @name    Machine cause register values
  * @{
  */
-#define MCAUSE_INTERRUPT            (1U << 31)  /**< Interrupt flag in mcause   */
+#define MCAUSE_INTERRUPT            (1UL << (__riscv_xlen - 1))  /**< Interrupt flag in mcause */
 #define MCAUSE_M_SOFT_INT           3           /**< Machine software interrupt */
 #define MCAUSE_M_TIMER_INT          7           /**< Machine timer interrupt    */
 #define MCAUSE_M_EXT_INT            11          /**< Machine external interrupt */

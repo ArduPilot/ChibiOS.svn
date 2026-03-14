@@ -37,9 +37,15 @@
  * @name    Architecture data constraints
  * @{
  */
+#if __riscv_xlen == 64
+#define PORT_ARCH_SIZEOF_DATA_PTR   8
+#define PORT_ARCH_SIZEOF_CODE_PTR   8
+#define PORT_ARCH_REGISTERS_WIDTH   64
+#else
 #define PORT_ARCH_SIZEOF_DATA_PTR   4
 #define PORT_ARCH_SIZEOF_CODE_PTR   4
 #define PORT_ARCH_REGISTERS_WIDTH   32
+#endif
 #define PORT_ARCH_REVERSE_ORDER     0   /* RISC-V is little-endian */
 /** @} */
 
@@ -60,7 +66,11 @@ typedef uint64_t            port_rttime_t;
 /**
  * @brief   System status word.
  */
+#if __riscv_xlen == 64
+typedef uint64_t            port_syssts_t;
+#else
 typedef uint32_t            port_syssts_t;
+#endif
 
 /**
  * @brief   Type of stack and memory alignment enforcement.

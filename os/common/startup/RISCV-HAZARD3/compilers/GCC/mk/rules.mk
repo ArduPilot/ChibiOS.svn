@@ -111,9 +111,6 @@ LIBS      := $(DLIBS) $(ULIBS)
 #   function prologues/epilogues instead of individual sw/lw sequences.
 MCFLAGS   := -march=$(MCU)_zicsr_zifencei -mabi=ilp32 -msave-restore
 
-# Picolibc is the default C library in the toolchain (GCC 15+).
-# No --specs=picolibc.specs needed; headers and libraries are found
-# automatically via the multilib search paths.
 
 ODFLAGS   = -x --syms
 ASFLAGS   = $(MCFLAGS) $(OPT) -Wa,-amhls=$(LSTDIR)/$(notdir $(<:.s=.lst)) $(ADEFS)

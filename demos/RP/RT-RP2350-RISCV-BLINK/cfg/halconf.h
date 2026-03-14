@@ -42,6 +42,7 @@
 #define HAL_USE_SERIAL                      FALSE
 #define HAL_USE_SERIAL_USB                  FALSE
 #define HAL_USE_SIO                         TRUE
+#define SIO_DEFAULT_BITRATE                 115200
 #define HAL_USE_SPI                         FALSE
 #define HAL_USE_TRNG                        FALSE
 #define HAL_USE_UART                        FALSE

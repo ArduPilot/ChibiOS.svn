@@ -2,7 +2,7 @@
 # Compiler settings for RISC-V
 #
 
-TRGT = riscv64-unknown-elf-
+TRGT = riscv-none-elf-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.

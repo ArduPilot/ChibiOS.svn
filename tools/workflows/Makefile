@@ -105,6 +105,12 @@ info :
 	@echo
 	@which avr-gcc && avr-gcc -v || echo "avr-gcc not present"
 	@echo
+	@which powerpc-eabivle-gcc && powerpc-eabivle-gcc -v || \
+		echo "powerpc-eabivle-gcc not present"
+	@echo
+	@which riscv-none-elf-gcc && riscv-none-elf-gcc -v || \
+		echo "riscv-none-elf-gcc not present"
+	@echo
 	@which doxygen && doxygen -v || echo "doxygen not present"
 	@echo
 	@which dot && dot -V || echo "graphviz not present"
@@ -112,6 +118,8 @@ info :
 	@which perl && perl -v || echo "perl not present"
 	@echo
 	@which python3 && python3 -V || echo "python3 not present"
+	@echo
+	@which rustup && rustup -V && rustup show -v || echo "rustup not present"
 	@echo
 
 # Prepare Python virtual environment

@@ -14,14 +14,6 @@
     limitations under the License.
 */
 
-/**
- * @defgroup DAC DAC Driver
- * @brief Generic DAC Driver.
- * @details This module implements a generic DAC (Digital to Analog Converter)
- *          driver. DAC conversions are modeled as circular streaming
- *          operations; the full buffer callback marker is not a restart state.
- * @pre     In order to use the DAC driver the @p HAL_USE_DAC option
- *          must be enabled in @p halconf.h.
- *
- * @ingroup HAL_NORMAL_DRIVERS
- */
+#ifndef CHCONF_H
+#include "../../RT-XHAL-STM32H563ZI-NUCLEO144/cfg/chconf.h"
+#endif /* CHCONF_H */

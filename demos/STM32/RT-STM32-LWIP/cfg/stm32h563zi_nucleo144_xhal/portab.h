@@ -14,14 +14,23 @@
     limitations under the License.
 */
 
-/**
- * @defgroup DAC DAC Driver
- * @brief Generic DAC Driver.
- * @details This module implements a generic DAC (Digital to Analog Converter)
- *          driver. DAC conversions are modeled as circular streaming
- *          operations; the full buffer callback marker is not a restart state.
- * @pre     In order to use the DAC driver the @p HAL_USE_DAC option
- *          must be enabled in @p halconf.h.
- *
- * @ingroup HAL_NORMAL_DRIVERS
- */
+#ifndef PORTAB_H
+#define PORTAB_H
+
+#define PORTAB_LINE_LED1            LINE_LED1
+#define PORTAB_LINE_LED2            LINE_LED2
+#define PORTAB_LED_OFF              PAL_LOW
+#define PORTAB_LED_ON               PAL_HIGH
+
+#define PORTAB_LINE_BUTTON          LINE_BUTTON
+#define PORTAB_BUTTON_PRESSED       PAL_HIGH
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  void portab_setup(void);
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* PORTAB_H */

@@ -90,12 +90,32 @@ hal_eth_driver_c ETHD1;
 /*===========================================================================*/
 
 static const uint8_t default_mac_address[] = STM32_ETH_ETH1_DEFAULT_MAC_ADDRESS;
+static const hal_eth_config_t default_config = {
+  .mac_address = NULL,
+  .regs = {
+    .dmamr = 0U,
+    .dmasbmr = 0U
+  }
+};
 
 /* Integration note, the linker script must place variables prefixed with
    __eth_private_ into a cache-coherent memory (only accessible by privileged
    threads if required by sandboxes).*/
 static stm32_eth_rx_descriptor_t __eth_private_rd[STM32_ETH_RECEIVE_BUFFERS];
 static stm32_eth_tx_descriptor_t __eth_private_td[STM32_ETH_TRANSMIT_BUFFERS];
+
+typedef struct {
+  uint32_t                  offset;
+  uint32_t                  size;
+} stm32_eth_rx_state_t;
+
+typedef struct {
+  uint32_t                  offset;
+  uint32_t                  size;
+} stm32_eth_tx_state_t;
+
+static stm32_eth_rx_state_t __eth_private_rs[STM32_ETH_RECEIVE_BUFFERS];
+static stm32_eth_tx_state_t __eth_private_ts[STM32_ETH_TRANSMIT_BUFFERS];
 
 /* Integration note, the linker script must place variables prefixed with
    __eth_shared_ into a cache-coherent memory (also accessible by non-privileged
@@ -106,6 +126,26 @@ static uint32_t __eth_shared_tb[STM32_ETH_TRANSMIT_BUFFERS][BUFFER_SIZE];
 /*===========================================================================*/
 /* Driver local functions.                                                   */
 /*===========================================================================*/
+
+static inline uint32_t rxdesc_offset(const stm32_eth_rx_descriptor_t *rdp) {
+
+  return (uint32_t)((uintptr_t)rdp - (uintptr_t)&__eth_private_rd[0]);
+}
+
+static inline unsigned rxdesc_index(const stm32_eth_rx_descriptor_t *rdp) {
+
+  return (unsigned)(rdp - &__eth_private_rd[0]);
+}
+
+static inline uint32_t txdesc_offset(const stm32_eth_tx_descriptor_t *tdp) {
+
+  return (uint32_t)((uintptr_t)tdp - (uintptr_t)&__eth_private_td[0]);
+}
+
+static inline unsigned txdesc_index(const stm32_eth_tx_descriptor_t *tdp) {
+
+  return (unsigned)(tdp - &__eth_private_td[0]);
+}
 
 void mii_write(hal_eth_driver_c *ethp, uint32_t reg, uint32_t value) {
 
@@ -163,16 +203,16 @@ static void eth_init_descriptors(hal_eth_driver_c *ethp) {
     __eth_private_rd[i].rdes1  = 0U;
     __eth_private_rd[i].rdes2  = 0U;
     __eth_private_rd[i].rdes3  = STM32_RDES3_OWN | STM32_RDES3_IOC | STM32_RDES3_BUF1V;
-    __eth_private_rd[i].offset = 0U;
-    __eth_private_rd[i].size   = 0U;
+    __eth_private_rs[i].offset = 0U;
+    __eth_private_rs[i].size   = 0U;
   }
   for (i = 0; i < STM32_ETH_TRANSMIT_BUFFERS; i++) {
     __eth_private_td[i].tdes0  = (uint32_t)__eth_shared_tb[i];
     __eth_private_td[i].tdes1  = 0U;
     __eth_private_td[i].tdes2  = 0U;
     __eth_private_td[i].tdes3  = 0U;
-    __eth_private_td[i].offset = 0U;
-    __eth_private_td[i].size   = 0U;
+    __eth_private_ts[i].offset = 0U;
+    __eth_private_ts[i].size   = 0U;
   }
 }
 
@@ -200,6 +240,46 @@ static void eth_set_address(const uint8_t *p) {
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
 
+OSAL_IRQ_HANDLER(STM32_ETH_HANDLER) {
+  hal_eth_driver_c *ethp = &ETHD1;
+  uint32_t dmacsr;
+
+  OSAL_IRQ_PROLOGUE();
+
+  dmacsr = ETH->DMACSR;
+  ETH->DMACSR = dmacsr;
+
+  if ((dmacsr & (ETH_DMACSR_RI | ETH_DMACSR_TI)) != 0U) {
+    osalSysLockFromISR();
+#if ETH_USE_SYNCHRONIZATION == TRUE
+    if ((dmacsr & ETH_DMACSR_TI) != 0U) {
+      osalThreadDequeueAllI(&ethp->txqueue, MSG_OK);
+    }
+    if ((dmacsr & ETH_DMACSR_RI) != 0U) {
+      osalThreadDequeueAllI(&ethp->rxqueue, MSG_OK);
+    }
+#endif
+#if ETH_USE_EVENTS == TRUE
+    {
+      eventflags_t flags = 0U;
+
+      if ((dmacsr & ETH_DMACSR_TI) != 0U) {
+        flags |= ETH_FLAGS_TX;
+      }
+      if ((dmacsr & ETH_DMACSR_RI) != 0U) {
+        flags |= ETH_FLAGS_RX;
+      }
+      osalEventBroadcastFlagsI(&ethp->es, flags);
+    }
+#endif
+    osalSysUnlockFromISR();
+
+    __cbdrv_invoke_cb(ethp);
+  }
+
+  OSAL_IRQ_EPILOGUE();
+}
+
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
@@ -218,12 +298,12 @@ void eth_lld_init(void) {
   /* Selection of the RMII or MII mode based on info exported by board.h.*/
 #if defined(STM32H7XX)
   {
-    uint32_t pmcr = SYSCFG->PMCR & ~SBS_PMCR_ETH_SEL_PHY_Msk;
+    uint32_t pmcr = SYSCFG->PMCR & ~SYSCFG_PMCR_EPIS_SEL_Msk;
 #if defined(BOARD_PHY_RMII)
-  pmcr |= SYSCFG_PMCR_EPIS_SEL_2;
+    pmcr |= SYSCFG_PMCR_EPIS_SEL_2;
 #endif
-  SYSCFG->PMCR = pmcr;
-}
+    SYSCFG->PMCR = pmcr;
+  }
 
 #elif defined(STM32H5XX)
   {
@@ -279,16 +359,18 @@ void eth_lld_init(void) {
  * @notapi
  */
 msg_t eth_lld_start(hal_eth_driver_c *ethp) {
+  const hal_eth_config_t *config;
 
   /* Resetting the state of all descriptors.*/
   eth_init_descriptors(ethp);
+  ethp->link_up = false;
 
   /* ETH clocks activation and commanded reset procedure.*/
   rccResetETH();
   rccEnableETH(true);
 
   /* ISR vector enabled.*/
-  nvicEnableVector(STM32_ETH_NUMBER, STM32_IRQ_ETH1_PRIORITY);
+  nvicEnableVector(STM32_ETH_NUMBER, STM32_ETH_ETH1_IRQ_PRIORITY);
 
 #if STM32_ETH_ETH1_CHANGE_PHY_STATE
   /* PHY in power up mode.*/
@@ -300,6 +382,10 @@ msg_t eth_lld_start(hal_eth_driver_c *ethp) {
     /* Waiting for completion.*/
     /* TODO timeout.*/
   }
+
+  /* Applies the selected configuration or falls back to the default one.*/
+  config = eth_lld_setcfg(ethp, (const hal_eth_config_t *)ethp->config);
+  osalDbgAssert(config != NULL, "default configuration failed");
 
   /* MAC configuration.*/
   ETH->MACCR   = ETH_MACCR_DO;
@@ -316,6 +402,12 @@ msg_t eth_lld_start(hal_eth_driver_c *ethp) {
     eth_set_address(__eth_getfield(ethp, mac_address));
   }
 
+  /* Transmitter and receiver enabled.*/
+#if STM32_ETH_IP_CHECKSUM_OFFLOAD
+  ETH->MACCR |= ETH_MACCR_IPC | ETH_MACCR_RE | ETH_MACCR_TE;
+#else
+  ETH->MACCR |= ETH_MACCR_RE | ETH_MACCR_TE;
+#endif
 
   /* MMC configuration:
      Disable all interrupts.*/
@@ -323,9 +415,10 @@ msg_t eth_lld_start(hal_eth_driver_c *ethp) {
   ETH->MMCRIMR   = (1<<27) | (1<<26) | (1<<17) | (1<<6)  | (1<<5);
 
   /* DMA general settings.*/
-  ETH->DMASBMR   = ETH_DMASBMR_AAL;
+  ETH->DMASBMR   = ETH_DMASBMR_AAL | __eth_getconf(ethp)->regs.dmasbmr;
   ETH->DMACCR    = ETH_DMACCR_DSL_0BIT;
-  ETH->DMAMR     = ETH_DMAMR_INTM_0 | ETH_DMAMR_PR_8_1 | ETH_DMAMR_TXPR;  /* TX:RX 8:1 */
+  ETH->DMAMR     = ETH_DMAMR_INTM_0 | ETH_DMAMR_PR_8_1 | ETH_DMAMR_TXPR |
+                   __eth_getconf(ethp)->regs.dmamr;  /* TX:RX 8:1 */
 
   /* DMA configuration:
      Descriptor rings pointers.*/
@@ -333,6 +426,8 @@ msg_t eth_lld_start(hal_eth_driver_c *ethp) {
   ETH->DMACTDRLR = STM32_ETH_TRANSMIT_BUFFERS - 1;
   ETH->DMACRDLAR = (uint32_t)&__eth_private_rd[0];
   ETH->DMACRDRLR = STM32_ETH_RECEIVE_BUFFERS - 1;
+  ETH->DMACTDTPR = txdesc_offset(&__eth_private_td[STM32_ETH_TRANSMIT_BUFFERS - 1U]);
+  ETH->DMACRDTPR = rxdesc_offset(&__eth_private_rd[STM32_ETH_RECEIVE_BUFFERS - 1U]);
 
   /* Enabling required interrupt sources.*/
   ETH->DMACSR    = ETH_DMACSR_NIS;
@@ -367,6 +462,7 @@ msg_t eth_lld_start(hal_eth_driver_c *ethp) {
  * @notapi
  */
 void eth_lld_stop(hal_eth_driver_c *ethp) {
+  ethp->link_up = false;
 
 #if STM32_ETH_ETH1_CHANGE_PHY_STATE
   /* PHY in power down mode until the driver will be restarted.*/
@@ -400,10 +496,13 @@ void eth_lld_stop(hal_eth_driver_c *ethp) {
 const hal_eth_config_t *eth_lld_setcfg(hal_eth_driver_c *ethp,
                                        const hal_eth_config_t *config) {
 
-  (void)ethp;
-  (void)config;
+  if (config == NULL) {
+    config = &default_config;
+  }
 
-  return NULL;
+  ethp->config = config;
+
+  return config;
 }
 
 /**
@@ -419,11 +518,21 @@ const hal_eth_config_t *eth_lld_setcfg(hal_eth_driver_c *ethp,
  */
 const hal_eth_config_t *eth_lld_selcfg(hal_eth_driver_c *ethp,
                                        unsigned cfgnum) {
+#if ETH_USE_CONFIGURATIONS == TRUE
+  extern const eth_configurations_t eth_configurations;
 
-  (void)ethp;
-  (void)cfgnum;
+  if (cfgnum >= eth_configurations.cfgsnum) {
+    return NULL;
+  }
 
-  return NULL;
+  return eth_lld_setcfg(ethp, &eth_configurations.cfgs[cfgnum]);
+#else
+  if (cfgnum > 0U) {
+    return NULL;
+  }
+
+  return eth_lld_setcfg(ethp, NULL);
+#endif
 }
 
 /**
@@ -431,7 +540,7 @@ const hal_eth_config_t *eth_lld_selcfg(hal_eth_driver_c *ethp,
  *
  * @param[in,out] ip            Pointer to a @p hal_eth_driver_c instance.
  * @return                      The receive handle.
- * @retval NULL                 If a received frame is not available.
+ * @retval 0                    If a received frame is not available.
  *
  * @notapi
  */
@@ -440,20 +549,22 @@ eth_receive_handle_t eth_lld_get_receive_handle(hal_eth_driver_c *ethp) {
   /* Iterates through received frames until a valid one is found, invalid
      frames are discarded.*/
   while ((ethp->rdp->rdes3 & STM32_RDES3_OWN) == 0U) {
+    stm32_eth_rx_descriptor_t *rdp = ethp->rdp;
+    stm32_eth_rx_state_t *rsp = &__eth_private_rs[rxdesc_index(rdp)];
 
     /* Is it a valid frame?*/
     if (true &&
 #if STM32_ETH_IP_CHECKSUM_OFFLOAD
-        ((ethp->rdp->rdes1 & (STM32_RDES1_IPHE | STM32_RDES1_IPCE)) == 0U) &&
+        ((rdp->rdes1 & (STM32_RDES1_IPHE | STM32_RDES1_IPCE)) == 0U) &&
 #endif
-        ((ethp->rdp->rdes2 & STM32_RDES2_DAF) == 0U) &&
-        ((ethp->rdp->rdes3 & STM32_RDES3_ES) == 0U) &&
-        ((ethp->rdp->rdes3 & STM32_RDES3_FD) != 0U) &&
-        ((ethp->rdp->rdes3 & STM32_RDES3_LD)) != 0U) {
+        ((rdp->rdes2 & STM32_RDES2_DAF) == 0U) &&
+        ((rdp->rdes3 & STM32_RDES3_ES) == 0U) &&
+        ((rdp->rdes3 & STM32_RDES3_FD) != 0U) &&
+        ((rdp->rdes3 & STM32_RDES3_LD) != 0U)) {
 
       /* Found a valid one.*/
-      ethp->rdp->offset = 0U;
-      ethp->rdp->size   = (ethp->rdp->rdes3 & STM32_RDES3_PL_MASK) - 2U; /* Lose CRC.*/
+      rsp->offset = 0U;
+      rsp->size   = (rdp->rdes3 & STM32_RDES3_PL_MASK) - 2U; /* Lose CRC.*/
 
       /* Reposition in ring.*/
       ethp->rdp++;
@@ -461,11 +572,11 @@ eth_receive_handle_t eth_lld_get_receive_handle(hal_eth_driver_c *ethp) {
         ethp->rdp = &__eth_private_rd[0];
       }
 
-      return (eth_receive_handle_t)ethp->rdp;
+      return (eth_receive_handle_t)(uintptr_t)rdp;
     }
 
     /* Invalid frame found, purging.*/
-    ethp->rdp->rdes3 = STM32_RDES3_OWN | STM32_RDES3_IOC | STM32_RDES3_BUF1V;
+    rdp->rdes3 = STM32_RDES3_OWN | STM32_RDES3_IOC | STM32_RDES3_BUF1V;
 
     /* On next descriptor.*/
     ethp->rdp++;
@@ -474,7 +585,7 @@ eth_receive_handle_t eth_lld_get_receive_handle(hal_eth_driver_c *ethp) {
     }
   }
 
-  return NULL;
+  return (eth_receive_handle_t)0U;
 }
 
 /**
@@ -482,38 +593,46 @@ eth_receive_handle_t eth_lld_get_receive_handle(hal_eth_driver_c *ethp) {
  *
  * @param[in,out] ip            Pointer to a @p hal_eth_driver_c instance.
  * @return                      The transmit handle.
- * @retval NULL                 If an empty transmit frame is not available.
+ * @retval 0                    If an empty transmit frame is not available.
  *
  * @notapi
  */
 eth_transmit_handle_t eth_lld_get_transmit_handle(hal_eth_driver_c *ethp) {
   stm32_eth_tx_descriptor_t *tdp = ethp->tdp;
+  unsigned i;
 
   if (!ethp->link_up) {
-    return NULL;
+    return (eth_transmit_handle_t)0U;
   }
 
-  /* Ensure that descriptor isn't owned by the Ethernet DMA or locked by
-     another thread.*/
-  if (((tdp->tdes3 & STM32_TDES3_OWN) != 0U) ||
-      (tdp->tdes1 != 0U)) {
-    return NULL;
+  for (i = 0U; i < STM32_ETH_TRANSMIT_BUFFERS; i++) {
+    if (((tdp->tdes3 & STM32_TDES3_OWN) == 0U) &&
+        (tdp->tdes1 == 0U)) {
+      stm32_eth_tx_state_t *tsp = &__eth_private_ts[txdesc_index(tdp)];
+
+      /* Marks the current descriptor as locked.*/
+      tdp->tdes1 = STM32_TDES1_LOCKED;
+
+      /* Set the buffer size and configuration.*/
+      tsp->offset = 0U;
+      tsp->size   = STM32_ETH_BUFFERS_SIZE;
+
+      /* Next TX descriptor to use.*/
+      ethp->tdp = tdp + 1;
+      if (ethp->tdp >= &__eth_private_td[STM32_ETH_TRANSMIT_BUFFERS]) {
+        ethp->tdp = &__eth_private_td[0];
+      }
+
+      return (eth_transmit_handle_t)(uintptr_t)tdp;
+    }
+
+    tdp++;
+    if (tdp >= &__eth_private_td[STM32_ETH_TRANSMIT_BUFFERS]) {
+      tdp = &__eth_private_td[0];
+    }
   }
 
-  /* Marks the current descriptor as locked.*/
-  tdp->tdes1 = STM32_TDES1_LOCKED;
-
-  /* Set the buffer size and configuration.*/
-  tdp->offset = 0U;
-  tdp->size   = STM32_ETH_BUFFERS_SIZE;
-
-  /* Next TX descriptor to use.*/
-  ethp->tdp++;
-  if (ethp->tdp >= &__eth_private_td[STM32_ETH_TRANSMIT_BUFFERS]) {
-    ethp->tdp = &__eth_private_td[0];
-  }
-
-  return (eth_transmit_handle_t)tdp;
+  return (eth_transmit_handle_t)0U;
 }
 
 /**
@@ -526,7 +645,8 @@ eth_transmit_handle_t eth_lld_get_transmit_handle(hal_eth_driver_c *ethp) {
  */
 void eth_lld_release_receive_handle(hal_eth_driver_c *ethp,
                                     eth_receive_handle_t rxh) {
-  stm32_eth_rx_descriptor_t *rdp = (stm32_eth_rx_descriptor_t *)rxh;
+  stm32_eth_rx_descriptor_t *rdp = (stm32_eth_rx_descriptor_t *)(uintptr_t)rxh;
+  stm32_eth_rx_state_t *rsp = &__eth_private_rs[rxdesc_index(rdp)];
 
   (void)ethp;
 
@@ -534,10 +654,12 @@ void eth_lld_release_receive_handle(hal_eth_driver_c *ethp,
                 "attempt to release descriptor already owned by DMA");
 
   /* Give buffer back to the Ethernet DMA.*/
+  rsp->offset = 0U;
+  rsp->size   = 0U;
   rdp->rdes3 = STM32_RDES3_OWN | STM32_RDES3_IOC | STM32_RDES3_BUF1V;
 
-  /* Triggers transmission if the DMA was suspended.*/
-  ETH->DMACRDTPR = 0U;
+  /* Re-triggers the DMA in case the ring went into suspend state.*/
+  ETH->DMACRDTPR = ETH->DMACRDTPR;
 }
 
 /**
@@ -550,7 +672,9 @@ void eth_lld_release_receive_handle(hal_eth_driver_c *ethp,
  */
 void eth_lld_release_transmit_handle(hal_eth_driver_c *ethp,
                                      eth_transmit_handle_t txh) {
-  stm32_eth_tx_descriptor_t *tdp = (stm32_eth_tx_descriptor_t *)txh;
+  stm32_eth_tx_descriptor_t *tdp = (stm32_eth_tx_descriptor_t *)(uintptr_t)txh;
+  stm32_eth_tx_state_t *tsp = &__eth_private_ts[txdesc_index(tdp)];
+  stm32_eth_tx_descriptor_t *next_tdp;
 
   (void)ethp;
 
@@ -558,17 +682,23 @@ void eth_lld_release_transmit_handle(hal_eth_driver_c *ethp,
               "attempt to release descriptor already owned by DMA");
 
   /* Unlocks the descriptor and returns it to the DMA engine.*/
-  tdp->tdes2 = STM32_TDES2_IOC | tdp->offset;
+  tdp->tdes2 = STM32_TDES2_IOC | tsp->offset;
   tdp->tdes1 = 0U;
 #if STM32_ETH_IP_CHECKSUM_OFFLOAD
-  tdp->tdes3 = STM32_TDES3_CIC(STM32_MAC_IP_CHECKSUM_OFFLOAD) |
+  tdp->tdes3 = STM32_TDES3_CIC(STM32_ETH_IP_CHECKSUM_OFFLOAD) |
                STM32_TDES3_LD | STM32_TDES3_FD |
                STM32_TDES3_OWN;
 #else
   tdp->tdes3 = STM32_TDES3_LD | STM32_TDES3_FD | STM32_TDES3_OWN;
 #endif
 
-  ETH->DMACTDTPR = 0U;
+  next_tdp = tdp + 1;
+  if (next_tdp >= &__eth_private_td[STM32_ETH_TRANSMIT_BUFFERS]) {
+    next_tdp = &__eth_private_td[0];
+  }
+
+  __DSB();
+  ETH->DMACTDTPR = txdesc_offset(next_tdp);
 }
 
 /**
@@ -588,13 +718,24 @@ void eth_lld_release_transmit_handle(hal_eth_driver_c *ethp,
 size_t eth_lld_read_receive_handle(hal_eth_driver_c *ethp,
                                    eth_receive_handle_t rxh,
                                    uint8_t *bp, size_t n) {
+  stm32_eth_rx_descriptor_t *rdp = (stm32_eth_rx_descriptor_t *)(uintptr_t)rxh;
+  stm32_eth_rx_state_t *rsp = &__eth_private_rs[rxdesc_index(rdp)];
 
   (void)ethp;
-  (void)rxh;
-  (void)bp;
-  (void)n;
 
-  return 0;
+  osalDbgAssert((rdp->rdes3 & STM32_RDES3_OWN) == 0U,
+                "attempt to read descriptor already owned by DMA");
+
+  if (n > ((size_t)rsp->size - (size_t)rsp->offset)) {
+    n = (size_t)rsp->size - (size_t)rsp->offset;
+  }
+
+  if (n > 0U) {
+    memcpy(bp, (const uint8_t *)(uintptr_t)rdp->rdes0 + rsp->offset, n);
+    rsp->offset += n;
+  }
+
+  return n;
 }
 
 /**
@@ -614,13 +755,24 @@ size_t eth_lld_read_receive_handle(hal_eth_driver_c *ethp,
 size_t eth_lld_write_transmit_handle(hal_eth_driver_c *ethp,
                                      eth_transmit_handle_t txh,
                                      const uint8_t *bp, size_t n) {
+  stm32_eth_tx_descriptor_t *tdp = (stm32_eth_tx_descriptor_t *)(uintptr_t)txh;
+  stm32_eth_tx_state_t *tsp = &__eth_private_ts[txdesc_index(tdp)];
 
   (void)ethp;
-  (void)txh;
-  (void)bp;
-  (void)n;
 
-  return 0;
+  osalDbgAssert((tdp->tdes3 & STM32_TDES3_OWN) == 0U,
+                "attempt to write descriptor already owned by DMA");
+
+  if (n > ((size_t)tsp->size - (size_t)tsp->offset)) {
+    n = (size_t)tsp->size - (size_t)tsp->offset;
+  }
+
+  if (n > 0U) {
+    memcpy((uint8_t *)(uintptr_t)tdp->tdes0 + tsp->offset, bp, n);
+    tsp->offset += n;
+  }
+
+  return n;
 }
 
 /**
@@ -638,12 +790,19 @@ size_t eth_lld_write_transmit_handle(hal_eth_driver_c *ethp,
 const uint8_t *eth_lld_get_receive_buffer(hal_eth_driver_c *ethp,
                                           eth_receive_handle_t rxh,
                                           size_t *sizep) {
+  stm32_eth_rx_descriptor_t *rdp = (stm32_eth_rx_descriptor_t *)(uintptr_t)rxh;
+  stm32_eth_rx_state_t *rsp = &__eth_private_rs[rxdesc_index(rdp)];
 
   (void)ethp;
-  (void)rxh;
-  (void)sizep;
 
-  return 0;
+  osalDbgAssert((rdp->rdes3 & STM32_RDES3_OWN) == 0U,
+                "attempt to map descriptor already owned by DMA");
+
+  if (sizep != NULL) {
+    *sizep = (size_t)rsp->size - (size_t)rsp->offset;
+  }
+
+  return (const uint8_t *)(uintptr_t)rdp->rdes0 + rsp->offset;
 }
 
 /**
@@ -661,12 +820,19 @@ const uint8_t *eth_lld_get_receive_buffer(hal_eth_driver_c *ethp,
 uint8_t *eth_lld_get_transmit_buffer(hal_eth_driver_c *ethp,
                                      eth_transmit_handle_t txh,
                                      size_t *sizep) {
+  stm32_eth_tx_descriptor_t *tdp = (stm32_eth_tx_descriptor_t *)(uintptr_t)txh;
+  stm32_eth_tx_state_t *tsp = &__eth_private_ts[txdesc_index(tdp)];
 
   (void)ethp;
-  (void)txh;
-  (void)sizep;
 
-  return NULL;
+  osalDbgAssert((tdp->tdes3 & STM32_TDES3_OWN) == 0U,
+                "attempt to map descriptor already owned by DMA");
+
+  if (sizep != NULL) {
+    *sizep = (size_t)tsp->size - (size_t)tsp->offset;
+  }
+
+  return (uint8_t *)(uintptr_t)tdp->tdes0 + tsp->offset;
 }
 
 /**
@@ -674,14 +840,82 @@ uint8_t *eth_lld_get_transmit_buffer(hal_eth_driver_c *ethp,
  *
  * @param[in,out] ip            Pointer to a @p hal_eth_driver_c instance.
  * @return                      The link status,
- * @retval false                If the link is active.
- * @retval true                 If the link is down.
+ * @retval true                 If the link is active.
+ * @retval false                If the link is down.
  *
  * @notapi
  */
 bool eth_lld_poll_link_status(hal_eth_driver_c *ethp) {
+#if STM32_ETH_PHY_LINK_TYPE == MAC_LINK_DYNAMIC
+  uint32_t maccr, bmsr, bmcr;
 
-  (void)ethp;
+  maccr = ETH->MACCR;
+
+  (void)mii_read(ethp, MII_BMSR);
+  bmsr = mii_read(ethp, MII_BMSR);
+  bmcr = mii_read(ethp, MII_BMCR);
+
+  if ((bmcr & BMCR_ANENABLE) != 0U) {
+    uint32_t lpa;
+
+    if ((bmsr & (BMSR_LSTATUS | BMSR_RFAULT | BMSR_ANEGCOMPLETE)) !=
+        (BMSR_LSTATUS | BMSR_ANEGCOMPLETE)) {
+      ethp->link_up = false;
+      return false;
+    }
+
+    lpa = mii_read(ethp, MII_LPA);
+
+    if ((lpa & (LPA_100HALF | LPA_100FULL | LPA_100BASE4)) != 0U) {
+      maccr |= ETH_MACCR_FES;
+    }
+    else {
+      maccr &= ~ETH_MACCR_FES;
+    }
+
+    if ((lpa & (LPA_10FULL | LPA_100FULL)) != 0U) {
+      maccr |= ETH_MACCR_DM;
+    }
+    else {
+      maccr &= ~ETH_MACCR_DM;
+    }
+  }
+  else {
+    if ((bmsr & BMSR_LSTATUS) == 0U) {
+      ethp->link_up = false;
+      return false;
+    }
+
+    if ((bmcr & BMCR_SPEED100) != 0U) {
+      maccr |= ETH_MACCR_FES;
+    }
+    else {
+      maccr &= ~ETH_MACCR_FES;
+    }
+
+    if ((bmcr & BMCR_FULLDPLX) != 0U) {
+      maccr |= ETH_MACCR_DM;
+    }
+    else {
+      maccr &= ~ETH_MACCR_DM;
+    }
+  }
+#elif STM32_ETH_PHY_LINK_TYPE == MAC_LINK_100_FULLDUPLEX
+  uint32_t maccr = ETH->MACCR;
+
+  maccr |= ETH_MACCR_FES;
+  maccr |= ETH_MACCR_DM;
+#elif STM32_ETH_PHY_LINK_TYPE == MAC_LINK_10_FULLDUPLEX
+  uint32_t maccr = ETH->MACCR;
+
+  maccr &= ~ETH_MACCR_FES;
+  maccr |= ETH_MACCR_DM;
+#else
+#error "invalid STM32_ETH_PHY_LINK_TYPE"
+#endif
+
+  ETH->MACCR = maccr;
+  ethp->link_up = true;
 
   return true;
 }

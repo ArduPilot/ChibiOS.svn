@@ -33,8 +33,9 @@
 
 /**
  * @brief   Number of external interrupts on Hazard3/RP2350.
+ * @note    Derived from RISCV_NUM_INTERRUPTS defined in rvparams.h.
  */
-#define HAZARD3_NUM_EXTERNAL_IRQS       52U
+#define HAZARD3_NUM_EXTERNAL_IRQS       RISCV_NUM_INTERRUPTS
 
 /**
  * @brief   Number of interrupt priority levels on Hazard3.

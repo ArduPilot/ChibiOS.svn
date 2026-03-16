@@ -46,18 +46,8 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-/**
- * @name    Xh3irq CSR addresses
- * @note    These are custom CSRs for the Hazard3 interrupt extension.
- * @{
- */
-#define MEIEA_CSR       0xBE0   /**< External interrupt enable array      */
-#define MEIPA_CSR       0xBE1   /**< External interrupt pending array     */
-#define MEIFA_CSR       0xBE2   /**< External interrupt force array       */
-#define MEIPRA_CSR      0xBE3   /**< External interrupt priority array    */
-#define MEINEXT_CSR     0xBE4   /**< Next external interrupt to service   */
-#define MEICONTEXT_CSR  0xBE5   /**< External interrupt context register  */
-/** @} */
+/* Xh3irq CSR addresses (CSR_MEIEA, CSR_MEIPA, etc.) are defined in
+   rvparams.h which is included above. */
 
 /**
  * @name    MEINEXT register fields

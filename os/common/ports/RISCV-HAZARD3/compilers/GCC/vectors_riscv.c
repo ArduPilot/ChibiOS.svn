@@ -164,9 +164,9 @@ void (* const _ext_vectors[RISCV_NUM_INTERRUPTS])(void) = {
  *          corresponding VectorXX handler via the software vector table.
  *
  * @note    The initial MEINEXT value is passed from the assembly handler
- *          via a0 to avoid a redundant read. Reading MEINEXT acknowledges
- *          the reported IRQ (clears force bits), so re-reading would lose
- *          it. After dispatching, MEINEXT is re-read to check for
+ *          via a0 to avoid a redundant CSR read. A plain csrr of MEINEXT
+ *          (without the update bit) is non-destructive and can be re-read
+ *          safely. After dispatching, MEINEXT is re-read to check for
  *          additional pending interrupts.
  *
  * @param[in] meinext   Initial MEINEXT value from the assembly handler

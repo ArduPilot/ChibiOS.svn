@@ -116,16 +116,24 @@ _vectors:
 .Lis_interrupt:
                 csrrw   sp, mscratch, sp
 
+                /* Set ISR nesting flag for port_is_isr_context(). */
+                lui     a0, 0xD0000
+                lw      a0, 0(a0)               /* SIO->CPUID */
+                la      a1, port_isr_nesting
+                add     a0, a0, a1
+                li      a1, 1
+                sb      a1, 0(a0)
+
                 /* Dispatch by interrupt type t1 still contains mcause */
                 andi    a0, t1, 0x7FF           /* Mask off interrupt */
 
-                li      t2, 7
+                li      t2, MCAUSE_M_TIMER_INT
                 beq     a0, t2, .Ltimer_interrupt
 
-                li      t2, 11
+                li      t2, MCAUSE_M_EXT_INT
                 beq     a0, t2, .Lexternal_interrupt
 
-                li      t2, 3
+                li      t2, MCAUSE_M_SOFT_INT
                 beq     a0, t2, .Lsoftware_interrupt
 
                 /* Unknown interrupt so call unhandled handler */
@@ -168,6 +176,13 @@ _vectors:
                 call    _software_interrupt_handler
 
 .Lisr_done:
+                /* Clear ISR nesting flag before switching back. */
+                lui     a0, 0xD0000
+                lw      a0, 0(a0)               /* SIO->CPUID */
+                la      a1, port_isr_nesting
+                add     a0, a0, a1
+                sb      zero, 0(a0)
+
                 /* Switch back to thread stack for preemption check and
                    trap frame restore. */
                 csrrw   sp, mscratch, sp

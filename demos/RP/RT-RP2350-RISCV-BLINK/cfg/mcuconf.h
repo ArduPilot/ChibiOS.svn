@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006-2026 Giovanni Di Sirio.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,9 +18,13 @@
 #define MCUCONF_H
 
 /*
- * RP2350 RISC-V (Hazard3) drivers configuration.
+ * RP2350_MCUCONF drivers configuration.
  *
- * This is a minimal configuration for the LED blink demo.
+ * IRQ priorities:
+ * 0...3        Lowest...Highest (Hazard3 4-level priority).
+ *
+ * DMA priorities:
+ * 0...1        Lowest...Highest.
  */
 
 #define RP2350_MCUCONF
@@ -32,30 +36,32 @@
 #define RP_CORE1_START                      TRUE
 
 /*
+ * IRQ system settings.
+ */
+#define RP_IRQ_TIMER0_PRIORITY              3
+#define RP_IRQ_TIMER1_PRIORITY              3
+#define RP_IRQ_UART0_PRIORITY               2
+#define RP_IRQ_UART1_PRIORITY               2
+#define RP_IRQ_SPI0_PRIORITY                2
+#define RP_IRQ_SPI1_PRIORITY                2
+
+/*
  * SIO driver system settings.
  */
 #define RP_SIO_USE_UART0                    TRUE
-#define RP_SIO_USE_UART1                    FALSE
+#define RP_SIO_USE_UART1                    TRUE
 
 /*
  * SPI driver system settings.
  */
 #define RP_SPI_USE_SPI0                     FALSE
 #define RP_SPI_USE_SPI1                     FALSE
-
-/*
- * IRQ priorities (required even if drivers are disabled).
- * Hazard3 uses 4 priority levels (0-3, lower = lower priority).
- */
-#define RP_IRQ_UART0_PRIORITY               2
-#define RP_IRQ_UART1_PRIORITY               2
-#define RP_IRQ_SPI0_PRIORITY                2
-#define RP_IRQ_SPI1_PRIORITY                2
-#define RP_IRQ_I2C0_PRIORITY                2
-#define RP_IRQ_I2C1_PRIORITY                2
-#define RP_IRQ_DMA_PRIORITY                 2
-#define RP_IRQ_USB_PRIORITY                 2
-#define RP_IRQ_TIMER0_PRIORITY              3
-#define RP_IRQ_TIMER1_PRIORITY              3
+#define RP_SPI_SPI0_RX_DMA_CHANNEL          RP_DMA_CHANNEL_ID_ANY
+#define RP_SPI_SPI0_TX_DMA_CHANNEL          RP_DMA_CHANNEL_ID_ANY
+#define RP_SPI_SPI1_RX_DMA_CHANNEL          RP_DMA_CHANNEL_ID_ANY
+#define RP_SPI_SPI1_TX_DMA_CHANNEL          RP_DMA_CHANNEL_ID_ANY
+#define RP_SPI_SPI0_DMA_PRIORITY            1
+#define RP_SPI_SPI1_DMA_PRIORITY            1
+#define RP_SPI_DMA_ERROR_HOOK(spip)
 
 #endif /* MCUCONF_H */

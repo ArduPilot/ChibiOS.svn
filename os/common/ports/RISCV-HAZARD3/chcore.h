@@ -377,11 +377,21 @@ struct port_context {
 
 #if !defined(_FROM_ASM_)
 
+/*
+ * Port variables accessed from assembly and inline functions.
+ */
+#if CH_CFG_SMP_MODE == TRUE
+extern volatile bool port_preemption_pending[];
+extern volatile uint8_t port_isr_nesting[];
+#else
+extern volatile bool port_preemption_pending;
+extern volatile uint8_t port_isr_nesting;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
   void port_init(os_instance_t *oip);
-  void __port_irq_epilogue(void);
   void __port_switch(thread_t *ntp, thread_t *otp);
   void __port_thread_start(void);
   void __port_switch_from_isr(void);
@@ -461,14 +471,33 @@ static inline bool __port_irq_enabled(syssts_t sts) {
  * @retval false        not running in ISR mode.
  * @retval true         running in ISR mode.
  *
- * @note    For RISC-V we check if MPIE != MIE as an indicator of being
- *          in an interrupt handler. When in a trap, MIE is cleared and
- *          MPIE holds the previous MIE value.
+ * @note    Uses a per-core ISR nesting counter maintained by the trap
+ *          handler in vectors_hazard3.S. The previous mstatus-based
+ *          heuristic (MIE=0 && MPIE=1) gave false positives when
+ *          interrupts were disabled via port_lock().
  */
 static inline bool port_is_isr_context(void) {
-  uint32_t mstatus = __port_read_mstatus();
-  /* If MIE=0 and MPIE=1 then we are in an interrupt handler */
-  return ((mstatus & MSTATUS_MIE) == 0U) && ((mstatus & MSTATUS_MPIE) != 0U);
+#if CH_CFG_SMP_MODE == TRUE
+  return port_isr_nesting[SIO->CPUID] != 0U;
+#else
+  return port_isr_nesting != 0U;
+#endif
+}
+
+/**
+ * @brief   Exception exit redirection to @p __port_switch_from_isr().
+ * @details Sets the preemption pending flag unconditionally. The actual
+ *          preemption check happens later in @p __port_switch_from_isr()
+ *          under the spinlock.
+ *
+ * @note    Inlined to avoid function call overhead on every interrupt exit.
+ */
+static inline void __port_irq_epilogue(void) {
+#if CH_CFG_SMP_MODE == TRUE
+  port_preemption_pending[SIO->CPUID] = true;
+#else
+  port_preemption_pending = true;
+#endif
 }
 
 /**

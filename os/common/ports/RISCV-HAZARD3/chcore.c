@@ -60,6 +60,22 @@ volatile bool port_preemption_pending;
 #define PREEMPT_PENDING port_preemption_pending
 #endif
 
+/**
+ * @brief   ISR nesting counter.
+ * @details Set to non-zero on ISR entry, cleared on ISR exit. Used by
+ *          port_is_isr_context() for reliable ISR detection. A simple
+ *          flag (0/1) suffices since Hazard3 uses non-preemptive dispatch
+ *          (MIE stays clear during handlers, no nesting).
+ * @note    Non-static: accessed directly from assembly in vectors_hazard3.S.
+ */
+#if CH_CFG_SMP_MODE == TRUE
+volatile uint8_t port_isr_nesting[PORT_CORES_NUMBER];
+#define ISR_NESTING port_isr_nesting[SIO->CPUID]
+#else
+volatile uint8_t port_isr_nesting;
+#define ISR_NESTING port_isr_nesting
+#endif
+
 /*===========================================================================*/
 /* Module local functions.                                                   */
 /*===========================================================================*/
@@ -122,9 +138,11 @@ void _timer_interrupt_handler(void) {
   uint32_t next_lo;
   uint32_t next_hi;
 
-  /* Read current MTIME value (full 64 bits). */
-  current_lo = MTIME;
-  current_hi = MTIMEH;
+  /* Read current MTIME value (full 64 bits, atomic). */
+  do {
+    current_hi = MTIMEH;
+    current_lo = MTIME;
+  } while (current_hi != MTIMEH);
 
   /* Calculate next tick time (64-bit add). */
   next_lo = current_lo + TICK_INTERVAL;
@@ -165,8 +183,9 @@ void port_init(os_instance_t *oip) {
   /* Starting in a known IRQ configuration.*/
   port_suspend();
 
-  /* Initialize pending preemption flag.*/
+  /* Initialize pending preemption flag and ISR nesting counter.*/
   PREEMPT_PENDING = false;
+  ISR_NESTING = 0U;
 
   /* In SMP mode port_init() is called per-core, so we reinitialize
      to ensure each core has the correct ISR stack pointer.*/
@@ -187,8 +206,11 @@ void port_init(os_instance_t *oip) {
   MTIME_CTRL = MTIME_CTRL_EN;
 
   {
-    uint32_t lo = MTIME;
-    uint32_t hi = MTIMEH;
+    uint32_t hi, lo;
+    do {
+      hi = MTIMEH;
+      lo = MTIME;
+    } while (hi != MTIMEH);
     uint32_t next_lo = lo + TICK_INTERVAL;
     uint32_t next_hi = hi + (next_lo < lo ? 1U : 0U);
     MTIMECMP = 0xFFFFFFFFU;
@@ -201,40 +223,6 @@ void port_init(os_instance_t *oip) {
 #if defined(port_smp_init)
   port_smp_init(oip);
 #endif
-}
-
-/**
- * @brief   Exception exit redirection to @p __port_switch_from_isr().
- * @details This function is called at the end of interrupt handlers that
- *          may have caused a reschedule. It sets the preemption pending flag
- *          unconditionally -- the actual preemption check happens later in
- *          @p __port_switch_from_isr() under the spinlock, matching the
- *          ARM port's deferred PendSV approach.
- *
- * @note    No spinlock is taken here. The flag is a per-core variable so
- *          no inter-core synchronization is needed to set it.
- */
-void __port_irq_epilogue(void) {
-
-  PREEMPT_PENDING = true;
-}
-
-/**
- * @brief   Checks if a context switch is pending.
- * @note    Called from assembly trap handler.
- *
- * @return true if context switch is pending.
- */
-bool __port_is_preemption_pending(void) {
-  return PREEMPT_PENDING;
-}
-
-/**
- * @brief   Clears the pending preemption flag.
- * @note    Called from assembly after handling context switch.
- */
-void __port_clear_preemption_pending(void) {
-  PREEMPT_PENDING = false;
 }
 
 /**

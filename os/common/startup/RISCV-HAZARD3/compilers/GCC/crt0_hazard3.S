@@ -113,8 +113,9 @@ _crt0_entry:
                 /* Set up the stack pointer sp */
                 la      sp, __process_stack_end__
 
-                /* Set up the trap vector */
+                /* Set up the trap vector (vectored mode). */
                 la      t0, _vectors
+                ori     t0, t0, 1               /* mode=1: vectored */
                 csrw    mtvec, t0
 
                 /* Initialize mscratch with ISR stack top. */

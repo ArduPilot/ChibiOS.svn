@@ -22,7 +22,7 @@
 ENTRY(_crt0_entry)
 
 /* Default stack sizes if not defined */
-__main_stack_size__     = DEFINED(__main_stack_size__)    ? __main_stack_size__    : 0x400;
+__main_stack_size__     = DEFINED(__main_stack_size__)    ? __main_stack_size__    : 0x600;
 __process_stack_size__  = DEFINED(__process_stack_size__) ? __process_stack_size__ : 0x400;
 
 /* Core 1 stack sizes (same as core 0 by default) */

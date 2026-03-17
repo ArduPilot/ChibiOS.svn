@@ -81,8 +81,9 @@ _crt0_c1_entry:
                 /* Set up the stack pointer sp in SCRATCH_Y. */
                 la      sp, __c1_process_stack_end__
 
-                /* Set up the trap vector which is shared with core 0. */
+                /* Set up the trap vector (vectored mode, shared with core 0). */
                 la      t0, _vectors
+                ori     t0, t0, 1               /* mode=1: vectored */
                 csrw    mtvec, t0
 
                 /* Initialize mscratch with core 1's ISR stack top. */

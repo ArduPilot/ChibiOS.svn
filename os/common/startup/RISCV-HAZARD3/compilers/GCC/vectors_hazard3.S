@@ -16,7 +16,10 @@
 
 /**
  * @file    vectors_hazard3.S
- * @brief   RISC-V Hazard3 trap vector and handler for ChibiOS.
+ * @brief   RISC-V Hazard3 vectored trap handlers for ChibiOS.
+ * @details Vectored mtvec (mode=1) with preemptive nesting for external IRQs
+ *          via Xh3irq. ISR nesting counter controls mscratch swap (first
+ *          entry/last exit only).
  *
  * @addtogroup RISCV_HAZARD3_GCC_VECTORS
  * @{
@@ -29,7 +32,7 @@
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-/* Stack frame: 16 caller-saved regs + mepc + mcause + mstatus + pad = 20 words.
+/* Stack frame: 16 caller-saved regs + mepc + (reserved) + mstatus + pad = 20 words.
    20 * 4 = 80 bytes (16-byte aligned). */
 #define TRAP_FRAME_SIZE             (20 * 4)
 
@@ -51,33 +54,57 @@
 #define TRAP_FRAME_T5               56
 #define TRAP_FRAME_T6               60
 #define TRAP_FRAME_MEPC             64
-#define TRAP_FRAME_MCAUSE           68
 #define TRAP_FRAME_MSTATUS          72
 
 /*===========================================================================*/
-/* Code section.                                                             */
+/* Vector table (vectored mode).                                             */
 /*===========================================================================*/
 
 #if !defined(__DOXYGEN__)
 
                 .section .vectors, "ax", @progbits
-                .balign 4
+                .balign 64
                 .globl  _vectors
                 .type   _vectors, @function
 
 /*
- * RISC-V trap vector entry point.
- * This is the single entry point for all traps (exceptions and interrupts).
- * The mtvec CSR points here with mode = Direct (0).
+ * Vectored mtvec table: exceptions → BASE+0, interrupts → BASE + 4*cause.
+ * Each entry is a single 4-byte J instruction (norvc forces no compression).
  *
- * ISR stack switching: mscratch holds the ISR stack top (set by CRT0 and
- * port_init). For interrupts, after saving the trap frame on the thread
- * stack, sp is swapped with mscratch to run handlers on the ISR stack.
+ * IMPORTANT: Hazard3 computes the vector address as mtvec | (cause << 2),
+ * using OR instead of ADD. The base must be aligned to 64 bytes so that
+ * bits [5:2] are zero, preventing OR/ADD divergence for causes 0-11.
  */
-_vectors:
-                addi    sp, sp, -TRAP_FRAME_SIZE
+                .option push
+                .option norvc
 
-                /* Save registers */
+_vectors:
+                j       _exception_entry        /* +0:  Exceptions (cause 0)  */
+                j       _unhandled_interrupt     /* +4:  (cause 1, reserved)  */
+                j       _unhandled_interrupt     /* +8:  (cause 2, reserved)  */
+                j       _software_irq_entry      /* +12: M software IRQ (3)  */
+                j       _unhandled_interrupt     /* +16: (cause 4, reserved)  */
+                j       _unhandled_interrupt     /* +20: (cause 5, reserved)  */
+                j       _unhandled_interrupt     /* +24: (cause 6, reserved)  */
+                j       _timer_irq_entry         /* +28: M timer IRQ (7)     */
+                j       _unhandled_interrupt     /* +32: (cause 8, reserved)  */
+                j       _unhandled_interrupt     /* +36: (cause 9, reserved)  */
+                j       _unhandled_interrupt     /* +40: (cause 10, reserved) */
+                j       _ext_irq_entry           /* +44: M external IRQ (11) */
+
+                .option pop
+
+                .size   _vectors, . - _vectors
+
+/*===========================================================================*/
+/* Register save/restore macros.                                             */
+/*===========================================================================*/
+
+/*
+ * Save all caller-saved registers + mepc + mstatus to the trap frame.
+ * Assumes sp already points to the allocated frame.
+ */
+.macro SAVE_CONTEXT
                 sw      ra, TRAP_FRAME_RA(sp)
                 sw      t0, TRAP_FRAME_T0(sp)
                 sw      t1, TRAP_FRAME_T1(sp)
@@ -94,122 +121,20 @@ _vectors:
                 sw      t4, TRAP_FRAME_T4(sp)
                 sw      t5, TRAP_FRAME_T5(sp)
                 sw      t6, TRAP_FRAME_T6(sp)
-
-                /* Save mepc, mcause and mstatus */
                 csrr    t0, mepc
-                csrr    t1, mcause
-                csrr    t2, mstatus
+                csrr    t1, mstatus
                 sw      t0, TRAP_FRAME_MEPC(sp)
-                sw      t1, TRAP_FRAME_MCAUSE(sp)
-                sw      t2, TRAP_FRAME_MSTATUS(sp)
+                sw      t1, TRAP_FRAME_MSTATUS(sp)
+.endm
 
-                /* Check if this is an interrupt */
-                bltz    t1, .Lis_interrupt
-
-                /* It's an exception - stay on thread stack, call handler */
-                mv      a0, t1                  /* mcause as first argument */
-                csrr    a1, mtval               /* mtval as second argument */
-                mv      a2, sp                  /* trap frame pointer */
-                call    _exception_handler
-                j       .Ltrap_restore
-
-.Lis_interrupt:
-                csrrw   sp, mscratch, sp
-
-                /* Set ISR nesting flag for port_is_isr_context(). */
-                lui     a0, 0xD0000
-                lw      a0, 0(a0)               /* SIO->CPUID */
-                la      a1, port_isr_nesting
-                add     a0, a0, a1
-                li      a1, 1
-                sb      a1, 0(a0)
-
-                /* Dispatch by interrupt type t1 still contains mcause */
-                andi    a0, t1, 0x7FF           /* Mask off interrupt */
-
-                li      t2, MCAUSE_M_TIMER_INT
-                beq     a0, t2, .Ltimer_interrupt
-
-                li      t2, MCAUSE_M_EXT_INT
-                beq     a0, t2, .Lexternal_interrupt
-
-                li      t2, MCAUSE_M_SOFT_INT
-                beq     a0, t2, .Lsoftware_interrupt
-
-                /* Unknown interrupt so call unhandled handler */
-                call    _unhandled_interrupt
-                j       .Lisr_done
-
-.Ltimer_interrupt:
-                call    _timer_interrupt_handler
-                j       .Lisr_done
-
-.Lexternal_interrupt:
-                /* Clear mreteirq so mret doesn't pop Xh3irq priority stack. */
-                csrw    0xBE5, zero
-
-                /* If the next pending IRQ is the SIO FIFO (IRQ 25), handle it
-                   via a direct call to VectorA4, bypassing the general dispatch
-                   table lookup else fall through to the general handler. */
-                csrr    a0, 0xBE4               /* Read MEINEXT (no update) */
-                bltz    a0, .Lisr_done          /* NOIRQ (bit 31) → done */
-
-                srli    a1, a0, 2               /* Extract IRQ number [10:2] */
-                andi    a1, a1, 0x1FF
-                li      a2, 25                  /* SIO FIFO IRQ */
-                bne     a1, a2, .Lext_general
-
-                /* Direct call to FIFO handler as a performance optimisation.
-                   VectorA4 drains the FIFO, clearing the IRQ 25 source. */
-                call    VectorA4
-
-                /* Check for more pending external IRQs after FIFO handling. */
-                csrr    a0, 0xBE4               /* Read MEINEXT */
-                bltz    a0, .Lisr_done
-
-                /* More IRQs pending — general handler processes remaining. */
-.Lext_general:
-                call    _external_interrupt_handler
-                j       .Lisr_done
-
-.Lsoftware_interrupt:
-                call    _software_interrupt_handler
-
-.Lisr_done:
-                /* Clear ISR nesting flag before switching back. */
-                lui     a0, 0xD0000
-                lw      a0, 0(a0)               /* SIO->CPUID */
-                la      a1, port_isr_nesting
-                add     a0, a0, a1
-                sb      zero, 0(a0)
-
-                /* Switch back to thread stack for preemption check and
-                   trap frame restore. */
-                csrrw   sp, mscratch, sp
-
-.Ltrap_restore:
-                /* Inline preemption pending check. This avoids function call
-                   overhead on every interrupt return. */
-                lui     a0, 0xD0000
-                lw      a0, 0(a0)             /* SIO->CPUID (0 or 1) */
-                la      a1, port_preemption_pending
-                add     a0, a0, a1
-                lbu     a0, 0(a0)
-                beqz    a0, .Lno_preemption
-
-                /* Preemption is needed - call the switch function. */
-                call    __port_switch_from_isr
-
-.Lno_preemption:
-                /* Restore mstatus */
+/*
+ * Restore all caller-saved registers + mepc + mstatus, deallocate frame, mret.
+ */
+.macro RESTORE_CONTEXT_AND_MRET
                 lw      t0, TRAP_FRAME_MSTATUS(sp)
                 csrw    mstatus, t0
-
-                /* Restore mepc */
                 lw      t0, TRAP_FRAME_MEPC(sp)
                 csrw    mepc, t0
-
-                /* Restore saved registers */
                 lw      ra, TRAP_FRAME_RA(sp)
                 lw      t0, TRAP_FRAME_T0(sp)
                 lw      t1, TRAP_FRAME_T1(sp)
@@ -226,20 +151,148 @@ _vectors:
                 lw      t4, TRAP_FRAME_T4(sp)
                 lw      t5, TRAP_FRAME_T5(sp)
                 lw      t6, TRAP_FRAME_T6(sp)
-
-                /* Restore stack pointer */
                 addi    sp, sp, TRAP_FRAME_SIZE
-
-                /* Return from trap */
                 mret
+.endm
 
-                .size   _vectors, . - _vectors
+/*
+ * ISR nesting entry: increment counter, conditional mscratch swap.
+ * Uses a0-a4 as scratch (already saved to frame).
+ */
+.macro NESTING_ENTRY
+                lui     a0, 0xD0000
+                lw      a0, 0(a0)               /* SIO->CPUID */
+                la      a1, port_isr_nesting
+                add     a2, a0, a1              /* &nesting[cpuid] */
+                lbu     a3, 0(a2)               /* old_nesting */
+                addi    a4, a3, 1
+                sb      a4, 0(a2)               /* nesting++ */
+                bnez    a3, 1f                  /* if old > 0: already on ISR stack */
+                csrrw   sp, mscratch, sp        /* first entry: swap to ISR stack */
+1:
+.endm
+
+/*
+ * ISR nesting exit: ensure MIE=0, decrement counter, conditional mscratch swap.
+ * Uses a0-a3 as scratch. After macro: a3=new nesting value.
+ */
+.macro NESTING_EXIT
+                csrci   mstatus, 0x8            /* Ensure MIE=0 */
+                lui     a0, 0xD0000
+                lw      a0, 0(a0)               /* SIO->CPUID */
+                la      a1, port_isr_nesting
+                add     a2, a0, a1              /* &nesting[cpuid] */
+                lbu     a3, 0(a2)
+                addi    a3, a3, -1
+                sb      a3, 0(a2)               /* nesting-- */
+                bnez    a3, 1f                  /* if still > 0: stay on ISR stack */
+                csrrw   sp, mscratch, sp        /* outermost: swap back to thread stack */
+1:
+.endm
+
+/*
+ * Outermost ISR exit: preemption check + context restore + mret.
+ * For nested returns: just restore + mret.
+ * Expects a3 = nesting value after decrement (from NESTING_EXIT).
+ */
+.macro ISR_EXIT_WITH_PREEMPTION
+                bnez    a3, .Lnested_\@
+
+                /* Outermost exit — now on thread stack. Check preemption. */
+                lui     a0, 0xD0000
+                lw      a0, 0(a0)               /* SIO->CPUID */
+                la      a1, port_preemption_pending
+                add     a0, a0, a1
+                lbu     a0, 0(a0)
+                beqz    a0, .Lnested_\@
+
+                call    __port_switch_from_isr
+
+.Lnested_\@:
+                RESTORE_CONTEXT_AND_MRET
+.endm
+
+/*===========================================================================*/
+/* Exception entry (vector offset +0).                                       */
+/*===========================================================================*/
+
+                .section .text, "ax", @progbits
+                .balign 4
+                .type   _exception_entry, @function
+_exception_entry:
+                addi    sp, sp, -TRAP_FRAME_SIZE
+                SAVE_CONTEXT
+
+                /* Stay on thread stack, no nesting change. */
+                csrr    a0, mcause
+                csrr    a1, mtval
+                mv      a2, sp                  /* trap frame pointer */
+                call    _exception_handler
+
+                RESTORE_CONTEXT_AND_MRET
+
+                .size   _exception_entry, . - _exception_entry
+
+/*===========================================================================*/
+/* Timer IRQ entry (vector offset +28, cause 7).                             */
+/* Non-preemptive: MIE stays clear during handler.                           */
+/*===========================================================================*/
+
+                .balign 4
+                .type   _timer_irq_entry, @function
+_timer_irq_entry:
+                addi    sp, sp, -TRAP_FRAME_SIZE
+                SAVE_CONTEXT
+                NESTING_ENTRY
+
+                call    _timer_interrupt_handler
+
+                NESTING_EXIT
+                ISR_EXIT_WITH_PREEMPTION
+
+                .size   _timer_irq_entry, . - _timer_irq_entry
+
+/*===========================================================================*/
+/* Software IRQ entry (vector offset +12, cause 3).                          */
+/* Non-preemptive: MIE stays clear during handler.                           */
+/*===========================================================================*/
+
+                .balign 4
+                .type   _software_irq_entry, @function
+_software_irq_entry:
+                addi    sp, sp, -TRAP_FRAME_SIZE
+                SAVE_CONTEXT
+                NESTING_ENTRY
+
+                call    _software_interrupt_handler
+
+                NESTING_EXIT
+                ISR_EXIT_WITH_PREEMPTION
+
+                .size   _software_irq_entry, . - _software_irq_entry
+
+/*===========================================================================*/
+/* External IRQ entry (vector offset +44, cause 11).                         */
+/* Preemptive nesting via Xh3irq — dispatch protocol in C.                   */
+/*===========================================================================*/
+
+                .balign 4
+                .type   _ext_irq_entry, @function
+_ext_irq_entry:
+                addi    sp, sp, -TRAP_FRAME_SIZE
+                SAVE_CONTEXT
+                NESTING_ENTRY
+
+                call    _ext_irq_dispatch
+
+                NESTING_EXIT
+                ISR_EXIT_WITH_PREEMPTION
+
+                .size   _ext_irq_entry, . - _ext_irq_entry
 
 /*===========================================================================*/
 /* Default weak handlers.                                                    */
 /*===========================================================================*/
-
-                .section .text, "ax", @progbits
 
                 /* Reset handler, jumps to C runtime entry */
                 .globl  Reset_Handler
@@ -266,13 +319,13 @@ _timer_interrupt_handler:
                 ret
                 .size   _timer_interrupt_handler, . - _timer_interrupt_handler
 
-                /* Default external interrupt handler */
-                .globl  _external_interrupt_handler
-                .weak   _external_interrupt_handler
-                .type   _external_interrupt_handler, @function
-_external_interrupt_handler:
+                /* Default external interrupt dispatch (overridden by vectors_riscv.c) */
+                .globl  _ext_irq_dispatch
+                .weak   _ext_irq_dispatch
+                .type   _ext_irq_dispatch, @function
+_ext_irq_dispatch:
                 ret
-                .size   _external_interrupt_handler, . - _external_interrupt_handler
+                .size   _ext_irq_dispatch, . - _ext_irq_dispatch
 
                 /* Default software interrupt handler */
                 .globl  _software_interrupt_handler

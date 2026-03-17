@@ -76,7 +76,7 @@
  *          trap handler saves all caller-saved registers plus some extra.
  */
 #if !defined(PORT_INT_REQUIRED_STACK) || defined(__DOXYGEN__)
-#define PORT_INT_REQUIRED_STACK         256
+#define PORT_INT_REQUIRED_STACK         384
 #endif
 
 /**
@@ -209,9 +209,9 @@
 
 /**
  * @brief   Interrupt saved context.
- * @details This structure represents the stack frame saved during a
- *          preemption-capable interrupt handler.
- * @note    RISC-V calling convention: caller saved registers plus mepc/mcause.
+ * @details Stack frame saved during a preemption-capable interrupt handler.
+ * @note    Caller-saved registers plus mepc/mstatus. The mcause slot is
+ *          repurposed for MEICONTEXT (vectored mode handles routing).
  */
 struct port_extctx {
   uint32_t              ra;
@@ -231,7 +231,7 @@ struct port_extctx {
   uint32_t              t5;
   uint32_t              t6;
   uint32_t              mepc;
-  uint32_t              mcause;
+  uint32_t              meicontext;
   uint32_t              mstatus;
   uint32_t              _pad;     /* Pad to 20 words (80 bytes, 16-byte aligned) */
 };
@@ -526,11 +526,12 @@ static inline void port_unlock(void) {
 
 /**
  * @brief   Kernel-lock action from an interrupt handler.
- * @details In RISC-V, interrupts are already disabled when entering a trap
- *          handler. In SMP mode though we still need the spinlock to ensure
- *          mutual exclusion.
+ * @details Clears MIE to prevent same-core preemption during I-class API calls.
+ *          SMP mode additionally takes the spinlock for cross-core exclusion.
  */
 static inline void port_lock_from_isr(void) {
+  __port_clear_mstatus(MSTATUS_MIE);
+  __asm__ volatile ("" : : : "memory");
 #if CH_CFG_SMP_MODE == TRUE
   port_spinlock_take();
 #endif
@@ -538,14 +539,15 @@ static inline void port_lock_from_isr(void) {
 
 /**
  * @brief   Kernel-unlock action from an interrupt handler.
- * @details In RISC-V, interrupts must remain disabled until MRET restores
- *          MSTATUS.MPIE to MSTATUS.MIE. In SMP mode we release the
- *          spinlock for inter core mutual exclusion.
+ * @details Re-enables MIE for preemptive nesting. Timer/software IRQs remain
+ *          masked by clearts inside the external IRQ dispatcher.
  */
 static inline void port_unlock_from_isr(void) {
 #if CH_CFG_SMP_MODE == TRUE
   port_spinlock_release();
 #endif
+  __asm__ volatile ("" : : : "memory");
+  __port_set_mstatus(MSTATUS_MIE);
 }
 
 /**

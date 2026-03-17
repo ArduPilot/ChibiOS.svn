@@ -18,19 +18,11 @@
 
 /**
  * @file    RISCV-HAZARD3/compilers/GCC/vectors_riscv.c
- * @brief   Software vector table and external interrupt dispatcher for
- *          Hazard3 Xh3irq extension.
- * @details This file provides:
- *          - A default unhandled IRQ handler (weak, infinite loop)
- *          - 52 weak VectorXX symbols aliased to the default handler
- *          - A function pointer table indexed by IRQ number
- *          - The _external_interrupt_handler() that reads MEINEXT and
- *            dispatches to the appropriate VectorXX handler
- *
- *          The VectorXX names match the ARM NVIC convention used by HAL
- *          drivers, so handlers defined with OSAL_IRQ_HANDLER(VectorXX)
- *          automatically provide strong symbols that override the weak
- *          defaults at link time.
+ * @brief   Software vector table and preemptive external IRQ dispatcher
+ *          for Hazard3 Xh3irq.
+ * @details 52 weak VectorXX symbols (ARM NVIC naming for HAL compatibility),
+ *          dispatch table, and _ext_irq_dispatch() implementing preemptive
+ *          nesting via MEICONTEXT/MEINEXT with software priority pop.
  *
  * @addtogroup RISCV_HAZARD3_VECTORS
  * @{
@@ -158,38 +150,47 @@ void (* const _ext_vectors[RISCV_NUM_INTERRUPTS])(void) = {
 /*===========================================================================*/
 
 /**
- * @brief   External interrupt dispatcher for Xh3irq.
- * @details Called from vectors_hazard3.S when mcause indicates an external
- *          interrupt (mcause == 11 | INTERRUPT_BIT). Dispatches to the
- *          corresponding VectorXX handler via the software vector table.
- *
- * @note    The initial MEINEXT value is passed from the assembly handler
- *          via a0 to avoid a redundant CSR read. A plain csrr of MEINEXT
- *          (without the update bit) is non-destructive and can be re-read
- *          safely. After dispatching, MEINEXT is re-read to check for
- *          additional pending interrupts.
- *
- * @param[in] meinext   Initial MEINEXT value from the assembly handler
- *
- * @note    This function overrides the weak _external_interrupt_handler
- *          defined in vectors_hazard3.S.
+ * @brief   Preemptive external interrupt dispatcher for Xh3irq.
+ * @details Called from _ext_irq_entry in vectors_hazard3.S.
+ *          1. MEICONTEXT+clearts — save priority stack, mask timer/software.
+ *          2. MEINEXT+update loop — dispatch IRQs in priority order with MIE
+ *             enabled; higher-priority IRQs nest recursively.
+ *          3. Software priority pop — write popped state with mreteirq=0 to
+ *             avoid context-switch races that would leave the stack un-popped.
  */
-void _external_interrupt_handler(uint32_t meinext) {
+void _ext_irq_dispatch(void) {
+  /* Save MEICONTEXT with clearts — snapshot priority stack, mask timer/software. */
+  uint32_t meicontext;
+  __asm__ volatile ("csrrsi %0, 0xBE5, 0x2" : "=r"(meicontext));
 
+  /* MEINEXT+update loop — IRQs in descending priority, ratcheting threshold. */
   while (1) {
-    /* Bit 31 set means no more pending interrupts */
+    uint32_t meinext;
+    __asm__ volatile ("csrrsi %0, 0xBE4, 0x1" : "=r"(meinext));
     if (meinext & MEINEXT_NOIRQ)
       break;
 
-    /* IRQ number is in bits [10:2] */
     uint32_t irq = (meinext >> 2) & 0x1FFU;
+
+    /* MIE=1: allow higher-priority external IRQs to nest. */
+    __asm__ volatile ("csrsi mstatus, 0x8");
 
     if (irq < RISCV_NUM_INTERRUPTS)
       _ext_vectors[irq]();
 
-    /* Check for more pending interrupts */
-    meinext = hazard3_irq_get_next();
+    __asm__ volatile ("csrci mstatus, 0x8");
   }
+
+  /* Software priority pop: compute the mret-equivalent stack state and
+   * write with mreteirq=0 so mret won't double-pop. */
+  uint32_t pppreempt = (meicontext >> 28) & 0xFU;
+  uint32_t ppreempt  = (meicontext >> 24) & 0xFU;
+  uint32_t restored  = (meicontext & 0x0000FFFCU)   /* noirq, irq, mtiesave, msiesave */
+                      | (pppreempt << 24)             /* ppreempt  ← saved pppreempt   */
+                      | ((uint32_t)ppreempt << 16);   /* preempt   ← saved ppreempt    */
+                      /* pppreempt ← 0  (bits 31:28 = 0)                               */
+                      /* mreteirq  ← 0  (bit 0 = 0)                                    */
+  __asm__ volatile ("csrw 0xBE5, %0" : : "r"(restored));
 }
 
 /** @} */

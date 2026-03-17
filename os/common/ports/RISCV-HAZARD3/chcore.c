@@ -62,11 +62,9 @@ volatile bool port_preemption_pending;
 
 /**
  * @brief   ISR nesting counter.
- * @details Set to non-zero on ISR entry, cleared on ISR exit. Used by
- *          port_is_isr_context() for reliable ISR detection. A simple
- *          flag (0/1) suffices since Hazard3 uses non-preemptive dispatch
- *          (MIE stays clear during handlers, no nesting).
- * @note    Non-static: accessed directly from assembly in vectors_hazard3.S.
+ * @details Incremented on ISR entry, decremented on exit. Supports preemptive
+ *          nesting (max ~4 levels with Xh3irq priorities).
+ * @note    Non-static: accessed from assembly in vectors_hazard3.S.
  */
 #if CH_CFG_SMP_MODE == TRUE
 volatile uint8_t port_isr_nesting[PORT_CORES_NUMBER];

@@ -105,8 +105,10 @@ __port_switch:
                 .type   __port_thread_start, @function
 __port_thread_start:
 #if CH_CFG_SMP_MODE == TRUE
-                /* Release kernel spinlock inherited from context switch. */
-                call    __port_spinlock_release
+                /* Inline spinlock release inherited from context switch. */
+                fence   rw, rw
+                lui     a5, 0xD0000
+                sw      a5, 0x17C(a5)         /* SIO->SPINLOCK[31] = non-zero */
 #endif
 #if CH_DBG_SYSTEM_STATE_CHECK
                 call    __dbg_check_unlock
@@ -147,11 +149,14 @@ __port_switch_from_isr:
                 cm.push {ra}, -16
 
 #if CH_CFG_SMP_MODE == TRUE
-                /* Acquire kernel spinlock for context switch.
+                /* Inline spinlock acquire — avoids function call overhead.
                    MIE is already disabled. The spinlock must be held across
                    chSchDoPreemption to prevent both cores modifying the
                    scheduler state simultaneously. */
-                call    __port_spinlock_take
+                lui     a5, 0xD0000
+1:              lw      a4, 0x17C(a5)         /* SIO->SPINLOCK[31] */
+                beqz    a4, 1b                /* Spin until acquired */
+                fence   rw, rw                /* DMB after acquire */
 #endif
 
 #if CH_DBG_STATISTICS
@@ -177,8 +182,10 @@ __port_switch_from_isr:
 #endif
 
 #if CH_CFG_SMP_MODE == TRUE
-                /* Release kernel spinlock after context switch. */
-                call    __port_spinlock_release
+                /* Inline spinlock release — avoids function call overhead. */
+                fence   rw, rw                /* DMB before release */
+                lui     a5, 0xD0000
+                sw      a5, 0x17C(a5)         /* SIO->SPINLOCK[31] = non-zero */
 #endif
 
                 /* Restore ra and return to trap handler using zcmp popret.

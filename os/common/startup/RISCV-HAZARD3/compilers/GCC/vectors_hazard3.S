@@ -27,14 +27,28 @@
 
 #define _FROM_ASM_
 #include "rvparams.h"
+#include "chconf.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
 
-/* Stack frame: 16 caller-saved regs + mepc + (reserved) + mstatus + pad = 20 words.
+/* Stack frame: 16 caller-saved regs + mepc + meicontext + mstatus + pad = 20 words.
    20 * 4 = 80 bytes (16-byte aligned). */
 #define TRAP_FRAME_SIZE             (20 * 4)
+
+/* SIO FIFO register offsets from SIO base (0xD0000000). */
+#define SIO_FIFO_ST                 0x050
+#define SIO_FIFO_WR                 0x054
+#define SIO_FIFO_RD                 0x058
+
+/* FIFO_ST bit definitions. */
+#define SIO_FIFO_VLD                0x01
+#define SIO_FIFO_ROE_WOF            0x0C
+
+/* Port constants for FIFO fast path. */
+#define PORT_FIFO_IRQ               25
+#define PORT_FIFO_PANIC             (-2)    /* 0xFFFFFFFE */
 
 /* Offsets within trap frame */
 #define TRAP_FRAME_RA               0
@@ -194,14 +208,13 @@ _vectors:
 /*
  * Outermost ISR exit: preemption check + context restore + mret.
  * For nested returns: just restore + mret.
- * Expects a3 = nesting value after decrement (from NESTING_EXIT).
+ * Expects a0 = CPUID, a3 = nesting value after decrement (from NESTING_EXIT).
  */
 .macro ISR_EXIT_WITH_PREEMPTION
                 bnez    a3, .Lnested_\@
 
-                /* Outermost exit — now on thread stack. Check preemption. */
-                lui     a0, 0xD0000
-                lw      a0, 0(a0)               /* SIO->CPUID */
+                /* Outermost exit — now on thread stack. Check preemption.
+                   a0 = CPUID from NESTING_EXIT (avoids redundant SIO read). */
                 la      a1, port_preemption_pending
                 add     a0, a0, a1
                 lbu     a0, 0(a0)
@@ -282,14 +295,54 @@ _software_irq_entry:
                 .type   _ext_irq_entry, @function
 _ext_irq_entry:
                 addi    sp, sp, -TRAP_FRAME_SIZE
-                SAVE_CONTEXT
 
-                /* Save MEICONTEXT to trap frame. Plain read (no clearts) —
-                   timer/software IRQs don't affect the Xh3irq priority stack.
-                   Snapshot includes mreteirq=1 from hardware push on entry. */
+#if CH_CFG_SMP_MODE == TRUE
+                /* Early partial save: just enough scratch registers + CSRs
+                   to peek at MEINEXT and decide fast vs slow path. */
+                sw      t0, TRAP_FRAME_T0(sp)
+                sw      t1, TRAP_FRAME_T1(sp)
+                sw      t2, TRAP_FRAME_T2(sp)
+                csrr    t0, mepc
+                csrr    t1, mstatus
+                sw      t0, TRAP_FRAME_MEPC(sp)
+                sw      t1, TRAP_FRAME_MSTATUS(sp)
                 csrr    t0, 0xBE5
                 sw      t0, TRAP_FRAME_MEICONTEXT(sp)
 
+                /* FIFO fast path: peek at the highest-priority pending external
+                   IRQ. If it is the SIO FIFO (IRQ 25), handle it entirely in
+                   assembly with no NESTING_ENTRY/EXIT and partial register save.
+                   FIFO is at max priority and the fast path never enables MIE,
+                   so no interrupt can fire during it — the nesting counter and
+                   ISR stack swap are unnecessary. */
+                csrr    t0, 0xBE4               /* MEINEXT (no update, no side effects) */
+                srli    t1, t0, 2
+                andi    t1, t1, 0x1FF           /* Extract IRQ number */
+                li      t2, PORT_FIFO_IRQ
+                beq     t1, t2, .Lfifo_fast
+
+                /* Not FIFO — save remaining registers for slow path. */
+                sw      ra, TRAP_FRAME_RA(sp)
+                sw      a0, TRAP_FRAME_A0(sp)
+                sw      a1, TRAP_FRAME_A1(sp)
+                sw      a2, TRAP_FRAME_A2(sp)
+                sw      a3, TRAP_FRAME_A3(sp)
+                sw      a4, TRAP_FRAME_A4(sp)
+                sw      a5, TRAP_FRAME_A5(sp)
+                sw      a6, TRAP_FRAME_A6(sp)
+                sw      a7, TRAP_FRAME_A7(sp)
+                sw      t3, TRAP_FRAME_T3(sp)
+                sw      t4, TRAP_FRAME_T4(sp)
+                sw      t5, TRAP_FRAME_T5(sp)
+                sw      t6, TRAP_FRAME_T6(sp)
+#else
+                SAVE_CONTEXT
+
+                csrr    t0, 0xBE5
+                sw      t0, TRAP_FRAME_MEICONTEXT(sp)
+#endif
+
+                /* ---- Normal Xh3irq preemptive dispatch ---- */
                 NESTING_ENTRY
 
                 call    _ext_irq_dispatch
@@ -299,9 +352,8 @@ _ext_irq_entry:
                 /* ISR exit with MEICONTEXT restore for hardware mret pop. */
                 bnez    a3, .Lnested_ext
 
-                /* Outermost exit — now on thread stack. Check preemption. */
-                lui     a0, 0xD0000
-                lw      a0, 0(a0)               /* SIO->CPUID */
+                /* Outermost exit — now on thread stack. Check preemption.
+                   a0 = CPUID from NESTING_EXIT (avoids redundant SIO read). */
                 la      a1, port_preemption_pending
                 add     a0, a0, a1
                 lbu     a0, 0(a0)
@@ -315,6 +367,105 @@ _ext_irq_entry:
                 lw      t0, TRAP_FRAME_MEICONTEXT(sp)
                 csrw    0xBE5, t0
                 RESTORE_CONTEXT_AND_MRET
+
+#if CH_CFG_SMP_MODE == TRUE
+                /* ---- FIFO fast path ----
+                   Handles SIO FIFO IRQ entirely in assembly. In addition to
+                   bypassing the Xh3irq dispatch, this path also:
+                   - Skips NESTING_ENTRY/EXIT entirely (MIE is never enabled
+                     so no interrupt can nest; runs on current stack)
+                   - Uses split register save (only t0-t2, ra, a0-a4 saved
+                     initially; a5-a7, t3-t6 deferred to preemption path)
+                   The nesting counter is read (not modified) for the outermost
+                   check. MEICONTEXT is restored before mret for the hardware
+                   priority stack pop. */
+                .balign 4
+.Lfifo_fast:
+                /* Save registers used by the inline handler. t0-t2, mepc,
+                   mstatus, meicontext already saved above. */
+                sw      ra, TRAP_FRAME_RA(sp)
+                sw      a0, TRAP_FRAME_A0(sp)
+                sw      a1, TRAP_FRAME_A1(sp)
+                sw      a2, TRAP_FRAME_A2(sp)
+                sw      a3, TRAP_FRAME_A3(sp)
+                sw      a4, TRAP_FRAME_A4(sp)
+
+                /* Inline FIFO handler — drain all messages.
+                   No NESTING_ENTRY — runs on current stack (thread or ISR). */
+                lui     a0, 0xD0000             /* SIO base 0xD0000000 */
+                li      a1, SIO_FIFO_ROE_WOF
+                sw      a1, SIO_FIFO_ST(a0)     /* Clear error flags */
+.Lfifo_drain:
+                lw      a1, SIO_FIFO_ST(a0)     /* Read FIFO status */
+                andi    a2, a1, SIO_FIFO_VLD
+                beqz    a2, .Lfifo_drained      /* FIFO empty */
+                lw      a3, SIO_FIFO_RD(a0)     /* Read message (clears IRQ when empty) */
+                li      a4, PORT_FIFO_PANIC
+                beq     a3, a4, .Lfifo_panic
+                j       .Lfifo_drain
+.Lfifo_drained:
+                /* No NESTING_EXIT — read nesting counter and CPUID directly.
+                   a0 = SIO base from FIFO handling above. */
+                lw      a1, 0(a0)               /* SIO->CPUID */
+
+                /* Set preemption pending. */
+                la      a2, port_preemption_pending
+                add     a3, a1, a2
+                li      a4, 1
+                sb      a4, 0(a3)
+
+                /* Check if outermost by reading nesting counter (not modifying).
+                   If nested, another handler's NESTING_EXIT handles preemption. */
+                la      a2, port_isr_nesting
+                add     a2, a1, a2
+                lbu     a3, 0(a2)
+                bnez    a3, .Lfifo_restore
+
+                /* Outermost — save remaining caller-saved registers for
+                   the context switch, then preempt. */
+                sw      a5, TRAP_FRAME_A5(sp)
+                sw      a6, TRAP_FRAME_A6(sp)
+                sw      a7, TRAP_FRAME_A7(sp)
+                sw      t3, TRAP_FRAME_T3(sp)
+                sw      t4, TRAP_FRAME_T4(sp)
+                sw      t5, TRAP_FRAME_T5(sp)
+                sw      t6, TRAP_FRAME_T6(sp)
+
+                call    __port_switch_from_isr
+
+                lw      a5, TRAP_FRAME_A5(sp)
+                lw      a6, TRAP_FRAME_A6(sp)
+                lw      a7, TRAP_FRAME_A7(sp)
+                lw      t3, TRAP_FRAME_T3(sp)
+                lw      t4, TRAP_FRAME_T4(sp)
+                lw      t5, TRAP_FRAME_T5(sp)
+                lw      t6, TRAP_FRAME_T6(sp)
+
+.Lfifo_restore:
+                /* Restore MEICONTEXT + CSRs + saved registers + mret.
+                   Only restores the registers we saved (phases 1+2). */
+                lw      t0, TRAP_FRAME_MEICONTEXT(sp)
+                csrw    0xBE5, t0
+                lw      t0, TRAP_FRAME_MSTATUS(sp)
+                csrw    mstatus, t0
+                lw      t0, TRAP_FRAME_MEPC(sp)
+                csrw    mepc, t0
+                lw      ra, TRAP_FRAME_RA(sp)
+                lw      t0, TRAP_FRAME_T0(sp)
+                lw      t1, TRAP_FRAME_T1(sp)
+                lw      t2, TRAP_FRAME_T2(sp)
+                lw      a0, TRAP_FRAME_A0(sp)
+                lw      a1, TRAP_FRAME_A1(sp)
+                lw      a2, TRAP_FRAME_A2(sp)
+                lw      a3, TRAP_FRAME_A3(sp)
+                lw      a4, TRAP_FRAME_A4(sp)
+                addi    sp, sp, TRAP_FRAME_SIZE
+                mret
+
+.Lfifo_panic:
+                csrci   mstatus, 0x8
+1:              j       1b
+#endif
 
                 .size   _ext_irq_entry, . - _ext_irq_entry
 

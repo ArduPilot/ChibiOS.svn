@@ -54,6 +54,7 @@
 #define TRAP_FRAME_T5               56
 #define TRAP_FRAME_T6               60
 #define TRAP_FRAME_MEPC             64
+#define TRAP_FRAME_MEICONTEXT       68
 #define TRAP_FRAME_MSTATUS          72
 
 /*===========================================================================*/
@@ -273,7 +274,8 @@ _software_irq_entry:
 
 /*===========================================================================*/
 /* External IRQ entry (vector offset +44, cause 11).                         */
-/* Preemptive nesting via Xh3irq — dispatch protocol in C.                   */
+/* Preemptive nesting via Xh3irq — MEICONTEXT saved to trap frame so the     */
+/* hardware mret pop handles priority stack restoration.                      */
 /*===========================================================================*/
 
                 .balign 4
@@ -281,12 +283,38 @@ _software_irq_entry:
 _ext_irq_entry:
                 addi    sp, sp, -TRAP_FRAME_SIZE
                 SAVE_CONTEXT
+
+                /* Save MEICONTEXT to trap frame. Plain read (no clearts) —
+                   timer/software IRQs don't affect the Xh3irq priority stack.
+                   Snapshot includes mreteirq=1 from hardware push on entry. */
+                csrr    t0, 0xBE5
+                sw      t0, TRAP_FRAME_MEICONTEXT(sp)
+
                 NESTING_ENTRY
 
                 call    _ext_irq_dispatch
 
                 NESTING_EXIT
-                ISR_EXIT_WITH_PREEMPTION
+
+                /* ISR exit with MEICONTEXT restore for hardware mret pop. */
+                bnez    a3, .Lnested_ext
+
+                /* Outermost exit — now on thread stack. Check preemption. */
+                lui     a0, 0xD0000
+                lw      a0, 0(a0)               /* SIO->CPUID */
+                la      a1, port_preemption_pending
+                add     a0, a0, a1
+                lbu     a0, 0(a0)
+                beqz    a0, .Lnested_ext
+
+                call    __port_switch_from_isr
+
+.Lnested_ext:
+                /* Restore MEICONTEXT (mreteirq=1) so hardware pops the
+                   priority stack on mret. MIE=0 prevents intervening traps. */
+                lw      t0, TRAP_FRAME_MEICONTEXT(sp)
+                csrw    0xBE5, t0
+                RESTORE_CONTEXT_AND_MRET
 
                 .size   _ext_irq_entry, . - _ext_irq_entry
 

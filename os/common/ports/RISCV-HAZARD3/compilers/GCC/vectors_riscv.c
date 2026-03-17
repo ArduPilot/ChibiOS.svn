@@ -22,7 +22,8 @@
  *          for Hazard3 Xh3irq.
  * @details 52 weak VectorXX symbols (ARM NVIC naming for HAL compatibility),
  *          dispatch table, and _ext_irq_dispatch() implementing preemptive
- *          nesting via MEICONTEXT/MEINEXT with software priority pop.
+ *          nesting via MEINEXT+update with hardware mret priority pop
+ *          (MEICONTEXT save/restore in vectors_hazard3.S).
  *
  * @addtogroup RISCV_HAZARD3_VECTORS
  * @{
@@ -151,19 +152,19 @@ void (* const _ext_vectors[RISCV_NUM_INTERRUPTS])(void) = {
 
 /**
  * @brief   Preemptive external interrupt dispatcher for Xh3irq.
- * @details Called from _ext_irq_entry in vectors_hazard3.S.
- *          1. MEICONTEXT+clearts — save priority stack, mask timer/software.
- *          2. MEINEXT+update loop — dispatch IRQs in priority order with MIE
- *             enabled; higher-priority IRQs nest recursively.
- *          3. Software priority pop — write popped state with mreteirq=0 to
- *             avoid context-switch races that would leave the stack un-popped.
+ * @details Called from _ext_irq_entry after MEICONTEXT is saved to the trap
+ *          frame. Assembly restores it before mret for hardware priority pop.
+ *          MIE enabled for the loop so higher-priority EIRQs nest via the
+ *          vectored table. Timer/software IRQs nest safely — they don't
+ *          touch the Xh3irq priority stack.
  */
 void _ext_irq_dispatch(void) {
-  /* Save MEICONTEXT with clearts — snapshot priority stack, mask timer/software. */
-  uint32_t meicontext;
-  __asm__ volatile ("csrrsi %0, 0xBE5, 0x2" : "=r"(meicontext));
 
-  /* MEINEXT+update loop — IRQs in descending priority, ratcheting threshold. */
+  /* MIE=1: allow preemptive nesting. MEINEXT+update ratchets threshold
+   * atomically so higher-priority IRQs nest via the vectored trap table. */
+  __asm__ volatile ("csrsi mstatus, 0x8");
+
+  /* MEINEXT+update loop — dispatch all pending IRQs in priority order. */
   while (1) {
     uint32_t meinext;
     __asm__ volatile ("csrrsi %0, 0xBE4, 0x1" : "=r"(meinext));
@@ -172,25 +173,12 @@ void _ext_irq_dispatch(void) {
 
     uint32_t irq = (meinext >> 2) & 0x1FFU;
 
-    /* MIE=1: allow higher-priority external IRQs to nest. */
-    __asm__ volatile ("csrsi mstatus, 0x8");
-
     if (irq < RISCV_NUM_INTERRUPTS)
       _ext_vectors[irq]();
-
-    __asm__ volatile ("csrci mstatus, 0x8");
   }
 
-  /* Software priority pop: compute the mret-equivalent stack state and
-   * write with mreteirq=0 so mret won't double-pop. */
-  uint32_t pppreempt = (meicontext >> 28) & 0xFU;
-  uint32_t ppreempt  = (meicontext >> 24) & 0xFU;
-  uint32_t restored  = (meicontext & 0x0000FFFCU)   /* noirq, irq, mtiesave, msiesave */
-                      | (pppreempt << 24)             /* ppreempt  ← saved pppreempt   */
-                      | ((uint32_t)ppreempt << 16);   /* preempt   ← saved ppreempt    */
-                      /* pppreempt ← 0  (bits 31:28 = 0)                               */
-                      /* mreteirq  ← 0  (bit 0 = 0)                                    */
-  __asm__ volatile ("csrw 0xBE5, %0" : : "r"(restored));
+  /* MIE=0: done dispatching, return to assembly for nesting exit. */
+  __asm__ volatile ("csrci mstatus, 0x8");
 }
 
 /** @} */

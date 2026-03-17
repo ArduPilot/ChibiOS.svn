@@ -210,8 +210,8 @@
 /**
  * @brief   Interrupt saved context.
  * @details Stack frame saved during a preemption-capable interrupt handler.
- * @note    Caller-saved registers plus mepc/mstatus. The mcause slot is
- *          repurposed for MEICONTEXT (vectored mode handles routing).
+ * @note    Caller-saved regs + mepc/mstatus. The meicontext slot saves the
+ *          Xh3irq priority stack for hardware mret pop across context switches.
  */
 struct port_extctx {
   uint32_t              ra;

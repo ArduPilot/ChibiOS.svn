@@ -100,17 +100,24 @@ extern "C" {
  *          a spurious match. Safe sequence per RP2350 datasheet 3.1.8:
  *          1. Write 0xFFFFFFFF to high word (makes compare always false)
  *          2. Write new low word
- *          3. Write new high word
+ *          3. Write new high word (matching current MTIME epoch)
  *
  * @param[in] time      the time to be set for the first alarm
  *
  * @notapi
  */
 static inline void port_timer_start_alarm(systime_t time) {
+  uint32_t hi = MTIME_HI;
+
+  /* If alarm time wraps past current MTIME_LO, it fires after the
+     next low-word rollover. */
+  if (time < MTIME_LO) {
+    hi++;
+  }
 
   MTIMECMP_HI = 0xFFFFFFFFU;
   MTIMECMP_LO = (uint32_t)time;
-  MTIMECMP_HI = 0U;
+  MTIMECMP_HI = hi;
 }
 
 /**
@@ -132,10 +139,15 @@ static inline void port_timer_stop_alarm(void) {
  * @notapi
  */
 static inline void port_timer_set_alarm(systime_t time) {
+  uint32_t hi = MTIME_HI;
+
+  if (time < MTIME_LO) {
+    hi++;
+  }
 
   MTIMECMP_HI = 0xFFFFFFFFU;
   MTIMECMP_LO = (uint32_t)time;
-  MTIMECMP_HI = 0U;
+  MTIMECMP_HI = hi;
 }
 
 /**

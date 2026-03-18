@@ -38,8 +38,7 @@
 
 /**
  * @brief   Number of supported alarms.
- * @note    RISC-V Hazard3 port uses periodic mode only, so alarms are not
- *          needed. The MTIME timer interrupt is handled in the port layer.
+ * @note    0: timer managed by port_timer_* in chcore_timer_hazard3.h.
  */
 #define ST_LLD_NUM_ALARMS                   0
 

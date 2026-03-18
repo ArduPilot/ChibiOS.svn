@@ -110,8 +110,8 @@ void hal_lld_init(void) {
   pioInit();
 #endif
 
-  /* Bind the system timer IRQ to this core for tickless mode. */
-#if OSAL_ST_MODE == OSAL_ST_MODE_FREERUNNING
+  /* RISC-V MTIMECMP is per-core via SIO, no binding needed. */
+#if (OSAL_ST_MODE == OSAL_ST_MODE_FREERUNNING) && !defined(__riscv)
   stBind();
 #endif
 

@@ -111,24 +111,16 @@ volatile uint8_t port_isr_nesting;
  */
 #define MTIME_CTRL  (*(volatile uint32_t *)(RISCV_SIO_BASE + RISCV_SIO_MTIME_CTRL_OFFSET))
 
+#if CH_CFG_ST_TIMEDELTA == 0
 /**
- * @brief   Tick interval in timer counts.
- * @note    MTIME runs at 1 MHz, OSAL_ST_FREQUENCY is typically 1000 (1kHz).
- *          So interval = 1000000 / 1000 = 1000 counts per tick.
+ * @brief   Tick interval in MTIME counts (periodic mode only).
  */
 #define TICK_INTERVAL   (RISCV_MTIME_FREQUENCY / OSAL_ST_FREQUENCY)
+#endif
 
+#if CH_CFG_ST_TIMEDELTA == 0
 /**
- * @brief   RISC-V machine timer interrupt handler.
- * @details This handler is called from the trap vector when mcause indicates
- *          a machine timer interrupt (0x80000007). It clears the interrupt
- *          by updating MTIMECMP and calls the OSAL timer handler.
- *
- * @note    Per RP2350 datasheet 3.1.8 and RISC-V ISA manual, the safe write
- *          sequence for MTIMECMP to avoid spurious interrupts is:
- *          1. Write -1 (0xFFFFFFFF) to MTIMECMP (low) - makes comparison always false
- *          2. Write new high word to MTIMECMPH
- *          3. Write new low word to MTIMECMP
+ * @brief   Machine timer interrupt handler (periodic mode).
  */
 void _timer_interrupt_handler(void) {
   uint32_t current_lo;
@@ -136,32 +128,42 @@ void _timer_interrupt_handler(void) {
   uint32_t next_lo;
   uint32_t next_hi;
 
-  /* Read current MTIME value (full 64 bits, atomic). */
+  /* Read MTIME (atomic 64-bit). */
   do {
     current_hi = MTIMEH;
     current_lo = MTIME;
   } while (current_hi != MTIMEH);
 
-  /* Calculate next tick time (64-bit add). */
+  /* Next tick (64-bit add). */
   next_lo = current_lo + TICK_INTERVAL;
   next_hi = current_hi + (next_lo < current_lo ? 1U : 0U);
 
-  /* Update MTIMECMP using safe write sequence per RISC-V ISA manual:
-     1. Write -1 to low word (makes MTIME < MTIMECMP always true temporarily)
-     2. Write new high word to MTIMECMPH
-     3. Write new low word to MTIMECMP */
+  /* Safe MTIMECMP write sequence (avoids spurious interrupts). */
   MTIMECMP = 0xFFFFFFFFU;
   MTIMECMPH = next_hi;
   MTIMECMP = next_lo;
 
-  /* Call the OSAL system timer handler. */
   osalSysLockFromISR();
   osalOsTimerHandlerI();
   osalSysUnlockFromISR();
 
-  /* Check for preemption. */
   __port_irq_epilogue();
 }
+#else /* CH_CFG_ST_TIMEDELTA > 0 */
+/**
+ * @brief   Machine timer interrupt handler (tickless mode).
+ * @note    Kernel reprograms MTIMECMP via port_timer_set_alarm().
+ *          Level-sensitive: auto-clears when MTIMECMP > MTIME.
+ */
+void _timer_interrupt_handler(void) {
+
+  osalSysLockFromISR();
+  osalOsTimerHandlerI();
+  osalSysUnlockFromISR();
+
+  __port_irq_epilogue();
+}
+#endif /* CH_CFG_ST_TIMEDELTA */
 
 /*===========================================================================*/
 /* Module exported functions.                                                */
@@ -185,8 +187,7 @@ void port_init(os_instance_t *oip) {
   PREEMPT_PENDING = false;
   ISR_NESTING = 0U;
 
-  /* In SMP mode port_init() is called per-core, so we reinitialize
-     to ensure each core has the correct ISR stack pointer.*/
+  /* Per-core ISR stack pointer.*/
   {
 #if CH_CFG_SMP_MODE == TRUE
     extern uint32_t __main_stack_end__;
@@ -203,6 +204,8 @@ void port_init(os_instance_t *oip) {
 
   MTIME_CTRL = MTIME_CTRL_EN;
 
+#if CH_CFG_ST_TIMEDELTA == 0
+  /* Periodic mode: arm first tick. */
   {
     uint32_t hi, lo;
     do {
@@ -215,6 +218,10 @@ void port_init(os_instance_t *oip) {
     MTIMECMPH = next_hi;
     MTIMECMP = next_lo;
   }
+#else
+  /* Tickless mode: alarm disabled until kernel arms it. */
+  port_timer_stop_alarm();
+#endif
 
   __asm__ volatile ("csrs mie, %0" : : "r"(MIE_MTIE | MIE_MEIE));
 

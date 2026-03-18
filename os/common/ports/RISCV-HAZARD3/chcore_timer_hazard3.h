@@ -69,6 +69,16 @@
 /* Module macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @brief   Enables the timer for this OS instance (no-op, MTIMECMP is per-core).
+ */
+#define port_timer_enable(oip)
+
+/**
+ * @brief   Disables the timer for this OS instance (no-op, MTIMECMP is per-core).
+ */
+#define port_timer_disable(oip)
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
@@ -86,8 +96,11 @@ extern "C" {
 
 /**
  * @brief   Starts the alarm.
- * @note    Makes sure that no spurious alarms are triggered after
- *          this call.
+ * @note    MTIMECMP is 64-bit; writing the halves non-atomically can cause
+ *          a spurious match. Safe sequence per RP2350 datasheet 3.1.8:
+ *          1. Write 0xFFFFFFFF to high word (makes compare always false)
+ *          2. Write new low word
+ *          3. Write new high word
  *
  * @param[in] time      the time to be set for the first alarm
  *
@@ -95,21 +108,18 @@ extern "C" {
  */
 static inline void port_timer_start_alarm(systime_t time) {
 
-  /* Set MTIMECMP without triggering spurious interrupts */
   MTIMECMP_HI = 0xFFFFFFFFU;
   MTIMECMP_LO = (uint32_t)time;
   MTIMECMP_HI = 0U;
 }
 
 /**
- * @brief   Stops the alarm interrupt.
- * @note    Sets MTIMECMP to maximum value to prevent triggering.
+ * @brief   Stops the alarm interrupt (sets MTIMECMP to max).
  *
  * @notapi
  */
 static inline void port_timer_stop_alarm(void) {
 
-  /* Set MTIMECMP to maximum to prevent further interrupts */
   MTIMECMP_LO = 0xFFFFFFFFU;
   MTIMECMP_HI = 0xFFFFFFFFU;
 }
@@ -137,7 +147,6 @@ static inline void port_timer_set_alarm(systime_t time) {
  */
 static inline systime_t port_timer_get_time(void) {
 
-  /* For 32-bit systime_t we just return the lower 32 bits. */
   return (systime_t)MTIME_LO;
 }
 

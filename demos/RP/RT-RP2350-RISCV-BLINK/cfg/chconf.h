@@ -85,11 +85,10 @@
  * @brief   System tick frequency.
  * @details Frequency of the system timer that drives the system ticks. This
  *          setting also defines the system tick time unit.
- * @note    This must be a frequency that is obtainable from the system tick
- *          timer frequency.
+ * @note    MTIME runs at 1 MHz.
  */
 #if !defined(CH_CFG_ST_FREQUENCY)
-#define CH_CFG_ST_FREQUENCY                 1000
+#define CH_CFG_ST_FREQUENCY                 1000000
 #endif
 
 /**
@@ -115,9 +114,10 @@
  *          of ticks that is safe to specify in a timeout directive.
  *          The value one is not valid, timeouts are rounded up to
  *          this value.
+ * @note    20us minimum delta for MTIME tickless mode.
  */
 #if !defined(CH_CFG_ST_TIMEDELTA)
-#define CH_CFG_ST_TIMEDELTA                 0
+#define CH_CFG_ST_TIMEDELTA                 20
 #endif
 
 /** @} */

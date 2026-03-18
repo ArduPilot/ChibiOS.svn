@@ -86,6 +86,24 @@
 #define RISCV_ENABLE_WFI_IDLE           TRUE
 #endif
 
+/**
+ * @brief   Enables PMP-based guard pages for thread stacks.
+ * @note    Requires @p CH_DBG_ENABLE_STACK_CHECK == @p TRUE.
+ * @note    Uses a NAPOT PMP region to create a 32-byte no-access zone at
+ *          the base of each thread's working area.
+ */
+#if !defined(PORT_ENABLE_GUARD_PAGES)
+#define PORT_ENABLE_GUARD_PAGES         FALSE
+#endif
+
+/**
+ * @brief   PMP region used for the stack guard page.
+ * @note    Defaults to region 7 (last dynamic region), leaving 0-6 free.
+ */
+#if !defined(PORT_USE_GUARD_PMP_REGION)
+#define PORT_USE_GUARD_PMP_REGION       7
+#endif
+
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
@@ -117,8 +135,13 @@
  * @brief   Working Areas alignment constant.
  * @note    It is the alignment to be enforced for thread working areas,
  *          must be a multiple of sizeof (port_stkline_t).
+ * @note    Set to 32 when guard pages are enabled for PMP NAPOT alignment.
  */
+#if (PORT_ENABLE_GUARD_PAGES == TRUE)
+#define PORT_WORKING_AREA_ALIGN         32U
+#else
 #define PORT_WORKING_AREA_ALIGN         16U
+#endif
 
 /**
  * @brief   Hazard3 has 4 interrupt priority levels (0-3).
@@ -206,6 +229,64 @@
 /* The following code is not processed when the file is included from an
    asm module.*/
 #if !defined(_FROM_ASM_)
+
+/**
+ * @brief   PMP guard page size.
+ */
+#if (PORT_ENABLE_GUARD_PAGES == TRUE) || defined(__DOXYGEN__)
+  #if CH_DBG_ENABLE_STACK_CHECK == FALSE
+    #error "PORT_ENABLE_GUARD_PAGES requires CH_DBG_ENABLE_STACK_CHECK"
+  #endif
+  #if !defined(RISCV_PMP_PRESENT) || (RISCV_PMP_PRESENT == 0)
+    #error "PORT_ENABLE_GUARD_PAGES requires PMP support"
+  #endif
+  #define PORT_GUARD_PAGE_SIZE          32U
+#else
+  #define PORT_GUARD_PAGE_SIZE          0U
+#endif
+
+/**
+ * @name    PMP CSR lookup for guard page region.
+ * @{
+ */
+#if (PORT_ENABLE_GUARD_PAGES == TRUE) || defined(__DOXYGEN__)
+  #if PORT_USE_GUARD_PMP_REGION == 0
+    #define PORT_GUARD_PMPADDR_CSR      0x3B0
+    #define PORT_GUARD_PMPCFG_CSR       0x3A0
+    #define PORT_GUARD_PMPCFG_SHIFT     0
+  #elif PORT_USE_GUARD_PMP_REGION == 1
+    #define PORT_GUARD_PMPADDR_CSR      0x3B1
+    #define PORT_GUARD_PMPCFG_CSR       0x3A0
+    #define PORT_GUARD_PMPCFG_SHIFT     8
+  #elif PORT_USE_GUARD_PMP_REGION == 2
+    #define PORT_GUARD_PMPADDR_CSR      0x3B2
+    #define PORT_GUARD_PMPCFG_CSR       0x3A0
+    #define PORT_GUARD_PMPCFG_SHIFT     16
+  #elif PORT_USE_GUARD_PMP_REGION == 3
+    #define PORT_GUARD_PMPADDR_CSR      0x3B3
+    #define PORT_GUARD_PMPCFG_CSR       0x3A0
+    #define PORT_GUARD_PMPCFG_SHIFT     24
+  #elif PORT_USE_GUARD_PMP_REGION == 4
+    #define PORT_GUARD_PMPADDR_CSR      0x3B4
+    #define PORT_GUARD_PMPCFG_CSR       0x3A1
+    #define PORT_GUARD_PMPCFG_SHIFT     0
+  #elif PORT_USE_GUARD_PMP_REGION == 5
+    #define PORT_GUARD_PMPADDR_CSR      0x3B5
+    #define PORT_GUARD_PMPCFG_CSR       0x3A1
+    #define PORT_GUARD_PMPCFG_SHIFT     8
+  #elif PORT_USE_GUARD_PMP_REGION == 6
+    #define PORT_GUARD_PMPADDR_CSR      0x3B6
+    #define PORT_GUARD_PMPCFG_CSR       0x3A1
+    #define PORT_GUARD_PMPCFG_SHIFT     16
+  #elif PORT_USE_GUARD_PMP_REGION == 7
+    #define PORT_GUARD_PMPADDR_CSR      0x3B7
+    #define PORT_GUARD_PMPCFG_CSR       0x3A1
+    #define PORT_GUARD_PMPCFG_SHIFT     24
+  #else
+    #error "PORT_USE_GUARD_PMP_REGION must be 0-7"
+  #endif
+#endif
+/** @} */
 
 /**
  * @brief   Interrupt saved context.
@@ -299,7 +380,8 @@ struct port_context {
  * @brief   Computes the thread working area global size.
  * @note    There is no need to perform alignments in this macro.
  */
-#define PORT_WA_SIZE(n) (sizeof (struct port_intctx) +                      \
+#define PORT_WA_SIZE(n) ((size_t)PORT_GUARD_PAGE_SIZE +                     \
+                         sizeof (struct port_intctx) +                      \
                          sizeof (struct port_extctx) +                      \
                          (size_t)(n) +                                      \
                          (size_t)PORT_INT_REQUIRED_STACK)
@@ -352,7 +434,29 @@ struct port_context {
  * @param[in] ntp       the thread to be switched in
  * @param[in] otp       the thread to be switched out
  */
-#define port_switch(ntp, otp) __port_switch(ntp, otp)
+#if (CH_DBG_ENABLE_STACK_CHECK == FALSE) || defined(__DOXYGEN__)
+  #define port_switch(ntp, otp) __port_switch(ntp, otp)
+
+#else
+  #if PORT_ENABLE_GUARD_PAGES == FALSE
+    #define port_switch(ntp, otp) do {                                      \
+      struct port_intctx *_sp;                                              \
+      __asm__ volatile ("mv %0, sp" : "=r"(_sp));                          \
+      if ((stkline_t *)(void *)(_sp - 1) < (otp)->wabase) {               \
+        chSysHalt("stack overflow");                                       \
+      }                                                                    \
+      __port_switch(ntp, otp);                                             \
+    } while (false)
+
+  #else
+    #define port_switch(ntp, otp) do {                                      \
+      __port_switch(ntp, otp);                                              \
+                                                                            \
+      /* Setting up the guard page for the switched-in thread.*/            \
+      __port_set_region();                                                  \
+    } while (false)
+  #endif
+#endif
 
 /**
  * @brief   Returns a word representing a critical section status.
@@ -396,6 +500,9 @@ extern "C" {
   void __port_thread_start(void);
   void __port_switch_from_isr(void);
   void __port_exit_from_isr(void);
+#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) && (PORT_ENABLE_GUARD_PAGES == TRUE)
+  void __port_set_region(void);
+#endif
 #ifdef __cplusplus
 }
 #endif

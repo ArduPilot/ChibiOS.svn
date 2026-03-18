@@ -33,6 +33,10 @@
 /* Module local definitions.                                                 */
 /*===========================================================================*/
 
+/* Stringify helpers for CSR numbers in inline asm.*/
+#define _PORT_XSTR(s)   _PORT_STR(s)
+#define _PORT_STR(s)    #s
+
 /*===========================================================================*/
 /* Module exported variables.                                                */
 /*===========================================================================*/
@@ -77,6 +81,36 @@ volatile uint8_t port_isr_nesting;
 /*===========================================================================*/
 /* Module local functions.                                                   */
 /*===========================================================================*/
+
+#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) && (PORT_ENABLE_GUARD_PAGES == TRUE)
+/**
+ * @brief   One-time PMP guard region configuration.
+ * @details Sets the PMPADDR, PMPCFG (NAPOT, no permissions), and PMPCFGM0
+ *          bit for the chosen guard region. Called once per core in port_init.
+ *
+ * @param[in] base_addr   32-byte aligned base address of the guard region.
+ */
+static void __port_pmp_configure_guard(uint32_t base_addr) {
+  uint32_t cfg;
+
+  /* Set PMPADDR for the guard region. RP2350 hardwires 2 LSBs to 1,
+     giving NAPOT 32-byte granule automatically.*/
+  __asm__ volatile ("csrw " _PORT_XSTR(PORT_GUARD_PMPADDR_CSR) ", %0"
+                    : : "r"(base_addr >> 2));
+
+  /* Read-modify-write PMPCFG: set NAPOT, no permissions for our entry.*/
+  __asm__ volatile ("csrr %0, " _PORT_XSTR(PORT_GUARD_PMPCFG_CSR)
+                    : "=r"(cfg));
+  cfg &= ~(0xFFU << PORT_GUARD_PMPCFG_SHIFT);
+  cfg |= (uint32_t)PMP_CFG_A_NAPOT << PORT_GUARD_PMPCFG_SHIFT;
+  __asm__ volatile ("csrw " _PORT_XSTR(PORT_GUARD_PMPCFG_CSR) ", %0"
+                    : : "r"(cfg));
+
+  /* Enable M-mode enforcement for this region via PMPCFGM0.*/
+  __asm__ volatile ("csrs " _PORT_XSTR(CSR_PMPCFGM0) ", %0"
+                    : : "r"(1U << PORT_USE_GUARD_PMP_REGION));
+}
+#endif
 
 /*===========================================================================*/
 /* Module interrupt handlers.                                                */
@@ -225,10 +259,41 @@ void port_init(os_instance_t *oip) {
 
   __asm__ volatile ("csrs mie, %0" : : "r"(MIE_MTIE | MIE_MEIE));
 
+#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) && (PORT_ENABLE_GUARD_PAGES == TRUE)
+  /* Configure PMP guard page for the main thread's stack base.*/
+  {
+#if CH_CFG_SMP_MODE == TRUE
+    extern stkline_t __main_thread_stack_base__;
+    extern stkline_t __c1_main_thread_stack_base__;
+    uint32_t guard_base = (SIO->CPUID == 0U)
+                        ? (uint32_t)&__main_thread_stack_base__
+                        : (uint32_t)&__c1_main_thread_stack_base__;
+#else
+    extern stkline_t __main_thread_stack_base__;
+    uint32_t guard_base = (uint32_t)&__main_thread_stack_base__;
+#endif
+    __port_pmp_configure_guard(guard_base);
+  }
+#endif
+
 #if defined(port_smp_init)
   port_smp_init(oip);
 #endif
 }
+
+#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) && (PORT_ENABLE_GUARD_PAGES == TRUE)
+/**
+ * @brief   Updates the PMP guard region for the current thread.
+ * @details Called on every context switch to protect the switched-in thread's
+ *          stack base. Only the PMPADDR is updated; PMPCFG and PMPCFGM0 are
+ *          set once in port_init().
+ */
+void __port_set_region(void) {
+  uint32_t addr = (uint32_t)chThdGetSelfX()->wabase >> 2;
+  __asm__ volatile ("csrw " _PORT_XSTR(PORT_GUARD_PMPADDR_CSR) ", %0"
+                    : : "r"(addr));
+}
+#endif
 
 /**
  * @brief   Checks for and performs a context switch triggered by an ISR.

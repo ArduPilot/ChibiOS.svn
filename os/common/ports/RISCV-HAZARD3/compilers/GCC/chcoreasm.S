@@ -116,6 +116,9 @@ __port_thread_start:
 #if CH_DBG_STATISTICS
                 call    __stats_stop_measure_crit_thd
 #endif
+#if (CH_DBG_ENABLE_STACK_CHECK == TRUE) && (PORT_ENABLE_GUARD_PAGES == TRUE)
+                call    __port_set_region
+#endif
                 /* Enable interrupts as we're starting with them disabled */
                 csrsi   mstatus, 0x8            /* Set MIE bit */
 

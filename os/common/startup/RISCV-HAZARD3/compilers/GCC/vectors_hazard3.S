@@ -185,6 +185,20 @@ _vectors:
                 bnez    a3, 1f                  /* if old > 0: already on ISR stack */
                 csrrw   sp, mscratch, sp        /* first entry: swap to ISR stack */
 1:
+#if CH_DBG_ENABLE_STACK_CHECK == TRUE
+                /* ISR stack overflow check. SP is now on the ISR stack.
+                   a0 = CPUID from above. */
+#if CH_CFG_SMP_MODE == TRUE
+                bnez    a0, 2f
+                la      a1, __main_stack_base__
+                j       3f
+2:              la      a1, __c1_main_stack_base__
+3:
+#else
+                la      a1, __main_stack_base__
+#endif
+                bltu    sp, a1, _isr_stack_overflow
+#endif
 .endm
 
 /*
@@ -529,6 +543,19 @@ _unhandled_interrupt:
 _unhandled_exception:
                 j       _unhandled_exception
                 .size   _unhandled_exception, . - _unhandled_exception
+
+#if CH_DBG_ENABLE_STACK_CHECK == TRUE
+                /* Default ISR stack overflow handler.
+                   Disables interrupts and spins. Override with a strong
+                   symbol for custom behavior (e.g. fault LED). */
+                .globl  _isr_stack_overflow
+                .weak   _isr_stack_overflow
+                .type   _isr_stack_overflow, @function
+_isr_stack_overflow:
+                csrci   mstatus, 0x8
+                j       _isr_stack_overflow
+                .size   _isr_stack_overflow, . - _isr_stack_overflow
+#endif
 
 #endif /* !defined(__DOXYGEN__) */
 

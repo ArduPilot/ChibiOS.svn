@@ -89,6 +89,28 @@
 #define MCAUSE_M_EXT_INT            11          /**< Machine external interrupt */
 /** @} */
 
+/*===========================================================================*/
+/* PMP CSR addresses.                                                        */
+/*===========================================================================*/
+
+/**
+ * @name    Physical Memory Protection CSR addresses
+ * @{
+ */
+#define CSR_PMPCFG0                 0x3A0   /**< PMP config (entries 0-3)   */
+#define CSR_PMPCFG1                 0x3A1   /**< PMP config (entries 4-7)   */
+#define CSR_PMPCFG2                 0x3A2   /**< PMP config (entries 8-11)  */
+#define CSR_PMPCFG3                 0x3A3   /**< PMP config (entries 12-15) */
+#define CSR_PMPADDR0                0x3B0   /**< PMP address register 0    */
+#define CSR_PMPADDR1                0x3B1   /**< PMP address register 1    */
+#define CSR_PMPADDR2                0x3B2   /**< PMP address register 2    */
+#define CSR_PMPADDR3                0x3B3   /**< PMP address register 3    */
+#define CSR_PMPADDR4                0x3B4   /**< PMP address register 4    */
+#define CSR_PMPADDR5                0x3B5   /**< PMP address register 5    */
+#define CSR_PMPADDR6                0x3B6   /**< PMP address register 6    */
+#define CSR_PMPADDR7                0x3B7   /**< PMP address register 7    */
+/** @} */
+
 #endif /* RISCV_CSR_H */
 
 /** @} */

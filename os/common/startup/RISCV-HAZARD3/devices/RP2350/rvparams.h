@@ -109,6 +109,37 @@
 #define CSR_MEINEXT                 0xBE4   /* Next external interrupt to service */
 #define CSR_MEICONTEXT              0xBE5   /* External interrupt context save */
 
+/**
+ * @brief   Hazard3 has PMP support.
+ */
+#define RISCV_PMP_PRESENT           1
+
+/**
+ * @brief   Hazard3/RP2350 custom CSR: PMPCFGM0.
+ * @details Enables PMP enforcement for M-mode without using the L (lock) bit.
+ *          Each bit corresponds to a PMP entry; setting bit N enforces entry N
+ *          on M-mode accesses.
+ */
+#define CSR_PMPCFGM0                0xBD0
+
+/**
+ * @name    PMP configuration field constants (RP2350-E6 erratum corrected).
+ * @details RP2350-E6 erratum: PMP R/W/X permission bits are reversed in
+ *          hardware. Standard encoding: R=bit0, W=bit1, X=bit2.
+ *          RP2350 hardware: X=bit0, W=bit1, R=bit2.
+ *          These constants use the hardware (erratum) encoding.
+ * @{
+ */
+#define PMP_CFG_X                   (1U << 0)   /**< Execute permission     */
+#define PMP_CFG_W                   (1U << 1)   /**< Write permission       */
+#define PMP_CFG_R                   (1U << 2)   /**< Read permission        */
+#define PMP_CFG_A_OFF               (0U << 3)   /**< Addr matching: OFF     */
+#define PMP_CFG_A_TOR               (1U << 3)   /**< Addr matching: TOR     */
+#define PMP_CFG_A_NA4               (2U << 3)   /**< Addr matching: NA4     */
+#define PMP_CFG_A_NAPOT             (3U << 3)   /**< Addr matching: NAPOT   */
+#define PMP_CFG_L                   (1U << 7)   /**< Lock                   */
+/** @} */
+
 /* Standard RISC-V CSR addresses, MSTATUS/MIE/MCAUSE bit definitions are
    provided by riscv_csr.h (included above).*/
 

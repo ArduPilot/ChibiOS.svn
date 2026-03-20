@@ -312,7 +312,10 @@ _ext_irq_entry:
 
 #if CH_CFG_SMP_MODE == TRUE
                 /* Early partial save: just enough scratch registers + CSRs
-                   to peek at MEINEXT and decide fast vs slow path. */
+                   to snapshot MEICONTEXT, then peek MEINEXT and decide fast
+                   vs slow path. Hazard3 trap entry keeps the selected IRQ
+                   visible in MEINEXT after the MEICONTEXT read, so the FIFO
+                   fast-path check is still valid. */
                 sw      t0, TRAP_FRAME_T0(sp)
                 sw      t1, TRAP_FRAME_T1(sp)
                 sw      t2, TRAP_FRAME_T2(sp)

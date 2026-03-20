@@ -248,9 +248,13 @@ __STATIC_FORCEINLINE uint32_t hazard3_irq_get_next(void) {
 
 /**
  * @brief   Save external interrupt context and raise preemption threshold.
- * @details Must be called after hazard3_irq_get_next() returns a valid IRQ.
- *          Atomically reads MEICONTEXT committing the pending IRQ selection
- *          and raising the priority threshold and writes zero. The returned
+ * @details Atomically reads MEICONTEXT committing the pending IRQ selection
+ *          and raising the priority threshold and writes zero. Callers may
+ *          do this immediately on trap entry, or after
+ *          hazard3_irq_get_next() if they want a non-updating MEINEXT peek
+ *          before committing the selection. On Hazard3/RP2350, a subsequent
+ *          non-updating MEINEXT read still reports the selected IRQ, which is
+ *          the behavior used by the external-IRQ fast path. The returned
  *          value must be passed to hazard3_irq_context_restore() after the
  *          handler returns.
  *
@@ -288,17 +292,17 @@ __STATIC_FORCEINLINE void hazard3_irq_init(void) {
 
   /* Disable all external interrupts (MEIEA, 16 IRQs per window). */
   for (i = 0U; i < ((RISCV_NUM_INTERRUPTS + 15U) / 16U); i++) {
-    HAZARD3_IRQARRAY_CLEAR(0xBE0, i, 0xFFFFU);
+    HAZARD3_IRQARRAY_CLEAR(CSR_MEIEA, i, 0xFFFFU);
   }
 
   /* Clear all forced-pending bits (MEIFA, 16 IRQs per window). */
   for (i = 0U; i < ((RISCV_NUM_INTERRUPTS + 15U) / 16U); i++) {
-    HAZARD3_IRQARRAY_CLEAR(0xBE2, i, 0xFFFFU);
+    HAZARD3_IRQARRAY_CLEAR(CSR_MEIFA, i, 0xFFFFU);
   }
 
   /* Reset all priorities to zero (MEIPRA, 4 IRQs per window). */
   for (i = 0U; i < ((RISCV_NUM_INTERRUPTS + 3U) / 4U); i++) {
-    HAZARD3_IRQARRAY_CLEAR(0xBE3, i, 0xFFFFU);
+    HAZARD3_IRQARRAY_CLEAR(CSR_MEIPRA, i, 0xFFFFU);
   }
 }
 

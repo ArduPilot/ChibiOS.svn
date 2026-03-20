@@ -277,10 +277,29 @@ __STATIC_FORCEINLINE void hazard3_irq_context_restore(uint32_t ctx) {
 
 /**
  * @brief   Initialize the Xh3irq interrupt controller.
- * @details Enables external interrupts globally in mie
+ * @details Puts the controller in a known clean state by disabling all
+ *          external interrupts (MEIEA), clearing all forced-pending bits
+ *          (MEIFA), and resetting all priorities to zero (MEIPRA).
+ * @note    Does not touch mie; the port layer (port_init) is responsible
+ *          for setting mie.MEIE and mie.MTIE.
  */
 __STATIC_FORCEINLINE void hazard3_irq_init(void) {
-  __asm__ volatile ("csrs mie, %0" : : "r"(MIE_MEIE));
+  unsigned i;
+
+  /* Disable all external interrupts (MEIEA, 16 IRQs per window). */
+  for (i = 0U; i < ((RISCV_NUM_INTERRUPTS + 15U) / 16U); i++) {
+    HAZARD3_IRQARRAY_CLEAR(0xBE0, i, 0xFFFFU);
+  }
+
+  /* Clear all forced-pending bits (MEIFA, 16 IRQs per window). */
+  for (i = 0U; i < ((RISCV_NUM_INTERRUPTS + 15U) / 16U); i++) {
+    HAZARD3_IRQARRAY_CLEAR(0xBE2, i, 0xFFFFU);
+  }
+
+  /* Reset all priorities to zero (MEIPRA, 4 IRQs per window). */
+  for (i = 0U; i < ((RISCV_NUM_INTERRUPTS + 3U) / 4U); i++) {
+    HAZARD3_IRQARRAY_CLEAR(0xBE3, i, 0xFFFFU);
+  }
 }
 
 #endif /* HAZARD3_IRQ_H */

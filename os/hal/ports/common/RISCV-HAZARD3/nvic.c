@@ -53,7 +53,8 @@
 
 /**
  * @brief   Hazard3 IRQ controller initialization.
- * @details Disables all external interrupts and sets default priorities.
+ * @details Disables all external interrupts, clears forced-pending state,
+ *          and resets all priorities to zero.
  */
 void nvicInit(void) {
   hazard3_irq_init();

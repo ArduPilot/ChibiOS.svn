@@ -42,8 +42,15 @@
 
 /**
  * @brief   Early initialization code.
+ * @note    Called before DATA/BSS init and stack fill.
+ * @note    The RP2350 bootrom enables the watchdog with an ~800ms timeout
+ *          as a safety net during boot. Must be disabled here before the
+ *          potentially slow stack fill loop.
  */
 void __early_init(void) {
+
+  /* Disable the bootrom watchdog via the CLR atomic alias. */
+  WATCHDOG->CLR.CTRL = WATCHDOG_CTRL_ENABLE;
 }
 
 #if HAL_USE_SDC || defined(__DOXYGEN__)

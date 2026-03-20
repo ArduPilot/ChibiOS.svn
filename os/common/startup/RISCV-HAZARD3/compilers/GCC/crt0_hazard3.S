@@ -122,12 +122,9 @@ _crt0_entry:
                 la      t0, __main_stack_end__
                 csrw    mscratch, t0
 
-                /* Disable watchdog timer wthich is set by bootrom.
-		   todo(emolitor): Take a look at the bootrom again to confirm
-		*/
-                li      t0, 0x400DB000
-                li      t1, (1 << 30)
-                sw      t1, 0(t0)
+                /* Early initialization - called before stack fill so that
+                   board code can disable the bootrom watchdog in time. */
+                call    __early_init
 
 #if CRT0_INIT_STACKS == TRUE
                 /* Main Stack initialization */
@@ -151,9 +148,6 @@ _crt0_entry:
                 j       .Lpsloop
 .Lpsloop_done:
 #endif /* CRT0_INIT_STACKS == TRUE */
-
-                /* Early initialization */
-                call    __early_init
 
 #if CRT0_INIT_DATA == TRUE
                 /* Data segment initialization from flash to RAM.

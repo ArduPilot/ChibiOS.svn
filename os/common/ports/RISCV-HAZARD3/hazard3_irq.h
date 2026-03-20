@@ -219,6 +219,20 @@ __STATIC_FORCEINLINE void hazard3_irq_set_priority(uint32_t irq, uint32_t priori
 }
 
 /**
+ * @brief   Get the priority of an external interrupt.
+ * @details MEIPRA uses 4-bit priority fields, 4 IRQs per window.
+ *          Window index = IRQ / 4, field position = (IRQ % 4) * 4.
+ *
+ * @param[in] irq       IRQ number
+ * @return              Priority level (0-3)
+ */
+__STATIC_FORCEINLINE uint32_t hazard3_irq_get_priority(uint32_t irq) {
+  uint32_t window = irq / 4U;
+  uint32_t shift  = (irq % 4U) * 4U;
+  return (HAZARD3_IRQARRAY_READ(0xBE3, window) >> shift) & 0x3U;
+}
+
+/**
  * @brief   Get the next pending external interrupt.
  * @details Reads the MEINEXT CSR. The IRQ number is in bits[10:2].
  *          Bit 31 is set if no interrupt is pending.

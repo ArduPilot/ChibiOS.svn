@@ -107,11 +107,18 @@ extern "C" {
  * @notapi
  */
 static inline void port_timer_start_alarm(systime_t time) {
-  uint32_t hi = MTIME_HI;
+  uint32_t hi, lo;
+
+  /* Stable 64-bit read: if MTIME_LO rolls over between the HI and LO
+     reads, MTIME_HI will have incremented and the loop retries. */
+  do {
+    hi = MTIME_HI;
+    lo = MTIME_LO;
+  } while (hi != MTIME_HI);
 
   /* If alarm time wraps past current MTIME_LO, it fires after the
      next low-word rollover. */
-  if (time < MTIME_LO) {
+  if (time < lo) {
     hi++;
   }
 
@@ -139,9 +146,16 @@ static inline void port_timer_stop_alarm(void) {
  * @notapi
  */
 static inline void port_timer_set_alarm(systime_t time) {
-  uint32_t hi = MTIME_HI;
+  uint32_t hi, lo;
 
-  if (time < MTIME_LO) {
+  /* Stable 64-bit read: if MTIME_LO rolls over between the HI and LO
+     reads, MTIME_HI will have incremented and the loop retries. */
+  do {
+    hi = MTIME_HI;
+    lo = MTIME_LO;
+  } while (hi != MTIME_HI);
+
+  if (time < lo) {
     hi++;
   }
 

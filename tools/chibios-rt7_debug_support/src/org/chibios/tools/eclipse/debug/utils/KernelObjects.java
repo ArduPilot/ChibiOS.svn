@@ -434,72 +434,94 @@ public class KernelObjects extends DebugProxy {
     long tbstart = evaluateExpressionNumber("(uint32_t)ch0.trace_buffer.buffer");
     long tbend = evaluateExpressionNumber("(uint32_t)&ch0.trace_buffer.buffer[" + tbsize + "]");
     long tbptr = evaluateExpressionNumber("(uint32_t)ch0.trace_buffer.ptr");
+    long tbscan = tbstart;
+    int n;
+
+    /*
+     * Before the first wrap tb_ptr points to the next free slot and the tail
+     * of the ring still contains CH_TRACE_TYPE_UNUSED records. Scanning from
+     * tb_ptr in that case makes the view parse never-written slots.
+     * After the first wrap tb_ptr points to the oldest valid record instead.
+     */
+    if (tbptr != tbend) {
+      long type = evaluateExpressionNumber("(uint32_t)(((trace_event_t *)" + tbptr + ")->type)");
+
+      if (type == 0) {
+        n = (int)((tbptr - tbstart) / tbrecsize);
+      }
+      else {
+        tbscan = tbptr;
+        n = tbsize;
+      }
+    }
+    else {
+      n = tbsize;
+    }
 
     // Scanning the trace buffer from the oldest event to the newest.
     LinkedHashMap<String, HashMap<String, String>> lhm =
         new LinkedHashMap<String, HashMap<String, String>>(64);
-    int n = tbsize;
-    int i = -tbsize + 1;
+    int i = -n + 1;
     while (n > 0) {
       // Hash of timers fields.
       HashMap<String, String> map = new HashMap<String, String>(16);
 
       // This is the record type, fields change according to this.
-      String type = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->type)");
+      String type = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->type)");
       map.put("type", type);
 
       // Fields common to all types.
-      long state = evaluateExpressionNumber("(uint32_t)(((trace_event_t *)" + tbptr + ")->state)");
+      long state = evaluateExpressionNumber("(uint32_t)(((trace_event_t *)" + tbscan + ")->state)");
       map.put("state", Long.toString(state));
       if ((state >= 0) && (state < threadStates.length))
         map.put("state_s", threadStates[(int)state]);
       else
         map.put("state_s", "unknown");
 
-      String rtstamp = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->rtstamp)");
+      String rtstamp = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->rtstamp)");
       map.put("rtstamp", rtstamp);
 
-      String time = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->time)");
+      String time = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->time)");
       map.put("time", time);
 
       // Fields specific to a CH_TRACE_TYPE_READY event.
       if (type.compareTo("1") == 0) {
-        String tp = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->u.rdy.tp)");
+        String tp = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->u.rdy.tp)");
         map.put("sw_tp", tp);
 
-        String msg = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->u.rdy.msg)");
+        String msg = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->u.rdy.msg)");
         map.put("sw_msg", msg);
       }
 
       // Fields specific to a CH_TRACE_TYPE_SWITCH event.
       if (type.compareTo("2") == 0) {
-        String ntp = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->u.sw.ntp)");
+        String ntp = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->u.sw.ntp)");
         map.put("sw_ntp", ntp);
 
-        String wtobjp = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->u.sw.wtobjp)");
+        String wtobjp = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->u.sw.wtobjp)");
         map.put("sw_wtobjp", wtobjp);
       }
 
       // Fields specific to a CH_TRACE_TYPE_ISR_ENTER and CH_TRACE_TYPE_ISR_LEAVE events.
       if ((type.compareTo("3") == 0) || (type.compareTo("4") == 0)) {
-        long name = evaluateExpressionNumber("(uint32_t)(((trace_event_t *)" + tbptr + ")->u.isr.name)");
+        long name = evaluateExpressionNumber("(uint32_t)(((trace_event_t *)" + tbscan + ")->u.isr.name)");
         String name_s = readCString(name, 16);
         map.put("isr_name_s", name_s);
       }
 
       // Fields specific to a CH_TRACE_TYPE_HALT event.
       if (type.compareTo("5") == 0) {
-        long reason = evaluateExpressionNumber("(uint32_t)(((trace_event_t *)" + tbptr + ")->u.halt.reason)");
+        long reason = evaluateExpressionNumber("(uint32_t)(((trace_event_t *)" + tbscan + ")->u.halt.reason)");
         String reason_s = readCString(reason, 16);
         map.put("halt_reason_s", reason_s);
       }
 
       // Fields specific to a CH_TRACE_TYPE_USER event.
       if (type.compareTo("6") == 0) {
-        String up1 = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->u.user.up1)");
+        String up1 = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->u.user.up1)");
         map.put("user_up1", up1);
 
-        String up2 = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbptr + ")->u.user.up2)");
+        String up2 = evaluateExpression("(uint32_t)(((trace_event_t *)" + tbscan + ")->u.user.up2)");
         map.put("user_up2", up2);
       }
 
@@ -507,9 +529,9 @@ public class KernelObjects extends DebugProxy {
       if (type.compareTo("0") != 0)
         lhm.put(Integer.toString(i), map);
 
-      tbptr += tbrecsize;
-      if (tbptr >= tbend)
-        tbptr = tbstart;
+      tbscan += tbrecsize;
+      if (tbscan >= tbend)
+        tbscan = tbstart;
       n--;
       i++;
     }

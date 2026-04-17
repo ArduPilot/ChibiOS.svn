@@ -87,9 +87,11 @@ msg_t chMsgSend(thread_t *tp, msg_t msg) {
   chDbgCheck(tp != NULL);
 
   chSysLock();
-  currtp->u.sentmsg = msg;
+  currtp->sentmsg = msg;
+  currtp->u.wtobjp = (void *)&tp->msgqueue;
   __ch_msg_insert(&tp->msgqueue, currtp);
   if (tp->state == CH_STATE_WTMSG) {
+    tp->u.rdymsg = MSG_OK;
     (void) chSchReadyI(tp);
   }
   chSchGoSleepS(CH_STATE_SNDMSGQ);
@@ -144,8 +146,9 @@ thread_t *chMsgWaitS(void) {
  *          returned pointer is a temporary reference.
  *
  * @param[in] timeout   the number of ticks before the operation timeouts,
- *                      the following special values are allowed:
+ *                      the following special values are handled:
  *                      - @a TIME_INFINITE no timeout.
+ *                      - @a TIME_IMMEDIATE this value is not allowed.
  * @return              A pointer to the thread carrying the message.
  * @retval NULL         if a timeout occurred.
  *
@@ -156,6 +159,7 @@ thread_t *chMsgWaitTimeoutS(sysinterval_t timeout) {
   thread_t *tp;
 
   chDbgCheckClassS();
+  chDbgCheck(timeout != TIME_IMMEDIATE);
 
   if (!chMsgIsPendingI(currtp)) {
     if (chSchGoSleepTimeoutS(CH_STATE_WTMSG, timeout) != MSG_OK) {

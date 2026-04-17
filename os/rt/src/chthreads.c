@@ -200,8 +200,12 @@ void chThdObjectDispose(thread_t *tp) {
 
   chDbgCheck(tp != NULL);
 
+#if CH_CFG_USE_WAITEXIT == TRUE
   chSftCheckListX(&tp->waiting);
+#endif
+#if CH_CFG_USE_MESSAGES == TRUE
   chSftCheckQueueX(&tp->msgqueue);
+#endif
 
 #if CH_CFG_USE_WAITEXIT == TRUE
   chDbgAssert(ch_list_isempty(&tp->waiting), "waiting list in use");
@@ -1076,6 +1080,9 @@ void chThdQueueObjectInit(threads_queue_t *tqp) {
 void chThdQueueObjectDispose(threads_queue_t *tqp) {
 
   chDbgCheck(tqp != NULL);
+
+  chSftCheckQueueX(&tqp->queue);
+
   chDbgAssert(ch_queue_isempty(&tqp->queue),
               "object in use");
 

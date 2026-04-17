@@ -162,6 +162,9 @@
  */
 #define STM32_IRQ_DAC1_PRIORITY             9
 
+#define STM32_IRQ_ADC1_PRIORITY             5
+#define STM32_IRQ_ADC2_PRIORITY             5
+
 #define STM32_IRQ_EXTI0_PRIORITY            6
 #define STM32_IRQ_EXTI1_PRIORITY            6
 #define STM32_IRQ_EXTI2_PRIORITY            6
@@ -178,13 +181,14 @@
 #define STM32_IRQ_EXTI13_PRIORITY           6
 #define STM32_IRQ_EXTI14_PRIORITY           6
 #define STM32_IRQ_EXTI15_PRIORITY           6
-#define STM32_IRQ_EXTI17_PRIORITY           6
-#define STM32_IRQ_EXTI19_PRIORITY           6
 
 #define STM32_IRQ_I2C1_PRIORITY             5
 #define STM32_IRQ_I2C2_PRIORITY             5
 #define STM32_IRQ_I2C3_PRIORITY             5
 #define STM32_IRQ_I2C4_PRIORITY             5
+
+#define STM32_IRQ_RTC_GLOBAL_PRIORITY       6
+#define STM32_IRQ_RTC_TAMP_PRIORITY         6
 
 #define STM32_IRQ_SPI1_PRIORITY             10
 #define STM32_IRQ_SPI2_PRIORITY             10
@@ -214,6 +218,8 @@
 #define STM32_IRQ_TIM16_PRIORITY            7
 #define STM32_IRQ_TIM17_PRIORITY            7
 
+#define STM32_IRQ_OCTOSPI1_PRIORITY         10
+
 #define STM32_IRQ_USART1_PRIORITY           12
 #define STM32_IRQ_USART2_PRIORITY           12
 #define STM32_IRQ_USART3_PRIORITY           12
@@ -229,6 +235,38 @@
 #define STM32_IRQ_LPUART1_PRIORITY          12
 
 #define STM32_IRQ_USB1_PRIORITY             13
+
+/*
+ * ADC driver system settings.
+ */
+#define STM32_ADC_DUAL_MODE                 FALSE
+#define STM32_ADC_COMPACT_SAMPLES           FALSE
+#define STM32_ADC_USE_ADC1                  FALSE
+#define STM32_ADC_USE_ADC2                  FALSE
+#define STM32_ADC_ADC1_DMA3_CHANNEL         STM32_DMA3_CHANNEL_ID_ANY
+#define STM32_ADC_ADC2_DMA3_CHANNEL         STM32_DMA3_CHANNEL_ID_ANY
+#define STM32_ADC_ADC1_DMA_PRIORITY         2
+#define STM32_ADC_ADC2_DMA_PRIORITY         2
+#define STM32_ADC_ADC12_CLOCK_MODE          ADC_CCR_CKMODE_AHB_DIV4
+#define STM32_ADC_ADC12_PRESC               ADC_CCR_PRESC_DIV2
+
+/*
+ * GPT driver system settings.
+ */
+#define STM32_GPT_USE_TIM1                  FALSE
+#define STM32_GPT_USE_TIM2                  FALSE
+#define STM32_GPT_USE_TIM3                  FALSE
+#define STM32_GPT_USE_TIM4                  FALSE
+#define STM32_GPT_USE_TIM5                  FALSE
+#define STM32_GPT_USE_TIM6                  FALSE
+#define STM32_GPT_USE_TIM7                  FALSE
+#define STM32_GPT_USE_TIM8                  FALSE
+#define STM32_GPT_USE_TIM12                 FALSE
+#define STM32_GPT_USE_TIM13                 FALSE
+#define STM32_GPT_USE_TIM14                 FALSE
+#define STM32_GPT_USE_TIM15                 FALSE
+#define STM32_GPT_USE_TIM16                 FALSE
+#define STM32_GPT_USE_TIM17                 FALSE
 
 /*
  * SIO driver system settings.
@@ -281,5 +319,24 @@
  */
 #define STM32_ST_IRQ_PRIORITY               8
 #define STM32_ST_USE_TIMER                  2
+
+/*
+ * RTC driver system settings.
+ */
+#define STM32_RTC_PRESA_VALUE               32
+#define STM32_RTC_PRESS_VALUE               1024
+#define STM32_RTC_CR_INIT                   0U
+
+/*
+ * WSPI driver system settings.
+ */
+#define STM32_WSPI_USE_OCTOSPI1             FALSE
+#define STM32_WSPI_OCTOSPI1_PRESCALER_VALUE 1
+#define STM32_WSPI_OCTOSPI1_SSHIFT          FALSE
+#define STM32_WSPI_OCTOSPI1_DHQC            FALSE
+#define STM32_WSPI_OCTOSPI1_DMA3_CHANNEL    STM32_DMA3_MASK_ANY
+#define STM32_WSPI_OCTOSPI1_DMA_PRIORITY    1
+#define STM32_WSPI_OCTOSPI1_DMA_IRQ_PRIORITY 10
+#define STM32_WSPI_DMA_ERROR_HOOK(wspip)    osalSysHalt("DMA failure")
 
 #endif /* XMCUCONF_H */

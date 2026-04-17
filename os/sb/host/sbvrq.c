@@ -59,6 +59,14 @@ static void vrq_privileged_code(void) {
 
 CC_FORCE_INLINE
 static inline struct port_extctx *vrq_set_doomed(sb_class_t *sbp) {
+
+  /* The fake frame is placed at u_data->base, the very start of the sandbox
+     data region. This deliberately overwrites a few bytes of sandbox data,
+     which is acceptable because the sandbox is already in a terminal state
+     (its stack has overflowed and it cannot recover). On exception return
+     the CPU will branch to vrq_privileged_code, a kernel address outside
+     the sandbox's MPU regions, causing an immediate fault and sandbox
+     termination.*/
   struct port_extctx *ectxp = (struct port_extctx *)(void *)sbp->u_data->base;
 
   ectxp->pc = (uint32_t)vrq_privileged_code;
@@ -142,7 +150,7 @@ static void vrq_pushctx_this(sb_class_t *sbp, uint32_t psp, sb_vrqnum_t nvrq) {
     vrq_initctx(sbp, ectxp, nvrq);
   }
   __set_PSP((uint32_t)ectxp);
-#if PORT_SAVE_PSPLIM
+#if defined(PORT_ARCHITECTURE_ARM_V8M_MAINLINE)
   __set_PSPLIM((uint32_t)sbp->u_data->base);
 #endif
 }
@@ -216,6 +224,12 @@ void sbVRQTriggerS(sb_class_t *sbp, sb_vrqnum_t nvrq) {
   chDbgCheck(nvrq < vrq_num);
   chDbgAssert(sbp->thread.owner == currcore, "different core");
 
+  /* Late producers can still target a sandbox object during teardown or
+     restart windows, those VRQs must be ignored once the thread is dead.*/
+  if (chThdTerminatedX(&sbp->thread)) {
+    return;
+  }
+
   /* Adding VRQ mask to the pending mask.*/
   sbp->vrq.wtmask |= (sb_vrqmask_t)(1U << nvrq);
 
@@ -275,6 +289,12 @@ void sbVRQTriggerI(sb_class_t *sbp, sb_vrqnum_t nvrq) {
   chDbgCheck(nvrq < vrq_num);
   chDbgAssert(sbp->thread.owner == currcore, "different core");
 
+  /* Late producers can still target a sandbox object during teardown or
+     restart windows, those VRQs must be ignored once the thread is dead.*/
+  if (chThdTerminatedX(&sbp->thread)) {
+    return;
+  }
+
   /* Adding VRQ mask to the pending mask.*/
   sbp->vrq.wtmask |= (sb_vrqmask_t)(1U << nvrq);
 
@@ -327,12 +347,19 @@ void sb_sysc_vrq_set_alarm(sb_class_t *sbp, struct port_extctx *ectxp) {
   sysinterval_t interval = (sysinterval_t )ectxp->r0;
   bool reload = (bool)ectxp->r1;
 
+  if (interval == TIME_IMMEDIATE) {
+    ectxp->r0 = (uint32_t)CH_RET_EINVAL;
+    return;
+  }
+
   if (reload) {
     chVTSetContinuous(&sbp->vrq.alarm_vt, interval, delay_cb, (void *)sbp);
   }
   else {
     chVTSet(&sbp->vrq.alarm_vt, interval, delay_cb, (void *)sbp);
   }
+
+  ectxp->r0 = (uint32_t)CH_RET_SUCCESS;
 }
 
 void sb_sysc_vrq_reset_alarm(sb_class_t *sbp, struct port_extctx *ectxp) {
@@ -469,8 +496,11 @@ void sb_fastc_vrq_return(sb_class_t *sbp, struct port_extctx *ectxp) {
   }
   else {
 
-    /* Discarding the return current context, returning on the previous one.
-       TODO: Check for overflows????*/
+    /* Discarding the current VRQ context, returning on the previous one.
+       No overflow check is needed here: the frame at ectxp was pushed by
+       vrq_pushctx_this() which already verified that the new frame fit within
+       u_data. Incrementing ectxp recovers the pre-VRQ PSP value, which was
+       valid sandbox memory before the VRQ was injected and has not moved.*/
     ectxp++;
 
     /* Re-enabling VRQs globally.*/
@@ -478,7 +508,7 @@ void sb_fastc_vrq_return(sb_class_t *sbp, struct port_extctx *ectxp) {
 
     /* Keeping the current return context.*/
     __set_PSP((uint32_t)ectxp);
-#if PORT_SAVE_PSPLIM
+#if defined(PORT_ARCHITECTURE_ARM_V8M_MAINLINE)
     __set_PSPLIM((uint32_t)sbp->u_data->base);
 #endif
   }
@@ -508,7 +538,7 @@ void __sb_vrq_check_pending(sb_class_t *sbp, struct port_extctx *ectxp) {
   }
 
   __set_PSP((uint32_t)ectxp);
-#if PORT_SAVE_PSPLIM
+#if defined(PORT_ARCHITECTURE_ARM_V8M_MAINLINE)
   __set_PSPLIM((uint32_t)sbp->u_data->base);
 #endif
 }

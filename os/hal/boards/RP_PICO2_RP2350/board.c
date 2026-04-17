@@ -43,14 +43,23 @@
 /**
  * @brief   Early initialization code.
  * @note    Called before DATA/BSS init and stack fill.
- * @note    The RP2350 bootrom enables the watchdog with an ~800ms timeout
- *          as a safety net during boot. Must be disabled here before the
- *          potentially slow stack fill loop.
  */
 void __early_init(void) {
 
-  /* Disable the bootrom watchdog via the CLR atomic alias. */
+  /* Disable the bootrom watchdog. */
   WATCHDOG->CLR.CTRL = WATCHDOG_CTRL_ENABLE;
+
+#if RP_NO_INIT == FALSE
+  /* Reset of all peripherals.
+     Note, IO_QSPI, PADS_QSPI, PLL_SYS and PLL_USB are not reset because
+     the system is executing from flash via XIP and needs clock sources to
+     remain active. PLLs are handled by rp_clock_init() after switching to
+     safe sources.*/
+  rp_peripheral_reset(~(RESETS_ALLREG_IO_QSPI  | RESETS_ALLREG_PADS_QSPI |
+                         RESETS_ALLREG_PLL_SYS  | RESETS_ALLREG_PLL_USB));
+
+  rp_clock_init();
+#endif
 }
 
 #if HAL_USE_SDC || defined(__DOXYGEN__)

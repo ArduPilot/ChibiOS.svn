@@ -1,5 +1,6 @@
 # Required platform files.
 PLATFORMSRC := $(CHIBIOS)/os/hal/ports/common/ARMCMx/nvic.c \
+               $(CHIBIOS)/os/hal/ports/RP/rp_bootrom.c \
                $(CHIBIOS)/os/hal/ports/RP/RP2040/rp_clocks.c \
                $(CHIBIOS)/os/hal/ports/RP/RP2040/rp_isr.c \
                $(CHIBIOS)/os/hal/ports/RP/RP2040/rp_pll.c \
@@ -8,7 +9,8 @@ PLATFORMSRC := $(CHIBIOS)/os/hal/ports/common/ARMCMx/nvic.c \
 
 # Required include directories.
 PLATFORMINC := $(CHIBIOS)/os/hal/ports/common/ARMCMx \
-               $(CHIBIOS)/os/hal/ports/RP/RP2040
+               $(CHIBIOS)/os/hal/ports/RP/RP2040 \
+               $(CHIBIOS)/os/hal/ports/RP
 
 # Optional platform files.
 ifeq ($(USE_SMART_BUILD),yes)
@@ -32,6 +34,7 @@ PLATFORMSRC += $(CHIBIOS)/os/hal/ports/RP/RP2040/hal_efl_lld.c
 endif
 
 # Drivers compatible with the platform.
+include $(CHIBIOS)/os/hal/ports/RP/LLD/EFLv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/RP/LLD/DMAv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/RP/LLD/PIOv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/RP/LLD/GPIOv1/driver.mk

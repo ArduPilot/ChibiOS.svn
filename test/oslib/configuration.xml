@@ -1209,6 +1209,28 @@ test_assert_sequence("abcdefgh", "unexpected tokens");
 ]]></value>
               </code>
             </step>
+            <step>
+              <description>
+                <value>Verifying that all descriptors have been returned.</value>
+              </description>
+              <tags>
+                <value></value>
+              </tags>
+              <code>
+                <value><![CDATA[
+cnt_t cnt;
+size_t used;
+
+chSysLock();
+cnt = chGuardedPoolGetCounterI(&jq.free);
+used = chMBGetUsedCountI(&jq.mbx);
+chSysUnlock();
+
+test_assert(cnt == (cnt_t)JOBS_QUEUE_SIZE, "lost descriptors");
+test_assert(used == 0U, "pending jobs");
+]]></value>
+              </code>
+            </step>
           </steps>
         </case>
       </cases>
@@ -1626,6 +1648,55 @@ uint32_t i;
 
 for (i = 0; i < NUM_OBJECTS; i++) {
   oc_object_t *objp = chCacheGetObject(&cache1, NULL, i);
+
+  test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
+  test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "in sync");
+
+  chCacheReleaseObject(&cache1, objp);
+}
+
+test_assert_sequence("", "unexpected tokens");
+]]></value>
+              </code>
+            </step>
+            <step>
+              <description>
+                <value>Repeated cached hits followed by a miss.</value>
+              </description>
+              <tags>
+                <value></value>
+              </tags>
+              <code>
+                <value><![CDATA[
+bool error;
+uint32_t i;
+
+{
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, NUM_OBJECTS);
+
+  test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "in sync");
+
+  error = chCacheReadObject(&cache1, objp, false);
+
+  test_assert(error == false, "returned error");
+  test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) == 0U, "not in sync");
+
+  chCacheReleaseObject(&cache1, objp);
+}
+
+test_assert_sequence("e", "unexpected tokens");
+
+for (i = 0; i < 16U; i++) {
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, NUM_OBJECTS);
+
+  test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
+  test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) == 0U, "not in sync");
+
+  chCacheReleaseObject(&cache1, objp);
+}
+
+{
+  oc_object_t *objp = chCacheGetObject(&cache1, NULL, 0U);
 
   test_assert((objp->obj_flags & OC_FLAG_INHASH) != 0U, "not in hash");
   test_assert((objp->obj_flags & OC_FLAG_NOTSYNC) != 0U, "in sync");

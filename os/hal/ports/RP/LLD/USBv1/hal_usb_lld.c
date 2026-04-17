@@ -411,6 +411,14 @@ static void usb_lld_serve_interrupt(USBDriver *usbp) {
     }
   }
 
+  /* Bus reset must be handled before SETUP_REQ: when both are pending,
+   * processing SETUP first queues a response that _usb_reset() destroys. */
+  if (ints & USB_INTS_BUS_RESET) {
+    USB->CLR.SIESTATUS = USB_SIE_STATUS_BUS_RESET;
+
+    _usb_reset(usbp);
+  }
+
   /* USB setup packet handling. */
   if (ints & USB_INTS_SETUP_REQ) {
     USB->CLR.SIESTATUS = USB_SIE_STATUS_SETUP_REC;
@@ -418,13 +426,6 @@ static void usb_lld_serve_interrupt(USBDriver *usbp) {
     reset_ep0(usbp);
 
     _usb_isr_invoke_setup_cb(usbp, 0);
-  }
-
-  /* USB bus reset condition handling. */
-  if (ints & USB_INTS_BUS_RESET) {
-    USB->CLR.SIESTATUS = USB_SIE_STATUS_BUS_RESET;
-
-    _usb_reset(usbp);
   }
 
   /* USB bus SUSPEND condition handling.*/
@@ -519,8 +520,8 @@ void usb_lld_start(USBDriver *usbp) {
                     "invalid USB clock frequency");
 
       /* Reset usb controller. */
-      hal_lld_peripheral_reset(RESETS_ALLREG_USBCTRL);
-      hal_lld_peripheral_unreset(RESETS_ALLREG_USBCTRL);
+      rp_peripheral_reset(RESETS_ALLREG_USBCTRL);
+      rp_peripheral_unreset(RESETS_ALLREG_USBCTRL);
 
       /* Clear any previous state in dpram and hw regs */
       memset(USB, 0, sizeof(*USB));

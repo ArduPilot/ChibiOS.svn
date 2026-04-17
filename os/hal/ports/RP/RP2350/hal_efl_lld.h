@@ -42,6 +42,31 @@
 #define RP_FLASH_SECTOR_SIZE                4096U
 
 /**
+ * @brief   Flash sector erase command (JEDEC 0x20).
+ */
+#define RP_FLASH_CMD_SECTOR_ERASE          0x20U
+
+/**
+ * @brief   Flash 32KB block erase command (JEDEC 0x52).
+ */
+#define RP_FLASH_CMD_BLOCK_ERASE_32K        0x52U
+
+/**
+ * @brief   Flash 64KB block erase command (JEDEC 0xD8).
+ */
+#define RP_FLASH_CMD_BLOCK_ERASE_64K        0xD8U
+
+/**
+ * @brief   Flash 32KB block size.
+ */
+#define RP_FLASH_BLOCK_32K_SIZE             (32U * 1024U)
+
+/**
+ * @brief   Flash 64KB block size.
+ */
+#define RP_FLASH_BLOCK_64K_SIZE             65536U
+
+/**
  * @brief   XIP base address.
  */
 #define RP_FLASH_BASE                       0x10000000U
@@ -86,6 +111,23 @@
 #define RP_FLASH_WAIT_TIME_MS               1U
 #endif
 
+/**
+ * @brief   Enables PSRAM (CS1) cache handling in the EFL driver.
+ * @details When enabled, the XIP cache flush performs a clean-before-
+ *          invalidate sequence to write back dirty PSRAM cache lines
+ *          before invalidation. When disabled, only invalidation is
+ *          performed (flash cache lines are never dirty).
+ * @note    Set to @p TRUE in mcuconf.h for boards with PSRAM on QMI CS1.
+ * @note    PSRAM must be initialized (QMI M1 registers configured,
+ *          XIP_CTRL WRITABLE_M1 set) before the first EFL operation.
+ *          The EFL driver saves XIP_CTRL on entry to flash operations
+ *          and restores it on exit; if WRITABLE_M1 is not yet set at
+ *          the time of the first save, it will be cleared on restore.
+ */
+#if !defined(RP_EFL_HAS_PSRAM) || defined(__DOXYGEN__)
+#define RP_EFL_HAS_PSRAM                    FALSE
+#endif
+
 /** @} */
 
 /*===========================================================================*/
@@ -106,6 +148,11 @@
  */
 #define RP_FLASH_SECTORS_COUNT              (RP_FLASH_SIZE / RP_FLASH_SECTOR_SIZE)
 
+/**
+ * @brief   Number of 64KB blocks in flash.
+ */
+#define RP_FLASH_BLOCKS_COUNT               (RP_FLASH_SIZE / RP_FLASH_BLOCK_64K_SIZE)
+
 /*===========================================================================*/
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
@@ -114,12 +161,26 @@
 /* Driver macros.                                                            */
 /*===========================================================================*/
 
+#include "rp_efl_lld.h"
+
 /**
  * @brief   Low level fields of the embedded flash driver structure.
  */
 #define efl_lld_driver_fields                                               \
   /* Pointer to QMI registers. */                                           \
-  volatile uint32_t           *qmi;
+  QMI_TypeDef                 *qmi;                                         \
+  /* Saved XIP control register. */                                         \
+  uint32_t                    xip_ctrl;                                     \
+  /* Saved CS0 (flash) XIP configuration registers. */                       \
+  uint32_t                    xip_timing;                                   \
+  uint32_t                    xip_rfmt;                                     \
+  uint32_t                    xip_rcmd;                                     \
+  /* Saved CS1 (PSRAM) XIP configuration registers. */                      \
+  uint32_t                    xip_m1_timing;                                \
+  uint32_t                    xip_m1_rfmt;                                  \
+  uint32_t                    xip_m1_rcmd;                                  \
+  uint32_t                    xip_m1_wfmt;                                  \
+  uint32_t                    xip_m1_wcmd;
 
 /**
  * @brief   Low level fields of the embedded flash configuration structure.
@@ -129,30 +190,20 @@
   uint32_t                    dummy;
 
 /*===========================================================================*/
-/* External declarations.                                                    */
+/* Application hooks.                                                        */
 /*===========================================================================*/
 
-#if !defined(__DOXYGEN__)
-extern EFlashDriver EFLD1;
-#endif
+/*===========================================================================*/
+/* External declarations.                                                    */
+/*===========================================================================*/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void efl_lld_init(void);
-  void efl_lld_start(EFlashDriver *eflp);
-  void efl_lld_stop(EFlashDriver *eflp);
-  const flash_descriptor_t *efl_lld_get_descriptor(void *instance);
-  flash_error_t efl_lld_read(void *instance, flash_offset_t offset,
-                             size_t n, uint8_t *rp);
-  flash_error_t efl_lld_program(void *instance, flash_offset_t offset,
-                                size_t n, const uint8_t *pp);
-  flash_error_t efl_lld_start_erase_all(void *instance);
-  flash_error_t efl_lld_start_erase_sector(void *instance,
-                                           flash_sector_t sector);
-  flash_error_t efl_lld_query_erase(void *instance, uint32_t *wait_time);
-  flash_error_t efl_lld_verify_erase(void *instance, flash_sector_t sector);
-  void efl_lld_read_unique_id(EFlashDriver *eflp, uint8_t *uid);
+#if !defined(__DOXYGEN__)
+extern EFlashDriver EFLD1;
+#endif
+#include "rp_efl_lld_api.inc"
 #ifdef __cplusplus
 }
 #endif

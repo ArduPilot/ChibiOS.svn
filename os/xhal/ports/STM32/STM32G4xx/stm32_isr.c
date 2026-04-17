@@ -58,18 +58,16 @@
 #include "stm32_exti4.inc"
 #include "stm32_exti5_9.inc"
 #include "stm32_exti10_15.inc"
-#include "stm32_exti16-40_41.inc"
-#include "stm32_exti17.inc"
-#include "stm32_exti18.inc"
-#include "stm32_exti19.inc"
-#include "stm32_exti20.inc"
-#include "stm32_exti21_22-29.inc"
-#include "stm32_exti30_32.inc"
-#include "stm32_exti33.inc"
 
 //#include "stm32_fdcan1.inc"
 //#include "stm32_fdcan2.inc"
 //#include "stm32_fdcan3.inc"
+
+#include "stm32_adc1_2.inc"
+#include "stm32_adc3.inc"
+#include "stm32_adc3_4.inc"
+#include "stm32_adc4.inc"
+#include "stm32_adc5.inc"
 
 #include "stm32_usart1.inc"
 #include "stm32_usart2.inc"
@@ -77,6 +75,9 @@
 #include "stm32_uart4.inc"
 #include "stm32_uart5.inc"
 #include "stm32_lpuart1.inc"
+
+#include "stm32_quadspi1.inc"
+#include "stm32_rtc_g4.inc"
 
 #include "stm32_tim1_15_16_17.inc"
 #include "stm32_tim2.inc"
@@ -106,17 +107,18 @@ void irqInit(void) {
   exti4_irq_init();
   exti5_9_irq_init();
   exti10_15_irq_init();
-  exti16_exti40_exti41_irq_init();
-  exti17_irq_init();
-  exti18_irq_init();
-  exti19_irq_init();
-  exti21_exti22_exti29_irq_init();
-  exti30_32_irq_init();
-  exti33_irq_init();
-
 //  fdcan1_irq_init();
 //  fdcan2_irq_init();
 //  fdcan3_irq_init();
+
+  adc1_adc2_irq_init();
+  adc3_irq_init();
+  adc3_adc4_irq_init();
+  adc4_irq_init();
+  adc5_irq_init();
+
+  quadspi1_irq_init();
+  rtc_irq_init();
 
   tim1_tim15_tim16_tim17_irq_init();
   tim2_irq_init();
@@ -150,17 +152,18 @@ void irqDeinit(void) {
   exti4_irq_deinit();
   exti5_9_irq_deinit();
   exti10_15_irq_deinit();
-  exti16_exti40_exti41_irq_deinit();
-  exti17_irq_deinit();
-  exti18_irq_deinit();
-  exti19_irq_deinit();
-  exti21_exti22_exti29_irq_deinit();
-  exti30_32_irq_deinit();
-  exti33_irq_deinit();
-
 //  fdcan1_irq_deinit();
 //  fdcan2_irq_deinit();
 //  fdcan3_irq_deinit();
+
+  adc1_adc2_irq_deinit();
+  adc3_irq_deinit();
+  adc3_adc4_irq_deinit();
+  adc4_irq_deinit();
+  adc5_irq_deinit();
+
+  quadspi1_irq_deinit();
+  rtc_irq_deinit();
 
   tim1_tim15_tim16_tim17_irq_deinit();
   tim2_irq_deinit();

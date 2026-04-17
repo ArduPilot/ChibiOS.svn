@@ -53,14 +53,13 @@
 
 /**
  * @brief   IRQ subsystem initialization.
- * @details Puts the Xh3irq controller in a known clean state before any
+ * @details Puts the IRQ controller in a known clean state before any
  *          HAL drivers enable their individual interrupts.
  *
  * @notapi
  */
 void irqInit(void) {
 
-  nvicInit();
 }
 
 /**

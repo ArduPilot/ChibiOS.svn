@@ -53,6 +53,10 @@
 
 //#include "stm32_dac1.inc"
 
+#include "stm32_adc1.inc"
+#include "stm32_adc1_2.inc"
+#include "stm32_adc2.inc"
+
 #include "stm32_exti0.inc"
 #include "stm32_exti1.inc"
 #include "stm32_exti2.inc"
@@ -81,6 +85,8 @@
 //#include "stm32_spi4.inc"
 //#include "stm32_spi5.inc"
 //#include "stm32_spi6.inc"
+
+#include "stm32_octospi1.inc"
 
 #include "stm32_tim1.inc"
 #include "stm32_tim2.inc"
@@ -111,6 +117,8 @@
 #include "stm32_uart12.inc"
 #include "stm32_lpuart1.inc"
 
+#include "stm32_rtc_h5.inc"
+
 //#include "stm32_usb1.inc"
 
 /*===========================================================================*/
@@ -125,6 +133,10 @@
 void irqInit(void) {
 
 //  dac1_irq_init();
+
+  adc1_irq_init();
+  adc1_adc2_irq_init();
+  adc2_irq_init();
 
   exti0_irq_init();
   exti1_irq_init();
@@ -154,6 +166,9 @@ void irqInit(void) {
 //  spi4_irq_init();
 //  spi5_irq_init();
 //  spi6_irq_init();
+
+  octospi1_irq_init();
+  rtc_irq_init();
 
   tim1_irq_init();
   tim2_irq_init();
@@ -196,6 +211,10 @@ void irqDeinit(void) {
 
 //  dac1_irq_deinit();
 
+  adc1_irq_deinit();
+  adc1_adc2_irq_deinit();
+  adc2_irq_deinit();
+
   exti0_irq_deinit();
   exti1_irq_deinit();
   exti2_irq_deinit();
@@ -224,6 +243,9 @@ void irqDeinit(void) {
 //  spi4_irq_deinit();
 //  spi5_irq_deinit();
 //  spi6_irq_deinit();
+
+  octospi1_irq_deinit();
+  rtc_irq_deinit();
 
   tim1_irq_deinit();
   tim2_irq_deinit();

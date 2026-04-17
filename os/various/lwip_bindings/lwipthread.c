@@ -86,173 +86,6 @@ static net_addr_mode_t addressMode;
 static ip4_addr_t ip, gateway, netmask;
 static struct netif thisif;
 
-#if defined(__CHIBIOS_XHAL_CONF__)
-
-#if (HAL_USE_ETH != TRUE)
-#error "lwipthread requires HAL_USE_ETH in XHAL mode"
-#endif
-
-#if (ETH_USE_SYNCHRONIZATION != TRUE)
-#error "lwipthread requires ETH_USE_SYNCHRONIZATION in XHAL mode"
-#endif
-
-#if (ETH_USE_EVENTS != TRUE)
-#error "lwipthread requires ETH_USE_EVENTS in XHAL mode"
-#endif
-
-typedef eth_receive_handle_t lwip_receive_handle_t;
-typedef eth_transmit_handle_t lwip_transmit_handle_t;
-
-static msg_t lwip_lld_start(void) {
-  static const hal_eth_config_t lwip_eth_config = {
-    .mac_address = thisif.hwaddr,
-    .regs = {
-      .dmamr = 0U,
-      .dmasbmr = 0U
-    }
-  };
-  msg_t msg;
-
-  msg = drvSetCfgX(&ETHD1, &lwip_eth_config);
-  if (msg != HAL_RET_SUCCESS) {
-    return msg;
-  }
-
-  return drvStart(&ETHD1);
-}
-
-static msg_t lwip_wait_transmit_handle(lwip_transmit_handle_t *txhp) {
-  *txhp = ethWaitTransmitHandle(&ETHD1, TIME_MS2I(LWIP_SEND_TIMEOUT));
-
-  return (*txhp != (lwip_transmit_handle_t)0U) ? MSG_OK : MSG_TIMEOUT;
-}
-
-static size_t lwip_write_transmit_handle(lwip_transmit_handle_t *txhp,
-                                         const uint8_t *bp,
-                                         size_t size) {
-
-  return ethWriteTransmitHandle(&ETHD1, *txhp, bp, size);
-}
-
-static void lwip_release_transmit_handle(lwip_transmit_handle_t *txhp) {
-
-  ethReleaseTransmitHandle(&ETHD1, *txhp);
-}
-
-static msg_t lwip_wait_receive_handle(lwip_receive_handle_t *rxhp) {
-  *rxhp = ethWaitReceiveHandle(&ETHD1, TIME_IMMEDIATE);
-
-  return (*rxhp != (lwip_receive_handle_t)0U) ? MSG_OK : MSG_TIMEOUT;
-}
-
-static size_t lwip_read_receive_handle(lwip_receive_handle_t *rxhp,
-                                       uint8_t *bp,
-                                       size_t size) {
-
-  return ethReadReceiveHandle(&ETHD1, *rxhp, bp, size);
-}
-
-static size_t lwip_receive_size(lwip_receive_handle_t *rxhp) {
-  size_t size;
-
-  (void)ethGetReceiveBufferX(&ETHD1, *rxhp, &size);
-
-  return size;
-}
-
-static void lwip_release_receive_handle(lwip_receive_handle_t *rxhp) {
-
-  ethReleaseReceiveHandle(&ETHD1, *rxhp);
-}
-
-static event_source_t *lwip_get_event_source(void) {
-
-  return &ETHD1.es;
-}
-
-static eventflags_t lwip_get_receive_event_flag(void) {
-
-  return ETH_FLAGS_RX;
-}
-
-static bool lwip_poll_link_status(void) {
-
-  return ethPollLinkStatus(&ETHD1);
-}
-
-#else /* !defined(__CHIBIOS_XHAL_CONF__) */
-
-typedef MACReceiveDescriptor lwip_receive_handle_t;
-typedef MACTransmitDescriptor lwip_transmit_handle_t;
-
-static msg_t lwip_lld_start(void) {
-  static const MACConfig mac_config = {thisif.hwaddr};
-
-  macStart(&ETHD1, &mac_config);
-
-  return HAL_RET_SUCCESS;
-}
-
-static msg_t lwip_wait_transmit_handle(lwip_transmit_handle_t *txhp) {
-
-  return macWaitTransmitDescriptor(&ETHD1, txhp, TIME_MS2I(LWIP_SEND_TIMEOUT));
-}
-
-static size_t lwip_write_transmit_handle(lwip_transmit_handle_t *txhp,
-                                         const uint8_t *bp,
-                                         size_t size) {
-
-  macWriteTransmitDescriptor(txhp, (uint8_t *)bp, size);
-
-  return size;
-}
-
-static void lwip_release_transmit_handle(lwip_transmit_handle_t *txhp) {
-
-  macReleaseTransmitDescriptorX(txhp);
-}
-
-static msg_t lwip_wait_receive_handle(lwip_receive_handle_t *rxhp) {
-
-  return macWaitReceiveDescriptor(&ETHD1, rxhp, TIME_IMMEDIATE);
-}
-
-static size_t lwip_read_receive_handle(lwip_receive_handle_t *rxhp,
-                                       uint8_t *bp,
-                                       size_t size) {
-
-  macReadReceiveDescriptor(rxhp, bp, size);
-
-  return size;
-}
-
-static size_t lwip_receive_size(lwip_receive_handle_t *rxhp) {
-
-  return rxhp->size;
-}
-
-static void lwip_release_receive_handle(lwip_receive_handle_t *rxhp) {
-
-  macReleaseReceiveDescriptorX(rxhp);
-}
-
-static event_source_t *lwip_get_event_source(void) {
-
-  return macGetEventSource(&ETHD1);
-}
-
-static eventflags_t lwip_get_receive_event_flag(void) {
-
-  return MAC_FLAGS_RX;
-}
-
-static bool lwip_poll_link_status(void) {
-
-  return macPollLinkStatus(&ETHD1);
-}
-
-#endif /* defined(__CHIBIOS_XHAL_CONF__) */
-
 /*
  * Suspension point for initialization procedure.
  */
@@ -355,6 +188,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p) {
 static bool low_level_input(struct netif *netif, struct pbuf **pbuf) {
   lwip_receive_handle_t rxh;
   struct pbuf *q;
+  size_t total;
   u16_t len;
 
   (void)netif;
@@ -377,13 +211,24 @@ static bool low_level_input(struct netif *netif, struct pbuf **pbuf) {
 #if ETH_PAD_SIZE
     pbuf_header(*pbuf, -ETH_PAD_SIZE); /* drop the padding word */
 #endif
+    total = 0U;
 
     /* Iterates through the pbuf chain. */
     for (q = *pbuf; q != NULL; q = q->next) {
-      (void)lwip_read_receive_handle(&rxh, (uint8_t *)q->payload,
-                                     (size_t)q->len);
+      size_t n;
+
+      n = lwip_read_receive_handle(&rxh, (uint8_t *)q->payload,
+                                   (size_t)q->len);
+      total += n;
+      if (n != (size_t)q->len) {
+        break;
+      }
     }
     lwip_release_receive_handle(&rxh);
+
+#if defined(__CHIBIOS_XHAL_CONF__) && (ETH_SUPPORTS_ZERO_COPY != TRUE)
+    pbuf_realloc(*pbuf, (u16_t)total);
+#endif
 
     MIB2_STATS_NETIF_ADD(netif, ifinoctets, (*pbuf)->tot_len);
 
@@ -499,10 +344,7 @@ static THD_FUNCTION(lwip_thread, p) {
   /* TCP/IP parameters, runtime or compile time.*/
   if (p) {
     lwipthread_opts_t *opts = p;
-    unsigned i;
 
-    for (i = 0; i < 6; i++)
-      thisif.hwaddr[i] = opts->macaddress[i];
     ip.addr = opts->address;
     gateway.addr = opts->gateway;
     netmask.addr = opts->netmask;
@@ -514,12 +356,6 @@ static THD_FUNCTION(lwip_thread, p) {
     link_down_cb = opts->link_down_cb;
   }
   else {
-    thisif.hwaddr[0] = LWIP_ETHADDR_0;
-    thisif.hwaddr[1] = LWIP_ETHADDR_1;
-    thisif.hwaddr[2] = LWIP_ETHADDR_2;
-    thisif.hwaddr[3] = LWIP_ETHADDR_3;
-    thisif.hwaddr[4] = LWIP_ETHADDR_4;
-    thisif.hwaddr[5] = LWIP_ETHADDR_5;
     LWIP_IPADDR(&ip);
     LWIP_GATEWAY(&gateway);
     LWIP_NETMASK(&netmask);
@@ -545,7 +381,8 @@ static THD_FUNCTION(lwip_thread, p) {
     thisif.hostname = LWIP_NETIF_HOSTNAME_STRING;
 #endif
 
-  if (lwip_lld_start() != HAL_RET_SUCCESS) {
+  if (lwip_lld_start((const lwipthread_opts_t *)p, &thisif) !=
+      HAL_RET_SUCCESS) {
     chThdSleepMilliseconds(1000);
     osalSysHalt("ethernet start error");
   }
@@ -582,13 +419,13 @@ static THD_FUNCTION(lwip_thread, p) {
       if (current_link_status != netif_is_link_up(&thisif)) {
         if (current_link_status) {
           tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_up,
-                                     &thisif, 0);
-          tcpip_callback_with_block(link_up_cb, &thisif, 0);
+                                     &thisif, 1);
+          tcpip_callback_with_block(link_up_cb, &thisif, 1);
         }
         else {
           tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_down,
-                                     &thisif, 0);
-          tcpip_callback_with_block(link_down_cb, &thisif, 0);
+                                     &thisif, 1);
+          tcpip_callback_with_block(link_down_cb, &thisif, 1);
         }
       }
     }
@@ -602,6 +439,9 @@ static THD_FUNCTION(lwip_thread, p) {
             /* IP or ARP packet? */
             case ETHTYPE_IP:
             case ETHTYPE_ARP:
+#if LWIP_IPV6
+            case ETHTYPE_IPV6:
+#endif
               /* full packet send to tcpip_thread to process */
               if (thisif.input(p, &thisif) == ERR_OK)
                 break;
@@ -704,10 +544,14 @@ static void do_reconfigure(void *p)
 void lwipReconfigure(const lwipreconf_opts_t *opts)
 {
   lwip_reconf_params_t params;
+  err_t err;
+
   params.opts = opts;
   chSemObjectInit(&params.completion, 0);
-  tcpip_callback_with_block(do_reconfigure, &params, 0);
-  chSemWait(&params.completion);
+  err = tcpip_callback_with_block(do_reconfigure, &params, 1);
+  if (err == ERR_OK) {
+    chSemWait(&params.completion);
+  }
 }
 
 /** @} */

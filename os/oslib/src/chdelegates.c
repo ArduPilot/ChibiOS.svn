@@ -26,7 +26,7 @@
  *          encapsulating a library not designed for threading into a
  *          delegate thread. Other threads have access to the library without
  *          having to worry about mutual exclusion.
- * @pre     In order to use the pipes APIs the @p CH_CFG_USE_DELEGATES
+ * @pre     In order to use the delegates APIs the @p CH_CFG_USE_DELEGATES
  *          option must be enabled in @p chconf.h.
  * @note    Compatible with RT and NIL.
  *
@@ -159,12 +159,13 @@ msg_t chDelegateCallVeneer(thread_t *tp, delegate_veneer_t veneer, ...) {
   call_message_t cm;
   msg_t msg;
 
+  chDbgCheck((tp != NULL) && (veneer != NULL));
+
   va_start(args, veneer);
 
   /* Preparing the call message.*/
   cm.veneer = veneer;
   cm.argsp  = &args;
-  (void)cm; /* Suppresses a lint warning.*/
 
   /* Sending the message to the dispatcher thread, the return value is
      contained in the returned message.*/
@@ -207,7 +208,9 @@ void chDelegateDispatch(void) {
  *
  * @param[in] timeout   the number of ticks before the operation timeouts,
  *                      the following special values are allowed:
+ *                      - @a TIME_IMMEDIATE immediate timeout.
  *                      - @a TIME_INFINITE no timeout.
+ *                      .
  * @return              The function outcome.
  * @retval MSG_OK       if a function has been called.
  * @retval MSG_TIMEOUT  if a timeout occurred.

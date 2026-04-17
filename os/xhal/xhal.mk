@@ -27,14 +27,26 @@ XHALSRC := $(CHIBIOS)/os/xhal/src/hal.c \
 ifneq ($(findstring HAL_USE_ETH TRUE,$(XHALCONF)),)
 XHALSRC += $(CHIBIOS)/os/xhal/src/hal_eth.c
 endif
+ifneq ($(findstring HAL_USE_GPT TRUE,$(XHALCONF)),)
+XHALSRC += $(CHIBIOS)/os/xhal/src/hal_gpt.c
+endif
 ifneq ($(findstring HAL_USE_PAL TRUE,$(XHALCONF)),)
 XHALSRC += $(CHIBIOS)/os/xhal/src/hal_pal.c
+endif
+ifneq ($(findstring HAL_USE_ADC TRUE,$(XHALCONF)),)
+XHALSRC += $(CHIBIOS)/os/xhal/src/hal_adc.c
+endif
+ifneq ($(findstring HAL_USE_RTC TRUE,$(XHALCONF)),)
+XHALSRC += $(CHIBIOS)/os/xhal/src/hal_rtc.c
 endif
 ifneq ($(findstring HAL_USE_SIO TRUE,$(XHALCONF)),)
 XHALSRC += $(CHIBIOS)/os/xhal/src/hal_sio.c
 endif
 ifneq ($(findstring HAL_USE_SPI TRUE,$(XHALCONF)),)
 XHALSRC += $(CHIBIOS)/os/xhal/src/hal_spi.c
+endif
+ifneq ($(findstring HAL_USE_WSPI TRUE,$(XHALCONF)),)
+XHALSRC += $(CHIBIOS)/os/xhal/src/hal_wspi.c
 endif
 else
 XHALSRC = $(CHIBIOS)/os/xhal/src/hal.c \
@@ -44,10 +56,14 @@ XHALSRC = $(CHIBIOS)/os/xhal/src/hal.c \
           $(CHIBIOS)/os/xhal/src/hal_st.c \
           $(CHIBIOS)/os/xhal/src/hal_buffered_serial.c \
           $(CHIBIOS)/os/xhal/src/hal_queues.c \
+          $(CHIBIOS)/os/xhal/src/hal_adc.c \
           $(CHIBIOS)/os/xhal/src/hal_eth.c \
+          $(CHIBIOS)/os/xhal/src/hal_gpt.c \
           $(CHIBIOS)/os/xhal/src/hal_pal.c \
+          $(CHIBIOS)/os/xhal/src/hal_rtc.c \
           $(CHIBIOS)/os/xhal/src/hal_sio.c \
-          $(CHIBIOS)/os/xhal/src/hal_spi.c
+          $(CHIBIOS)/os/xhal/src/hal_spi.c \
+          $(CHIBIOS)/os/xhal/src/hal_wspi.c
 endif
 
 # Required include directories

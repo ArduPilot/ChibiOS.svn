@@ -32,3 +32,412 @@ General improvements:
   now required to handle this cleanly.
 - Many functions that used to return void in HAL now return error codes, this
   is especially true for communication functions.
+
+RTC proposal:
+- Add a generated XHAL RTC module (`hal_rtc.xml`) and make it a regular XHAL
+  driver, derived from `hal_cb_driver_c`.
+- Do not carry over the HAL persistent storage feature. The XHAL RTC should
+  not expose file-like or storage-like APIs, only clock/alarm/event services.
+- Keep the low level driver shape close to HAL RTC in order to ease porting of
+  the existing STM32 RTCv1/v2/v3/v4 LLDs.
+
+Public model:
+- Driver class: `hal_rtc_driver_c`, ancestor `hal_cb_driver_c`.
+- Configuration type: `hal_rtc_config_t`.
+- Broken-down time type: `rtc_datetime_t`, intentionally close to the current
+  HAL `RTCDateTime` for easy LLD reuse.
+- 64-bit time type: `rtc_time64_t`, defined as a Linux-like split time value:
+  `int64_t tv_sec` plus `uint32_t tv_nsec`.
+- Alarm type: `rtc_alarm_t`.
+- Event flags type: `rtceventflags_t`.
+
+Rationale for the 64-bit API:
+- Returning a pure broken-down calendar is inconvenient for interval
+  arithmetic, ordering and Unix/POSIX interoperability.
+- A Linux-like `tv_sec`/`tv_nsec` representation avoids 2038 issues while
+  keeping the API independent from the host `time_t` size.
+- The RTC remains a civil/real-time clock, therefore the 64-bit value should
+  represent UTC seconds from the Unix epoch (1970-01-01 00:00:00 UTC).
+
+Proposed public API:
+- `void rtcInit(void);`
+- `msg_t rtcSetDateTime(hal_rtc_driver_c *self, const rtc_datetime_t *dt);`
+- `msg_t rtcGetDateTime(hal_rtc_driver_c *self, rtc_datetime_t *dt);`
+- `msg_t rtcSetTime64(hal_rtc_driver_c *self, const rtc_time64_t *tv);`
+- `msg_t rtcGetTime64(hal_rtc_driver_c *self, rtc_time64_t *tv);`
+- `rtceventflags_t rtcGetEventsX(hal_rtc_driver_c *self);`
+- `rtceventflags_t rtcGetAndClearEventsX(hal_rtc_driver_c *self,
+  rtceventflags_t mask);`
+- `msg_t rtcSetAlarm(hal_rtc_driver_c *self, unsigned alarm,
+  const rtc_alarm_t *alarmp);`
+- `msg_t rtcGetAlarm(hal_rtc_driver_c *self, unsigned alarm,
+  rtc_alarm_t *alarmp);`
+
+Context rules:
+- `rtcSetDateTime()` and `rtcSetTime64()` should be thread-context APIs
+  because they can require write protection handling, calendar shadow
+  synchronization and multi-register updates.
+- `rtcGetDateTime()` and `rtcGetTime64()` should be callable from any context
+  if the LLD can provide an atomic snapshot; the generated API can expose them
+  as `X` methods if this guarantee is desired across XHAL.
+- Event accessors should be `X` APIs because they only manipulate cached event
+  flags in the driver object.
+
+Callback and event handling:
+- Reuse the generic XHAL single-callback model from `hal_cb_driver_c`.
+- Do not encode RTC reasons in driver states, this does not map well to RTC
+  alarm/tamper/timestamp events.
+- Add an event flags field in the driver object. The ISR/LLD ORs the pending
+  event bits into it, then invokes the generic callback if enabled.
+- The upper layer inspects the reason through `rtcGetEventsX()` or
+  `rtcGetAndClearEventsX()`.
+- Suggested bits: `RTC_FLAGS_ALARM_A`, `RTC_FLAGS_ALARM_B`, `RTC_FLAGS_TS`,
+  `RTC_FLAGS_TS_OVF`, `RTC_FLAGS_TAMP1`, `RTC_FLAGS_TAMP2`,
+  `RTC_FLAGS_TAMP3`, `RTC_FLAGS_WAKEUP`.
+
+Time conversion policy:
+- Keep the HAL-style broken-down representation with year offset from a fixed
+  base for compactness in the LLD-facing API.
+- Introduce conversion helpers between `rtc_datetime_t` and `rtc_time64_t` in
+  the common XHAL RTC source.
+- Use nanoseconds in the 64-bit API even if the hardware only exposes
+  subseconds at lower precision; LLDs can return a rounded/truncated
+  `tv_nsec`.
+- For the STM32 legacy LLDs, `tv_nsec` will initially be derived from the
+  subsecond register when available, otherwise it can be quantized to
+  milliseconds/seconds depending on the RTC version.
+
+Configuration proposal:
+- Provide a minimal generic configuration containing only mandatory fields
+  that are common across ports.
+- Suggested generic fields: `uint32_t cr`, `uint32_t prer`.
+- Keep all register-layout-specific fields in `rtc_lld_config_fields`.
+- Supply a built-in default configuration so `drvStart()` can start the RTC
+  without a user-provided configuration, consistent with the XHAL model.
+
+LLD shape proposal:
+- `rtc_lld_init()`
+- `msg_t rtc_lld_start(hal_rtc_driver_c *self)`
+- `void rtc_lld_stop(hal_rtc_driver_c *self)`
+- `const hal_rtc_config_t *rtc_lld_setcfg(hal_rtc_driver_c *self,
+  const hal_rtc_config_t *config)`
+- `msg_t rtc_lld_set_datetime(hal_rtc_driver_c *self,
+  const rtc_datetime_t *dt)`
+- `msg_t rtc_lld_get_datetime(hal_rtc_driver_c *self, rtc_datetime_t *dt)`
+- `msg_t rtc_lld_set_alarm(hal_rtc_driver_c *self, unsigned alarm,
+  const rtc_alarm_t *alarmp)`
+- `msg_t rtc_lld_get_alarm(hal_rtc_driver_c *self, unsigned alarm,
+  rtc_alarm_t *alarmp)`
+- `void rtc_lld_setcb(hal_rtc_driver_c *self, drv_cb_t cb)`
+- The 64-bit APIs should stay in common code and be implemented on top of the
+  broken-down LLD entry points in the first iteration. This keeps the STM32
+  porting effort low and centralizes epoch conversion logic in one place.
+
+Generated files and build integration:
+- Add `os/xhal/codegen/hal_rtc.xml`.
+- Register the new entity in `os/xhal/codegen/modules.xml`.
+- Regenerate `os/xhal/include/hal_rtc.h` and `os/xhal/src/hal_rtc.c`.
+- Add `os/xhal/src/hal_rtc.c` to `os/xhal/xhal.mk` behind
+  `HAL_USE_RTC == TRUE`.
+- Include RTC initialization in `os/xhal/src/hal.c` together with the other
+  enabled drivers.
+- Include the new header from the umbrella XHAL include path exactly as done
+  for SPI/SIO/ETH.
+
+STM32 migration strategy:
+- Reuse the existing register encode/decode helpers from HAL RTC where
+  possible.
+- Drop all storage-related code and macros (`RTC_HAS_STORAGE`, persistent
+  storage VMT, backup-storage read/write helpers).
+- Keep alarm register encodings and EXTI handling nearly unchanged.
+- Add a single helper that reads a coherent date/time/subsecond snapshot and
+  converts it to `rtc_datetime_t`; common code then converts that to
+  `rtc_time64_t`.
+
+Implementation order:
+- First commit the generated common XHAL RTC module and its XML description.
+- Then port one STM32 RTC LLD variant, preferably RTCv4, as the reference
+  implementation.
+- After the RTCv4 port is stable, backport the same interface to RTCv1/v2/v3.
+
+ADC proposal:
+- Add a generated XHAL ADC module (`hal_adc.xml`) and keep the public API as
+  close as practical to the legacy HAL ADC regular-conversion model.
+- Base the driver on `hal_cb_driver_c` because conversion completion is
+  naturally callback-driven and the XHAL callback machinery already matches
+  DMA-backed peripherals well.
+- Do not redesign ADC around queued requests in the first iteration. Preserve
+  the current HAL split between driver configuration and conversion-group
+  configuration.
+
+Public model:
+- Driver class: `hal_adc_driver_c`, ancestor `hal_cb_driver_c`.
+- Configuration type: `hal_adc_config_t`, intentionally close to HAL
+  `ADCConfig`.
+- Conversion descriptor: `adc_conversion_group_t`, intentionally close to HAL
+  `ADCConversionGroup`.
+- Sample type: `adcsample_t`, kept unchanged where possible in order to ease
+  LLD reuse.
+- Event flags type: `adceventflags_t`.
+- Error flags type: `adcerror_t`, reusing the HAL-style error bitmask model.
+
+API direction:
+- Keep the main verbs and semantics aligned with HAL ADC:
+  `adcInit()`, `adcStart()`, `adcStop()`, `adcStartConversion()`,
+  `adcStopConversion()`.
+- Adapt the names and method signatures to XHAL object conventions but avoid
+  changing behavior unless there is a clear XHAL benefit.
+- Keep the conversion descriptor immutable and separate from the samples
+  buffer. The samples pointer and depth remain per-execution parameters.
+
+Proposed public API:
+- `void adcInit(void);`
+- `msg_t adcStart(hal_adc_driver_c *self);`
+- `void adcStop(hal_adc_driver_c *self);`
+- `const hal_adc_config_t *adcSetCfgX(hal_adc_driver_c *self,
+  const hal_adc_config_t *config);`
+- `msg_t adcStartConversion(hal_adc_driver_c *self,
+  const adc_conversion_group_t *grpp, adcsample_t *samples, size_t depth);`
+- `msg_t adcStopConversion(hal_adc_driver_c *self);`
+- `adceventflags_t adcGetEventsX(hal_adc_driver_c *self);`
+- `adceventflags_t adcGetAndClearEventsX(hal_adc_driver_c *self,
+  adceventflags_t mask);`
+- `adcerror_t adcGetErrorsX(hal_adc_driver_c *self);`
+- `adcerror_t adcGetAndClearErrorsX(hal_adc_driver_c *self, adcerror_t mask);`
+
+State and callback model:
+- Keep the state machine close to HAL ADC in order to preserve familiar
+  conversion flow:
+  `STOP`, `READY`, `ACTIVE`, `COMPLETE`, `ERROR`.
+- Do not encode half-buffer/full-buffer reasons into the state any more than
+  necessary.
+- Instead, cache conversion events in the driver object and expose them
+  through `adcGetEventsX()` and `adcGetAndClearEventsX()`.
+- Suggested event bits: `ADC_EVENT_HALF`, `ADC_EVENT_FULL`,
+  `ADC_EVENT_COMPLETE`.
+- Keep hardware errors as a separate cached bitmask, close to HAL:
+  `ADC_ERR_DMAFAILURE`, `ADC_ERR_OVERFLOW`, `ADC_ERR_AWD1`,
+  `ADC_ERR_AWD2`, `ADC_ERR_AWD3`.
+
+Why the samples pointer must stay outside the group:
+- The same conversion group should be reusable with different destination
+  buffers.
+- The conversion group is configuration data, while the samples pointer and
+  depth are runtime execution parameters.
+- Embedding the buffer in the group would make configuration objects mutable,
+  less reusable and more error-prone with respect to lifetime/ownership.
+- Keeping the buffer as an argument also preserves a close mapping to the
+  existing HAL ADC call shape.
+
+Conversion-group policy:
+- Keep `circular`, `num_channels`, `end_cb`, `error_cb` in the mandatory
+  generic fields, mirroring HAL ADC closely.
+- Keep hardware-specific register fields inside
+  `adc_lld_conversion_group_fields`.
+- Preserve the current HAL expectation that the conversion group is an
+  implementation-aware structure describing one regular conversion sequence.
+
+Configuration policy:
+- Keep `hal_adc_config_t` minimal and close to HAL `ADCConfig`.
+- Provide a built-in default configuration so the driver can be started
+  without a user-supplied config, consistent with XHAL conventions.
+- Keep all STM32 register details in `adc_lld_config_fields`.
+
+First-iteration feature scope:
+- Include regular conversions.
+- Include DMA linear mode.
+- Include DMA circular mode with callback/event reporting for half/full
+  completions.
+- Include trigger-controlled conversions.
+- Defer injected conversions, analog watchdog management APIs, multi-ADC
+  combined modes, oversampling-specific policy, and other family-specific
+  extensions to later revisions.
+
+LLD split for STM32:
+- Do not force a single STM32 ADC LLD for both G4 and H5. The HAL tree already
+  splits them by ADC generation and XHAL should mirror that.
+- Required XHAL LLDs:
+  `os/xhal/ports/STM32/LLD/ADCv3/` for STM32G4xx.
+  `os/xhal/ports/STM32/LLD/ADCv6/` for STM32H5xx.
+- This matches the existing HAL platform selections and keeps porting work
+  close to the legacy LLDs:
+  G4 -> `ADCv3`
+  H5 -> `ADCv6`
+
+LLD shape proposal:
+- `adc_lld_init()`
+- `msg_t adc_lld_start(hal_adc_driver_c *self)`
+- `void adc_lld_stop(hal_adc_driver_c *self)`
+- `const hal_adc_config_t *adc_lld_setcfg(hal_adc_driver_c *self,
+  const hal_adc_config_t *config)`
+- `msg_t adc_lld_start_conversion(hal_adc_driver_c *self,
+  const adc_conversion_group_t *grpp, adcsample_t *samples, size_t depth)`
+- `msg_t adc_lld_stop_conversion(hal_adc_driver_c *self)`
+- `void adc_lld_setcb(hal_adc_driver_c *self, drv_cb_t cb)`
+- The LLD remains responsible for register programming, DMA setup, IRQ
+  service and extraction of hardware error bits.
+- The common XHAL layer remains responsible for state assertions, callback
+  dispatch conventions, and cached event/error flag management.
+
+Generated files and build integration:
+- Add `os/xhal/codegen/hal_adc.xml`.
+- Register the new entity in `os/xhal/codegen/modules.xml`.
+- Regenerate `os/xhal/include/hal_adc.h` and `os/xhal/src/hal_adc.c`.
+- Add `os/xhal/src/hal_adc.c` to `os/xhal/xhal.mk` behind
+  `HAL_USE_ADC == TRUE`.
+- Include ADC initialization in `os/xhal/src/hal.c`.
+- Update `xhalconf.h.ftl` and the required `xmcuconf.h.ftl` templates with
+  ADC-related options rather than editing generated configuration files by
+  hand.
+
+Implementation order:
+- First add the common generated XHAL ADC module and keep its API HAL-like.
+- Then port `ADCv3` as the reference STM32 XHAL LLD for G4.
+- After the common API is stable, port `ADCv6` for H5 with minimal API drift.
+- Add a `testxhal/ADC` application early, focused on linear conversion,
+  circular conversion, half/full callbacks, stop-while-active, and restart
+  behavior.
+
+GPT proposal:
+- Add a generated XHAL GPT module (`hal_gpt.xml`) and keep the behavioral
+  model intentionally close to the legacy HAL GPT API.
+- GPT is already a good abstraction in HAL, therefore the XHAL port should
+  avoid unnecessary redesign and only apply the standard XHAL conventions:
+  object model, callback ownership, persistent config contract and generated
+  common layer.
+- Base the common driver on `hal_cb_driver_c` but keep a GPT-specific mode
+  field because GPT semantics still need to distinguish `READY`,
+  `CONTINUOUS` and `ONESHOT`.
+
+Source-of-truth rule:
+- The existing `os/xhal/ports/STM32/LLD/TIMv1/hal_gpt_lld.[ch]` must not be
+  assumed current.
+- The authoritative baseline is
+  `os/hal/ports/STM32/LLD/TIMv1/hal_gpt_lld.[ch]`.
+- Before any API adaptation, refresh the XHAL `TIMv1` GPT LLD from the HAL
+  `TIMv1` implementation and then reapply only the XHAL-specific deltas.
+- This step is required because the HAL `TIMv1` code may contain newer timer
+  support, bug fixes or register handling updates not present in the XHAL copy.
+
+Public model:
+- Driver class: `hal_gpt_driver_c`, ancestor `hal_cb_driver_c`.
+- Configuration type: `hal_gpt_config_t`.
+- Counter type: `gptcnt_t`, kept aligned with HAL for easy LLD reuse.
+- Frequency type: `gptfreq_t`, kept aligned with HAL.
+- Event flags type: `gpteventflags_t`.
+
+State and mode model:
+- Keep the user-visible GPT state model close to HAL:
+  `STOP`, `READY`, `CONTINUOUS`, `ONESHOT`.
+- Do not force GPT into a generic `ACTIVE/COMPLETE` shape. GPT is simpler and
+  mode-aware APIs are clearer.
+- Cache callback reasons as event flags in the driver object instead of
+  relying only on mode/state transitions.
+- Suggested event bits: `GPT_EVENT_PERIOD`, `GPT_EVENT_ONESHOT_DONE`.
+
+Callback policy:
+- Do not keep the legacy HAL callback inside the GPT configuration object if
+  full XHAL consistency is desired.
+- Reuse the single callback owned by `hal_cb_driver_c`.
+- On timer expiry, the LLD should update GPT event flags, adjust the GPT mode
+  as required, then invoke the generic callback if present.
+- This keeps callback replacement and event inspection consistent with RTC,
+  ADC and the other XHAL callback-based drivers.
+
+Configuration policy:
+- Keep `hal_gpt_config_t` small and close to HAL `GPTConfig`.
+- Mandatory generic fields should cover only the timer base frequency plus
+  clearly portable options.
+- Keep hardware-specific setup fields inside `gpt_lld_config_fields`.
+- Follow the current XHAL config ownership contract: configuration pointers are
+  retained, not copied, and must therefore reference immutable persistent data.
+- Supply a built-in default configuration so `drvStart()` can start GPT
+  without an application-provided config.
+
+Proposed public API:
+- `void gptInit(void);`
+- `msg_t gptStart(hal_gpt_driver_c *self);`
+- `void gptStop(hal_gpt_driver_c *self);`
+- `msg_t gptStartContinuous(hal_gpt_driver_c *self, gptcnt_t interval);`
+- `msg_t gptStartContinuousI(hal_gpt_driver_c *self, gptcnt_t interval);`
+- `msg_t gptStartOneShot(hal_gpt_driver_c *self, gptcnt_t interval);`
+- `msg_t gptStartOneShotI(hal_gpt_driver_c *self, gptcnt_t interval);`
+- `msg_t gptStopTimer(hal_gpt_driver_c *self);`
+- `msg_t gptStopTimerI(hal_gpt_driver_c *self);`
+- `msg_t gptChangeInterval(hal_gpt_driver_c *self, gptcnt_t interval);`
+- `msg_t gptChangeIntervalI(hal_gpt_driver_c *self, gptcnt_t interval);`
+- `gptcnt_t gptGetIntervalX(hal_gpt_driver_c *self);`
+- `gptcnt_t gptGetCounterX(hal_gpt_driver_c *self);`
+- `void gptPolledDelay(hal_gpt_driver_c *self, gptcnt_t interval);`
+- `gpteventflags_t gptGetEventsX(hal_gpt_driver_c *self);`
+- `gpteventflags_t gptGetAndClearEventsX(hal_gpt_driver_c *self,
+  gpteventflags_t mask);`
+
+Behavioral compatibility goals:
+- Preserve the HAL distinction between starting the peripheral and starting the
+  timer.
+- Preserve continuous and one-shot timer behavior.
+- Preserve interval change and counter read semantics.
+- Preserve polled delay support where the LLD can provide it.
+- Avoid introducing a queued request model or other abstraction layers that do
+  not materially improve GPT.
+
+LLD shape proposal:
+- `gpt_lld_init()`
+- `msg_t gpt_lld_start(hal_gpt_driver_c *self)`
+- `void gpt_lld_stop(hal_gpt_driver_c *self)`
+- `const hal_gpt_config_t *gpt_lld_setcfg(hal_gpt_driver_c *self,
+  const hal_gpt_config_t *config)`
+- `void gpt_lld_start_timer(hal_gpt_driver_c *self, gptcnt_t interval)`
+- `void gpt_lld_stop_timer(hal_gpt_driver_c *self)`
+- `void gpt_lld_change_interval(hal_gpt_driver_c *self, gptcnt_t interval)`
+- `gptcnt_t gpt_lld_get_interval(hal_gpt_driver_c *self)`
+- `gptcnt_t gpt_lld_get_counter(hal_gpt_driver_c *self)`
+- `void gpt_lld_polled_delay(hal_gpt_driver_c *self, gptcnt_t interval)`
+- `void gpt_lld_serve_interrupt(hal_gpt_driver_c *self)`
+
+Generated files and build integration:
+- Add `os/xhal/codegen/hal_gpt.xml`.
+- Register it in `os/xhal/codegen/modules.xml`.
+- Generate `os/xhal/include/hal_gpt.h` and `os/xhal/src/hal_gpt.c`.
+- Wire GPT into `os/xhal/include/hal.h`, `os/xhal/src/hal.c` and
+  `os/xhal/xhal.mk`.
+- Update `xhalconf.h.ftl` and the relevant `xmcuconf.h.ftl` templates so the
+  GPT options remain generator-owned.
+
+IRQ and config naming:
+- Move GPT interrupt priorities to the newer `IRQ system settings` section in
+  `xmcuconf.h`.
+- Rename GPT IRQ priority macros to the newer style,
+  `STM32_IRQ_TIMx_PRIORITY`, instead of keeping driver-private
+  `STM32_GPT_TIMx_IRQ_PRIORITY` names.
+- Reuse the timer IRQ naming already present in the platform ISR headers and
+  `.inc` infrastructure where possible.
+
+STM32 scope:
+- One shared `TIMv1` GPT LLD is the correct first target for the STM32 XHAL
+  port.
+- Validate the refreshed port at least on `STM32G4xx` and `STM32H5xx`.
+- Check timer availability masks, vector naming and `xmcuconf.h` coverage for
+  those families before considering the port complete.
+
+Implementation order:
+- First refresh the XHAL `TIMv1` GPT LLD from HAL `TIMv1`.
+- Then define the generated common XHAL GPT module and regenerate it from XML.
+- Next adapt the refreshed `TIMv1` LLD to the XHAL callback/event model and
+  persistent-config contract.
+- Then update templates and regenerate the affected `xmcuconf.h` files.
+- Finally add a `testxhal/GPT` application.
+
+Testing plan:
+- Add `testxhal/GPT` early, not after the port is considered complete.
+- Minimum tests:
+  - `gptStart()` / `gptStop()`
+  - one-shot callback path
+  - continuous callback path
+  - `gptStopTimer()`
+  - `gptChangeInterval()` during continuous mode
+  - `gptGetIntervalX()` / `gptGetCounterX()`
+  - `gptPolledDelay()`
+- In the callback tests, verify both the timer mode transition and the cached
+  event flags.

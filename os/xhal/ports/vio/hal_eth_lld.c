@@ -68,15 +68,27 @@ static inline uint32_t __eth_veth_selcfg(uint32_t nveth, uint32_t ncfg,
   return (uint32_t)r0;
 }
 
-static void eth_lld_serve_interrupt(hal_eth_driver_c *ethp) {
+static void eth_lld_serve_interrupt(hal_eth_driver_c *ethp, uint32_t nvrq) {
+  eventflags_t flags;
+
+  flags = (eventflags_t)__sb_vrq_gcsts(nvrq);
+  ethp->lastflags = flags;
+
+  if (flags == (eventflags_t)0U) {
+    return;
+  }
 
   osalSysLockFromISR();
 #if ETH_USE_SYNCHRONIZATION == TRUE
-  osalThreadDequeueAllI(&ethp->txqueue, MSG_OK);
-  osalThreadDequeueAllI(&ethp->rxqueue, MSG_OK);
+  if ((flags & ETH_FLAGS_TX) != 0U) {
+    osalThreadDequeueAllI(&ethp->txqueue, MSG_OK);
+  }
+  if ((flags & ETH_FLAGS_RX) != 0U) {
+    osalThreadDequeueAllI(&ethp->rxqueue, MSG_OK);
+  }
 #endif
 #if ETH_USE_EVENTS == TRUE
-  osalEventBroadcastFlagsI(&ethp->es, ETH_FLAGS_TX | ETH_FLAGS_RX);
+  osalEventBroadcastFlagsI(&ethp->es, flags);
 #endif
   osalSysUnlockFromISR();
 
@@ -99,11 +111,11 @@ static void eth_lld_apply_cfgbuf(hal_eth_driver_c *ethp,
 
 #if VIO_ETH_USE_VETH1 || defined(__DOXYGEN__)
 #if !defined(VIO_VETH1_SUPPRESS_ISR)
-OSAL_IRQ_HANDLER(MK_VECTOR(VIO_ETH_VETH1_IRQ)) {
+OSAL_IRQ_HANDLER(MK_VECTOR(VIO_VETH1_IRQ)) {
 
   OSAL_IRQ_PROLOGUE();
 
-  eth_lld_serve_interrupt(&ETHD1);
+  eth_lld_serve_interrupt(&ETHD1, VIO_VETH1_IRQ);
 
   OSAL_IRQ_EPILOGUE();
 }
@@ -112,11 +124,11 @@ OSAL_IRQ_HANDLER(MK_VECTOR(VIO_ETH_VETH1_IRQ)) {
 
 #if VIO_ETH_USE_VETH2 || defined(__DOXYGEN__)
 #if !defined(VIO_VETH2_SUPPRESS_ISR)
-OSAL_IRQ_HANDLER(MK_VECTOR(VIO_ETH_VETH2_IRQ)) {
+OSAL_IRQ_HANDLER(MK_VECTOR(VIO_VETH2_IRQ)) {
 
   OSAL_IRQ_PROLOGUE();
 
-  eth_lld_serve_interrupt(&ETHD2);
+  eth_lld_serve_interrupt(&ETHD2, VIO_VETH2_IRQ);
 
   OSAL_IRQ_EPILOGUE();
 }
@@ -132,12 +144,12 @@ void eth_lld_init(void) {
 #if VIO_ETH_USE_VETH1 == TRUE
   ethObjectInit(&ETHD1);
   ETHD1.nveth = 0U;
-  __sb_vrq_seten(1U << VIO_ETH_VETH1_IRQ);
+  __sb_vrq_seten(1U << VIO_VETH1_IRQ);
 #endif
 #if VIO_ETH_USE_VETH2 == TRUE
   ethObjectInit(&ETHD2);
   ETHD2.nveth = 1U;
-  __sb_vrq_seten(1U << VIO_ETH_VETH2_IRQ);
+  __sb_vrq_seten(1U << VIO_VETH2_IRQ);
 #endif
 }
 
@@ -255,6 +267,7 @@ size_t eth_lld_read_receive_handle(hal_eth_driver_c *ethp,
                                    uint8_t *bp, size_t n) {
 
   __syscall4r(227, VIO_CALL(SB_VETH_RXREAD, ethp->nveth), rxh, bp, n);
+  osalDbgAssert(((int32_t)r0) >= 0, "host RXREAD failed");
   return (size_t)r0;
 }
 
@@ -263,6 +276,7 @@ size_t eth_lld_write_transmit_handle(hal_eth_driver_c *ethp,
                                      const uint8_t *bp, size_t n) {
 
   __syscall4r(227, VIO_CALL(SB_VETH_TXWRITE, ethp->nveth), txh, bp, n);
+  osalDbgAssert(((int32_t)r0) >= 0, "host TXWRITE failed");
   return (size_t)r0;
 }
 

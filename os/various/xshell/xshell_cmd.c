@@ -23,7 +23,10 @@
  */
 
 #include <inttypes.h>
+#include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "ch.h"
 #include "hal.h"
@@ -53,6 +56,10 @@
 /* Module local types.                                                       */
 /*===========================================================================*/
 
+#if (XSHELL_CMD_FILES_ENABLED == TRUE) || defined(__DOXYGEN__)
+typedef intptr_t xshell_fd_t;
+#endif
+
 /*===========================================================================*/
 /* Module local variables.                                                   */
 /*===========================================================================*/
@@ -60,6 +67,131 @@
 /*===========================================================================*/
 /* Module local functions.                                                   */
 /*===========================================================================*/
+
+#if (XSHELL_CMD_FILES_ENABLED == TRUE) || defined(__DOXYGEN__)
+static const xshell_fd_t xshell_invalid_fd = (xshell_fd_t)-1;
+
+#if XSHELL_CMD_FILES_USE_VFS == TRUE
+static int __ret_to_errno(msg_t ret) {
+
+  if (CH_RET_IS_ERROR(ret)) {
+    return CH_DECODE_ERROR(ret);
+  }
+
+  return EIO;
+}
+
+static mode_t __vfs_mode_to_stat_mode(vfs_mode_t mode) {
+  mode_t stat_mode = 0U;
+
+  if (VFS_MODE_S_ISREG(mode)) {
+    stat_mode |= S_IFREG;
+  }
+  if (VFS_MODE_S_ISDIR(mode)) {
+    stat_mode |= S_IFDIR;
+  }
+  if (VFS_MODE_S_ISCHR(mode)) {
+    stat_mode |= S_IFCHR;
+  }
+  if (VFS_MODE_S_ISFIFO(mode)) {
+    stat_mode |= S_IFIFO;
+  }
+
+  return stat_mode;
+}
+#endif
+
+static int __stat(const char *path, struct stat *sp) {
+
+#if XSHELL_CMD_FILES_USE_VFS == TRUE
+  vfs_stat_t statbuf;
+  msg_t ret;
+
+  ret = vfsStat(path, &statbuf);
+  if (CH_RET_IS_ERROR(ret)) {
+    errno = __ret_to_errno(ret);
+    return -1;
+  }
+
+  memset(sp, 0, sizeof(*sp));
+  sp->st_mode = __vfs_mode_to_stat_mode(statbuf.mode);
+  sp->st_size = (off_t)statbuf.size;
+
+  return 0;
+#else
+  return stat(path, sp);
+#endif
+}
+
+static xshell_fd_t __open(const char *path, int flags) {
+
+#if XSHELL_CMD_FILES_USE_VFS == TRUE
+  vfs_file_node_c *vfp;
+  msg_t ret;
+
+  ret = vfsOpenFile(path, flags, &vfp);
+  if (CH_RET_IS_ERROR(ret)) {
+    errno = __ret_to_errno(ret);
+    return xshell_invalid_fd;
+  }
+
+  return (xshell_fd_t)(intptr_t)vfp;
+#else
+  return (xshell_fd_t)open(path, flags, 0666);
+#endif
+}
+
+static int __close(xshell_fd_t fd) {
+
+#if XSHELL_CMD_FILES_USE_VFS == TRUE
+  if (fd != xshell_invalid_fd) {
+    vfsClose((vfs_node_c *)(intptr_t)fd);
+  }
+
+  return 0;
+#else
+  if (fd != xshell_invalid_fd) {
+    return close((int)fd);
+  }
+
+  return 0;
+#endif
+}
+
+static ssize_t __read(xshell_fd_t fd, uint8_t *buf, size_t n) {
+
+#if XSHELL_CMD_FILES_USE_VFS == TRUE
+  ssize_t ret;
+
+  ret = vfsReadFile((vfs_file_node_c *)(intptr_t)fd, buf, n);
+  if (CH_RET_IS_ERROR(ret)) {
+    errno = __ret_to_errno((msg_t)ret);
+    return -1;
+  }
+
+  return ret;
+#else
+  return read((int)fd, buf, n);
+#endif
+}
+
+static ssize_t __write(xshell_fd_t fd, const uint8_t *buf, size_t n) {
+
+#if XSHELL_CMD_FILES_USE_VFS == TRUE
+  ssize_t ret;
+
+  ret = vfsWriteFile((vfs_file_node_c *)(intptr_t)fd, buf, n);
+  if (CH_RET_IS_ERROR(ret)) {
+    errno = __ret_to_errno((msg_t)ret);
+    return -1;
+  }
+
+  return ret;
+#else
+  return write((int)fd, buf, n);
+#endif
+}
+#endif
 
 #if (XSHELL_CMD_EXIT_ENABLED == TRUE) || defined(__DOXYGEN__)
 static void cmd_exit(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
@@ -234,7 +366,6 @@ static void cmd_test(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
 
 #if (XSHELL_PROMPT_STR_LENGTH > 0)  || defined(__DOXYGEN__)
 static void cmd_prompt(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
-  xshell_manager_t *smp = xshellGetManager(xshp);
 
   (void)envp;
 
@@ -247,9 +378,8 @@ static void cmd_prompt(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
     chprintf(xshp->stream, "string too long" XSHELL_NEWLINE_STR);
     return;
   }
-
-  strncpy(smp->prompt, argv[1], XSHELL_PROMPT_STR_LENGTH);
-  smp->prompt[XSHELL_PROMPT_STR_LENGTH] = '\0';
+  strncpy(xshp->prompt, argv[1], XSHELL_PROMPT_STR_LENGTH);
+  xshp->prompt[XSHELL_PROMPT_STR_LENGTH] = '\0';
 }
 #endif
 
@@ -342,6 +472,7 @@ static void cmd_tree(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
 
 static void cmd_cat(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
   char *buf = NULL;
+  xshell_fd_t fd = xshell_invalid_fd;
 
   (void)envp;
 
@@ -351,7 +482,8 @@ static void cmd_cat(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
   }
 
   do {
-    int fd, n;
+    struct stat statbuf;
+    ssize_t n;
 
     buf = (char *)chHeapAlloc(NULL, XSHELL_CMD_FILES_BUFFER_SIZE);
     if (buf == NULL) {
@@ -359,26 +491,23 @@ static void cmd_cat(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
      break;
     }
 
-    vfs_stat_t stat;
-    msg_t ret;
-    ret = vfsStat(argv[1], &stat);
-    if (CH_RET_IS_ERROR(ret)) {
-      chprintf(xshp->stream, "stat failed (%d)" XSHELL_NEWLINE_STR, CH_DECODE_ERROR(ret));
+    if (__stat(argv[1], &statbuf) < 0) {
+      chprintf(xshp->stream, "stat failed (%d)" XSHELL_NEWLINE_STR, errno);
       break;
     }
 
-    if ((stat.mode & (VFS_MODE_S_IFREG | VFS_MODE_S_IFCHR | VFS_MODE_S_IFIFO)) == 0) {
+    if (!(S_ISREG(statbuf.st_mode) || S_ISCHR(statbuf.st_mode) || S_ISFIFO(statbuf.st_mode))) {
       chprintf(xshp->stream, "Not a valid source type" XSHELL_NEWLINE_STR);
       break;
     }
 
-    fd = open(argv[1], O_RDONLY);
-    if (fd == -1) {
+    fd = __open(argv[1], O_RDONLY);
+    if (fd == xshell_invalid_fd) {
       chprintf(xshp->stream, "Cannot open source" XSHELL_NEWLINE_STR);
       break;
     }
 
-    while ((n = read(fd, buf, XSHELL_CMD_FILES_BUFFER_SIZE)) > 0) {
+    while ((n = __read(fd, (uint8_t *)buf, XSHELL_CMD_FILES_BUFFER_SIZE)) > 0) {
       streamWrite(xshp->stream, (const uint8_t *)buf, n);
 #if CH_HAL_MAJOR >= 10
 #error "TODO: Handle new streams/channels in XHAL here"
@@ -388,12 +517,14 @@ static void cmd_cat(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
       }
 #endif
     }
+    if (n < 0) {
+      chprintf(xshp->stream, "Error reading source" XSHELL_NEWLINE_STR);
+    }
     chprintf(xshp->stream, XSHELL_NEWLINE_STR);
-
-    (void) close(fd);
   }
   while (false);
 
+  (void)__close(fd);
   if (buf != NULL) {
     chHeapFree((void *)buf);
   }
@@ -401,6 +532,8 @@ static void cmd_cat(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
 
 static void cmd_cp(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
   char *buf = NULL;
+  xshell_fd_t src = xshell_invalid_fd;
+  xshell_fd_t dst = xshell_invalid_fd;
 
   (void)envp;
 
@@ -410,7 +543,8 @@ static void cmd_cp(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
   }
 
   do {
-    int fd_in, fd_out, n;
+    struct stat statbuf;
+    ssize_t n;
 
     buf = (char *)chHeapAlloc(NULL, XSHELL_CMD_FILES_BUFFER_SIZE);
     if (buf == NULL) {
@@ -418,39 +552,37 @@ static void cmd_cp(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
      break;
     }
 
-    vfs_stat_t stat;
-    msg_t ret;
-    ret = vfsStat(argv[1], &stat);
-    if (CH_RET_IS_ERROR(ret)) {
-      chprintf(xshp->stream, "stat failed (%d)" XSHELL_NEWLINE_STR, CH_DECODE_ERROR(ret));
+    if (__stat(argv[1], &statbuf) < 0) {
+      chprintf(xshp->stream, "stat failed (%d)" XSHELL_NEWLINE_STR, errno);
       break;
     }
 
-    if ((stat.mode & VFS_MODE_S_IFREG) == 0) {
+    if (!S_ISREG(statbuf.st_mode)) {
       chprintf(xshp->stream, "Not a file type" XSHELL_NEWLINE_STR);
       break;
     }
 
-    fd_in = open(argv[1], O_RDONLY);
-    if (fd_in == -1) {
+    src = __open(argv[1], O_RDONLY);
+    if (src == xshell_invalid_fd) {
       chprintf(xshp->stream, "Cannot open source file" XSHELL_NEWLINE_STR);
       break;
     }
 
-    fd_out = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0666);
-    if (fd_out == -1) {
-      (void) close(fd_in);
+    dst = __open(argv[2], O_CREAT | O_WRONLY | O_TRUNC);
+    if (dst == xshell_invalid_fd) {
       chprintf(xshp->stream, "Cannot open destination file" XSHELL_NEWLINE_STR);
       break;
     }
 
-    while ((n = read(fd_in, buf, XSHELL_CMD_FILES_BUFFER_SIZE)) > 0) {
+    while ((n = __read(src, (uint8_t *)buf, XSHELL_CMD_FILES_BUFFER_SIZE)) > 0) {
       bool write_error = false;
       size_t total_written = 0;
+
       while (total_written < (size_t)n) {
-        ssize_t written_this_call = write(fd_out,
-                                          buf + total_written,
-                                          (size_t)n - total_written);
+        ssize_t written_this_call;
+
+        written_this_call = __write(dst, (const uint8_t *)buf + total_written,
+                                    (size_t)n - total_written);
         if (written_this_call < 0) {
           chprintf(xshp->stream, "Error writing destination file" XSHELL_NEWLINE_STR);
           write_error = true;
@@ -472,12 +604,15 @@ static void cmd_cp(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
       }
 #endif
     }
+    if (n < 0) {
+      chprintf(xshp->stream, "Error reading source file" XSHELL_NEWLINE_STR);
+    }
     chprintf(xshp->stream, XSHELL_NEWLINE_STR);
-    (void) close(fd_out);
-    (void) close(fd_in);
   }
   while (false);
 
+  (void)__close(dst);
+  (void)__close(src);
   if (buf != NULL) {
     chHeapFree((void *)buf);
   }
@@ -673,7 +808,7 @@ static void cmd_stat(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
 /**
  * @brief   Sets the prompt.
  *
- * @param[in,out] smp           pointer to the @p xshell_manager_t object
+ * @param[in,out] xshp          pointer to the @p xshell_t object
  * @param[in]     str           pointer to a prompt string
  *
  * @return  status
@@ -681,13 +816,15 @@ static void cmd_stat(xshell_t *xshp, int argc, char *argv[], char *envp[]) {
  *
  * @api
  */
-bool xshellSetPrompt(xshell_manager_t *smp, const char *str) {
+bool xshellSetPrompt(xshell_t *xshp, const char *str) {
+
+  chDbgCheck(xshp != NULL);
 
   if (strlen(str) > XSHELL_PROMPT_STR_LENGTH) {
     return false;
   }
-  strncpy(smp->prompt, str, XSHELL_PROMPT_STR_LENGTH);
-  smp->prompt[XSHELL_PROMPT_STR_LENGTH] = '\0';
+  strncpy(xshp->prompt, str, XSHELL_PROMPT_STR_LENGTH);
+  xshp->prompt[XSHELL_PROMPT_STR_LENGTH] = '\0';
 
   return true;
 }

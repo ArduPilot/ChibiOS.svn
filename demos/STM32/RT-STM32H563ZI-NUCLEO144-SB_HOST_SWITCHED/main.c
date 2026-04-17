@@ -21,6 +21,7 @@
 #include "oop_chprintf.h"
 #include "oop_nullstreams.h"
 
+#include "http_romfs.h"
 #include "startup_defs.h"
 
 /* Sandbox objects.*/
@@ -78,27 +79,33 @@ static vio_gpio_units_t gpio_units2 = {
   }
 };
 
-static vio_uart_units_t uart_units2 = {
-  .n                = 0U
+#if VIO_CFG_ENABLE_ETH == TRUE
+static vio_eth_units_t eth_units2 = {
+  .n                = 1U,
+  .units = {
+    [0] = {
+      .ethp         = &ETHD1,
+      .vrqsb        = &sbx2,
+      .vrqn         = 10U
+    }
+  }
 };
-
-static sio_configurations_t uart_configs2 = {
-  .cfgsnum          = 0U
-};
+#endif
 
 static vio_conf_t vio_config2 = {
-  .gpios            = &gpio_units2,
-  .uarts            = &uart_units2,
-  .uartconfs        = &uart_configs2
+#if VIO_CFG_ENABLE_ETH == TRUE
+  .eths             = &eth_units2,
+#endif
+  .gpios            = &gpio_units2
 };
 
 /*===========================================================================*/
 /* VFS-related.                                                              */
 /*===========================================================================*/
 
-#if VFS_CFG_ENABLE_DRV_FATFS == TRUE
-/* VFS FatFS driver object representing the root directory.*/
-static vfs_fatfs_driver_c root_driver;
+#if VFS_CFG_ENABLE_DRV_ROMFS == TRUE
+/* VFS ROMFS driver object representing the root directory.*/
+static vfs_rom_driver_c root_driver;
 #endif
 
 /* VFS overlay driver object representing the root directory.*/
@@ -116,8 +123,8 @@ static null_stream_c nullstream;
 /* Stream to be exposed under /dev as files.*/
 static const drv_streams_element_t streams[] = {
 //  {"VSIO1", (BaseSequentialStream *)oopGetIf(&SIOD3, chn), VFS_MODE_S_IFCHR},
-  {"null", (BaseSequentialStream *)oopGetIf(&nullstream, stm), VFS_MODE_S_IFCHR},
-  {NULL, NULL, 0}
+  {"null", (BaseSequentialStream *)oopGetIf(&nullstream, stm), NULL, VFS_MODE_S_IFCHR},
+  {NULL, NULL, NULL, 0}
 };
 
 /*===========================================================================*/
@@ -186,23 +193,6 @@ static void start_sb2(void) {
 }
 
 /*
- * Messenger thread, times are in milliseconds.
- */
-static THD_WORKING_AREA(waThread1, 256);
-static THD_FUNCTION(Thread1, arg) {
-  unsigned i = 1U;
-
-  (void)arg;
-
-  chRegSetThreadName("messenger");
-  while (true) {
-    chThdSleepMilliseconds(500);
-    sbSendMessage(&sbx2, (msg_t)i);
-    i++;
-  }
-}
-
-/*
  * Application entry point.
  */
 int main(void) {
@@ -230,10 +220,12 @@ int main(void) {
   nullstmObjectInit(&nullstream);
 
   /*
-   * Initializing an overlay VFS object as a root, no overlaid driver,
-   * registering a streams VFS driver on the VFS overlay root as "/dev".
+   * Initializing a ROMFS root, then overlaying "/dev" on top of it.
    */
-  ovldrvObjectInit(&root_overlay_driver, NULL, NULL);
+  ovldrvObjectInit(&root_overlay_driver,
+                   (vfs_driver_c *)romdrvObjectInit(&root_driver,
+                                                    &http_romfs),
+                   NULL);
   ret = ovldrvRegisterDriver(&root_overlay_driver,
                              (vfs_driver_c *)stmdrvObjectInit(&dev_driver,
                                                               &streams[0]),
@@ -259,11 +251,6 @@ int main(void) {
   /* Starting sandboxed threads.*/
   start_sb1();
   start_sb2();
-
-  /*
-   * Creating a messenger thread.
-   */
-  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO+10, Thread1, NULL);
 
   /*
    * Listening to sandbox events.

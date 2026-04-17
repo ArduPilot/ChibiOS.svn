@@ -214,16 +214,8 @@
 #define STM32_RTC_HAS_PERIODIC_WAKEUPS      TRUE
 #define STM32_RTC_NUM_ALARMS                2
 #define STM32_RTC_STORAGE_SIZE              128
-#define STM32_RTC_GLOBAL_HANDLER            Vector48
-#define STM32_RTC_TAMP_HANDLER              Vector50
-#define STM32_RTC_GLOBAL_NUMBER             2
-#define STM32_RTC_TAMP_NUMBER               4
 #define STM32_RTC_GLOBAL_EXTI               17
 #define STM32_RTC_TAMP_EXTI                 19
-#define STM32_RTC_IRQ_ENABLE() do {                                         \
-  nvicEnableVector(STM32_RTC_GLOBAL_NUMBER, STM32_IRQ_EXTI17_PRIORITY);     \
-  nvicEnableVector(STM32_RTC_TAMP_NUMBER, STM32_IRQ_EXTI19_PRIORITY);       \
-} while (false)
 
  /* Enabling RTC-related EXTI lines.*/
 #define STM32_RTC_ENABLE_ALL_EXTI() do {                                    \
@@ -311,6 +303,13 @@
 #define STM32_HAS_I2C2                      TRUE
 #define STM32_HAS_I2C3                      FALSE
 #define STM32_HAS_I2C4                      FALSE
+
+/* OCTOSPI attributes.*/
+#define STM32_HAS_OCTOSPI1                  FALSE
+#define STM32_HAS_OCTOSPI2                  FALSE
+
+/* QUADSPI attributes.*/
+#define STM32_HAS_QUADSPI1                  FALSE
 
 /* RCC attributes.*/
 #define STM32_RCC_HAS_LSI                   TRUE
@@ -487,6 +486,13 @@
 #define STM32_HAS_I2C2                      TRUE
 #define STM32_HAS_I2C3                      TRUE
 #define STM32_HAS_I2C4                      TRUE
+
+/* OCTOSPI attributes.*/
+#define STM32_HAS_OCTOSPI1                  TRUE
+#define STM32_HAS_OCTOSPI2                  FALSE
+
+/* QUADSPI attributes.*/
+#define STM32_HAS_QUADSPI1                  FALSE
 
 /* RCC attributes.*/
 #define STM32_RCC_HAS_LSI                   TRUE

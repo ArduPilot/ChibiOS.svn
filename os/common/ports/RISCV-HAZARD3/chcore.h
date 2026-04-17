@@ -646,8 +646,9 @@ static inline void port_lock_from_isr(void) {
 
 /**
  * @brief   Kernel-unlock action from an interrupt handler.
- * @details Re-enables MIE for preemptive nesting. Timer/software IRQs remain
- *          masked by clearts inside the external IRQ dispatcher.
+ * @details Re-enables MIE for preemptive nesting. The Xh3irq priority
+ *          threshold set by MEICONTEXT continues to gate same-priority
+ *          external IRQs while the dispatcher runs with MIE=1.
  */
 static inline void port_unlock_from_isr(void) {
 #if CH_CFG_SMP_MODE == TRUE
@@ -669,7 +670,9 @@ static inline void port_disable(void) {
 
 /**
  * @brief   Disables the interrupt sources below kernel-level priority.
- * @note    In this port it disables all the interrupt sources.
+ * @note    Hazard3 has only a single global interrupt enable (mstatus.MIE),
+ *          so this is identical to @p port_disable(). Kernel-level priority
+ *          masking is not implemented on this port.
  */
 static inline void port_suspend(void) {
   __port_clear_mstatus(MSTATUS_MIE);

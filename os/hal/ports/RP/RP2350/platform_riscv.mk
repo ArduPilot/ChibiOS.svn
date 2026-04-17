@@ -2,6 +2,7 @@
 # This replaces ARM-specific files with RISC-V equivalents.
 PLATFORMSRC := $(CHIBIOS)/os/hal/ports/common/RISCV-HAZARD3/nvic.c \
                $(CHIBIOS)/os/hal/ports/common/RISCV-HAZARD3/hal_st_lld.c \
+               $(CHIBIOS)/os/hal/ports/RP/rp_bootrom.c \
                $(CHIBIOS)/os/hal/ports/RP/RP2350/rp_clocks.c \
                $(CHIBIOS)/os/hal/ports/RP/RP2350/rp_isr.c \
                $(CHIBIOS)/os/hal/ports/RP/RP2350/rp_pll.c \
@@ -10,6 +11,7 @@ PLATFORMSRC := $(CHIBIOS)/os/hal/ports/common/RISCV-HAZARD3/nvic.c \
 
 # Required include directories.
 PLATFORMINC := $(CHIBIOS)/os/hal/ports/common/RISCV-HAZARD3 \
+               $(CHIBIOS)/os/hal/ports/RP \
                $(CHIBIOS)/os/hal/ports/RP/RP2350 \
                $(CHIBIOS)/os/common/ports/RISCV-HAZARD3
 
@@ -35,6 +37,7 @@ PLATFORMSRC += $(CHIBIOS)/os/hal/ports/RP/RP2350/hal_efl_lld.c
 endif
 
 # Drivers compatible with the platform.
+include $(CHIBIOS)/os/hal/ports/RP/LLD/EFLv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/RP/LLD/DMAv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/RP/LLD/GPIOv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/RP/LLD/SPIv1/driver.mk

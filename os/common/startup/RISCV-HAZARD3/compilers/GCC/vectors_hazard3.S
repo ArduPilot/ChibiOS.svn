@@ -323,7 +323,7 @@ _ext_irq_entry:
                 csrr    t1, mstatus
                 sw      t0, TRAP_FRAME_MEPC(sp)
                 sw      t1, TRAP_FRAME_MSTATUS(sp)
-                csrr    t0, 0xBE5
+                csrr    t0, CSR_MEICONTEXT
                 sw      t0, TRAP_FRAME_MEICONTEXT(sp)
 
                 /* FIFO fast path: peek at the highest-priority pending external
@@ -332,7 +332,7 @@ _ext_irq_entry:
                    FIFO is at max priority and the fast path never enables MIE,
                    so no interrupt can fire during it — the nesting counter and
                    ISR stack swap are unnecessary. */
-                csrr    t0, 0xBE4               /* MEINEXT (no update, no side effects) */
+                csrr    t0, CSR_MEINEXT               /* MEINEXT (no update, no side effects) */
                 srli    t1, t0, 2
                 andi    t1, t1, 0x1FF           /* Extract IRQ number */
                 li      t2, PORT_FIFO_IRQ
@@ -355,7 +355,7 @@ _ext_irq_entry:
 #else
                 SAVE_CONTEXT
 
-                csrr    t0, 0xBE5
+                csrr    t0, CSR_MEICONTEXT
                 sw      t0, TRAP_FRAME_MEICONTEXT(sp)
 #endif
 
@@ -382,7 +382,7 @@ _ext_irq_entry:
                 /* Restore MEICONTEXT (mreteirq=1) so hardware pops the
                    priority stack on mret. MIE=0 prevents intervening traps. */
                 lw      t0, TRAP_FRAME_MEICONTEXT(sp)
-                csrw    0xBE5, t0
+                csrw    CSR_MEICONTEXT, t0
                 RESTORE_CONTEXT_AND_MRET
 
 #if CH_CFG_SMP_MODE == TRUE
@@ -462,7 +462,7 @@ _ext_irq_entry:
                 /* Restore MEICONTEXT + CSRs + saved registers + mret.
                    Only restores the registers we saved (phases 1+2). */
                 lw      t0, TRAP_FRAME_MEICONTEXT(sp)
-                csrw    0xBE5, t0
+                csrw    CSR_MEICONTEXT, t0
                 lw      t0, TRAP_FRAME_MSTATUS(sp)
                 csrw    mstatus, t0
                 lw      t0, TRAP_FRAME_MEPC(sp)

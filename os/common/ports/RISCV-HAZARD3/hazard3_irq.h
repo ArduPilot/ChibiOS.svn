@@ -89,6 +89,11 @@
  * @{
  */
 
+/* Two-level stringification so csr_num may be either a raw hex literal
+   (e.g. 0xBE0) or a macro that expands to one (e.g. CSR_MEIEA). */
+#define _HAZARD3_CSR_STR(x)     #x
+#define HAZARD3_CSR_STR(x)      _HAZARD3_CSR_STR(x)
+
 /**
  * @brief   Set bits in an Xh3irq array CSR window.
  * @details Uses CSRRS to atomically set bits. The written value encodes
@@ -100,7 +105,7 @@
  */
 #define HAZARD3_IRQARRAY_SET(csr_num, index, mask) do {                \
   uint32_t __val = ((uint32_t)(mask) << 16) | (uint32_t)(index);       \
-  __asm__ volatile ("csrrs zero, " #csr_num ", %0"                     \
+  __asm__ volatile ("csrrs zero, " HAZARD3_CSR_STR(csr_num) ", %0"     \
     : : "r"(__val) : "memory");                                        \
 } while (0)
 
@@ -114,7 +119,7 @@
  */
 #define HAZARD3_IRQARRAY_CLEAR(csr_num, index, mask) do {              \
   uint32_t __val = ((uint32_t)(mask) << 16) | (uint32_t)(index);       \
-  __asm__ volatile ("csrrc zero, " #csr_num ", %0"                     \
+  __asm__ volatile ("csrrc zero, " HAZARD3_CSR_STR(csr_num) ", %0"     \
     : : "r"(__val) : "memory");                                        \
 } while (0)
 
@@ -129,7 +134,7 @@
 #define HAZARD3_IRQARRAY_READ(csr_num, index) ({                       \
   uint32_t __val = (uint32_t)(index);                                  \
   uint32_t __result;                                                   \
-  __asm__ volatile ("csrrs %0, " #csr_num ", %1"                       \
+  __asm__ volatile ("csrrs %0, " HAZARD3_CSR_STR(csr_num) ", %1"       \
     : "=r"(__result) : "r"(__val) : "memory");                         \
   __result >> 16;                                                      \
 })
@@ -152,7 +157,7 @@
 __STATIC_FORCEINLINE void hazard3_irq_enable(uint32_t irq) {
   uint32_t window = irq / 16U;
   uint32_t bit    = 1U << (irq % 16U);
-  HAZARD3_IRQARRAY_SET(0xBE0, window, bit);
+  HAZARD3_IRQARRAY_SET(CSR_MEIEA, window, bit);
 }
 
 /**
@@ -163,7 +168,7 @@ __STATIC_FORCEINLINE void hazard3_irq_enable(uint32_t irq) {
 __STATIC_FORCEINLINE void hazard3_irq_disable(uint32_t irq) {
   uint32_t window = irq / 16U;
   uint32_t bit    = 1U << (irq % 16U);
-  HAZARD3_IRQARRAY_CLEAR(0xBE0, window, bit);
+  HAZARD3_IRQARRAY_CLEAR(CSR_MEIEA, window, bit);
 }
 
 /**
@@ -175,7 +180,7 @@ __STATIC_FORCEINLINE void hazard3_irq_disable(uint32_t irq) {
 __STATIC_FORCEINLINE bool hazard3_irq_is_pending(uint32_t irq) {
   uint32_t window = irq / 16U;
   uint32_t bit    = 1U << (irq % 16U);
-  return (HAZARD3_IRQARRAY_READ(0xBE1, window) & bit) != 0U;
+  return (HAZARD3_IRQARRAY_READ(CSR_MEIPA, window) & bit) != 0U;
 }
 
 /**
@@ -186,7 +191,7 @@ __STATIC_FORCEINLINE bool hazard3_irq_is_pending(uint32_t irq) {
 __STATIC_FORCEINLINE void hazard3_irq_force(uint32_t irq) {
   uint32_t window = irq / 16U;
   uint32_t bit    = 1U << (irq % 16U);
-  HAZARD3_IRQARRAY_SET(0xBE2, window, bit);
+  HAZARD3_IRQARRAY_SET(CSR_MEIFA, window, bit);
 }
 
 /**
@@ -197,7 +202,7 @@ __STATIC_FORCEINLINE void hazard3_irq_force(uint32_t irq) {
 __STATIC_FORCEINLINE void hazard3_irq_force_clear(uint32_t irq) {
   uint32_t window = irq / 16U;
   uint32_t bit    = 1U << (irq % 16U);
-  HAZARD3_IRQARRAY_CLEAR(0xBE2, window, bit);
+  HAZARD3_IRQARRAY_CLEAR(CSR_MEIFA, window, bit);
 }
 
 /**
@@ -214,8 +219,8 @@ __STATIC_FORCEINLINE void hazard3_irq_set_priority(uint32_t irq, uint32_t priori
   uint32_t mask   = 0xFU << shift;
 
   /* Clear old priority then set new one */
-  HAZARD3_IRQARRAY_CLEAR(0xBE3, window, mask);
-  HAZARD3_IRQARRAY_SET(0xBE3, window, (priority & 0x3U) << shift);
+  HAZARD3_IRQARRAY_CLEAR(CSR_MEIPRA, window, mask);
+  HAZARD3_IRQARRAY_SET(CSR_MEIPRA, window, (priority & 0x3U) << shift);
 }
 
 /**
@@ -229,7 +234,7 @@ __STATIC_FORCEINLINE void hazard3_irq_set_priority(uint32_t irq, uint32_t priori
 __STATIC_FORCEINLINE uint32_t hazard3_irq_get_priority(uint32_t irq) {
   uint32_t window = irq / 4U;
   uint32_t shift  = (irq % 4U) * 4U;
-  return (HAZARD3_IRQARRAY_READ(0xBE3, window) >> shift) & 0x3U;
+  return (HAZARD3_IRQARRAY_READ(CSR_MEIPRA, window) >> shift) & 0x3U;
 }
 
 /**
@@ -241,7 +246,7 @@ __STATIC_FORCEINLINE uint32_t hazard3_irq_get_priority(uint32_t irq) {
  */
 __STATIC_FORCEINLINE uint32_t hazard3_irq_get_next(void) {
   uint32_t val;
-  __asm__ volatile ("csrr %0, 0xBE4"
+  __asm__ volatile ("csrr %0, " HAZARD3_CSR_STR(CSR_MEINEXT)
     : "=r"(val) : : "memory");
   return val;
 }
@@ -262,7 +267,7 @@ __STATIC_FORCEINLINE uint32_t hazard3_irq_get_next(void) {
  */
 __STATIC_FORCEINLINE uint32_t hazard3_irq_context_save(void) {
   uint32_t ctx;
-  __asm__ volatile ("csrr %0, 0xBE5"
+  __asm__ volatile ("csrr %0, " HAZARD3_CSR_STR(CSR_MEICONTEXT)
     : "=r"(ctx) : : "memory");
   return ctx;
 }
@@ -275,7 +280,7 @@ __STATIC_FORCEINLINE uint32_t hazard3_irq_context_save(void) {
  * @param[in] ctx       Context value from hazard3_irq_context_save()
  */
 __STATIC_FORCEINLINE void hazard3_irq_context_restore(uint32_t ctx) {
-  __asm__ volatile ("csrw 0xBE5, %0"
+  __asm__ volatile ("csrw " HAZARD3_CSR_STR(CSR_MEICONTEXT) ", %0"
     : : "r"(ctx) : "memory");
 }
 

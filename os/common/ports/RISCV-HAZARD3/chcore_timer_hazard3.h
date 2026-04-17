@@ -95,51 +95,12 @@ extern "C" {
 /*===========================================================================*/
 
 /**
- * @brief   Starts the alarm.
+ * @brief   Sets the alarm time.
  * @note    MTIMECMP is 64-bit; writing the halves non-atomically can cause
  *          a spurious match. Safe sequence per RP2350 datasheet 3.1.8:
  *          1. Write 0xFFFFFFFF to high word (makes compare always false)
  *          2. Write new low word
- *          3. Write new high word (matching current MTIME epoch)
- *
- * @param[in] time      the time to be set for the first alarm
- *
- * @notapi
- */
-static inline void port_timer_start_alarm(systime_t time) {
-  uint32_t hi, lo;
-
-  /* Stable 64-bit read: if MTIME_LO rolls over between the HI and LO
-     reads, MTIME_HI will have incremented and the loop retries. */
-  do {
-    hi = MTIME_HI;
-    lo = MTIME_LO;
-  } while (hi != MTIME_HI);
-
-  /* If alarm time wraps past current MTIME_LO, it fires after the
-     next low-word rollover. */
-  if (time < lo) {
-    hi++;
-  }
-
-  MTIMECMP_HI = 0xFFFFFFFFU;
-  MTIMECMP_LO = (uint32_t)time;
-  MTIMECMP_HI = hi;
-}
-
-/**
- * @brief   Stops the alarm interrupt (sets MTIMECMP to max).
- *
- * @notapi
- */
-static inline void port_timer_stop_alarm(void) {
-
-  MTIMECMP_LO = 0xFFFFFFFFU;
-  MTIMECMP_HI = 0xFFFFFFFFU;
-}
-
-/**
- * @brief   Sets the alarm time.
+ *          3. Write new high word (matching target MTIME epoch)
  *
  * @param[in] time      the time to be set for the next alarm
  *
@@ -155,13 +116,41 @@ static inline void port_timer_set_alarm(systime_t time) {
     lo = MTIME_LO;
   } while (hi != MTIME_HI);
 
-  if (time < lo) {
+  /* If alarm time wraps past current MTIME_LO, it fires after the
+     next low-word rollover. */
+  if ((uint32_t)time < lo) {
     hi++;
   }
 
   MTIMECMP_HI = 0xFFFFFFFFU;
   MTIMECMP_LO = (uint32_t)time;
   MTIMECMP_HI = hi;
+}
+
+/**
+ * @brief   Starts the alarm.
+ * @note    Same behavior as @p port_timer_set_alarm. Kept as a distinct
+ *          symbol because some kernels (OSAL, NIL) distinguish "first arm"
+ *          from "reprogram".
+ *
+ * @param[in] time      the time to be set for the first alarm
+ *
+ * @notapi
+ */
+static inline void port_timer_start_alarm(systime_t time) {
+
+  port_timer_set_alarm(time);
+}
+
+/**
+ * @brief   Stops the alarm interrupt (sets MTIMECMP to max).
+ *
+ * @notapi
+ */
+static inline void port_timer_stop_alarm(void) {
+
+  MTIMECMP_LO = 0xFFFFFFFFU;
+  MTIMECMP_HI = 0xFFFFFFFFU;
 }
 
 /**

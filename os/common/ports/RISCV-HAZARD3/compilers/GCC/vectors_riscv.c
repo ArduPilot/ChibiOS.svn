@@ -167,7 +167,8 @@ void _ext_irq_dispatch(void) {
   /* MEINEXT+update loop — dispatch all pending IRQs in priority order. */
   while (1) {
     uint32_t meinext;
-    __asm__ volatile ("csrrsi %0, 0xBE4, 0x1" : "=r"(meinext));
+    __asm__ volatile ("csrrsi %0, " HAZARD3_CSR_STR(CSR_MEINEXT) ", 0x1"
+                      : "=r"(meinext));
     if (meinext & MEINEXT_NOIRQ)
       break;
 
